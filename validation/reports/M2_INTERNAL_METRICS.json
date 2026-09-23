@@ -1,30 +1,99 @@
 {
-  "solver_version": "0.3.0",
-  "matlab_equivalence": "BLOCKED_NOT_MEASURED",
-  "global_invariants": {
-    "M_sym_rel": 0.0,
-    "K0_sym_rel": 0.0,
-    "G_skew_rel": 0.0,
-    "min_diag_M": 0.01829169915657742,
-    "finite_MCK": true
+  "critical_speed_internal_consistency": {
+    "all_converged": true,
+    "direct_rad_s": [
+      201.3563044026349,
+      201.3759693011592,
+      556.1850985175189
+    ],
+    "iterative_index_iterations": [
+      2,
+      1,
+      6
+    ],
+    "iterative_index_rad_s": [
+      201.3563044026492,
+      201.3759693011099,
+      556.185101028747
+    ],
+    "iterative_nearest_rad_s": [
+      201.35630440262855,
+      201.37596930116118,
+      556.1850985175245
+    ],
+    "max_rel_direct_vs_iterative_index": 4.515094184254428e-09,
+    "max_rel_direct_vs_iterative_nearest": 3.147674577055436e-14
   },
   "freq_rsp_smoke": {
-    "shape": [12, 3],
     "finite": true,
-    "max_abs_response": 4.694373601314077e-06
+    "max_abs_response": 4.694373601314077e-06,
+    "shape": [
+      12,
+      3
+    ]
   },
+  "global_invariants": {
+    "G_skew_rel": 0.0,
+    "K0_sym_rel": 0.0,
+    "M_sym_rel": 0.0,
+    "finite_MCK": true,
+    "min_diag_M": 0.01829169915657742
+  },
+  "matlab_equivalence": "BLOCKED_NOT_MEASURED",
   "modal_smoke": {
-    "n_eigenvalues": 24,
+    "finite": true,
     "max_abs_eigenvalue": 10330.278797936107,
-    "finite": true
+    "n_eigenvalues": 24
   },
-  "critical_speed_internal_consistency": {
-    "direct_rad_s": [201.3563044026349, 201.3759693011592, 556.1850985175189],
-    "iterative_index_rad_s": [201.3563044026492, 201.3759693011099, 556.185101028747],
-    "iterative_nearest_rad_s": [201.35630440262855, 201.37596930116118, 556.1850985175245],
-    "max_rel_direct_vs_iterative_index": 4.515094184254428e-09,
-    "max_rel_direct_vs_iterative_nearest": 3.147674577055436e-14,
-    "iterative_index_iterations": [2, 1, 6],
-    "all_converged": true
+  "solver_version": "0.3.0",
+  "taper_constant_section_vs_circular_axial0": {
+    "21": {
+      "G_rel": 5.341663726388088e-18,
+      "K1_norm": 0.0,
+      "K_rel": 0.0,
+      "M_rel": 1.9157053479947982e-16
+    },
+    "22": {
+      "G_rel": 6.4975256606481046e-18,
+      "K1_norm": 0.0,
+      "K_rel": 1.6391020175286005e-16,
+      "M_rel": 1.1970884545387714e-17
+    },
+    "23": {
+      "G_rel": 0.0,
+      "K1_norm": 0.0,
+      "K_rel": 1.6391020175286005e-16,
+      "M_rel": 1.1970884545387714e-17
+    },
+    "24": {
+      "G_rel": 6.4975256606481046e-18,
+      "K1_norm": 0.0,
+      "K_rel": 1.6391020175286005e-16,
+      "M_rel": 1.1991887519182935e-17
+    },
+    "25": {
+      "G_rel": 5.341663726388088e-18,
+      "K1_norm": 0.0,
+      "K_rel": 0.0,
+      "M_rel": 1.9120462575140154e-16
+    },
+    "26": {
+      "G_rel": 0.0,
+      "K1_norm": 0.0,
+      "K_rel": 1.6391020175286005e-16,
+      "M_rel": 1.1991887519182935e-17
+    },
+    "27": {
+      "G_rel": 0.0,
+      "K1_norm": 0.0,
+      "K_rel": 0.0,
+      "M_rel": 1.9120462575140154e-16
+    },
+    "28": {
+      "G_rel": 0.0,
+      "K1_norm": 0.0,
+      "K_rel": 0.0,
+      "M_rel": 1.9157053479947982e-16
+    }
   }
 }

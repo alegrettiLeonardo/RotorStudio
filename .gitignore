@@ -1,5 +1,5 @@
 /build-*/
-.venv/
+/.venv/
 **/__pycache__/
 .pytest_cache/
 *.pyc
@@ -9,4 +9,3 @@
 *.dll
 *.dylib
 example_*_out/
-artifacts/RotorStudio_Stage1_M2_source.tar.gz
