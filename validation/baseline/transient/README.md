@@ -11,3 +11,7 @@ Files:
 - `SOURCE_HASHES.sha256` — SHA256 of the V2 routines and example scripts used to define the reference equations.
 
 The production transient calculation remains Fortran. SciPy appears only in the qualification/generation script.
+
+## Distribution note
+
+The byte-exact compressed NPZ snapshots are included and regression-tested in the M5 delivery ZIP. The GitHub source branch carries the generator plus `SOURCE_HASHES.sha256` / `REFERENCE_HASHES.sha256`; the binary snapshots are not committed through the source connector. Running `generate_source_baseline.py` regenerates them when the qualification dependencies are available.
