@@ -1,7 +1,7 @@
 import argparse,json,numpy as np
 from drm_core.domain.model import RotorModel
 from drm_core.analysis.modal import run_modal
-from drm_core.analysis.frequency_response import run_frequency_response
+from drm_core.analysis.frequency_response import run_frequency_response,run_auxiliary_frequency_response,run_foundation_frequency_response
 from drm_core.analysis.critical_speed import run_critical_speeds
 from drm_core.analysis.coaxial import run_coaxial_modal,run_coaxial_frequency_response
 from drm_core.analysis.asymmetric import run_asymmetric_modal,run_asymmetric_frequency_response
@@ -16,6 +16,8 @@ def main():
     m=sp.add_parser('modal');m.add_argument('model');m.add_argument('--speed-rpm',type=float,default=0);m.add_argument('--lib')
     f=sp.add_parser('frequency-response');f.add_argument('model');f.add_argument('--start-rpm',type=float,required=True);f.add_argument('--stop-rpm',type=float,required=True);f.add_argument('--step-rpm',type=float,required=True);f.add_argument('--lib')
     c=sp.add_parser('critical-speeds');c.add_argument('model');c.add_argument('--nx',type=float,default=1);c.add_argument('--count',type=int,default=5);c.add_argument('--undamped',action='store_true');c.add_argument('--method',type=int,choices=[1,2,3]);c.add_argument('--initial-rpm',type=float,nargs='*');c.add_argument('--lib')
+    aux=sp.add_parser('auxiliary-frequency-response');aux.add_argument('model');aux.add_argument('--rotor-speed-rpm',type=float,required=True);aux.add_argument('--start-hz',type=float,required=True);aux.add_argument('--stop-hz',type=float,required=True);aux.add_argument('--step-hz',type=float,required=True);aux.add_argument('--direction',type=float,default=1);aux.add_argument('--lib')
+    fdn=sp.add_parser('foundation-frequency-response');fdn.add_argument('model');fdn.add_argument('--rotor-speed-rpm',type=float,required=True);fdn.add_argument('--start-hz',type=float,required=True);fdn.add_argument('--stop-hz',type=float,required=True);fdn.add_argument('--step-hz',type=float,required=True);fdn.add_argument('--lib')
     cm=sp.add_parser('coaxial-modal');cm.add_argument('model');cm.add_argument('--speed-rpm',type=float,default=0);cm.add_argument('--lib')
     cf=sp.add_parser('coaxial-frequency-response');cf.add_argument('model');cf.add_argument('--start-rpm',type=float,required=True);cf.add_argument('--stop-rpm',type=float,required=True);cf.add_argument('--step-rpm',type=float,required=True);cf.add_argument('--lib')
     am=sp.add_parser('asymmetric-modal');am.add_argument('model');am.add_argument('--speed-rpm',type=float,default=0);am.add_argument('--with-eigenvectors',action='store_true');am.add_argument('--lib')
@@ -28,6 +30,12 @@ def main():
     elif a.cmd=='frequency-response':
         rpm=np.arange(a.start_rpm,a.stop_rpm+0.5*a.step_rpm,a.step_rpm);r=run_frequency_response(model,rpm_to_rad_s(rpm),a.lib)
         for j,s in enumerate(rpm):print(f'{s:.8g},'+','.join(f'{abs(x):.12e}' for x in r.response[:,j]))
+    elif a.cmd=='auxiliary-frequency-response':
+        hz=np.arange(a.start_hz,a.stop_hz+0.5*a.step_hz,a.step_hz);r=run_auxiliary_frequency_response(model,rpm_to_rad_s(a.rotor_speed_rpm),2*np.pi*hz,a.direction,a.lib)
+        for j,xv in enumerate(hz):print(f'{xv:.8g},'+','.join(f'{abs(v):.12e}' for v in r.response[:,j]))
+    elif a.cmd=='foundation-frequency-response':
+        hz=np.arange(a.start_hz,a.stop_hz+0.5*a.step_hz,a.step_hz);r=run_foundation_frequency_response(model,rpm_to_rad_s(a.rotor_speed_rpm),2*np.pi*hz,a.lib)
+        for j,xv in enumerate(hz):print(f'{xv:.8g},'+','.join(f'{abs(v):.12e}' for v in r.response[:,j]))
     elif a.cmd=='critical-speeds':
         kw=dict(NX=a.nx,damped=not a.undamped,ncrit=a.count)
         if a.method is not None:kw['method']=a.method
