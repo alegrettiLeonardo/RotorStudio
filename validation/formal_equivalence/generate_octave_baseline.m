@@ -77,7 +77,7 @@ fdn=standard_model();fdn.force=[4 0 1e-5 0 1.5e-5];fdn_rotor_speed=3000*2*pi/60;
 
 %% G9 — critical speeds, direct and fluid-bearing iterative.
 [crit_direct,crit_direct_modes]=crit_spd(sm,1,1,4);
-[crit_iter,crit_iter_modes]=crit_spd(fm,1,1,2,30,1e-8);
+[crit_iter,crit_iter_modes]=crit_spd(fm,1,1,2,30,1e-8);[crit_iter_trace1,crit_iter_trace2]=trace_crit_method2(fm,1,1,2,30,1e-8);
 initial_estimates=[80;350];[crit_initial,crit_initial_modes]=crit_spd(sm,1,1,2,30,1e-9,initial_estimates);
 
 %% G11 — coaxial rotor.
@@ -130,4 +130,27 @@ end
 function m=runup_model()
 E=211e9;G=E/(2*(1+.3));rho=7810;m=struct();m.node=[1 0;2 .25;3 .5;4 .75;5 1;6 1.25;7 1.5];
 m.shaft=[2 1 2 .025 0 rho E G 0;2 2 3 .025 0 rho E G 0;2 3 4 .025 0 rho E G 0;2 4 5 .025 0 rho E G 0;2 5 6 .025 0 rho E G 0;2 6 7 .025 0 rho E G 0];m.disc=[1 7 rho .04 .25 0];m.bearing=[3 1 1e7 2e7 4e5 4e5;3 5 1e7 2e7 4e5 4e5];m.force=[1 7 1e-3 0];
+end
+
+
+function [trace1,trace2]=trace_crit_method2(model,NX,damped_NF,number_criticals,max_iterations,convergence_tol)
+[M0,C0,C1,K0,K1]=rotormtx(model);ndof=4*size(model.node,1);Rotor_Spd=2*pi*500/60;
+[Mb,Cb,Kb,zero_dof]=bearmtx(model,Rotor_Spd);dof=1:ndof;dof(zero_dof)=[];ncdof=length(dof);
+M=M0+Mb;K=K0+Kb+Rotor_Spd*K1;C=C0+Cb+Rotor_Spd*C1;
+AA=[zeros(ncdof) eye(ncdof);-M(dof,dof)\K(dof,dof) -M(dof,dof)\C(dof,dof)];
+eigenvalues_initial=sort(eig(AA)); traces=cell(number_criticals,1);
+for icritical=1:number_criticals
+ ieig=2*icritical-1;rel_change=1;iteration=0;
+ if damped_NF>.5,critical_i=abs(imag(eigenvalues_initial(ieig)))/NX;else,critical_i=abs(eigenvalues_initial(ieig))/NX;end
+ tr=zeros(max_iterations+1,4);tr(1,:)=[0 critical_i abs(eigenvalues_initial(ieig)) imag(eigenvalues_initial(ieig))];
+ while rel_change>convergence_tol & iteration<max_iterations
+  [Mb,Cb,Kb,zero_dof]=bearmtx(model,critical_i);M=M0+Mb;K=K0+Kb+critical_i*K1;C=C0+Cb+critical_i*C1;
+  AA=[zeros(ncdof) eye(ncdof);-M(dof,dof)\K(dof,dof) -M(dof,dof)\C(dof,dof)];eigenvalues=sort(eig(AA));old=critical_i;
+  if damped_NF>.5,critical_i=abs(imag(eigenvalues(ieig)))/NX;else,critical_i=abs(eigenvalues(ieig))/NX;end
+  if old==0,rel_change=2*convergence_tol;else,rel_change=abs((critical_i-old)/old);end
+  iteration=iteration+1;tr(iteration+1,:)=[iteration critical_i abs(eigenvalues(ieig)) imag(eigenvalues(ieig))];
+ end
+ traces{icritical}=tr(1:iteration+1,:);
+end
+trace1=traces{1};trace2=traces{2};
 end
