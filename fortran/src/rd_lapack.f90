@@ -3,7 +3,7 @@ module rd_lapack
   use rd_status, only: RD_OK, RD_ERR_LAPACK
   implicit none(type, external)
   private
-  public :: solve_real, solve_complex, eig_real, eig_complex
+  public :: solve_real, solve_complex, eig_real, eig_complex, generalized_eig_real
   interface
     subroutine dgesv(n,nrhs,a,lda,ipiv,b,ldb,info)
       import rk
@@ -27,6 +27,12 @@ module rd_lapack
       integer::n,lda,ldvl,ldvr,lwork,info
       complex(rk)::a(lda,*),w(*),vl(ldvl,*),vr(ldvr,*),work(*)
       real(rk)::rwork(*)
+    end subroutine
+    subroutine dggev(jobvl,jobvr,n,a,lda,b,ldb,alphar,alphai,beta,vl,ldvl,vr,ldvr,work,lwork,info)
+      import rk
+      character::jobvl,jobvr
+      integer::n,lda,ldb,ldvl,ldvr,lwork,info
+      real(rk)::a(lda,*),b(ldb,*),alphar(*),alphai(*),beta(*),vl(ldvl,*),vr(ldvr,*),work(*)
     end subroutine
   end interface
 contains
@@ -53,6 +59,15 @@ contains
     integer::n,info,lwork;complex(rk),allocatable::work(:);real(rk),allocatable::rwork(:);complex(rk)::vl(1,1)
     n=size(A,1);lwork=max(1,4*n);allocate(work(lwork),rwork(max(1,2*n)))
     call zgeev('N','V',n,A,n,w,vl,1,vr,n,work,lwork,rwork,info)
+    status=merge(RD_OK,RD_ERR_LAPACK,info==0)
+  end subroutine
+  subroutine generalized_eig_real(A,B,alphar,alphai,beta,vr,status)
+    real(rk),intent(inout)::A(:,:),B(:,:)
+    real(rk),intent(out)::alphar(:),alphai(:),beta(:),vr(:,:)
+    integer(ik),intent(out)::status
+    integer::n,info,lwork;real(rk),allocatable::work(:);real(rk)::vl(1,1)
+    n=size(A,1);lwork=max(1,8*n);allocate(work(lwork))
+    call dggev('N','V',n,A,n,B,n,alphar,alphai,beta,vl,1,vr,n,work,lwork,info)
     status=merge(RD_OK,RD_ERR_LAPACK,info==0)
   end subroutine
 end module rd_lapack
