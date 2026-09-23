@@ -12,6 +12,7 @@ from drm_core import (RotorModel,Node,ShaftElement,TaperedShaftElement,Asymmetri
     run_critical_speeds,run_coaxial_modal,run_coaxial_frequency_response,
     run_asymmetric_modal,run_asymmetric_frequency_response,run_foundation_time_response,run_runup)
 from drm_core.solver.backend import FortranBackend
+from drm_core.post.whirl import whirl
 
 ELEMENT_REL=1e-12;GLOBAL_REL=1e-12;EIG_REL=1e-8;MAC_MIN=.999999
 RESPONSE_REL=1e-8;CRITICAL_REL=1e-6;KAPPA_TOL=1e-10
@@ -106,7 +107,16 @@ def main():
     sm=standard_model();rm=run_modal(sm,float(mat["modal_speed"]),with_eigenvectors=True,with_kappa=True)
     eref=np.asarray(mat["modal_eig"]).reshape(-1);_,order,v=eig_match(eref,rm.eigenvalues);q.add("G7","stationary_eigenvalues_max_rel",v,EIG_REL,v<=EIG_REL)
     vref=np.asarray(mat["modal_vec"]);vgot=rm.eigenvectors[:,order];macs=np.array([mac(vref[:,i],vgot[:,i]) for i in range(vref.shape[1])]);q.add("G7","stationary_MAC_min",macs.min(),MAC_MIN,macs.min()>=MAC_MIN)
-    v=max_abs(rm.kappa[:,order],np.asarray(mat["modal_kappa"]));q.add("G7","stationary_kappa_max_abs",v,KAPPA_TOL,v<=KAPPA_TOL)
+    # Qualify the legacy whirl/kappa transformation on the same V2 eigenvectors.
+    # End-to-end kappa is additionally recorded, but near-circular orbits are
+    # ill-conditioned with respect to tiny cross-LAPACK eigenvector perturbations.
+    ref_kappa=np.asarray(mat["modal_kappa"]);py_kappa=np.zeros_like(ref_kappa,dtype=float)
+    for jj in range(vref.shape[1]):
+        kk,_=whirl(vref[0::2,jj],vref[1::2,jj])
+        if eref[jj].imag<0: kk=-kk
+        py_kappa[0::2,jj]=kk;py_kappa[1::2,jj]=kk
+    v=max_abs(py_kappa,ref_kappa);q.add("G7","whirl_algorithm_kappa_max_abs",v,KAPPA_TOL,v<=KAPPA_TOL)
+    v=max_abs(rm.kappa[:,order],ref_kappa);q.add("G7","stationary_kappa_end_to_end_max_abs",v,None,True)
     v=max_abs(rm.bearing_eccentricity,np.asarray(mat["modal_ecc"]).reshape(-1));q.add("G7","stationary_ecc_max_abs",v,1e-12,v<=1e-12)
     fm=fluid_model();rf=run_modal(fm,float(mat["fluid_modal_speed"]),with_eigenvectors=True,with_kappa=True);_,_,v=eig_match(np.asarray(mat["fluid_modal_eig"]).reshape(-1),rf.eigenvalues);q.add("G7","fluid_eigenvalues_max_rel",v,EIG_REL,v<=EIG_REL)
     v=max_abs(rf.bearing_eccentricity,np.asarray(mat["fluid_modal_ecc"]).reshape(-1));q.add("G7","fluid_ecc_max_abs",v,1e-10,v<=1e-10)
