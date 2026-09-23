@@ -5,6 +5,7 @@ from drm_core.analysis.frequency_response import run_frequency_response,run_auxi
 from drm_core.analysis.critical_speed import run_critical_speeds
 from drm_core.analysis.coaxial import run_coaxial_modal,run_coaxial_frequency_response
 from drm_core.analysis.asymmetric import run_asymmetric_modal,run_asymmetric_frequency_response
+from drm_core.analysis.transient import run_foundation_time_response,run_runup
 from drm_core.units import rpm_to_rad_s,rad_s_to_rpm
 
 def _load(path):
@@ -22,6 +23,8 @@ def main():
     cf=sp.add_parser('coaxial-frequency-response');cf.add_argument('model');cf.add_argument('--start-rpm',type=float,required=True);cf.add_argument('--stop-rpm',type=float,required=True);cf.add_argument('--step-rpm',type=float,required=True);cf.add_argument('--lib')
     am=sp.add_parser('asymmetric-modal');am.add_argument('model');am.add_argument('--speed-rpm',type=float,default=0);am.add_argument('--with-eigenvectors',action='store_true');am.add_argument('--lib')
     af=sp.add_parser('asymmetric-frequency-response');af.add_argument('model');af.add_argument('--start-rpm',type=float,required=True);af.add_argument('--stop-rpm',type=float,required=True);af.add_argument('--step-rpm',type=float,required=True);af.add_argument('--lib')
+    tf=sp.add_parser('foundation-time-response');tf.add_argument('model');tf.add_argument('--rotor-speed-rpm',type=float,required=True);tf.add_argument('--dt',type=float,required=True);tf.add_argument('--npts',type=int,required=True);tf.add_argument('--nr',type=int,default=0);tf.add_argument('--rtol',type=float,default=1e-3);tf.add_argument('--atol',type=float,default=1e-6);tf.add_argument('--output',required=True);tf.add_argument('--lib')
+    ru=sp.add_parser('runup');ru.add_argument('model');ru.add_argument('--alpha',type=float,nargs=3,metavar=('A2','A1','A0'),required=True);ru.add_argument('--t0',type=float,required=True);ru.add_argument('--tf',type=float,required=True);ru.add_argument('--nr',type=int,default=0);ru.add_argument('--rtol',type=float,default=1e-3);ru.add_argument('--atol',type=float,default=1e-6);ru.add_argument('--output',required=True);ru.add_argument('--lib')
     a=p.parse_args();model=_load(a.model)
     if a.cmd=='validate':
         from drm_core.validation.model import validate_model;validate_model(model,analysis=a.analysis);print('PASS')
@@ -52,4 +55,8 @@ def main():
     elif a.cmd=='asymmetric-frequency-response':
         rpm=np.arange(a.start_rpm,a.stop_rpm+0.5*a.step_rpm,a.step_rpm);r=run_asymmetric_frequency_response(model,rpm_to_rad_s(rpm),a.lib)
         for j,s in enumerate(rpm):print(f'{s:.8g},'+','.join(f'{abs(x):.12e}' for x in r.response[:,j]))
+    elif a.cmd=='foundation-time-response':
+        r=run_foundation_time_response(model,rpm_to_rad_s(a.rotor_speed_rpm),a.dt,a.npts,a.lib,nr=a.nr,rtol=a.rtol,atol=a.atol);np.savez(a.output,time=r.time_s,response=r.response,force=r.forcing,metadata=np.array([r.metadata],dtype=object));print(f'PASS npts={len(r.time_s)} nr={r.metadata["nr_used"]} accepted={r.metadata["accepted_steps"]} rejected={r.metadata["rejected_steps"]}')
+    elif a.cmd=='runup':
+        r=run_runup(model,np.asarray(a.alpha,float),[a.t0,a.tf],a.lib,nr=a.nr,rtol=a.rtol,atol=a.atol);np.savez(a.output,time=r.time_s,response=r.response,speed=r.speed_rad_s,metadata=np.array([r.metadata],dtype=object));print(f'PASS npts={len(r.time_s)} nr={r.metadata["nr_used"]} accepted={r.metadata["accepted_steps"]} rejected={r.metadata["rejected_steps"]}')
 if __name__=='__main__':main()
