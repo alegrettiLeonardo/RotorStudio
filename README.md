@@ -30,7 +30,7 @@ At unique-example level, **20/22 examples are complete for the declared pre-Phas
 - `Example_06_05_01`: the frequency-domain `freq_fdn` branch passes; its `time_fdn` branch remains `BLOCKED_PHASE8_TRANSIENT`.
 - `Example_06_11_01`: the modal/Campbell precheck passes; `runup` remains `BLOCKED_PHASE8_RUNUP`.
 
-No `time_fdn`, `runup`, ODE integrator or Dormand–Prince implementation was added in M4.
+No `time_fdn`, `runup`, ODE integrator or Dormand–Prince implementation was added in M4. The M4 `freq_fdn` ABI is qualified for the supplied two-bearing example topology; generalized variable-width foundation forcing is not yet claimed.
 
 MATLAB/Octave is not available in the qualification environment, so MATLAB↔Fortran numerical-equivalence gates remain **BLOCKED**. Source-derived/oracle tests and translated examples are additional evidence; they do not replace the authoritative MATLAB baseline.
 
