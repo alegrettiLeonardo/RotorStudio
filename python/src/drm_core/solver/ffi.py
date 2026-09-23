@@ -33,4 +33,6 @@ def configure(lib):
     lib.rd_bearasym_legacy.argtypes=[ct.c_int,ct.c_int,dptr,dptr,dptr,dptr,iptr];lib.rd_bearasym_legacy.restype=ct.c_int
     lib.rd_asym_modal_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,ct.c_int,ct.c_int,dptr,dptr,dptr,dptr];lib.rd_asym_modal_legacy.restype=ct.c_int
     lib.rd_asym_freq_rsp_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,dptr];lib.rd_asym_freq_rsp_legacy.restype=ct.c_int
+    lib.rd_time_fdn_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,dptr,ct.c_double,ct.c_double,ct.c_int,ct.c_int,ct.c_double,ct.c_double,ct.c_double,ct.c_double,dptr,dptr,dptr,iptr,dptr,iptr,iptr];lib.rd_time_fdn_legacy.restype=ct.c_int
+    lib.rd_runup_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,dptr,ct.c_double,ct.c_double,ct.c_int,ct.c_double,ct.c_double,ct.c_double,ct.c_double,ct.c_int,dptr,dptr,dptr,iptr,iptr,dptr,iptr,iptr];lib.rd_runup_legacy.restype=ct.c_int
     return lib
