@@ -30,4 +30,4 @@ def run_modal(model,speed_rad_s:float,library_path=None,with_eigenvectors:bool=F
         eig=facade.modal(model,speed_rad_s);vec=None;ecc=None
     wn=np.abs(eig); hz=wn/(2*np.pi); zeta=np.divide(-eig.real,wn,out=np.zeros_like(wn),where=wn!=0)
     kp=_kappa(eig,vec) if with_kappa else None
-    return ModalResult(speed_rad_s,eig,hz,zeta,vec,kp,ecc,{"solver_version":"0.4.0","model_hash":model.model_hash(),"timestamp":datetime.now(timezone.utc).isoformat(),"backend":"Fortran2018/ctypes"})
+    return ModalResult(speed_rad_s,eig,hz,zeta,vec,kp,ecc,{"solver_version":"0.5.0","model_hash":model.model_hash(),"timestamp":datetime.now(timezone.utc).isoformat(),"backend":"Fortran2018/ctypes"})
