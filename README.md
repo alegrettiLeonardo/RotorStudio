@@ -1,53 +1,38 @@
-# RotorStudio — DRM Fortran 2018 + Python Core — Stage 1 M3
+# RotorStudio — DRM Fortran 2018 + Python Core — Stage 1 M4
 
-This repository is a continuation of the same Stage 1 migration baseline. It does **not** restart or reinterpret the MATLAB project. `Rotor_Software_v2` remains the numerical and behavioural authority; the manual and examples remain secondary references.
+This repository continues the same Stage 1 MATLAB-to-Fortran/Python migration baseline. `Rotor_Software_v2` remains the numerical and behavioural authority. Stage 1 contains **no desktop UI**.
 
-Stage 1 contains **no desktop application UI**. Python supplies typed model data, validation, units, orchestration, ctypes, post-processing, reports, CLI and examples. Fortran 2018 supplies the qualified numerical/physical kernel.
+## Implemented through M4
 
-## Implemented through M3
+The Fortran 2018 kernel now covers the implemented stationary, coaxial and rotating/asymmetric paths: circular and tapered shafts, executable asymmetric shaft paths, disks, legacy bearings/seals, M/C/G/K assembly, modal analysis, synchronous response, auxiliary excitation, foundation frequency response, critical speeds, coaxial modal/response, and rotating-frame asymmetric modal/response.
 
-Stationary-frame path:
+Python provides the typed domain model, validation, SI/unit conversion, ctypes bridge, result objects, post-processing, CLI, persistence/report scaffolding, tests and deterministic book examples.
 
-- circular `shftelem` types 1..8;
-- tapered `taper` types 21..28;
-- disks types 1..4;
-- `bearmtx` types 1..8, including the short-width fluid-film model and seal model;
-- rigid constraints and restored zero DOFs;
-- global M/C/G/K assembly;
-- stationary modal eigensystem;
-- synchronous `freq_rsp` including unbalance force, unbalance moment, bent shaft and type-8 rotating moment/PZT forcing;
-- `crit_spd` direct method, iterative mode-number method, and initial-estimate method.
+M4 adds:
 
-Coaxial path:
+- stationary eigenvectors, bearing eccentricity and Python whirl/kappa post-processing;
+- `freq_aux` and `freq_fdn`, because the example campaign exposed these still-missing Phase-6 paths;
+- Python entry points for all 22 supplied book examples;
+- a deterministic 32-run example campaign spanning default and representative menu variants.
 
-- `chr_root_coax` physics and assembly path;
-- rotor speed factors, including negative/opposite rotation;
-- type-20 inter-rotor coupling;
-- `freq_rsp_coax` with V2 excitation-speed rules;
-- V2 behaviour retained where speed-dependent bearing properties use the reference rotor speed.
+## M4 qualification
 
-Rotating-frame / asymmetric path:
+Executed locally from the M4 sources:
 
-- `shftasym` types 11..18 for the executable zero-axial-load V2 path;
-- `rotorasym`, including conversion of circular shaft definitions to rotating-frame asymmetric elements;
-- disk types 1..6 in the rotating frame;
-- `bearasym` types 1..4;
-- `chr_asym` including its V2 output-count-dependent `K1b` behaviour;
-- `freq_asym` static rotating-frame unbalance response.
+- Fortran Release: **4/4 CTest PASS**
+- Fortran Debug with runtime checks: **4/4 CTest PASS**
+- Python: **40/40 pytest PASS**
+- Example campaign: **32 runs / 30 PASS_IMPLEMENTED_SCOPE / 2 BLOCKED_PHASE8 / 0 FAIL / 22 unique examples**
+- Exact delivery ZIP: clean extract, offline Python package install, Fortran rebuild, CTest, pytest and example campaign all completed successfully.
 
-The V2 defects in `bearasym` and `chr_asym` are preserved deliberately in the compatibility path rather than silently corrected. The undefined `shftasym` nonzero axial-load branch is explicitly blocked.
+At unique-example level, **20/22 examples are complete for the declared pre-Phase8 scope**. Two are deliberately partial:
 
-## Qualification status
+- `Example_06_05_01`: the frequency-domain `freq_fdn` branch passes; its `time_fdn` branch remains `BLOCKED_PHASE8_TRANSIENT`.
+- `Example_06_11_01`: the modal/Campbell precheck passes; `runup` remains `BLOCKED_PHASE8_RUNUP`.
 
-M3 executes:
+No `time_fdn`, `runup`, ODE integrator or Dormand–Prince implementation was added in M4.
 
-- 4/4 CTest tests in Release;
-- 4/4 CTest tests in Debug with runtime checks;
-- 36/36 Python tests;
-- source-derived formula/oracle tests for `bearmtx`, `freq_rsp`, all three `crit_spd` methods, coaxial and asymmetric paths;
-- smoke translations of `Example_05_08_01`, `Example_06_06_01` and `Example_07_06_01`.
-
-MATLAB/Octave is unavailable in the current qualification environment. Therefore MATLAB↔Fortran equivalence gates remain `BLOCKED`; source-derived tests are additional evidence and do not replace the authoritative MATLAB baseline.
+MATLAB/Octave is not available in the qualification environment, so MATLAB↔Fortran numerical-equivalence gates remain **BLOCKED**. Source-derived/oracle tests and translated examples are additional evidence; they do not replace the authoritative MATLAB baseline.
 
 ## Build and test on Linux
 
@@ -56,9 +41,10 @@ cmake -S fortran -B build-release -DCMAKE_BUILD_TYPE=Release
 cmake --build build-release -j
 ctest --test-dir build-release --output-on-failure
 
-export PYTHONPATH="$PWD/python/src"
+export PYTHONPATH="$PWD/python/src:$PWD"
 export DRMROTOR_LIB="$PWD/build-release/libdrmrotor.so"
 python -m pytest python/tests -q
+python scripts/run_example_campaign.py --outdir validation/reports/example_campaign_M4
 ```
 
-Relevant reports are in `docs/IMPLEMENTATION_M3.md`, `docs/SOURCE_DERIVED_QUALIFICATION_M3.md`, `validation/legacy_cases/README.md`, and `validation/reports/QUALIFICATION_STATUS_M3.md`.
+See `docs/IMPLEMENTATION_M4.md`, `docs/EXAMPLE_CAMPAIGN_M4.md`, `docs/SOURCE_DERIVED_QUALIFICATION_M3.md`, `validation/legacy_cases/README.md`, and `validation/reports/QUALIFICATION_STATUS_M4.md`.
