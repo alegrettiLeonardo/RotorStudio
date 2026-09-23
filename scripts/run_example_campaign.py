@@ -22,7 +22,7 @@ def run(outdir,smoke=True,variants=True):
         except Exception as e:rec(ex,'baseline','FAIL',repr(e))
     plan=[(n,{}) for n in REMAINING]
     if variants:
-        plan += [('06_03_01',{'case':2}),('06_03_02',{'case':2}),('06_03_02',{'case':3}),('06_03_03',{'case':2}),('06_03_03',{'case':3}),('06_05_01',{'case':2}),('06_08_01',{'lhcase':1,'rhcase':5}),('06_08_01',{'lhcase':5,'rhcase':1}),('07_07_01',{'lhcase':3,'rhcase':3,'id_case':2}),('07_09_01',{'case':2})]
+        plan += [('06_03_01',{'case':2}),('06_03_02',{'case':2}),('06_03_02',{'case':3}),('06_03_03',{'case':2}),('06_03_03',{'case':3}),('06_05_01',{'case':2}),('06_11_01',{'case':2}),('06_08_01',{'lhcase':1,'rhcase':5}),('06_08_01',{'lhcase':5,'rhcase':1}),('07_07_01',{'lhcase':3,'rhcase':3,'id_case':2}),('07_09_01',{'case':2})]
     for n,kw in plan:
         variant=','.join(f'{k}={v}' for k,v in sorted(kw.items())) or 'default'
         try:
