@@ -1,0 +1,8 @@
+Stage 1 M2 execution environment
+MATLAB: not found -> BLOCKED
+GNU Octave: not found -> BLOCKED
+GNU Fortran: GNU Fortran (Debian 14.2.0-19) 14.2.0
+CMake: 3.31.6
+Python: 3.13.5
+BLAS: /lib/x86_64-linux-gnu/libblas.so
+LAPACK: /lib/x86_64-linux-gnu/liblapack.so
