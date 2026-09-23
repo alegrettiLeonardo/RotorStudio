@@ -22,10 +22,10 @@ semantic_checks(7) = double(exist('ode45','file')>0);
 semantic_checks(8) = double(exist('roots','file')>0);
 
 %% G5 — element matrices, all legacy shaft-type switches.
-L=.23; do=.067; di=.013; E=2.07e11; G=7.95e10; rho=7830; axial=12000; torque=350;
+L=.23; do_= .067; di=.013; E=2.07e11; G=7.95e10; rho=7830; axial=12000; torque=350;
 elem_circular_M=zeros(8,8,8); elem_circular_C1=zeros(8,8,8); elem_circular_K0=zeros(8,8,8); elem_circular_K1=zeros(8,8,8);
 for t=1:8
-  [M,C1,K0,K1]=shftelem(t,L,do,di,E,G,rho,axial,torque);
+  [M,C1,K0,K1]=shftelem(t,L,do_,di,E,G,rho,axial,torque);
   elem_circular_M(:,:,t)=M;elem_circular_C1(:,:,t)=C1;elem_circular_K0(:,:,t)=K0;elem_circular_K1(:,:,t)=K1;
 end
 
