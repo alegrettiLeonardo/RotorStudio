@@ -1,7 +1,7 @@
 module rd_eigensystem
   use rd_kinds, only: rk,ik
   use rd_status, only: RD_OK
-  use rd_lapack, only: solve_real,eig_real,solve_complex,eig_complex
+  use rd_lapack, only: solve_real,eig_real
   implicit none(type, external); private
   public::stationary_eigs, second_order_eigs, matlab_complex_sort, matlab_complex_sort_vectors
 contains
