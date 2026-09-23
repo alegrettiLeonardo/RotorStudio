@@ -1,0 +1,14 @@
+Internal ctest changing into directory: /mnt/data/m3_work/build-debug-m3
+Test project /mnt/data/m3_work/build-debug-m3
+    Start 1: shaft_invariants
+1/4 Test #1: shaft_invariants .................   Passed    0.00 sec
+    Start 2: extended_shaft_equivalence
+2/4 Test #2: extended_shaft_equivalence .......   Passed    0.00 sec
+    Start 3: bearing_source_formulas
+3/4 Test #3: bearing_source_formulas ..........   Passed    0.00 sec
+    Start 4: rotating_legacy_compatibility
+4/4 Test #4: rotating_legacy_compatibility ....   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 4
+
+Total Test time (real) =   0.01 sec
