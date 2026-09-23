@@ -13,7 +13,13 @@ def _mode_shapes(facade,model,crit,method,NX,damped):
     cols=[]
     for ic,w in enumerate(crit):
         eig,vec,_=facade.modal_eigensystem(model,float(w))
-        if method==2: idx=min(2*ic,len(eig)-1)
+        if method==2:
+            # MATLAB sort places an exact conjugate pair by phase; negative-imaginary
+            # member comes first. LAPACK roundoff can perturb pair magnitudes enough
+            # to reverse them, so restore the conjugate-pair convention explicitly.
+            base=min(2*ic,len(eig)-1); candidates=[base]
+            if base+1<len(eig): candidates.append(base+1)
+            idx=next((j for j in candidates if eig[j].imag<0),base)
         elif method==3:
             est=(np.abs(eig.imag) if damped else np.abs(eig))/max(abs(NX),.2);idx=int(np.argmin(np.abs(est-w)))
         else: raise ValueError("with_mode_shapes is supported for iterative methods 2 and 3; V2 direct-method mode shapes use a different polynomial eigenproblem")
