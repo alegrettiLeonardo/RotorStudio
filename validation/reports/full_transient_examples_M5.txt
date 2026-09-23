@@ -1,0 +1,9 @@
+Example_06_05_01 case 2 full V2 settings
+{'status': 'PASS_IMPLEMENTED_SCOPE', 'case': 2, 'time_fdn': True, 'nr_full': 28, 'nr_reduced': 10, 'accepted_full': 193115, 'accepted_reduced': 37198}
+elapsed=0:01.87 rss=138360KB
+Example_06_11_01 case 1 full V2 settings
+{'status': 'PASS_IMPLEMENTED_SCOPE', 'case': 1, 'runup': True, 'points': 11700, 'nr': 4, 'accepted': 11699, 'rejected': 3766}
+elapsed=0:00.75 rss=146232KB
+Example_06_11_01 case 2 full V2 settings
+{'status': 'PASS_IMPLEMENTED_SCOPE', 'case': 2, 'runup': True, 'points': 3347, 'nr': 4, 'accepted': 3346, 'rejected': 1077}
+elapsed=0:00.73 rss=144488KB
