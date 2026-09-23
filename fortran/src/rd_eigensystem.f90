@@ -23,18 +23,45 @@ contains
     complex(rk),intent(out)::w(:),Vdisp(:,:)
     integer(ik),intent(out)::status
     integer::n,i
-    complex(rk),allocatable::Mc(:,:),XK(:,:),XC(:,:),A(:,:),vr(:,:)
+    real(rk),allocatable::Mr(:,:),XK(:,:),XC(:,:),A(:,:),wr(:),wi(:),vr(:,:)
     n=size(M,1)
-    allocate(Mc(n,n),XK(n,n),XC(n,n),A(2*n,2*n),vr(2*n,2*n))
-    Mc=cmplx(M,0._rk,rk);XK=cmplx(K,0._rk,rk)
-    call solve_complex(Mc,XK,status);if(status/=RD_OK)return
-    Mc=cmplx(M,0._rk,rk);XC=cmplx(C,0._rk,rk)
-    call solve_complex(Mc,XC,status);if(status/=RD_OK)return
-    A=(0._rk,0._rk)
-    do i=1,n;A(i,n+i)=(1._rk,0._rk);enddo
+    allocate(Mr(n,n),XK(n,n),XC(n,n),A(2*n,2*n),wr(2*n),wi(2*n),vr(2*n,2*n))
+    Mr=M;XK=K
+    call solve_real(Mr,XK,status);if(status/=RD_OK)return
+    Mr=M;XC=C
+    call solve_real(Mr,XC,status);if(status/=RD_OK)return
+    A=0._rk
+    do i=1,n;A(i,n+i)=1._rk;enddo
     A(n+1:2*n,1:n)=-XK;A(n+1:2*n,n+1:2*n)=-XC
-    call eig_complex(A,w,vr,status);if(status/=RD_OK)return
-    Vdisp=vr(1:n,:)
+
+    ! V2 chr_root calls EIG on this real state matrix.  Follow the same
+    ! real-LAPACK path (DGEEV) and reconstruct MATLAB/Octave complex vectors
+    ! from LAPACK's paired real columns instead of forcing the matrix through
+    ! ZGEEV.  This matters for very nearly circular whirl orbits, where tiny
+    ! cross-driver eigenvector perturbations can dominate kappa while leaving
+    ! eigenvalues and MAC unchanged.
+    call eig_real(A,wr,wi,vr,status);if(status/=RD_OK)return
+
+    i=1
+    do while(i<=2*n)
+      if(wi(i)>0._rk .and. i<2*n)then
+        w(i)=cmplx(wr(i),wi(i),rk)
+        w(i+1)=cmplx(wr(i+1),wi(i+1),rk)
+        Vdisp(:,i)=cmplx(vr(1:n,i),vr(1:n,i+1),rk)
+        Vdisp(:,i+1)=cmplx(vr(1:n,i),-vr(1:n,i+1),rk)
+        i=i+2
+      else if(wi(i)<0._rk .and. i>1)then
+        ! Defensive fallback for a negative-imaginary column not consumed as
+        ! part of the preceding LAPACK conjugate pair.
+        w(i)=cmplx(wr(i),wi(i),rk)
+        Vdisp(:,i)=conjg(Vdisp(:,i-1))
+        i=i+1
+      else
+        w(i)=cmplx(wr(i),0._rk,rk)
+        Vdisp(:,i)=cmplx(vr(1:n,i),0._rk,rk)
+        i=i+1
+      endif
+    enddo
     call matlab_complex_sort_vectors(w,Vdisp)
   end subroutine
 
