@@ -1,0 +1,5 @@
+100% tests passed, 0 tests failed out of 4
+shaft_invariants PASS
+extended_shaft_equivalence PASS
+bearing_source_formulas PASS
+rotating_legacy_compatibility PASS
