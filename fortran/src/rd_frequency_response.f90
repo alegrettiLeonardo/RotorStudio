@@ -9,7 +9,7 @@ contains
   logical,intent(in)::is_zero(:);integer(ik),intent(in)::nforce,nbend
   real(rk),intent(in)::force_def(5,nforce),bend_def(3,max(1,nbend))
   complex(rk),intent(out)::response(:);integer(ik),intent(out)::status
-  integer::ndof,nc,i,j,node,n1,n2,idx,nmaster,nslave;integer,allocatable::keep(:),master(:),slave(:)
+  integer::ndof,nc,i,node,n1,n2,idx,nmaster,nslave;integer,allocatable::keep(:),master(:),slave(:)
   complex(rk),allocatable::ub(:),pzt(:),bendf(:),force(:),fullf(:),A(:,:),rhs(:,:),xm(:),xs(:,:)
   real(rk),allocatable::M(:,:),C(:,:),K(:,:),Kss(:,:),Ksm(:,:),Kr(:,:)
   complex(rk)::phase,jot
@@ -34,6 +34,7 @@ contains
       call add_full_force(4*n1-1,jot*phase,pzt,keep);call add_full_force(4*n1,phase,pzt,keep)
       call add_full_force(4*n2-1,-jot*phase,pzt,keep);call add_full_force(4*n2,-phase,pzt,keep)
     case default
+      ! Legacy freq_rsp ignores other force definitions.
     end select
   enddo
   if(any(nint(force_def(1,:))==3).and.nbend>0)then
