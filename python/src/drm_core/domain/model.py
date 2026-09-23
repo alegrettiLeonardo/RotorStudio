@@ -38,6 +38,12 @@ class Disk:
     @staticmethod
     def geometric(node:int,rho_kg_m3:float,thickness_m:float,outer_diameter_m:float,inner_diameter_m:float=0.0,disk_type:int=1)->"Disk":
         return Disk(disk_type,node,rho_kg_m3,thickness_m,outer_diameter_m,inner_diameter_m)
+    @staticmethod
+    def inertial(node:int,mass_kg:float,diametral_inertia_kgm2:float,polar_inertia_kgm2:float=0.0,disk_type:int=2)->"Disk":
+        return Disk(disk_type,node,mass_kg,diametral_inertia_kgm2,polar_inertia_kgm2,0.0)
+    @staticmethod
+    def anisotropic(node:int,mass_kg:float,Ix_kgm2:float,Iy_kgm2:float,Ip_kgm2:float=0.0,disk_type:int=5)->"Disk":
+        return Disk(disk_type,node,mass_kg,Ix_kgm2,Iy_kgm2,Ip_kgm2)
 
 @dataclass(frozen=True)
 class Bearing:
@@ -52,6 +58,11 @@ class Force:
 class BendPoint:
     node:int; x_m:float; y_m:float=0.0
 
+@dataclass(frozen=True)
+class RotorDefinition:
+    node1:int; node2:int; speed_factor:float
+    def legacy_row(self)->list[float]: return [self.node1,self.node2,self.speed_factor]
+
 @dataclass
 class RotorModel:
     nodes:list[Node]=field(default_factory=list)
@@ -60,8 +71,9 @@ class RotorModel:
     bearings:list[Bearing]=field(default_factory=list)
     forces:list[Force]=field(default_factory=list)
     bend:list[BendPoint]=field(default_factory=list)
+    rotors:list[RotorDefinition]=field(default_factory=list)
     @classmethod
-    def from_legacy_arrays(cls,node,shaft,disc,bearing,force=None,bend=None)->"RotorModel":
+    def from_legacy_arrays(cls,node,shaft,disc,bearing,force=None,bend=None,rotors=None)->"RotorModel":
         nodes=[Node(int(r[0]),float(r[1])) for r in node]
         shafts=[]
         for r in shaft:
@@ -80,9 +92,10 @@ class RotorModel:
                 if len(rr)==1: bends.append(BendPoint(i,float(rr[0]),0.0))
                 elif len(rr)==2: bends.append(BendPoint(int(rr[0]),float(rr[1]),0.0))
                 else: bends.append(BendPoint(int(rr[0]),float(rr[1]),float(rr[2])))
-        return cls(nodes,shafts,disks,bearings,forces,bends)
+        rdefs=[RotorDefinition(int(r[0]),int(r[1]),float(r[2])) for r in (rotors or [])]
+        return cls(nodes,shafts,disks,bearings,forces,bends,rdefs)
     def canonical_dict(self):
         def d(x): return vars(x)
-        return {"nodes":[d(x) for x in self.nodes],"shafts":[d(x) for x in self.shafts],"disks":[d(x) for x in self.disks],"bearings":[d(x) for x in self.bearings],"forces":[d(x) for x in self.forces],"bend":[d(x) for x in self.bend]}
+        return {"nodes":[d(x) for x in self.nodes],"shafts":[d(x) for x in self.shafts],"disks":[d(x) for x in self.disks],"bearings":[d(x) for x in self.bearings],"forces":[d(x) for x in self.forces],"bend":[d(x) for x in self.bend],"rotors":[d(x) for x in self.rotors]}
     def model_hash(self)->str:
         return hashlib.sha256(json.dumps(self.canonical_dict(),sort_keys=True,separators=(",",":"),default=list).encode()).hexdigest()
