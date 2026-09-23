@@ -1,0 +1,56 @@
+name: Formal equivalence (Octave V2 authority)
+
+on:
+  push:
+    branches:
+      - feature/stage1-m6-formal-equivalence
+  workflow_dispatch:
+
+jobs:
+  octave-equivalence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GNU Octave and numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y octave gfortran cmake libblas-dev liblapack-dev
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python qualification dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+
+      - name: Build Fortran Release
+        run: |
+          cmake -S fortran -B build-formal -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-formal -j2
+          ctest --test-dir build-formal --output-on-failure
+
+      - name: Generate V2 baseline with Octave
+        run: |
+          mkdir -p validation/formal_equivalence/out
+          octave --no-gui --quiet --eval "addpath('validation/formal_equivalence'); generate_octave_baseline(pwd, fullfile(pwd,'validation/formal_equivalence/out/octave_baseline.mat'));"
+
+      - name: Compare Fortran/Python against V2 baseline (measure transient)
+        env:
+          DRMROTOR_LIB: ${{ github.workspace }}/build-formal/libdrmrotor.so
+        run: |
+          python validation/formal_equivalence/compare_octave_fortran.py \
+            --baseline validation/formal_equivalence/out/octave_baseline.mat \
+            --report-dir validation/formal_equivalence/out \
+            --measure-transient
+
+      - name: Upload formal-equivalence evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: formal-equivalence-octave-${{ github.sha }}
+          path: validation/formal_equivalence/out/
+          if-no-files-found: warn
