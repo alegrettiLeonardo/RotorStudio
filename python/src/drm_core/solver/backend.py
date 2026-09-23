@@ -56,6 +56,11 @@ class FortranBackend:
         status=self.lib.rd_modal_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),float(speed_rad_s),nout,self._ptr(er),self._ptr(ei))
         if status: raise SolverLibraryError(f"Fortran rd_modal_legacy returned status={status}")
         return er+1j*ei
+    def modal_eigensystem(self,m:RotorModel,speed_rad_s:float):
+        n,z,sh,di,be=self._arrays(m);ndof=4*n;nout=2*(ndof-self._nzero(m));er=np.empty(nout);ei=np.empty(nout);vr=np.empty((ndof,nout),dtype=np.float64,order='F');vi=np.empty_like(vr,order='F');ecc=np.empty(len(m.bearings),dtype=np.float64)
+        status=self.lib.rd_modal_legacy_vectors(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),float(speed_rad_s),nout,self._ptr(er),self._ptr(ei),self._ptr(vr),self._ptr(vi),self._ptr(ecc))
+        if status: raise SolverLibraryError(f"Fortran rd_modal_legacy_vectors returned status={status}")
+        return er+1j*ei,vr+1j*vi,ecc
     def assemble_matrices(self,m:RotorModel,speed_rad_s:float):
         n,z,sh,di,be=self._arrays(m);nd=4*n; outs=[np.empty((nd,nd),order='F') for _ in range(4)]
         status=self.lib.rd_assemble_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),float(speed_rad_s),*(self._ptr(x) for x in outs))
@@ -66,6 +71,16 @@ class FortranBackend:
         rr=np.empty((nd,len(speeds)),dtype=np.float64,order='F');ri=np.empty_like(rr,order='F')
         status=self.lib.rd_freq_rsp_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),fo.shape[1],self._ptr(fo),bd.shape[1],self._ptr(bd),len(speeds),self._ptr(speeds),self._ptr(rr),self._ptr(ri))
         if status: raise SolverLibraryError(f"Fortran rd_freq_rsp_legacy returned status={status}")
+        return rr+1j*ri
+    def auxiliary_frequency_response(self,m:RotorModel,rotor_speed_rad_s:float,omega_rad_s,direction=1.0):
+        n,z,sh,di,be=self._arrays(m);fo=self._forces(m);om=np.ascontiguousarray(omega_rad_s,dtype=np.float64);nd=4*n;rr=np.empty((nd,len(om)),dtype=np.float64,order='F');ri=np.empty_like(rr,order='F')
+        status=self.lib.rd_freq_aux_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),fo.shape[1],self._ptr(fo),float(rotor_speed_rad_s),len(om),self._ptr(om),float(direction),self._ptr(rr),self._ptr(ri))
+        if status: raise SolverLibraryError(f"Fortran rd_freq_aux_legacy returned status={status}")
+        return rr+1j*ri
+    def foundation_frequency_response(self,m:RotorModel,rotor_speed_rad_s:float,omega_rad_s):
+        n,z,sh,di,be=self._arrays(m);fo=self._forces(m);om=np.ascontiguousarray(omega_rad_s,dtype=np.float64);nd=4*n;rr=np.empty((nd,len(om)),dtype=np.float64,order='F');ri=np.empty_like(rr,order='F')
+        status=self.lib.rd_freq_fdn_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),fo.shape[1],self._ptr(fo),float(rotor_speed_rad_s),len(om),self._ptr(om),self._ptr(rr),self._ptr(ri))
+        if status: raise SolverLibraryError(f"Fortran rd_freq_fdn_legacy returned status={status}")
         return rr+1j*ri
     def critical_speeds(self,m:RotorModel,NX=1.0,damped=True,ncrit=5,max_iterations=20,tol=1e-6,method=None,initial_estimates=None,return_diagnostics=False):
         n,z,sh,di,be=self._arrays(m);out=np.empty(ncrit,dtype=np.float64)
