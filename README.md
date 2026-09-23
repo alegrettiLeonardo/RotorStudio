@@ -1,38 +1,42 @@
-# RotorStudio — DRM Fortran 2018 + Python Core — Stage 1 M4
+# RotorStudio — DRM Fortran 2018 + Python Core — Stage 1 M5
 
-This repository continues the same Stage 1 MATLAB-to-Fortran/Python migration baseline. `Rotor_Software_v2` remains the numerical and behavioural authority. Stage 1 contains **no desktop UI**.
+This repository continues the same MATLAB-to-Fortran/Python Stage 1 migration baseline. `Rotor_Software_v2` remains the numerical and behavioural authority. Stage 1 still contains **no desktop UI**.
 
-## Implemented through M4
+## M5 focus — Phase 8 transient
 
-The Fortran 2018 kernel now covers the implemented stationary, coaxial and rotating/asymmetric paths: circular and tapered shafts, executable asymmetric shaft paths, disks, legacy bearings/seals, M/C/G/K assembly, modal analysis, synchronous response, auxiliary excitation, foundation frequency response, critical speeds, coaxial modal/response, and rotating-frame asymmetric modal/response.
+M5 starts Phase 8 without reopening or altering the M4 stationary/coaxial/asymmetric physics. The production additions are specifically:
 
-Python provides the typed domain model, validation, SI/unit conversion, ctypes bridge, result objects, post-processing, CLI, persistence/report scaffolding, tests and deterministic book examples.
+- V2-style generalized modal truncation for `time_fdn` and `runup`;
+- LAPACK `DGGEV` support for the `(K,M)` reduction problem;
+- adaptive Dormand–Prince embedded 5(4) integration in Fortran 2018;
+- `time_fdn` foundation-pulse response;
+- `runup` response with V2 `phi(t)`, `Omega(t)` and acceleration forcing;
+- ISO_C_BINDING/ctypes/Python result and CLI paths;
+- frozen source-derived transient regression references in the delivery package.
 
-M4 adds:
+The manual describes Guyan/static reduction, but MATLAB V2 actually uses `eig(K,M)` followed by the first `nr` eigenvectors. **M5 preserves the V2 modal truncation.**
 
-- stationary eigenvectors, bearing eccentricity and Python whirl/kappa post-processing;
-- `freq_aux` and `freq_fdn`, because the example campaign exposed these still-missing Phase-6 paths;
-- Python entry points for all 22 supplied book examples;
-- a deterministic 32-run example campaign spanning default and representative menu variants.
+## Qualification status
 
-## M4 qualification
+Executed in the M5 qualification environment:
 
-Executed locally from the M4 sources:
+- Fortran Release: **5/5 CTest PASS**
+- Fortran Debug with runtime checks: **5/5 CTest PASS**
+- Python delivery package: **47/47 pytest PASS**
+- 22-example smoke campaign: **33/33 PASS**, **0 BLOCKED**, **0 FAIL**
+- original full transient settings for `Example_06_05_01` case (b): **PASS_IMPLEMENTED_SCOPE**
+- original full `Example_06_11_01` cases 1 and 2: **PASS_IMPLEMENTED_SCOPE**
 
-- Fortran Release: **4/4 CTest PASS**
-- Fortran Debug with runtime checks: **4/4 CTest PASS**
-- Python: **40/40 pytest PASS**
-- Example campaign: **32 runs / 30 PASS_IMPLEMENTED_SCOPE / 2 BLOCKED_PHASE8 / 0 FAIL / 22 unique examples**
-- Exact delivery ZIP: clean extract, offline Python package install, Fortran rebuild, CTest, pytest and example campaign all completed successfully.
+Independent source-derived transient qualification against high-accuracy SciPy DOP853 gives:
 
-At unique-example level, **20/22 examples are complete for the declared pre-Phase8 scope**. Two are deliberately partial:
+```text
+time_fdn max absolute response difference = 2.9704856645187266e-09 m
+runup    max absolute response difference = 2.5818612682916922e-11 m
+```
 
-- `Example_06_05_01`: the frequency-domain `freq_fdn` branch passes; its `time_fdn` branch remains `BLOCKED_PHASE8_TRANSIENT`.
-- `Example_06_11_01`: the modal/Campbell precheck passes; `runup` remains `BLOCKED_PHASE8_RUNUP`.
+These values qualify the Fortran transient translation against an independent implementation of the V2 equations. They are **not MATLAB-equivalence results**.
 
-No `time_fdn`, `runup`, ODE integrator or Dormand–Prince implementation was added in M4. The M4 `freq_fdn` ABI is qualified for the supplied two-bearing example topology; generalized variable-width foundation forcing is not yet claimed.
-
-MATLAB/Octave is not available in the qualification environment, so MATLAB↔Fortran numerical-equivalence gates remain **BLOCKED**. Source-derived/oracle tests and translated examples are additional evidence; they do not replace the authoritative MATLAB baseline.
+MATLAB and Octave remain unavailable in this environment. Therefore the authoritative MATLAB/`ode45` numerical-equivalence gate remains **BLOCKED**; no transient tolerance was invented or relaxed.
 
 ## Build and test on Linux
 
@@ -44,7 +48,12 @@ ctest --test-dir build-release --output-on-failure
 export PYTHONPATH="$PWD/python/src:$PWD"
 export DRMROTOR_LIB="$PWD/build-release/libdrmrotor.so"
 python -m pytest python/tests -q
-python scripts/run_example_campaign.py --outdir validation/reports/example_campaign_M4
+python scripts/run_example_campaign.py --outdir validation/reports/example_campaign_M5
 ```
 
-See `docs/IMPLEMENTATION_M4.md`, `docs/EXAMPLE_CAMPAIGN_M4.md`, `docs/SOURCE_DERIVED_QUALIFICATION_M3.md`, `validation/legacy_cases/README.md`, and `validation/reports/QUALIFICATION_STATUS_M4.md`.
+See:
+
+- `docs/IMPLEMENTATION_M5_TRANSIENT.md`
+- `docs/TRANSIENT_QUALIFICATION_M5.md`
+- `validation/baseline/transient/README.md`
+- `validation/reports/QUALIFICATION_STATUS_M5.md`
