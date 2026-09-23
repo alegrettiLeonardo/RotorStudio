@@ -11,13 +11,50 @@ module rd_c_api
  use rd_coaxial_solver,only:coaxial_eigs,coaxial_frequency_response
  use rd_rotating_solver,only:asymmetric_eigs,asymmetric_frequency_response
  use rd_transient,only:time_foundation_response,runup_response
+ use rd_shaft_circular,only:shaft_circular_matrices
+ use rd_shaft_tapered,only:shaft_tapered_matrices
+ use rd_shaft_asymmetric,only:shaft_asymmetric_matrices
  implicit none(type,external);private
  public::rd_modal_legacy,rd_modal_legacy_vectors,rd_assemble_legacy,rd_bearings_legacy,rd_freq_rsp_legacy,rd_crit_spd_legacy,rd_crit_spd_legacy_ex
  public::rd_freq_aux_legacy,rd_freq_fdn_legacy,rd_time_fdn_legacy,rd_runup_legacy
+ public::rd_element_circular_legacy,rd_element_tapered_legacy,rd_element_asymmetric_legacy
  public::rd_coax_modal_legacy,rd_coax_freq_rsp_legacy,rd_asym_assemble_legacy,rd_bearasym_legacy,rd_asym_modal_legacy,rd_asym_freq_rsp_legacy,rd_version
 contains
  integer(c_int) function rd_version(major,minor,patch) bind(C,name='rd_version')
    integer(c_int),intent(out)::major,minor,patch;major=0;minor=5;patch=0;rd_version=0
+ end function
+
+ integer(c_int) function rd_element_circular_legacy(stype,L,do_,di,E,G,rho,axial,torque,Mout,Cout,Kout,K1out) bind(C,name='rd_element_circular_legacy')
+   integer(c_int),value::stype
+   real(c_double),value::L,do_,di,E,G,rho,axial,torque
+   real(c_double),intent(out)::Mout(*),Cout(*),Kout(*),K1out(*)
+   real(rk)::M(8,8),C(8,8),K(8,8),K1(8,8);integer(ik)::st;integer::i,j
+   call shaft_circular_matrices(int(stype,ik),L,do_,di,E,G,rho,axial,torque,M,C,K,K1,st)
+   if(st/=RD_OK)then;rd_element_circular_legacy=st;return;endif
+   do j=1,8;do i=1,8;Mout((j-1)*8+i)=M(i,j);Cout((j-1)*8+i)=C(i,j);Kout((j-1)*8+i)=K(i,j);K1out((j-1)*8+i)=K1(i,j);enddo;enddo
+   rd_element_circular_legacy=RD_OK
+ end function
+
+ integer(c_int) function rd_element_tapered_legacy(stype,L,do1,do2,di1,di2,E,G,rho,axial,Mout,Cout,Kout,K1out) bind(C,name='rd_element_tapered_legacy')
+   integer(c_int),value::stype
+   real(c_double),value::L,do1,do2,di1,di2,E,G,rho,axial
+   real(c_double),intent(out)::Mout(*),Cout(*),Kout(*),K1out(*)
+   real(rk)::M(8,8),C(8,8),K(8,8),K1(8,8);integer(ik)::st;integer::i,j
+   call shaft_tapered_matrices(int(stype,ik),L,do1,do2,di1,di2,E,G,rho,axial,M,C,K,K1,st)
+   if(st/=RD_OK)then;rd_element_tapered_legacy=st;return;endif
+   do j=1,8;do i=1,8;Mout((j-1)*8+i)=M(i,j);Cout((j-1)*8+i)=C(i,j);Kout((j-1)*8+i)=K(i,j);K1out((j-1)*8+i)=K1(i,j);enddo;enddo
+   rd_element_tapered_legacy=RD_OK
+ end function
+
+ integer(c_int) function rd_element_asymmetric_legacy(stype,L,EIx,EIy,Phix,Phiy,rhoA,rhoI,axial,Mout,Cout,Kout,K2out) bind(C,name='rd_element_asymmetric_legacy')
+   integer(c_int),value::stype
+   real(c_double),value::L,EIx,EIy,Phix,Phiy,rhoA,rhoI,axial
+   real(c_double),intent(out)::Mout(*),Cout(*),Kout(*),K2out(*)
+   real(rk)::M(8,8),C(8,8),K(8,8),K2(8,8);integer(ik)::st;integer::i,j
+   call shaft_asymmetric_matrices(int(stype,ik),L,EIx,EIy,Phix,Phiy,rhoA,rhoI,axial,M,C,K,K2,st)
+   if(st/=RD_OK)then;rd_element_asymmetric_legacy=st;return;endif
+   do j=1,8;do i=1,8;Mout((j-1)*8+i)=M(i,j);Cout((j-1)*8+i)=C(i,j);Kout((j-1)*8+i)=K(i,j);K2out((j-1)*8+i)=K2(i,j);enddo;enddo
+   rd_element_asymmetric_legacy=RD_OK
  end function
 
  integer(c_int) function rd_bearings_legacy(nnode,nbear,bear,speed,Mout,Cout,Kout,zero_mask,ecc) bind(C,name='rd_bearings_legacy')
