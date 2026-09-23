@@ -44,3 +44,8 @@ M4 adds independent tests for:
 - `freq_fdn` dynamic stiffness, base-motion RHS and the V2 bearing-selection predicate.
 
 MATLAB/Octave remains unavailable. No source-derived test is used as a substitute for MATLAB numerical equivalence.
+
+
+## Declared M4 foundation-response scope
+
+The current ctypes force-row ABI is fixed at five numeric entries, which is sufficient for the supplied two-bearing `Example_06_05_01` frequency-domain case. General variable-width `freq_fdn` forcing for models with more than two bearings is not yet claimed as qualified. This is one reason G8 remains BLOCKED pending MATLAB baselines and broader compatibility work.
