@@ -1,0 +1,9 @@
+time_fdn_max_abs_m= 2.9704856645187266e-09
+time_fdn_rms_m= 4.4593299353421665e-10
+time_fdn_ref_peak_m= 0.0018667050378352941
+time_fdn_max_abs_over_ref_peak= 1.5912988952788282e-06
+runup_max_abs_m= 2.5818612682916922e-11
+runup_rms_m= 4.594725663939736e-12
+runup_ref_peak_m= 0.00019511129405022653
+runup_max_abs_over_ref_peak= 1.3232761746877946e-07
+runup_points= 1232
