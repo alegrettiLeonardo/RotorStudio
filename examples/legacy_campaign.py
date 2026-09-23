@@ -3,7 +3,7 @@ from pathlib import Path
 import json, numpy as np
 from drm_core import (RotorModel,Node,ShaftElement,TaperedShaftElement,Disk,Bearing,Force,BendPoint,
                       run_modal,run_frequency_response,run_auxiliary_frequency_response,run_foundation_frequency_response,
-                      run_critical_speeds)
+                      run_critical_speeds,run_foundation_time_response,run_runup)
 from drm_core.units import rpm_to_rad_s,rad_s_to_rpm
 from drm_core.solver.facade import SolverFacade
 
@@ -110,8 +110,17 @@ def run_06_03_03(outdir,smoke=True,case=1):
 def run_06_05_01(outdir,smoke=True,case=1):
     p=_out(outdir,'Example_06_05_01');b=[Bearing(3,1,(1e6,1e6,100,100)),Bearing(3,7,(1e6,1e6,100,100))]
     if case==1:
-        m=_standard(b,[Force(4,(0,1e-5,0,1e-5))]);hz=np.arange(0,55.001,1 if smoke else .05);rsp=run_foundation_frequency_response(m,rpm_to_rad_s(3000),2*np.pi*hz).response;np.savez(p/'foundation_frequency.npz',hz=hz,response=rsp);return _save_status(p,'PASS_IMPLEMENTED_SCOPE',case=1,freq_fdn=True,phase8=False)
-    return _save_status(p,'BLOCKED_PHASE8_TRANSIENT',case=2,reason='time_fdn/ode45-equivalent Dormand-Prince intentionally not implemented before example stabilization')
+        m=_standard(b,[Force(4,(0,1e-5,0,1e-5))]);hz=np.arange(0,55.001,1 if smoke else .05);rsp=run_foundation_frequency_response(m,rpm_to_rad_s(3000),2*np.pi*hz).response;np.savez(p/'foundation_frequency.npz',hz=hz,response=rsp);return _save_status(p,'PASS_IMPLEMENTED_SCOPE',case=1,freq_fdn=True,phase8=True)
+    m=_standard(b,[Force(5,(0,1e-3,0,1e-3,.025))]);rs=rpm_to_rad_s(3000)
+    if smoke:
+        full=run_foundation_time_response(m,rs,2e-4,5001,nr=0,rtol=1e-5,atol=1e-8)
+        red=run_foundation_time_response(m,rs,1e-3,4096,nr=10,rtol=1e-5,atol=1e-8)
+    else:
+        full=run_foundation_time_response(m,rs,0.00006,65536,nr=0)
+        red=run_foundation_time_response(m,rs,0.001,16384,nr=10)
+    np.savez(p/'foundation_time_full.npz',time=full.time_s,response=full.response,force=full.forcing)
+    np.savez(p/'foundation_time_reduced.npz',time=red.time_s,response=red.response,force=red.forcing)
+    return _save_status(p,'PASS_IMPLEMENTED_SCOPE',case=2,time_fdn=True,nr_full=full.metadata['nr_used'],nr_reduced=red.metadata['nr_used'],accepted_full=full.metadata['accepted_steps'],accepted_reduced=red.metadata['accepted_steps'])
 
 def _overhung(case_l=4,case_r=4,damping_factor=0):
     E=211e9;G=E/(2*(1+.3));rho=7810.;cases=np.array([[1e7,1e7,0,0],[1e7,2e7,0,0],[1e7,2e7,6e4,6e4],[1e7,2e7,4e5,4e5],[2e5,4e5,0,0]],float)
@@ -126,8 +135,14 @@ def run_06_10_01(outdir,smoke=True):
         m=_overhung(1,1);m.bearings[1]=Bearing(3,5,(kr,kr,0,0));r=run_critical_speeds(m,NX=1,damped=True,ncrit=6,max_iterations=20,tol=1e-6,method=2,return_diagnostics=True);crit.append(r.critical_speeds_rad_s);modes.append(_critical_modes(m,r.critical_speeds_rad_s,2))
     np.savez(p/'critical_map.npz',right_bearing_k=ks,critical_rad_s=np.column_stack(crit),mode_shapes=np.stack(modes,axis=2));return _save_status(p,'PASS_IMPLEMENTED_SCOPE',stiffness_points=len(ks))
 
-def run_06_11_01(outdir,smoke=True):
-    p=_out(outdir,'Example_06_11_01');m=_overhung(4,4);m.forces=[Force(1,(7,1e-3,0))];rpm=np.arange(0,3201,400 if smoke else 40,dtype=float);eig,_k,_e=_modal_sweep(m,rpm);np.savez(p/'pre_runup_modal.npz',rpm=rpm,eigenvalues=eig);return _save_status(p,'BLOCKED_PHASE8_RUNUP',modal_precheck='PASS',reason='runup/Dormand-Prince intentionally deferred')
+def run_06_11_01(outdir,smoke=True,case=1):
+    p=_out(outdir,'Example_06_11_01');m=_overhung(4,4);m.forces=[Force(1,(7,1e-3,0))];rpm=np.arange(0,3201,400 if smoke else 40,dtype=float);eig,_k,_e=_modal_sweep(m,rpm);np.savez(p/'pre_runup_modal.npz',rpm=rpm,eigenvalues=eig)
+    if case==1:alpha=np.array([.05*2*np.pi,8*np.pi,0.]);tspan=[0.,70.]
+    else:alpha=np.array([.20*2*np.pi,8*np.pi,0.]);tspan=[0.,20.]
+    if smoke:tspan=[0.,min(tspan[1],8.)]
+    rr=run_runup(m,alpha,tspan,nr=4,rtol=1e-3,atol=1e-6,max_points=200000)
+    np.savez(p/f'runup_case{case}.npz',time=rr.time_s,response=rr.response,speed=rr.speed_rad_s)
+    return _save_status(p,'PASS_IMPLEMENTED_SCOPE',case=case,runup=True,points=len(rr.time_s),nr=rr.metadata['nr_used'],accepted=rr.metadata['accepted_steps'],rejected=rr.metadata['rejected_steps'])
 
 def run_07_07_01(outdir,smoke=True,lhcase=1,rhcase=1,id_case=1):
     p=_out(outdir,'Example_07_07_01');cases=np.array([[1e7,1e7,6e4,6e4],[1e7,2e7,0,0],[1e7,2e7,6e4,6e4]],float);m=_overhung(1,1,0 if id_case==1 else 1e-5);m.bearings=[Bearing(3,1,tuple(cases[lhcase-1])),Bearing(3,5,tuple(cases[rhcase-1]))];rpm=np.arange(500,3501,200 if smoke else 40,dtype=float);eig,_k,_e=_modal_sweep(m,rpm);np.savez(p/f'l{lhcase}_r{rhcase}_d{id_case}.npz',rpm=rpm,eigenvalues=eig);return _save_status(p,'PASS_IMPLEMENTED_SCOPE',lhcase=lhcase,rhcase=rhcase,id_case=id_case)
