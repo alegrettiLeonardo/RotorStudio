@@ -1,0 +1,14 @@
+{
+  "overall": "BLOCKED",
+  "reason": "MATLAB authority baseline missing",
+  "gates": {
+    "G5": {"status":"BLOCKED","detail":"authority baseline missing"},
+    "G6": {"status":"BLOCKED","detail":"authority baseline missing"},
+    "G7": {"status":"BLOCKED","detail":"authority baseline missing"},
+    "G8": {"status":"BLOCKED","detail":"authority baseline missing"},
+    "G9": {"status":"BLOCKED","detail":"authority baseline missing"},
+    "G10": {"status":"BLOCKED","detail":"authority baseline missing"},
+    "G11": {"status":"BLOCKED","detail":"authority baseline missing"},
+    "G12": {"status":"BLOCKED","detail":"authority baseline missing"}
+  }
+}

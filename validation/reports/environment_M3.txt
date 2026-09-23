@@ -1,0 +1,9 @@
+timestamp_utc=2026-09-23T19:18:40Z
+uname=Linux 61b67d142115 6.18.44 #1 SMP Sat Sep 12 15:35:21 UTC 2026 x86_64 GNU/Linux
+python=Python 3.13.5
+gfortran=GNU Fortran (Debian 14.2.0-19) 14.2.0
+cmake=cmake version 3.31.6
+blas=	libblas.so.3 (libc6,x86-64) => /lib/x86_64-linux-gnu/libblas.so.3
+lapack=	liblapack.so.3 (libc6,x86-64) => /lib/x86_64-linux-gnu/liblapack.so.3
+matlab=NOT_FOUND
+octave=NOT_FOUND

@@ -1,0 +1,6 @@
+command -v matlab -> NOT_FOUND
+command -v octave -> NOT_FOUND
+apt-get update -qq -> TIMED_OUT (45 s)
+run_authority.sh -> exit 2, BLOCKED
+run_formal_equivalence.py without authority baseline -> exit 2, BLOCKED
+formal comparator synthetic self-check -> PASS, classification SELF_CHECK_NOT_AUTHORITY

@@ -1,0 +1,11 @@
+{
+  "runs": 32,
+  "pass": 30,
+  "blocked": 2,
+  "fail": 0,
+  "unique_examples": 22,
+  "blocked_cases": [
+    "Example_06_05_01 case=2: BLOCKED_PHASE8_TRANSIENT",
+    "Example_06_11_01: BLOCKED_PHASE8_RUNUP"
+  ]
+}
