@@ -25,7 +25,7 @@ contains
   logical,intent(in)::damped
   real(rk),intent(out)::crit(ncrit);integer(ik),intent(out)::iterations(ncrit);logical,intent(out)::converged(ncrit);integer(ik),intent(out)::status
   integer::i,ic,ieig,ndof,nc,idx,iter,idxc;logical::speed_dep;logical,allocatable::iz(:);integer,allocatable::keep(:)
-  real(rk),allocatable::Mb(:,:),Cb(:,:),Kb(:,:),M(:,:),C(:,:),K(:,:),wr(:),wi(:),est(:)
+  real(rk),allocatable::Mb(:,:),Cb(:,:),Kb(:,:),M(:,:),C(:,:),K(:,:),wr(:),wi(:),wr_initial(:),wi_initial(:),est(:)
   real(rk)::NX,ci,old,rel,guess,best,delta
   ndof=4*nnode;crit=0;iterations=0;converged=.false.;status=RD_OK;NX=max(abs(NX_in),.2_rk);speed_dep=.false.
   do i=1,nbear;if(nint(bear(1,i))==7.or.nint(bear(1,i))==8)speed_dep=.true.;enddo
@@ -42,15 +42,15 @@ contains
   call assemble_bearings(nnode,nbear,bear,guess,Mb,Cb,Kb,iz,status);if(status/=RD_OK)return
   nc=count(.not.iz);if(ncrit>nc)then;status=RD_ERR_INPUT;return;endif;allocate(keep(nc));idx=0
   do i=1,ndof;if(.not.iz(i))then;idx=idx+1;keep(idx)=i;endif;enddo
-  allocate(M(nc,nc),C(nc,nc),K(nc,nc),wr(2*nc),wi(2*nc),est(2*nc))
+  allocate(M(nc,nc),C(nc,nc),K(nc,nc),wr(2*nc),wi(2*nc),wr_initial(2*nc),wi_initial(2*nc),est(2*nc))
   if(method==2)then
     M=M0(keep,keep)+Mb(keep,keep);C=C0(keep,keep)+Cb(keep,keep)+guess*C1(keep,keep);K=K0(keep,keep)+Kb(keep,keep)+guess*K1(keep,keep)
-    call stationary_eigs(M,C,K,wr,wi,status);if(status/=RD_OK)return
+    call stationary_eigs(M,C,K,wr,wi,status);if(status/=RD_OK)return;wr_initial=wr;wi_initial=wi
   endif
   do ic=1,ncrit
     if(method==2)then
       ieig=2*ic-1
-      if(damped)then;ci=abs(wi(ieig))/NX;else;ci=hypot(wr(ieig),wi(ieig))/NX;endif
+      if(damped)then;ci=abs(wi_initial(ieig))/NX;else;ci=hypot(wr_initial(ieig),wi_initial(ieig))/NX;endif
     else
       ci=abs(initial(ic))
     endif
@@ -95,7 +95,7 @@ contains
  subroutine sort_complex(w)
   complex(rk),intent(inout)::w(:);integer::i,j;complex(rk)::t;real(rk)::mi,mj,ai,aj
   do i=1,size(w)-1;do j=i+1,size(w);mi=abs(w(i));mj=abs(w(j));ai=atan2(aimag(w(i)),real(w(i),rk));aj=atan2(aimag(w(j)),real(w(j),rk))
-    if(mj<mi.or.(abs(mj-mi)<=epsilon(1._rk)*max(1._rk,mi).and.aj<ai))then;t=w(i);w(i)=w(j);w(j)=t;endif
+    if(mj<mi.or.(mj==mi.and.aj<ai))then;t=w(i);w(i)=w(j);w(j)=t;endif
   enddo;enddo
  end subroutine
 end module rd_critical_speed
