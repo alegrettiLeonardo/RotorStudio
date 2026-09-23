@@ -4,17 +4,19 @@ module rd_c_api
  use rd_status,only:RD_OK,RD_ERR_INPUT
  use rd_assembly_stationary,only:assemble_rotor,assemble_bearings
  use rd_assembly_rotating,only:assemble_rotor_rotating,assemble_bearings_rotating
- use rd_eigensystem,only:stationary_eigs
+ use rd_eigensystem,only:stationary_eigs,second_order_eigs
  use rd_frequency_response,only:synchronous_response
+ use rd_external_response,only:auxiliary_frequency_response,foundation_frequency_response
  use rd_critical_speed,only:critical_speeds,critical_speeds_ex
  use rd_coaxial_solver,only:coaxial_eigs,coaxial_frequency_response
  use rd_rotating_solver,only:asymmetric_eigs,asymmetric_frequency_response
  implicit none(type,external);private
- public::rd_modal_legacy,rd_assemble_legacy,rd_bearings_legacy,rd_freq_rsp_legacy,rd_crit_spd_legacy,rd_crit_spd_legacy_ex
+ public::rd_modal_legacy,rd_modal_legacy_vectors,rd_assemble_legacy,rd_bearings_legacy,rd_freq_rsp_legacy,rd_crit_spd_legacy,rd_crit_spd_legacy_ex
+ public::rd_freq_aux_legacy,rd_freq_fdn_legacy
  public::rd_coax_modal_legacy,rd_coax_freq_rsp_legacy,rd_asym_assemble_legacy,rd_bearasym_legacy,rd_asym_modal_legacy,rd_asym_freq_rsp_legacy,rd_version
 contains
  integer(c_int) function rd_version(major,minor,patch) bind(C,name='rd_version')
-   integer(c_int),intent(out)::major,minor,patch;major=0;minor=3;patch=0;rd_version=0
+   integer(c_int),intent(out)::major,minor,patch;major=0;minor=4;patch=0;rd_version=0
  end function
 
  integer(c_int) function rd_bearings_legacy(nnode,nbear,bear,speed,Mout,Cout,Kout,zero_mask,ecc) bind(C,name='rd_bearings_legacy')
@@ -65,6 +67,33 @@ contains
    do i=1,2*nc;er(i)=wr(i);ei(i)=wi(i);enddo;rd_modal_legacy=RD_OK
  end function
 
+ integer(c_int) function rd_modal_legacy_vectors(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,speed,nout,er,ei,vr,vi,ecc) bind(C,name='rd_modal_legacy_vectors')
+   integer(c_int),value::nnode,nshaft,ndisc,nbear,nout
+   real(c_double),intent(in)::z(*),shaft(*),disc(*),bear(*);real(c_double),value::speed
+   real(c_double),intent(out)::er(*),ei(*),vr(*),vi(*),ecc(*)
+   real(rk),allocatable::zz(:),sh(:,:),di(:,:),be(:,:),M(:,:),C0(:,:),C1(:,:),K0(:,:),K1(:,:),Mb(:,:),Cb(:,:),Kb(:,:),Mc(:,:),Cc(:,:),Kc(:,:),ee(:)
+   complex(rk),allocatable::w(:),Vred(:,:)
+   logical,allocatable::iz(:);integer,allocatable::keep(:);integer::i,j,ndof,nc,idx;integer(ik)::st
+   rd_modal_legacy_vectors=RD_ERR_INPUT;if(nnode<=0)return;ndof=4*nnode
+   call unpack(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,zz,sh,di,be)
+   allocate(M(ndof,ndof),C0(ndof,ndof),C1(ndof,ndof),K0(ndof,ndof),K1(ndof,ndof),Mb(ndof,ndof),Cb(ndof,ndof),Kb(ndof,ndof),iz(ndof),ee(nbear))
+   call assemble_rotor(nnode,zz,nshaft,sh,ndisc,di,M,C0,C1,K0,K1,st);if(st/=RD_OK)then;rd_modal_legacy_vectors=st;return;endif
+   call assemble_bearings(nnode,nbear,be,speed,Mb,Cb,Kb,iz,st,ee);if(st/=RD_OK)then;rd_modal_legacy_vectors=st;return;endif
+   nc=count(.not.iz);if(nout<2*nc)then;rd_modal_legacy_vectors=RD_ERR_INPUT;return;endif;allocate(keep(nc));idx=0
+   do i=1,ndof;if(.not.iz(i))then;idx=idx+1;keep(idx)=i;endif;enddo
+   allocate(Mc(nc,nc),Cc(nc,nc),Kc(nc,nc),w(2*nc),Vred(nc,2*nc))
+   do j=1,nc;do i=1,nc
+     Mc(i,j)=M(keep(i),keep(j))+Mb(keep(i),keep(j));Cc(i,j)=C0(keep(i),keep(j))+Cb(keep(i),keep(j))+speed*C1(keep(i),keep(j));Kc(i,j)=K0(keep(i),keep(j))+Kb(keep(i),keep(j))+speed*K1(keep(i),keep(j))
+   enddo;enddo
+   call second_order_eigs(Mc,Cc,Kc,w,Vred,st);if(st/=RD_OK)then;rd_modal_legacy_vectors=st;return;endif
+   do j=1,2*nc
+     er(j)=real(w(j),rk);ei(j)=aimag(w(j))
+     do i=1,ndof;vr((j-1)*ndof+i)=0._rk;vi((j-1)*ndof+i)=0._rk;enddo
+     do i=1,nc;vr((j-1)*ndof+keep(i))=real(Vred(i,j),rk);vi((j-1)*ndof+keep(i))=aimag(Vred(i,j));enddo
+   enddo
+   do i=1,nbear;ecc(i)=ee(i);enddo;rd_modal_legacy_vectors=RD_OK
+ end function
+
  integer(c_int) function rd_freq_rsp_legacy(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,nforce,force,nbend,bend,nspeed,speeds,rr,ri) bind(C,name='rd_freq_rsp_legacy')
    integer(c_int),value::nnode,nshaft,ndisc,nbear,nforce,nbend,nspeed;real(c_double),intent(in)::z(*),shaft(*),disc(*),bear(*),force(*),bend(*),speeds(*)
    real(c_double),intent(out)::rr(*),ri(*)
@@ -80,6 +109,40 @@ contains
     call synchronous_response(M,C0,C1,K0,K1,Mb,Cb,Kb,iz,speeds(k),fo,nforce,bd,nbend,resp,st);if(st/=RD_OK)then;rd_freq_rsp_legacy=st;return;endif
     do i=1,ndof;rr((k-1)*ndof+i)=real(resp(i),rk);ri((k-1)*ndof+i)=aimag(resp(i));enddo
    enddo;rd_freq_rsp_legacy=RD_OK
+ end function
+
+ integer(c_int) function rd_freq_aux_legacy(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,nforce,force,rotor_speed,nfreq,omega,direction,rr,ri) bind(C,name='rd_freq_aux_legacy')
+   integer(c_int),value::nnode,nshaft,ndisc,nbear,nforce,nfreq
+   real(c_double),intent(in)::z(*),shaft(*),disc(*),bear(*),force(*),omega(*);real(c_double),value::rotor_speed,direction
+   real(c_double),intent(out)::rr(*),ri(*)
+   real(rk),allocatable::zz(:),sh(:,:),di(:,:),be(:,:),fo(:,:),om(:),M(:,:),C0(:,:),C1(:,:),K0(:,:),K1(:,:),Mb(:,:),Cb(:,:),Kb(:,:),Mt(:,:),Ct(:,:),Kt(:,:)
+   complex(rk),allocatable::resp(:,:);logical,allocatable::iz(:);integer::i,j,ndof;integer(ik)::st
+   rd_freq_aux_legacy=RD_ERR_INPUT;if(nnode<=0.or.nfreq<=0)return;ndof=4*nnode
+   call unpack(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,zz,sh,di,be);allocate(fo(5,nforce),om(nfreq),resp(ndof,nfreq))
+   do j=1,nforce;do i=1,5;fo(i,j)=force((j-1)*5+i);enddo;enddo;do i=1,nfreq;om(i)=omega(i);enddo
+   allocate(M(ndof,ndof),C0(ndof,ndof),C1(ndof,ndof),K0(ndof,ndof),K1(ndof,ndof),Mb(ndof,ndof),Cb(ndof,ndof),Kb(ndof,ndof),Mt(ndof,ndof),Ct(ndof,ndof),Kt(ndof,ndof),iz(ndof))
+   call assemble_rotor(nnode,zz,nshaft,sh,ndisc,di,M,C0,C1,K0,K1,st);if(st/=RD_OK)then;rd_freq_aux_legacy=st;return;endif
+   call assemble_bearings(nnode,nbear,be,rotor_speed,Mb,Cb,Kb,iz,st);if(st/=RD_OK)then;rd_freq_aux_legacy=st;return;endif
+   Mt=M+Mb;Ct=C0+Cb+rotor_speed*C1;Kt=K0+Kb+rotor_speed*K1
+   call auxiliary_frequency_response(Mt,Ct,Kt,iz,fo,nforce,om,nfreq,direction,resp,st);if(st/=RD_OK)then;rd_freq_aux_legacy=st;return;endif
+   do j=1,nfreq;do i=1,ndof;rr((j-1)*ndof+i)=real(resp(i,j),rk);ri((j-1)*ndof+i)=aimag(resp(i,j));enddo;enddo;rd_freq_aux_legacy=RD_OK
+ end function
+
+ integer(c_int) function rd_freq_fdn_legacy(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,nforce,force,rotor_speed,nfreq,omega,rr,ri) bind(C,name='rd_freq_fdn_legacy')
+   integer(c_int),value::nnode,nshaft,ndisc,nbear,nforce,nfreq
+   real(c_double),intent(in)::z(*),shaft(*),disc(*),bear(*),force(*),omega(*);real(c_double),value::rotor_speed
+   real(c_double),intent(out)::rr(*),ri(*)
+   real(rk),allocatable::zz(:),sh(:,:),di(:,:),be(:,:),fo(:,:),om(:),M(:,:),C0(:,:),C1(:,:),K0(:,:),K1(:,:),Mb(:,:),Cb(:,:),Kb(:,:),Mt(:,:),Ct(:,:),Kt(:,:)
+   complex(rk),allocatable::resp(:,:);logical,allocatable::iz(:);integer::i,j,ndof;integer(ik)::st
+   rd_freq_fdn_legacy=RD_ERR_INPUT;if(nnode<=0.or.nfreq<=0)return;ndof=4*nnode
+   call unpack(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,zz,sh,di,be);allocate(fo(5,nforce),om(nfreq),resp(ndof,nfreq))
+   do j=1,nforce;do i=1,5;fo(i,j)=force((j-1)*5+i);enddo;enddo;do i=1,nfreq;om(i)=omega(i);enddo
+   allocate(M(ndof,ndof),C0(ndof,ndof),C1(ndof,ndof),K0(ndof,ndof),K1(ndof,ndof),Mb(ndof,ndof),Cb(ndof,ndof),Kb(ndof,ndof),Mt(ndof,ndof),Ct(ndof,ndof),Kt(ndof,ndof),iz(ndof))
+   call assemble_rotor(nnode,zz,nshaft,sh,ndisc,di,M,C0,C1,K0,K1,st);if(st/=RD_OK)then;rd_freq_fdn_legacy=st;return;endif
+   call assemble_bearings(nnode,nbear,be,rotor_speed,Mb,Cb,Kb,iz,st);if(st/=RD_OK)then;rd_freq_fdn_legacy=st;return;endif
+   Mt=M+Mb;Ct=C0+Cb+rotor_speed*C1;Kt=K0+Kb+rotor_speed*K1
+   call foundation_frequency_response(Mt,Ct,Kt,Mb,Cb,Kb,iz,be,nbear,fo,nforce,om,nfreq,resp,st);if(st/=RD_OK)then;rd_freq_fdn_legacy=st;return;endif
+   do j=1,nfreq;do i=1,ndof;rr((j-1)*ndof+i)=real(resp(i,j),rk);ri((j-1)*ndof+i)=aimag(resp(i,j));enddo;enddo;rd_freq_fdn_legacy=RD_OK
  end function
 
  integer(c_int) function rd_crit_spd_legacy(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,NX,damped,ncrit,maxiter,tol,out) bind(C,name='rd_crit_spd_legacy')
