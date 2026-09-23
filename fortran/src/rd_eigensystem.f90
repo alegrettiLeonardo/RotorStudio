@@ -43,7 +43,7 @@ contains
     n=size(wr)
     do i=1,n-1;do j=i+1,n
       mi=hypot(wr(i),wi(i));mj=hypot(wr(j),wi(j));ai=atan2(wi(i),wr(i));aj=atan2(wi(j),wr(j))
-      if(mj<mi .or. (abs(mj-mi)<=epsilon(1._rk)*max(1._rk,mi) .and. aj<ai)) then
+      if(mj<mi .or. (mj==mi .and. aj<ai)) then
         tr=wr(i);ti=wi(i);wr(i)=wr(j);wi(i)=wi(j);wr(j)=tr;wi(j)=ti
       endif
     enddo;enddo
@@ -55,7 +55,7 @@ contains
     n=size(w);allocate(tv(size(V,1)))
     do i=1,n-1;do j=i+1,n
       mi=abs(w(i));mj=abs(w(j));ai=atan2(aimag(w(i)),real(w(i),rk));aj=atan2(aimag(w(j)),real(w(j),rk))
-      if(mj<mi .or. (abs(mj-mi)<=epsilon(1._rk)*max(1._rk,mi) .and. aj<ai)) then
+      if(mj<mi .or. (mj==mi .and. aj<ai)) then
         tw=w(i);w(i)=w(j);w(j)=tw;tv=V(:,i);V(:,i)=V(:,j);V(:,j)=tv
       endif
     enddo;enddo
