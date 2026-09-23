@@ -19,9 +19,12 @@ def load_library(path=None):
 def configure(lib):
     dptr=ct.POINTER(ct.c_double); iptr=ct.POINTER(ct.c_int)
     lib.rd_modal_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,ct.c_int,dptr,dptr];lib.rd_modal_legacy.restype=ct.c_int
+    lib.rd_modal_legacy_vectors.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,ct.c_int,dptr,dptr,dptr,dptr,dptr];lib.rd_modal_legacy_vectors.restype=ct.c_int
     lib.rd_assemble_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,dptr,dptr,dptr,dptr];lib.rd_assemble_legacy.restype=ct.c_int
     lib.rd_bearings_legacy.argtypes=[ct.c_int,ct.c_int,dptr,ct.c_double,dptr,dptr,dptr,iptr,dptr];lib.rd_bearings_legacy.restype=ct.c_int
     lib.rd_freq_rsp_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,dptr,dptr];lib.rd_freq_rsp_legacy.restype=ct.c_int
+    lib.rd_freq_aux_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,ct.c_int,dptr,ct.c_double,dptr,dptr];lib.rd_freq_aux_legacy.restype=ct.c_int
+    lib.rd_freq_fdn_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,ct.c_int,dptr,dptr,dptr];lib.rd_freq_fdn_legacy.restype=ct.c_int
     lib.rd_crit_spd_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,ct.c_int,ct.c_int,ct.c_int,ct.c_double,dptr];lib.rd_crit_spd_legacy.restype=ct.c_int
     lib.rd_crit_spd_legacy_ex.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,ct.c_int,ct.c_int,ct.c_int,ct.c_double,ct.c_int,dptr,ct.c_int,dptr,iptr,iptr];lib.rd_crit_spd_legacy_ex.restype=ct.c_int
     lib.rd_coax_modal_legacy.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_double,ct.c_int,dptr,dptr,dptr,dptr];lib.rd_coax_modal_legacy.restype=ct.c_int
