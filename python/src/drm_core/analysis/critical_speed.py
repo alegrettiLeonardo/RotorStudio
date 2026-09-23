@@ -30,4 +30,4 @@ def run_critical_speeds(model,library_path=None,**kwargs):
     if want_modes:
         effective=method if method is not None else 2
         modes=_mode_shapes(facade,model,np.asarray(r),effective,kwargs.get("NX",1.0),kwargs.get("damped",True))
-    return CriticalSpeedResult(np.asarray(r),None if it is None else np.asarray(it),None if cv is None else np.asarray(cv),modes,{"solver_version":"0.4.0","model_hash":model.model_hash(),"timestamp":datetime.now(timezone.utc).isoformat(),"backend":"Fortran2018/ctypes"})
+    return CriticalSpeedResult(np.asarray(r),None if it is None else np.asarray(it),None if cv is None else np.asarray(cv),modes,{"solver_version":"0.5.0","model_hash":model.model_hash(),"timestamp":datetime.now(timezone.utc).isoformat(),"backend":"Fortran2018/ctypes"})
