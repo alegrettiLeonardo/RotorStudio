@@ -127,3 +127,24 @@ class FortranBackend:
         status=self.lib.rd_asym_freq_rsp_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),fo.shape[1],self._ptr(fo),len(sp),self._ptr(sp),self._ptr(resp))
         if status: raise SolverLibraryError(f"Fortran rd_asym_freq_rsp_legacy returned status={status}")
         return resp
+    def foundation_time_response(self,m:RotorModel,rotor_speed_rad_s:float,dt:float,npts:int,nr:int=0,rtol:float=1e-3,atol:float=1e-6,h_init:float=0.0,h_max:float=0.0):
+        n,z,sh,di,be=self._arrays(m);nd=4*n
+        rows=[f for f in m.forces if f.force_type==5]
+        if not rows: raise ValueError("foundation time response requires one Force type 5")
+        vals=rows[0].values;need=2*len(m.bearings)+1
+        if len(vals)<need: raise ValueError(f"Force type 5 received {len(vals)} values; expected {need}: 2 per bearing plus pulse_duration")
+        amp=np.ascontiguousarray(vals[:2*len(m.bearings)],dtype=np.float64);pulse=float(vals[2*len(m.bearings)])
+        resp=np.empty((nd,npts),dtype=np.float64,order='F');force=np.empty(npts,dtype=np.float64);time=np.empty(npts,dtype=np.float64)
+        nru=np.zeros(1,dtype=np.int32);na=np.zeros(1,dtype=np.int32);nrj=np.zeros(1,dtype=np.int32);maxf=np.zeros(1,dtype=np.float64)
+        status=self.lib.rd_time_fdn_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),float(rotor_speed_rad_s),self._ptr(amp),pulse,float(dt),int(npts),int(nr),float(rtol),float(atol),float(h_init),float(h_max),self._ptr(resp),self._ptr(force),self._ptr(time),self._iptr(nru),self._ptr(maxf),self._iptr(na),self._iptr(nrj))
+        if status: raise SolverLibraryError(f"Fortran rd_time_fdn_legacy returned status={status}")
+        return time,resp,force,{"nr_used":int(nru[0]),"max_reduced_frequency_hz":float(maxf[0]),"accepted_steps":int(na[0]),"rejected_steps":int(nrj[0]),"rtol":rtol,"atol":atol}
+    def runup(self,m:RotorModel,alpha,tspan,nr:int=0,rtol:float=1e-3,atol:float=1e-6,h_init:float=0.0,h_max:float=0.0,max_points:int=200000):
+        n,z,sh,di,be=self._arrays(m);nd=4*n;fo=self._forces(m);aa=np.ascontiguousarray(alpha,dtype=np.float64);ts=np.asarray(tspan,dtype=float)
+        if aa.shape!=(3,): raise ValueError("alpha must have exactly 3 coefficients [a2,a1,a0]")
+        if ts.size!=2: raise ValueError("tspan must contain [t0,tf]")
+        time=np.empty(max_points,dtype=np.float64);speed=np.empty(max_points,dtype=np.float64);resp=np.empty((nd,max_points),dtype=np.float64,order='F')
+        nout=np.zeros(1,dtype=np.int32);nru=np.zeros(1,dtype=np.int32);na=np.zeros(1,dtype=np.int32);nrj=np.zeros(1,dtype=np.int32);maxf=np.zeros(1,dtype=np.float64)
+        status=self.lib.rd_runup_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),fo.shape[1],self._ptr(fo),self._ptr(aa),float(ts[0]),float(ts[1]),int(nr),float(rtol),float(atol),float(h_init),float(h_max),int(max_points),self._ptr(time),self._ptr(resp),self._ptr(speed),self._iptr(nout),self._iptr(nru),self._ptr(maxf),self._iptr(na),self._iptr(nrj))
+        if status: raise SolverLibraryError(f"Fortran rd_runup_legacy returned status={status}")
+        k=int(nout[0]);return time[:k].copy(),resp[:,:k].copy(order='F'),speed[:k].copy(),{"nr_used":int(nru[0]),"max_reduced_frequency_hz":float(maxf[0]),"accepted_steps":int(na[0]),"rejected_steps":int(nrj[0]),"rtol":rtol,"atol":atol}
