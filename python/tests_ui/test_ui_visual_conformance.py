@@ -36,6 +36,9 @@ def test_mockup_toolbar_and_workspace_structure(qtbot):
 
     assert window.project_dock.minimumWidth() >= 245
     assert window.property_dock.minimumWidth() >= 330
+    assert [window.workspace.tabText(i) for i in range(3)] == [
+        "Rotor Model", "Bearing Performance", "+"
+    ]
 
     required_actions = [
         window.model_toolbar_action,
@@ -59,6 +62,9 @@ def test_mockup_toolbar_and_workspace_structure(qtbot):
     window._open_bearing_performance()
     assert isinstance(window.bearing_page, BearingPerformancePage)
     assert window.workspace.currentWidget() is window.bearing_page
+    assert window.bearing_page.lower_tabs.tabText(0) == "Dynamic Coefficients"
+    assert not window.bearing_page.lower_tabs.isTabEnabled(1)
+    assert not window.bearing_page.lower_tabs.isTabEnabled(2)
 
 
 @pytest.mark.skipif(
