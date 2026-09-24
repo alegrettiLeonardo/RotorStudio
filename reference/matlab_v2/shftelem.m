@@ -179,9 +179,17 @@ if Torque ~= 0
            -1    0    0 -L/2    1    0    0  L/2;
             0   -1  L/2    0    0    1 -L/2    0];
    KTe = Torque*KTe/L;
+  % KTe = 0.5*(KTe + KTe.'); % to make symmetric
+  % KTe = 0.5*(KTe - KTe.'); % to make asymmetric
    K0e = K0e + KTe;
 end
 
+
+
+
+% Skew-symmetric speed dependent contribution to element stiffness matrix
+% from the internal damping. Note that the damping is assumed
+% proportional to the element stiffness matrix.
 phi = shear_coeff;
 if (include_shear_effects==0), phi = 0; end
 K1e = [ 0    12         -6*L            0    0   -12         -6*L            0;
@@ -193,3 +201,5 @@ K1e = [ 0    12         -6*L            0    0   -12         -6*L            0;
       6*L     0            0  (2-phi)*L*L -6*L     0            0  (4+phi)*L*L;
         0   6*L -(2-phi)*L*L            0    0  -6*L -(4+phi)*L*L            0];
 K1e = E*inertia*K1e/( (1+phi)*L^3 );
+
+

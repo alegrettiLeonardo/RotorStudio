@@ -32,20 +32,29 @@ function [response] = freq_aux(model,Rotor_Spd,omega,direction)
 if nargin < 4
     direction = 1;
 end
+
 Node_Def = model.node;
 Force_Def = model.force;
+
 if length(Rotor_Spd) > 1
     disp('>>>> Error - only a single shaft speed must be defined for excitation through')
     disp('             auxiliary bearings - using the first shaft speed only')
     Rotor_Spd = Rotor_Spd(1);
 end
+
 jot = sqrt(-1);
+
+% obtain model of rotor
 [M0,C0,C1,K0,K1] = rotormtx(model);
 [nnode,ncol_node] = size(Node_Def);
 ndof = 4*nnode;
+
+% sort out zeroed DoF and determine bearing model
 [Mb,Cb,Kb,zero_dof] = bearmtx(model,Rotor_Spd);
 dof = 1:ndof;
 dof(zero_dof) = [];
+
+% calculate machine model
 M = M0 + Mb;
 K = K0 + Kb + Rotor_Spd*K1;
 C = C0 + Cb + Rotor_Spd*C1;
@@ -54,6 +63,9 @@ if length(zero_dof) > 0
     C = C(dof,dof);
     K = K(dof,dof);
 end
+
+
+% sort out forcing
 [nforce,ncol_force] = size(Force_Def);
 for iforce = nforce:-1:1
     if Force_Def(iforce,1) ~= 6 & Force_Def(iforce,1) ~= 7
@@ -71,10 +83,15 @@ if nforce == 0
     response = [];
     return
 end
+
+
+
 force = zeros(ndof,1);
 nfreq = length(omega);
 response = zeros(ndof,nfreq);
-if Force_Def(1,1) == 6
+
+% calculate spinner unbalance forcing and the response
+if Force_Def(1,1) == 6  % spinner
     aux_node = Force_Def(1,2);
     unbal_mag = Force_Def(1,3);
     unbal_phase = Force_Def(1,4);
@@ -84,21 +101,23 @@ if Force_Def(1,1) == 6
     else
         force(force_dof) = force(force_dof) + unbal_mag*exp(j*unbal_phase)*[1; jot];
     end
-    force(zero_dof) = [];
-    for ifreq = 1:nfreq
+    force(zero_dof) = [];  % remove force from zeroed dof 
+    for ifreq = 1:nfreq % calculate response
         om = omega(ifreq);
         om2 = om*om;
         response(dof,ifreq) = (-M*om2+C*jot*om+K)\(om2*force);
     end
 end
-if Force_Def(1,1) == 7
+
+% calculate vibrator forcing and the response
+if Force_Def(1,1) == 7  % spinner
     aux_node = Force_Def(1,2);
     f_x = Force_Def(1,3);
     f_y = Force_Def(1,4);
     force_dof = [4*aux_node-3; 4*aux_node-2];
     force(force_dof) = force(force_dof) + [f_x; f_y];
-    force(zero_dof) = [];
-    for ifreq = 1:nfreq
+    force(zero_dof) = [];  % remove force from zeroed dof 
+    for ifreq = 1:nfreq % calculate response
         om = omega(ifreq);
         om2 = om*om;
         response(dof,ifreq) = (-M*om2+C*jot*om+K)\force;

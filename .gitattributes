@@ -1,0 +1,8 @@
+# Keep numerical authority text byte-stable across Windows/Linux checkouts.
+reference/matlab_v2/*.m text eol=lf
+
+# Keep qualification harness and manifests portable and deterministic.
+validation/equivalence/*.py text eol=lf
+validation/equivalence/*.json text eol=lf
+validation/equivalence/matlab/*.m text eol=lf
+.github/workflows/*.yml text eol=lf

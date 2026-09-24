@@ -2,6 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Union
 import hashlib, json
+from numbers import Real
 
 @dataclass(frozen=True)
 class Node:
@@ -95,7 +96,21 @@ class RotorModel:
         rdefs=[RotorDefinition(int(r[0]),int(r[1]),float(r[2])) for r in (rotors or [])]
         return cls(nodes,shafts,disks,bearings,forces,bends,rdefs)
     def canonical_dict(self):
-        def d(x): return vars(x)
+        # Hash/persistence canonical form is intentionally numeric-type stable:
+        # callers may construct SI fields with int literals while the legacy
+        # JSON round-trip restores them as floats. Those representations are
+        # physically identical and must not make a valid result appear stale.
+        def norm(v):
+            if isinstance(v, bool) or v is None:
+                return v
+            if isinstance(v, Real):
+                return float(v)
+            if isinstance(v, dict):
+                return {str(k): norm(v[k]) for k in sorted(v)}
+            if isinstance(v, (list, tuple)):
+                return [norm(x) for x in v]
+            return v
+        def d(x): return norm(vars(x))
         return {"nodes":[d(x) for x in self.nodes],"shafts":[d(x) for x in self.shafts],"disks":[d(x) for x in self.disks],"bearings":[d(x) for x in self.bearings],"forces":[d(x) for x in self.forces],"bend":[d(x) for x in self.bend],"rotors":[d(x) for x in self.rotors]}
     def model_hash(self)->str:
         return hashlib.sha256(json.dumps(self.canonical_dict(),sort_keys=True,separators=(",",":"),default=list).encode()).hexdigest()
