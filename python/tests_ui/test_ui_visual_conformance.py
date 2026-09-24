@@ -34,7 +34,6 @@ def test_mockup_toolbar_and_workspace_structure(qtbot):
     qtbot.addWidget(window)
     window.show()
 
-    toolbar = window.findChild(type(window.findChildren(type(window.toolBarArea))[0]) if False else object)
     assert window.project_dock.minimumWidth() >= 245
     assert window.property_dock.minimumWidth() >= 330
 
