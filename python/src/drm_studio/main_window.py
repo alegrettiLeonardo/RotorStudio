@@ -11,12 +11,19 @@ from PySide6.QtWidgets import (
 from drm_core import AnalysisService
 from drm_core.analysis.modal import ModalResult
 from drm_core.analysis.critical_speed import CriticalSpeedResult
+from drm_core.analysis.frequency_response import FrequencyResponseResult
 from drm_core.validation.model import validate_model, ModelValidationError
 
 from .application import ProjectSession, SolverJobManager
-from .analysis_pages import ModalSetupDialog, CampbellSetupDialog, CriticalSpeedSetupDialog
+from .analysis_pages import (
+    ModalSetupDialog, CampbellSetupDialog, CriticalSpeedSetupDialog,
+    SynchronousResponseSetupDialog, FrequencyResponseSetupDialog,
+)
 from .docks import MessagesDock, ProjectExplorerDock, PropertyInspectorDock
-from .result_views import ModalResultView, CampbellResultView, CriticalSpeedResultView
+from .result_views import (
+    ModalResultView, CampbellResultView, CriticalSpeedResultView,
+    FrequencyResponseResultView,
+)
 from .widgets import RotorModelPage
 from .style import APP_STYLESHEET
 
@@ -68,6 +75,9 @@ class MainWindow(QMainWindow):
         )
         self.campbell_action = QAction("Campbell Diagram", self)
         self.critical_action = QAction("Critical Speeds", self)
+        self.synchronous_action = QAction("Synchronous Response", self)
+        self.frequency_action = QAction("Frequency Response", self)
+        self.foundation_action = QAction("Foundation Excitation", self)
 
         self.new_action.triggered.connect(self.session.new_project)
         self.open_action.triggered.connect(self._choose_open)
@@ -77,6 +87,9 @@ class MainWindow(QMainWindow):
         self.modal_action.triggered.connect(self._configure_modal)
         self.campbell_action.triggered.connect(self._configure_campbell)
         self.critical_action.triggered.connect(self._configure_critical)
+        self.synchronous_action.triggered.connect(self._configure_synchronous)
+        self.frequency_action.triggered.connect(self._configure_frequency_response)
+        self.foundation_action.triggered.connect(self._configure_foundation_response)
 
     def _build_menus(self):
         bar = self.menuBar()
@@ -92,6 +105,10 @@ class MainWindow(QMainWindow):
         self.analysis_menu.addAction(self.modal_action)
         self.analysis_menu.addAction(self.campbell_action)
         self.analysis_menu.addAction(self.critical_action)
+        self.analysis_menu.addSeparator()
+        self.analysis_menu.addAction(self.synchronous_action)
+        self.analysis_menu.addAction(self.frequency_action)
+        self.analysis_menu.addAction(self.foundation_action)
         self.bearings_menu = bar.addMenu("Bearings")
         self.results_menu = bar.addMenu("Results")
         bar.addMenu("Tools")
@@ -109,6 +126,8 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.modal_action)
         toolbar.addAction(self.campbell_action)
         toolbar.addAction(self.critical_action)
+        toolbar.addAction(self.synchronous_action)
+        toolbar.addAction(self.frequency_action)
 
     def _build_shell(self):
         self.workspace = QTabWidget()
@@ -137,6 +156,9 @@ class MainWindow(QMainWindow):
         self.model_page.modalRequested.connect(self._configure_modal)
         self.model_page.campbellRequested.connect(self._configure_campbell)
         self.model_page.criticalRequested.connect(self._configure_critical)
+        self.model_page.synchronousRequested.connect(self._configure_synchronous)
+        self.model_page.frequencyRequested.connect(self._configure_frequency_response)
+        self.model_page.foundationRequested.connect(self._configure_foundation_response)
 
     def _connect_session(self):
         self.session.projectChanged.connect(self._refresh_title)
@@ -212,6 +234,21 @@ class MainWindow(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             self.run_analysis(dialog.analysis_case())
 
+    def _configure_synchronous(self):
+        dialog = SynchronousResponseSetupDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
+    def _configure_frequency_response(self):
+        dialog = FrequencyResponseSetupDialog("auxiliary", self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
+    def _configure_foundation_response(self):
+        dialog = FrequencyResponseSetupDialog("foundation", self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
     def run_analysis(self, case) -> bool:
         analysis_family = (
             "coaxial" if case.kind.startswith("coaxial_")
@@ -269,6 +306,9 @@ class MainWindow(QMainWindow):
         elif isinstance(result, CriticalSpeedResult):
             view = CriticalSpeedResultView(record)
             prefix = "Critical Speeds"
+        elif isinstance(result, FrequencyResponseResult):
+            view = FrequencyResponseResultView(record)
+            prefix = "Response"
         if view is None:
             return
         view._tab_prefix = prefix

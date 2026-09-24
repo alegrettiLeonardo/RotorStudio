@@ -220,6 +220,9 @@ class RotorModelPage(QWidget):
     modalRequested = Signal()
     campbellRequested = Signal()
     criticalRequested = Signal()
+    synchronousRequested = Signal()
+    frequencyRequested = Signal()
+    foundationRequested = Signal()
 
     def __init__(self, session, parent=None):
         super().__init__(parent)
@@ -274,3 +277,6 @@ class RotorModelPage(QWidget):
         self.modules.modalRequested.connect(self.modalRequested)
         self.modules.campbellRequested.connect(self.campbellRequested)
         self.modules.criticalRequested.connect(self.criticalRequested)
+        self.modules.synchronousRequested.connect(self.synchronousRequested)
+        self.modules.frequencyRequested.connect(self.frequencyRequested)
+        self.modules.foundationRequested.connect(self.foundationRequested)

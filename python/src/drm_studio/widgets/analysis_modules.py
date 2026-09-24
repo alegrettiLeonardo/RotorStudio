@@ -8,6 +8,9 @@ class AnalysisModulesBar(QGroupBox):
     modalRequested = Signal()
     campbellRequested = Signal()
     criticalRequested = Signal()
+    synchronousRequested = Signal()
+    frequencyRequested = Signal()
+    foundationRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__("Analysis Modules", parent)
@@ -16,9 +19,9 @@ class AnalysisModulesBar(QGroupBox):
             ("Modal /\nChar. Roots", True),
             ("Campbell\nDiagram", True),
             ("Critical\nSpeeds", True),
-            ("Synchronous\nResponse", False),
-            ("Frequency\nResponse", False),
-            ("Foundation\nExcitation", False),
+            ("Synchronous\nResponse", True),
+            ("Frequency\nResponse", True),
+            ("Foundation\nExcitation", True),
             ("Run-up /\nRun-down", False),
             ("Coaxial\nRotor", False),
             ("Bearing\nPerformance", False),
@@ -37,3 +40,6 @@ class AnalysisModulesBar(QGroupBox):
         self.buttons["Modal /\nChar. Roots"].clicked.connect(self.modalRequested)
         self.buttons["Campbell\nDiagram"].clicked.connect(self.campbellRequested)
         self.buttons["Critical\nSpeeds"].clicked.connect(self.criticalRequested)
+        self.buttons["Synchronous\nResponse"].clicked.connect(self.synchronousRequested)
+        self.buttons["Frequency\nResponse"].clicked.connect(self.frequencyRequested)
+        self.buttons["Foundation\nExcitation"].clicked.connect(self.foundationRequested)
