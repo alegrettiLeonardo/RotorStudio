@@ -27,7 +27,7 @@ class TransientResultView(QWidget):
         self._build_time();self._build_fft();self.refresh_stale()
 
     def _build_time(self):
-        host=QWidget();layout=QVBoxLayout(host);fig=Figure(figsize=(8,5),tight_layout=True);canvas=FigureCanvasQTAgg(fig)
+        host=QWidget();layout=QVBoxLayout(host);self.time_figure=Figure(figsize=(8,5),tight_layout=True);fig=self.time_figure;canvas=FigureCanvasQTAgg(fig)
         if self.result.speed_rad_s is None and self.result.forcing is None:
             ax=fig.add_subplot(111);ax.plot(self.result.time_s,self.result.response[self.dof_index,:]);ax.set_xlabel("Time (s)");ax.set_ylabel("Response");ax.grid(True)
         else:
@@ -41,7 +41,7 @@ class TransientResultView(QWidget):
         layout.addWidget(canvas);self.tabs.addTab(host,"Time Response")
 
     def _build_fft(self):
-        host=QWidget();layout=QVBoxLayout(host);fig=Figure(figsize=(8,5),tight_layout=True);canvas=FigureCanvasQTAgg(fig);ax=fig.add_subplot(111)
+        host=QWidget();layout=QVBoxLayout(host);self.fft_figure=Figure(figsize=(8,5),tight_layout=True);fig=self.fft_figure;canvas=FigureCanvasQTAgg(fig);ax=fig.add_subplot(111)
         try:
             fft=fft_scale(self.result.response[self.dof_index,:],self.result.time_s)
             n=max(1,len(fft.frequency_hz)//2)
