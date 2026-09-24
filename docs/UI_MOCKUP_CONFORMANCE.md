@@ -1,5 +1,14 @@
 # Stage 2 mockup conformance
 
+> **Stage 2.1 revision.** The original Stage 2 UI20 gate demonstrated that real
+> application screenshots existed, but it did not sufficiently enforce visual
+> structure. After visual review, UI20 was reopened for toolbar iconography,
+> dock proportions, document pagination, Results Properties context, the
+> Bearing Performance workspace and 3-D mode-shape presentation. The Stage 2.1
+> implementation and acceptance contract is documented in
+> `UI_STAGE21_VISUAL_CONFORMANCE.md`. Its workflow evidence supersedes the
+> original screenshot-existence-only interpretation of UI20.
+
 The three supplied mockups are the visual authority for Stage 2. Comparison is structural rather than pixel-perfect because Qt font metrics and platform rendering differ. Screenshots are captured from the real application by `scripts/capture_stage2_ui.py` while `DRMROTOR_LIB` points to the freshly built Fortran library. No mock backend or fabricated plot data is used.
 
 ## Mockup 1 — Rotor Model
