@@ -31,6 +31,10 @@ from .result_views import (
 from .widgets import RotorModelPage
 from .style import APP_STYLESHEET
 from .commands import ReplaceRotorDefinitionsCommand
+from .result_views.io import (
+    export_record_csv, export_record_native, export_record_report,
+    export_view_plot_bundle, view_figure,
+)
 
 
 class MainWindow(QMainWindow):
@@ -89,6 +93,12 @@ class MainWindow(QMainWindow):
         self.asymmetric_action = QAction("Asymmetric Rotor", self)
         self.cancel_action = QAction("Cancel Analysis", self)
         self.cancel_action.setEnabled(False)
+        self.rerun_result_action = QAction("Rerun Current Result", self)
+        self.remove_result_action = QAction("Remove Current Result", self)
+        self.export_plot_action = QAction("Export Plot Bundle (PNG/SVG/PDF)…", self)
+        self.export_csv_action = QAction("Export Data CSV…", self)
+        self.export_native_action = QAction("Export Native NPZ…", self)
+        self.report_action = QAction("Generate Analysis Report…", self)
 
         self.new_action.triggered.connect(self.session.new_project)
         self.open_action.triggered.connect(self._choose_open)
@@ -106,6 +116,12 @@ class MainWindow(QMainWindow):
         self.coaxial_action.triggered.connect(self._configure_coaxial)
         self.asymmetric_action.triggered.connect(self._configure_asymmetric)
         self.cancel_action.triggered.connect(self.jobs.cancel_current)
+        self.rerun_result_action.triggered.connect(self._rerun_current_result)
+        self.remove_result_action.triggered.connect(self._remove_current_result)
+        self.export_plot_action.triggered.connect(self._export_current_plot)
+        self.export_csv_action.triggered.connect(self._export_current_csv)
+        self.export_native_action.triggered.connect(self._export_current_native)
+        self.report_action.triggered.connect(self._report_current_result)
 
     def _build_menus(self):
         bar = self.menuBar()
@@ -134,6 +150,13 @@ class MainWindow(QMainWindow):
         self.analysis_menu.addAction(self.cancel_action)
         self.bearings_menu = bar.addMenu("Bearings")
         self.results_menu = bar.addMenu("Results")
+        self.results_menu.addActions([self.rerun_result_action, self.remove_result_action])
+        self.results_menu.addSeparator()
+        self.results_menu.addActions([
+            self.export_plot_action, self.export_csv_action,
+            self.export_native_action, self.report_action,
+        ])
+        self.results_menu.aboutToShow.connect(self._refresh_result_actions)
         bar.addMenu("Tools")
         bar.addMenu("Help")
 
@@ -194,6 +217,8 @@ class MainWindow(QMainWindow):
         self.session.pathChanged.connect(lambda _: self._refresh_title())
         self.session.dirtyChanged.connect(lambda _: self._refresh_title())
         self.session.resultsChanged.connect(self._refresh_result_tabs)
+        self.session.selectionChanged.connect(self._navigate_result_selection)
+        self.workspace.currentChanged.connect(lambda _: self._refresh_result_actions())
 
     def _connect_jobs(self):
         self.jobs.jobStateChanged.connect(self._job_state_changed)
@@ -444,6 +469,104 @@ class MainWindow(QMainWindow):
                 self.workspace.setTabText(idx, self._result_tab_label(record, view))
             view.record = record
             view.refresh_stale()
+
+    def _current_result(self):
+        current = self.workspace.currentWidget()
+        for key, view in self._result_tabs.items():
+            if view is current:
+                return key, self.session.results.get(key), view
+        return None, None, None
+
+    def _refresh_result_actions(self):
+        _, record, view = self._current_result()
+        enabled = record is not None
+        for action in (
+            self.rerun_result_action, self.remove_result_action,
+            self.export_csv_action, self.export_native_action, self.report_action,
+        ):
+            action.setEnabled(enabled)
+        self.export_plot_action.setEnabled(enabled and view_figure(view) is not None)
+
+    def _navigate_result_selection(self, ref):
+        if ref is None or ref.kind != "result":
+            return
+        records = list(self.session.results.values())
+        if not (0 <= ref.index < len(records)):
+            return
+        view = self._result_tabs.get(records[ref.index].key)
+        if view is not None:
+            idx = self.workspace.indexOf(view)
+            if idx >= 0:
+                self.workspace.setCurrentIndex(idx)
+
+    def _rerun_current_result(self):
+        _, record, _ = self._current_result()
+        if record is not None:
+            self.run_analysis(record.execution.case)
+
+    def _remove_current_result(self):
+        key, record, view = self._current_result()
+        if record is None:
+            return
+        idx = self.workspace.indexOf(view)
+        if idx >= 0:
+            self.workspace.removeTab(idx)
+        self._result_tabs.pop(key, None)
+        view.deleteLater()
+        self.session.remove_result(key)
+
+    def _export_current_plot(self):
+        _, record, view = self._current_result()
+        if record is None:
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Export Plot Bundle", record.key + ".png", "PNG base (*.png)"
+        )
+        if not path:
+            return
+        try:
+            written = export_view_plot_bundle(view, Path(path).with_suffix(""))
+            self.session.log("INFO", "Plot exports: " + ", ".join(str(p) for p in written.values()))
+        except Exception as exc:
+            QMessageBox.critical(self, "Plot export failed", str(exc))
+
+    def _export_current_csv(self):
+        _, record, _ = self._current_result()
+        if record is None:
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Export Result Data", record.key + ".csv", "CSV (*.csv)"
+        )
+        if path:
+            try:
+                self.session.log("INFO", f"Data export: {export_record_csv(record, path)}")
+            except Exception as exc:
+                QMessageBox.critical(self, "Data export failed", str(exc))
+
+    def _export_current_native(self):
+        _, record, _ = self._current_result()
+        if record is None:
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Export Native Result", record.key + ".npz", "NumPy archive (*.npz)"
+        )
+        if path:
+            try:
+                self.session.log("INFO", f"Native export: {export_record_native(record, path)}")
+            except Exception as exc:
+                QMessageBox.critical(self, "Native export failed", str(exc))
+
+    def _report_current_result(self):
+        _, record, _ = self._current_result()
+        if record is None:
+            return
+        outdir = QFileDialog.getExistingDirectory(self, "Analysis Report Output Directory")
+        if outdir:
+            try:
+                written = export_record_report(record, outdir)
+                self.session.log("INFO", "Report: " + ", ".join(str(p) for p in written.values()))
+            except Exception as exc:
+                QMessageBox.critical(self, "Report generation failed", str(exc))
 
     def _refresh_title(self):
         name = self.session.path.name if self.session.path else self.session.project.name
