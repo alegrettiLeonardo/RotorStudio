@@ -68,13 +68,25 @@ def model_from_struct(s):
         node = node.reshape(-1, 1)
     if node.shape[1] == 1:
         node = np.column_stack([np.arange(1, len(node) + 1), node[:, 0]])
+
+    # V2 accepts Model.bend as an nnode-by-1 vector. scipy.loadmat(simplify_cells=True)
+    # collapses that MATLAB column vector to shape (nnode,), while rows() would
+    # incorrectly reinterpret it as one 17-column bend row. Restore the exact
+    # legacy nnode-by-1 semantics before RotorModel.from_legacy_arrays().
+    bend_value = get(s, "bend")
+    bend_array = np.asarray(bend_value)
+    if bend_array.ndim == 1 and bend_array.size == len(node):
+        bend_rows = [[float(value)] for value in bend_array]
+    else:
+        bend_rows = rows(bend_value)
+
     return RotorModel.from_legacy_arrays(
         rows(node),
         rows(get(s, "shaft")),
         rows(get(s, "disc")),
         rows(get(s, "bearing")),
         rows(get(s, "force")),
-        rows(get(s, "bend")),
+        bend_rows,
         rows(get(s, "rotors")),
     )
 
@@ -241,19 +253,32 @@ def _beam_model(ne: int, bc: str) -> RotorModel:
     return RotorModel(nodes, shafts, [], bearings)
 
 
-def _positive_unique_omega(eigenvalues, count):
+def _positive_planar_beam_omega(eigenvalues, count):
+    """Collapse the exact x/y double degeneracy of the isotropic rotor beam.
+
+    The book oracle is a one-plane Euler beam. RotorStudio represents the two
+    orthogonal bending planes, so every positive beam frequency occurs twice at
+    zero speed. Pair adjacent positive roots structurally instead of inventing
+    a new clustering tolerance. The pair agreement itself is checked with the
+    already-frozen G7 frequency threshold.
+    """
     values = np.sort(
         np.abs(np.imag(np.asarray(eigenvalues)[np.imag(np.asarray(eigenvalues)) > 1e-9]))
     )
-    unique = []
-    for value in values:
-        if not unique or abs(value - unique[-1]) > max(1e-9, abs(value) * 1e-9):
-            unique.append(float(value))
-    if len(unique) < count:
+    if values.size < 2 * count:
         raise AssertionError(
-            f"expected {count} unique positive frequencies, got {unique}"
+            f"expected at least {2 * count} positive planar roots, got {values.size}"
         )
-    return np.asarray(unique[:count])
+    pairs = values[: 2 * count].reshape(count, 2)
+    for pair in pairs:
+        pair_check = compare_frequencies(
+            np.asarray([pair[0]]), np.asarray([pair[1]])
+        )
+        if not pair_check["pass"]:
+            raise AssertionError(
+                f"isotropic x/y beam degeneracy exceeded frozen G7 threshold: {pair.tolist()}"
+            )
+    return pairs.mean(axis=1)
 
 
 def run_hybrid_case(cid: str, workspace: dict, service: AnalysisService) -> dict:
@@ -266,7 +291,7 @@ def run_hybrid_case(cid: str, workspace: dict, service: AnalysisService) -> dict
             _beam_model(ne, cfg["bc"]),
             AnalysisCase("modal", {"speed_rad_s": 0.0}, name=f"G14-{cid}"),
         )
-        actual = _positive_unique_omega(execution.result.eigenvalues, 1)
+        actual = _positive_planar_beam_omega(execution.result.eigenvalues, 1)
         expected = np.asarray(
             [math.sqrt(float(np.min(np.asarray(workspace["omega"], float))))]
         )
@@ -284,7 +309,7 @@ def run_hybrid_case(cid: str, workspace: dict, service: AnalysisService) -> dict
                 AnalysisCase("modal", {"speed_rad_s": 0.0}, name=f"G14-{cid}-{int(ne)}"),
             )
             actual_columns.append(
-                _positive_unique_omega(execution.result.eigenvalues, 3)
+                _positive_planar_beam_omega(execution.result.eigenvalues, 3)
             )
         checks.append(
             compare_frequencies(expected_all, np.column_stack(actual_columns))
