@@ -96,15 +96,20 @@ jobs:
           cmake -S fortran -B build-g14 -DCMAKE_BUILD_TYPE=Release
           cmake --build build-g14 -j2
           ctest --test-dir build-g14 --output-on-failure
-      - name: Verify and inventory DRM problem archive
+      - name: Retrieve, verify and inventory authoritative DRM problem archive
         run: |
+          set -o pipefail
           mkdir -p validation/reports/g14
+          curl --fail --location --retry 3 --connect-timeout 20 \
+            https://www.rotordynamics.info/DRM_problem_scripts.zip \
+            --output validation/reports/g14/DRM_problem_scripts.zip
+          echo "8b5db23fa57bc5e41f68ed9e25ab8f1f1a72e4a24b9e11af38dccdd4098501d1  validation/reports/g14/DRM_problem_scripts.zip" \
+            | sha256sum --check -
           python validation/book_problems/prepare_sources.py \
-            --zip reference/problems/DRM_problem_scripts.zip \
+            --zip validation/reports/g14/DRM_problem_scripts.zip \
             --outdir validation/reports/g14/problem_sources \
             --inventory validation/reports/g14/problem_inventory.json \
             | tee validation/reports/g14/problem_inventory_summary.txt
-          test ${PIPESTATUS[0]} -eq 0
       - name: Prepare Octave authority trace harness
         run: |
           python validation/book_problems/prepare_octave_runtime.py \
