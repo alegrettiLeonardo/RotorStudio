@@ -170,11 +170,13 @@ def _execute_modal(service: AnalysisService, model: RotorModel, speeds: np.ndarr
     cols = []
     for speed in speeds:
         kind = "asymmetric_modal" if asymmetric else "modal"
+        print(f"G14_MODAL_CALL_BEGIN kind={kind} speed_rad_s={float(speed):.17g}", flush=True)
         execution = service.execute(
             model,
             AnalysisCase(kind, {"speed_rad_s": float(speed)}, name=f"G14-{kind}"),
         )
         cols.append(np.asarray(execution.result.eigenvalues))
+        print(f"G14_MODAL_CALL_END kind={kind} speed_rad_s={float(speed):.17g}", flush=True)
     return np.column_stack(cols)
 
 
@@ -619,7 +621,7 @@ def main() -> int:
                 run1 / "workspaces" / f"Problem_{cid}.mat", simplify_cells=True
             )
             product = run_solver_case(cid, workspace, service)
-            print(f"G14_PRODUCT_END {cid} status={product.get('status')}", flush=True)
+            print(f"G14_PRODUCT_END {cid} status={product.get('status')} detail={json.dumps(product, sort_keys=True, default=str)}", flush=True)
         elif item["classification"] == "A_WITH_ANALYTIC_ORACLE":
             product_required += 1
             print(f"G14_PRODUCT_BEGIN {cid} class=A_WITH_ANALYTIC_ORACLE", flush=True)
