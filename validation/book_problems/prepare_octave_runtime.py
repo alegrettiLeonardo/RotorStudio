@@ -136,3 +136,62 @@ def sanitize_script(text: str, name: str) -> str:
         text = re.sub(r"\\bdo\\b", "do_octave", text)
     return text if text.endswith("\\n") else text+"\\n"
 
+
+
+def main() -> int:
+    ap=argparse.ArgumentParser()
+    ap.add_argument('--software-dir',required=True)
+    ap.add_argument('--problem-dir',required=True)
+    ap.add_argument('--inventory',required=True)
+    ap.add_argument('--runtime-dir',required=True)
+    args=ap.parse_args()
+
+    software=Path(args.software_dir)
+    problems=Path(args.problem_dir)
+    runtime=Path(args.runtime_dir)
+    wrappers=runtime/'wrappers'
+    sanitized=runtime/'problems'
+    shutil.rmtree(runtime,ignore_errors=True)
+    wrappers.mkdir(parents=True)
+    sanitized.mkdir(parents=True)
+
+    inv=json.loads(Path(args.inventory).read_text())
+    (sanitized/'inventory_runtime.json').write_text(
+        json.dumps({'problems':[{'problem':p['problem']} for p in inv['problems']]})
+    )
+
+    for fn in TRACE_FUNCTIONS:
+        src=(software/f'{fn}.m').read_text(errors='replace')
+        (wrappers/f'authority_{fn}.m').write_text(rename_function(src,fn,f'authority_{fn}'))
+        (wrappers/f'{fn}.m').write_text(WRAPPERS[fn])
+
+    (wrappers/'drm_trace_file.m').write_text(TRACE_HELPER)
+    (wrappers/'run_book_problem_suite.m').write_text(RUNNER)
+
+    for name in PLOT_NOOP_NAMES:
+        (wrappers/f'{name}.m').write_text(
+            f"function varargout = {name}(varargin)\n"
+            "varargout=cell(1,nargout);\n"
+            "end\n"
+        )
+
+    for entry in inv['problems']:
+        p=problems/f"{entry['problem']}.m"
+        (sanitized/p.name).write_text(
+            sanitize_script(p.read_text(errors='replace'),p.name)
+        )
+
+    helper=problems/'bnpr.m'
+    if helper.exists():
+        shutil.copy2(helper,sanitized/'bnpr.m')
+
+    print(json.dumps({
+        'runtime_dir':str(runtime),
+        'problems':len(inv['problems']),
+        'wrappers':list(TRACE_FUNCTIONS),
+        'plot_noops':list(PLOT_NOOP_NAMES),
+    }))
+    return 0
+
+if __name__=='__main__':
+    raise SystemExit(main())
