@@ -2,7 +2,8 @@ function run_problem_suite(repo_root, outdir)
   if nargin < 1, repo_root = pwd; end
   if nargin < 2, outdir = fullfile(repo_root,'validation','reports','book_problems'); end
   problem_dir = fullfile(repo_root,'reference','drm_problem_scripts');
-  v2_dir = fullfile(repo_root,'reference','matlab_v2');\n  plot_stub_dir = fullfile(repo_root,'validation','book_problems','octave','plot_stubs');
+  v2_dir = fullfile(repo_root,'reference','matlab_v2');
+  plot_stub_dir = fullfile(repo_root,'validation','book_problems','octave','plot_stubs');
   if exist(outdir,'dir') ~= 7, mkdir(outdir); end
   capture_dir=fullfile(outdir,'workspaces'); if exist(capture_dir,'dir') ~= 7, mkdir(capture_dir); end
   addpath(problem_dir); addpath(v2_dir); addpath(plot_stub_dir);
