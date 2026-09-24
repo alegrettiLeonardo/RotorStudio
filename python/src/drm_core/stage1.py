@@ -87,6 +87,9 @@ class AnalysisService:
         elif k=="asymmetric_frequency_response": result=run_asymmetric_frequency_response(model,library_path=lib,**p)
         elif k=="foundation_time_response": result=run_foundation_time_response(model,library_path=lib,**p)
         elif k=="runup": result=run_runup(model,library_path=lib,**p)
+        elif k=="bearing_matrices":
+            from .solver.facade import SolverFacade
+            result=SolverFacade(lib).bearings(model,**p)
         else: raise ValueError(f"unsupported AnalysisCase.kind={case.kind!r}")
         effective_options={**self.build_options,**case.options}
         ah=analysis_hash(model,case,effective_options)
