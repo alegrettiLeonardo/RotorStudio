@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QSettings
+from PySide6.QtCore import Qt, QSettings, QSize
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
-    QMainWindow, QFileDialog, QMessageBox, QToolBar, QStyle, QTabWidget, QLabel, QDialog
+    QMainWindow, QFileDialog, QMessageBox, QToolBar, QStyle, QTabWidget, QLabel,
+    QDialog, QComboBox, QWidget
 )
 
 from drm_core import AnalysisService
@@ -28,8 +29,9 @@ from .result_views import (
     ModalResultView, CampbellResultView, CriticalSpeedResultView,
     FrequencyResponseResultView, TransientResultView, SpecialRotorResultView,
 )
-from .widgets import RotorModelPage
+from .widgets import RotorModelPage, BearingPerformancePage
 from .style import APP_STYLESHEET
+from .resources import studio_icon
 from .commands import ReplaceRotorDefinitionsCommand
 from .result_views.io import (
     export_record_csv, export_record_native, export_record_report,
@@ -51,7 +53,8 @@ class MainWindow(QMainWindow):
         self._result_tabs = {}
 
         self.setObjectName("RotorDynamicsStudioMainWindow")
-        self.resize(1400, 900)
+        self.setWindowIcon(studio_icon("model"))
+        self.resize(1440, 900)
         self.setStyleSheet(APP_STYLESHEET)
         self._build_actions()
         self._build_menus()
@@ -67,9 +70,9 @@ class MainWindow(QMainWindow):
         return self.style().standardIcon(enum)
 
     def _build_actions(self):
-        self.new_action = QAction(self._std_icon(QStyle.SP_FileIcon), "New", self)
-        self.open_action = QAction(self._std_icon(QStyle.SP_DialogOpenButton), "Open", self)
-        self.save_action = QAction(self._std_icon(QStyle.SP_DialogSaveButton), "Save", self)
+        self.new_action = QAction(studio_icon("new"), "New", self)
+        self.open_action = QAction(studio_icon("open"), "Open", self)
+        self.save_action = QAction(studio_icon("save"), "Save", self)
         self.save_as_action = QAction("Save As…", self)
         self.exit_action = QAction("Exit", self)
         self.undo_action = self.session.undo_stack.createUndoAction(self, "Undo")
@@ -77,28 +80,37 @@ class MainWindow(QMainWindow):
         self.undo_action.setShortcut(QKeySequence.Undo)
         self.redo_action.setShortcut(QKeySequence.Redo)
 
-        self.modal_action = QAction(
-            self._std_icon(QStyle.SP_MediaPlay),
-            "Modal / Characteristic Roots",
-            self,
-        )
-        self.campbell_action = QAction("Campbell Diagram", self)
-        self.critical_action = QAction("Critical Speeds", self)
-        self.synchronous_action = QAction("Synchronous Response", self)
-        self.frequency_action = QAction("Frequency Response", self)
-        self.foundation_action = QAction("Foundation Excitation", self)
-        self.foundation_time_action = QAction("Foundation Time Response", self)
-        self.runup_action = QAction("Run-up / Run-down", self)
-        self.coaxial_action = QAction("Coaxial Rotor", self)
-        self.asymmetric_action = QAction("Asymmetric Rotor", self)
-        self.cancel_action = QAction("Cancel Analysis", self)
+        self.modal_action = QAction(studio_icon("modal"), "Modal / Characteristic Roots", self)
+        self.campbell_action = QAction(studio_icon("campbell"), "Campbell Diagram", self)
+        self.critical_action = QAction(studio_icon("critical"), "Critical Speeds", self)
+        self.synchronous_action = QAction(studio_icon("synchronous"), "Synchronous Response", self)
+        self.frequency_action = QAction(studio_icon("frequency"), "Frequency Response", self)
+        self.foundation_action = QAction(studio_icon("foundation"), "Foundation Excitation", self)
+        self.foundation_time_action = QAction(studio_icon("foundation"), "Foundation Time Response", self)
+        self.runup_action = QAction(studio_icon("runup"), "Run-up / Run-down", self)
+        self.coaxial_action = QAction(studio_icon("coaxial"), "Coaxial Rotor", self)
+        self.asymmetric_action = QAction(studio_icon("asymmetric"), "Asymmetric Rotor", self)
+        self.bearing_performance_action = QAction(studio_icon("bearing"), "Bearing Performance", self)
+        self.cancel_action = QAction(studio_icon("cancel"), "Cancel Analysis", self)
         self.cancel_action.setEnabled(False)
-        self.rerun_result_action = QAction("Rerun Current Result", self)
-        self.remove_result_action = QAction("Remove Current Result", self)
-        self.export_plot_action = QAction("Export Plot Bundle (PNG/SVG/PDF)…", self)
-        self.export_csv_action = QAction("Export Data CSV…", self)
-        self.export_native_action = QAction("Export Native NPZ…", self)
-        self.report_action = QAction("Generate Analysis Report…", self)
+        self.rerun_result_action = QAction(studio_icon("repeat"), "Rerun Current Result", self)
+        self.remove_result_action = QAction(studio_icon("delete"), "Remove Current Result", self)
+        self.export_plot_action = QAction(studio_icon("export"), "Export Plot Bundle (PNG/SVG/PDF)…", self)
+        self.export_csv_action = QAction(studio_icon("export"), "Export Data CSV…", self)
+        self.export_native_action = QAction(studio_icon("export"), "Export Native NPZ…", self)
+        self.report_action = QAction(studio_icon("report"), "Generate Analysis Report…", self)
+
+        # Mockup command-strip actions. They delegate to existing qualified UI paths.
+        self.model_toolbar_action = QAction(studio_icon("model"), "Model", self)
+        self.analysis_toolbar_action = QAction(studio_icon("analysis"), "Analysis", self)
+        self.results_toolbar_action = QAction(studio_icon("results"), "Results", self)
+        self.repeat_toolbar_action = QAction(studio_icon("repeat"), "Repeat", self)
+        self.zoom_in_toolbar_action = QAction(studio_icon("zoom_in"), "Zoom In", self)
+        self.zoom_out_toolbar_action = QAction(studio_icon("zoom_out"), "Zoom Out", self)
+        self.fit_toolbar_action = QAction(studio_icon("fit"), "Fit View", self)
+        self.pan_toolbar_action = QAction(studio_icon("pan"), "Pan", self)
+        self.pan_toolbar_action.setCheckable(True)
+        self.help_toolbar_action = QAction(studio_icon("help"), "Help", self)
 
         self.new_action.triggered.connect(self.session.new_project)
         self.open_action.triggered.connect(self._choose_open)
@@ -115,7 +127,17 @@ class MainWindow(QMainWindow):
         self.runup_action.triggered.connect(self._configure_runup)
         self.coaxial_action.triggered.connect(self._configure_coaxial)
         self.asymmetric_action.triggered.connect(self._configure_asymmetric)
+        self.bearing_performance_action.triggered.connect(self._open_bearing_performance)
         self.cancel_action.triggered.connect(self.jobs.cancel_current)
+        self.model_toolbar_action.triggered.connect(self._show_model_workspace)
+        self.analysis_toolbar_action.triggered.connect(self._configure_modal)
+        self.results_toolbar_action.triggered.connect(self._show_latest_result)
+        self.repeat_toolbar_action.triggered.connect(self._rerun_current_result)
+        self.zoom_in_toolbar_action.triggered.connect(self._toolbar_zoom_in)
+        self.zoom_out_toolbar_action.triggered.connect(self._toolbar_zoom_out)
+        self.fit_toolbar_action.triggered.connect(self._toolbar_fit)
+        self.pan_toolbar_action.toggled.connect(self._toolbar_pan_toggled)
+        self.help_toolbar_action.triggered.connect(self._show_help)
         self.rerun_result_action.triggered.connect(self._rerun_current_result)
         self.remove_result_action.triggered.connect(self._remove_current_result)
         self.export_plot_action.triggered.connect(self._export_current_plot)
@@ -149,6 +171,7 @@ class MainWindow(QMainWindow):
         self.analysis_menu.addSeparator()
         self.analysis_menu.addAction(self.cancel_action)
         self.bearings_menu = bar.addMenu("Bearings")
+        self.bearings_menu.addAction(self.bearing_performance_action)
         self.results_menu = bar.addMenu("Results")
         self.results_menu.addActions([self.rerun_result_action, self.remove_result_action])
         self.results_menu.addSeparator()
@@ -163,26 +186,52 @@ class MainWindow(QMainWindow):
     def _build_toolbar(self):
         toolbar = QToolBar("Main", self)
         toolbar.setObjectName("MainToolbar")
+        toolbar.setMovable(False)
+        toolbar.setIconSize(QSize(24, 24))
         toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.addToolBar(toolbar)
+
         toolbar.addActions([self.new_action, self.open_action, self.save_action])
         toolbar.addSeparator()
-        toolbar.addActions([self.undo_action, self.redo_action])
+        toolbar.addActions([
+            self.model_toolbar_action,
+            self.analysis_toolbar_action,
+            self.results_toolbar_action,
+            self.repeat_toolbar_action,
+            self.report_action,
+        ])
         toolbar.addSeparator()
-        toolbar.addAction(self.modal_action)
-        toolbar.addAction(self.campbell_action)
-        toolbar.addAction(self.critical_action)
-        toolbar.addAction(self.synchronous_action)
-        toolbar.addAction(self.frequency_action)
+        toolbar.addActions([
+            self.zoom_in_toolbar_action,
+            self.zoom_out_toolbar_action,
+            self.fit_toolbar_action,
+            self.pan_toolbar_action,
+        ])
         toolbar.addSeparator()
-        toolbar.addAction(self.cancel_action)
+
+        units_label = QLabel("Units")
+        units_label.setStyleSheet("padding-left:5px;padding-right:2px;")
+        toolbar.addWidget(units_label)
+        self.units_combo = QComboBox()
+        self.units_combo.addItem("SI (mm, N, kg)")
+        self.units_combo.setToolTip(
+            "Stage 2.1 preserves the qualified SI-domain model; this is the current display-unit preset."
+        )
+        toolbar.addWidget(self.units_combo)
+        toolbar.addSeparator()
+        toolbar.addAction(self.help_toolbar_action)
 
     def _build_shell(self):
         self.workspace = QTabWidget()
         self.workspace.setDocumentMode(True)
         self.workspace.setMovable(True)
         self.model_page = RotorModelPage(self.session)
-        self.workspace.addTab(self.model_page, "Rotor Model")
+        self.workspace.addTab(self.model_page, studio_icon("model"), "Rotor Model")
+        self.bearing_page = BearingPerformancePage(self.session)
+        self.workspace.addTab(self.bearing_page, studio_icon("bearing"), "Bearing Performance")
+        self.plus_page = QWidget()
+        plus_index = self.workspace.addTab(self.plus_page, "+")
+        self.workspace.setTabEnabled(plus_index, False)
         self.setCentralWidget(self.workspace)
 
         self.project_dock = ProjectExplorerDock(self.session, self)
@@ -193,6 +242,14 @@ class MainWindow(QMainWindow):
 
         self.messages_dock = MessagesDock(self.session, self)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.messages_dock)
+
+        # Initial CAE proportions from the visual authority. QSettings may
+        # subsequently restore a user's customized layout.
+        self.project_dock.setMinimumWidth(245)
+        self.property_dock.setMinimumWidth(335)
+        self.messages_dock.setMinimumHeight(145)
+        self.resizeDocks([self.project_dock, self.property_dock], [260, 360], Qt.Horizontal)
+        self.resizeDocks([self.messages_dock], [175], Qt.Vertical)
 
         self.status_job = QLabel("Ready")
         self.status_units = QLabel("Units: SI (mm, N, kg)")
@@ -210,6 +267,12 @@ class MainWindow(QMainWindow):
         self.model_page.runupRequested.connect(self._configure_runup)
         self.model_page.coaxialRequested.connect(self._configure_coaxial)
         self.model_page.asymmetricRequested.connect(self._configure_asymmetric)
+        self.model_page.bearingRequested.connect(self._open_bearing_performance)
+
+        self.property_dock.exportPlotRequested.connect(self._export_current_plot)
+        self.property_dock.exportCsvRequested.connect(self._export_current_csv)
+        self.property_dock.reportRequested.connect(self._report_current_result)
+        self.property_dock.rerunRequested.connect(self._rerun_current_result)
 
     def _connect_session(self):
         self.session.projectChanged.connect(self._refresh_title)
@@ -218,7 +281,60 @@ class MainWindow(QMainWindow):
         self.session.dirtyChanged.connect(lambda _: self._refresh_title())
         self.session.resultsChanged.connect(self._refresh_result_tabs)
         self.session.selectionChanged.connect(self._navigate_result_selection)
-        self.workspace.currentChanged.connect(lambda _: self._refresh_result_actions())
+        self.session.selectionChanged.connect(
+            lambda _ref: self._workspace_changed(self.workspace.currentIndex())
+        )
+        self.workspace.currentChanged.connect(self._workspace_changed)
+
+    def _workspace_changed(self, _index):
+        self._refresh_result_actions()
+        if self.workspace.currentWidget() is self.bearing_page:
+            self.property_dock.show_bearing_context()
+            return
+        _, record, _ = self._current_result()
+        if record is not None:
+            self.property_dock.show_result_context(record)
+        else:
+            self.property_dock.show_entity_context()
+
+    def _show_model_workspace(self):
+        self.workspace.setCurrentWidget(self.model_page)
+
+    def _show_latest_result(self):
+        if not self._result_tabs:
+            return
+        view = list(self._result_tabs.values())[-1]
+        self.workspace.setCurrentWidget(view)
+
+    def _open_bearing_performance(self):
+        self.workspace.setCurrentWidget(self.bearing_page)
+        ref = self.session.selection
+        if ref is not None and ref.kind == "bearing":
+            self.property_dock.tabs.setCurrentWidget(self.property_dock.bearing_tab)
+
+    def _toolbar_zoom_in(self):
+        if self.workspace.currentWidget() is self.model_page:
+            self.model_page.view.zoom_in()
+
+    def _toolbar_zoom_out(self):
+        if self.workspace.currentWidget() is self.model_page:
+            self.model_page.view.zoom_out()
+
+    def _toolbar_fit(self):
+        if self.workspace.currentWidget() is self.model_page:
+            self.model_page.view.fit_view()
+
+    def _toolbar_pan_toggled(self, checked):
+        self.model_page.view.set_pan_mode(bool(checked))
+
+    def _show_help(self):
+        QMessageBox.information(
+            self,
+            "Rotor Dynamics Studio",
+            "Stage 2.1 Visual Conformance\n\n"
+            "Use Project Explorer to select model entities, Analysis to run the "
+            "qualified Fortran-backed solvers, and Results to navigate generated workspaces."
+        )
 
     def _connect_jobs(self):
         self.jobs.jobStateChanged.connect(self._job_state_changed)
@@ -451,7 +567,9 @@ class MainWindow(QMainWindow):
                 self.workspace.removeTab(idx)
             old.deleteLater()
         self._result_tabs[record.key] = view
-        idx = self.workspace.addTab(view, self._result_tab_label(record, view))
+        plus_index = self.workspace.indexOf(self.plus_page)
+        insert_at = plus_index if plus_index >= 0 else self.workspace.count()
+        idx = self.workspace.insertTab(insert_at, view, self._result_tab_label(record, view))
         self.workspace.setCurrentIndex(idx)
 
     def _result_tab_label(self, record, view=None):

@@ -5,17 +5,19 @@ from dataclasses import dataclass, field
 from PySide6.QtCore import QAbstractItemModel, QModelIndex, Qt
 
 from drm_studio.application.session import EntityRef
+from drm_studio.resources import studio_icon
 
 
 @dataclass
 class _TreeNode:
     label: str
     ref: EntityRef | None = None
+    icon_name: str | None = None
     parent: "_TreeNode | None" = None
     children: list["_TreeNode"] = field(default_factory=list)
 
-    def add(self, label: str, ref: EntityRef | None = None) -> "_TreeNode":
-        child = _TreeNode(label, ref, self)
+    def add(self, label: str, ref: EntityRef | None = None, icon_name: str | None = None) -> "_TreeNode":
+        child = _TreeNode(label, ref, icon_name, self)
         self.children.append(child)
         return child
 
@@ -42,63 +44,75 @@ class ProjectTreeModel(QAbstractItemModel):
         self.root = _TreeNode("root")
         self._ref_to_node = {}
         p = self.session.project
-        project = self.root.add(p.name or "Rotor Project")
+        project = self.root.add(p.name or "Rotor Project", icon_name="open")
 
         m = p.model
-        model = project.add("Model")
-        nodes = model.add(f"Nodes ({len(m.nodes)})")
+        model = project.add("Model", icon_name="model")
+        nodes = model.add(f"Nodes ({len(m.nodes)})", icon_name="model")
         for i, n in enumerate(m.nodes):
-            self._add_ref(nodes, f"Node {n.number}", EntityRef("node", i))
+            self._add_ref(nodes, f"Node {n.number}", EntityRef("node", i), "model")
 
-        shafts = model.add(f"Shaft Elements ({len(m.shafts)})")
+        shafts = model.add(f"Shaft Elements ({len(m.shafts)})", icon_name="coaxial")
         for i, s in enumerate(m.shafts):
-            self._add_ref(shafts, f"Shaft Element {i + 1}  ({s.node1}–{s.node2})", EntityRef("shaft", i))
+            self._add_ref(shafts, f"Shaft Element {i + 1}  ({s.node1}–{s.node2})", EntityRef("shaft", i), "coaxial")
 
-        disks = model.add(f"Disks ({len(m.disks)})")
+        disks = model.add(f"Disks ({len(m.disks)})", icon_name="critical")
         for i, d in enumerate(m.disks):
-            self._add_ref(disks, f"Disk {i + 1}  (Node {d.node})", EntityRef("disk", i))
+            self._add_ref(disks, f"Disk {i + 1}  (Node {d.node})", EntityRef("disk", i), "critical")
 
         bearing_indices = [i for i, b in enumerate(m.bearings) if b.bearing_type != 8]
         seal_indices = [i for i, b in enumerate(m.bearings) if b.bearing_type == 8]
-        bearings = model.add(f"Bearings ({len(bearing_indices)})")
+        bearings = model.add(f"Bearings ({len(bearing_indices)})", icon_name="bearing")
         for j, i in enumerate(bearing_indices, 1):
             b = m.bearings[i]
-            self._add_ref(bearings, f"Bearing {j}  (Type {b.bearing_type}, Node {b.node})", EntityRef("bearing", i))
+            self._add_ref(bearings, f"Bearing {j}  (Type {b.bearing_type}, Node {b.node})", EntityRef("bearing", i), "bearing")
 
-        seals = model.add(f"Seals ({len(seal_indices)})")
+        seals = model.add(f"Seals ({len(seal_indices)})", icon_name="seal")
         for j, i in enumerate(seal_indices, 1):
             b = m.bearings[i]
-            self._add_ref(seals, f"Seal {j}  (Node {b.node})", EntityRef("bearing", i))
+            self._add_ref(seals, f"Seal {j}  (Node {b.node})", EntityRef("bearing", i), "seal")
 
-        forces = model.add(f"Forces ({len(m.forces)})")
-        for i, f in enumerate(m.forces):
-            self._add_ref(forces, f"Force {i + 1}  (Type {f.force_type})", EntityRef("force", i))
-        model.add("Constraints (0)")
+        forces = model.add(f"Forces ({len(m.forces)})", icon_name="synchronous")
+        for i, force in enumerate(m.forces):
+            self._add_ref(forces, f"Force {i + 1}  (Type {force.force_type})", EntityRef("force", i), "synchronous")
+        model.add("Constraints (0)", icon_name="foundation")
 
-        rotors = model.add(f"Rotor Definitions ({len(m.rotors)})")
-        for i, r in enumerate(m.rotors):
-            self._add_ref(rotors, f"Rotor {i + 1}  ({r.node1}–{r.node2}, ×{r.speed_factor:g})", EntityRef("rotor", i))
+        rotors = model.add(f"Rotor Definitions ({len(m.rotors)})", icon_name="coaxial")
+        for i, rotor in enumerate(m.rotors):
+            self._add_ref(
+                rotors,
+                f"Rotor {i + 1}  ({rotor.node1}–{rotor.node2}, ×{rotor.speed_factor:g})",
+                EntityRef("rotor", i),
+                "coaxial",
+            )
 
-        analysis = project.add("Analysis")
-        cases = analysis.add(f"Cases ({len(p.analyses)})")
-        for i, c in enumerate(p.analyses):
-            name = c.name or c.kind
-            self._add_ref(cases, f"{name}  [{c.kind}]", EntityRef("analysis", i))
-        for label in (
-            "Modal / Characteristic Roots", "Campbell Diagram", "Critical Speeds",
-            "Synchronous Response", "Frequency Response", "Foundation Excitation",
-            "Time Response", "Run-up / Run-down", "Coaxial Rotor", "Asymmetric Rotor",
+        analysis = project.add("Analysis", icon_name="analysis")
+        cases = analysis.add(f"Cases ({len(p.analyses)})", icon_name="report")
+        for i, case in enumerate(p.analyses):
+            name = case.name or case.kind
+            self._add_ref(cases, f"{name}  [{case.kind}]", EntityRef("analysis", i), "analysis")
+        for label, icon_name in (
+            ("Modal / Characteristic Roots", "modal"),
+            ("Campbell Diagram", "campbell"),
+            ("Critical Speeds", "critical"),
+            ("Synchronous Response", "synchronous"),
+            ("Frequency Response", "frequency"),
+            ("Foundation Excitation", "foundation"),
+            ("Time Response", "frequency"),
+            ("Run-up / Run-down", "runup"),
+            ("Coaxial Rotor", "coaxial"),
+            ("Asymmetric Rotor", "asymmetric"),
         ):
-            analysis.add(label)
+            analysis.add(label, icon_name=icon_name)
 
-        results = project.add("Results")
+        results = project.add("Results", icon_name="results")
         for i, record in enumerate(self.session.results.values()):
-            self._add_ref(results, record.display_name, EntityRef("result", i))
+            self._add_ref(results, record.display_name, EntityRef("result", i), "results")
 
         self.endResetModel()
 
-    def _add_ref(self, parent: _TreeNode, label: str, ref: EntityRef):
-        node = parent.add(label, ref)
+    def _add_ref(self, parent: _TreeNode, label: str, ref: EntityRef, icon_name: str | None = None):
+        node = parent.add(label, ref, icon_name)
         self._ref_to_node[ref] = node
 
     def columnCount(self, parent=QModelIndex()):
@@ -131,6 +145,8 @@ class ProjectTreeModel(QAbstractItemModel):
         node = index.internalPointer()
         if role == Qt.DisplayRole:
             return node.label
+        if role == Qt.DecorationRole and node.icon_name:
+            return studio_icon(node.icon_name)
         if role == self.EntityRole:
             return node.ref
         return None

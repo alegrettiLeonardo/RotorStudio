@@ -130,7 +130,10 @@ def test_campbell_workspace_uses_real_modal_sweep(qtbot):
         if isinstance(window.workspace.widget(i), CampbellResultView)
     ]
     assert len(widgets) == 1
-    assert widgets[0].tabs.count() == 3
+    assert widgets[0].tabs.count() == 6
+    assert [widgets[0].tabs.tabText(i) for i in range(6)] == [
+        "Campbell", "Root Locus", "Modes", "Orbits", "FRF", "+"
+    ]
     assert widgets[0].summary.rowCount() > 0
 
 

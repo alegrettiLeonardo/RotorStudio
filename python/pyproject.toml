@@ -18,6 +18,6 @@ where = ["src"]
 
 [project.optional-dependencies]
 test = ["pytest>=7", "scipy>=1.10"]
-studio = ["PySide6>=6.8,<7"]
+studio = ["PySide6>=6.8,<7", "qtawesome>=1.4,<2"]
 ui-test = ["pytest-qt>=4.4"]
 package = ["pyinstaller>=6.10,<7"]

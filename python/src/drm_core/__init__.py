@@ -9,3 +9,5 @@ from .analysis.asymmetric import AsymmetricModalResult,AsymmetricFrequencyRespon
 from .analysis.transient import TransientResult,run_foundation_time_response,run_runup
 from .post.phase9 import FFTResult,fft_scale,plot_root_locus,plot_eigenvalue_traces,plot_mode,plot_orbits,plot_response,plot_frf,export_figure,export_csv,export_npz,export_bundle
 __all__=[n for n in globals() if not n.startswith("_")]
+
+from .post.modes import plot_mode_3d

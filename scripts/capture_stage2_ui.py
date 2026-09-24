@@ -89,7 +89,25 @@ def main():
     session = ProjectSession(project)
     window = MainWindow(session=session)
     session.set_selection(EntityRef("bearing", 0))
+    window._open_bearing_performance()
     capture(window, app, outdir / "bearing_seal_editor.png")
+    window.close()
+
+    # Real modal workspace with the Stage 2.1 orbit-rich 3-D mode shape.
+    model = example.build(6)
+    modal = AnalysisCase(
+        "modal",
+        {
+            "speed_rad_s": float(rpm_to_rad_s(4000.0)),
+            "with_eigenvectors": True,
+            "with_kappa": True,
+        },
+        "Mode Shape 3D — Screenshot",
+    )
+    project = RotorProject("Mode Shape 3D Screenshot", model, [modal])
+    window = MainWindow(session=ProjectSession(project))
+    show_real_result(window, project, modal)
+    capture(window, app, outdir / "mode_shape_3d.png")
     window.close()
 
     # Real synchronous response workspace.
@@ -131,7 +149,7 @@ def main():
 
     for name in (
         "rotor_model.png", "campbell_results.png", "bearing_seal_editor.png",
-        "frequency_response.png", "runup_transient.png",
+        "mode_shape_3d.png", "frequency_response.png", "runup_transient.png",
     ):
         print(outdir / name)
 

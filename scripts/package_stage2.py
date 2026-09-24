@@ -134,6 +134,7 @@ def main():
         "--specpath", str(work_root / "spec"),
         "--paths", str(ROOT / "python" / "src"),
         "--collect-all", "matplotlib",
+        "--collect-all", "qtawesome",
         "--add-binary", f"{solver}{os.pathsep}.",
         "--add-data", f"{smoke}{os.pathsep}examples",
     ]
