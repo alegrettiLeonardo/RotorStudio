@@ -71,9 +71,8 @@ def test_monolithic_cancel_is_deferred_until_real_return(qtbot):
     assert manager.cancel(runnable)
     assert "CANCELLING" in states
     assert runnable.state=="CANCELLING"
-    service.release.set()
     with qtbot.waitSignal(manager.completed,timeout=3000) as sig:
-        pass
+        service.release.set()
     outcome=sig.args[0]
     assert outcome.cancellation_deferred is True
     assert "CANCELLED" not in states
