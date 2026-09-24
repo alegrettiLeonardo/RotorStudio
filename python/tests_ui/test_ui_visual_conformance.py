@@ -62,6 +62,7 @@ def test_mockup_toolbar_and_workspace_structure(qtbot):
     window._open_bearing_performance()
     assert isinstance(window.bearing_page, BearingPerformancePage)
     assert window.workspace.currentWidget() is window.bearing_page
+    assert window.property_dock.windowTitle() == "Results - Bearing Performance"
     assert window.bearing_page.lower_tabs.tabText(0) == "Dynamic Coefficients"
     assert not window.bearing_page.lower_tabs.isTabEnabled(1)
     assert not window.bearing_page.lower_tabs.isTabEnabled(2)
