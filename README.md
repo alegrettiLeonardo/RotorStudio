@@ -28,7 +28,11 @@ Historical M2–M7 reports are retained unchanged for traceability; they are not
 
 ## Stage 2 — Desktop UI
 
-Stage 2 adds the PySide6 / Qt 6 desktop application over the existing qualified stack:
+Stage 2 adds the PySide6 / Qt 6 desktop application over the existing qualified stack. The implementation is qualified by the dedicated `Stage 2 Desktop UI Final Qualification` workflow; it does not alter the Stage 1 gate definitions.
+
+The desktop scope includes the model editor, modal/Campbell/critical-speed workspaces, synchronous/auxiliary/foundation responses, transient/run-up, coaxial and asymmetric workflows, supported bearing/seal editing, result staleness, exports/reports, asynchronous execution, frozen Linux/Windows applications and clean-package smoke tests.
+
+The application stack is:
 
 ```text
 PySide6 / Qt 6 desktop UI
@@ -72,3 +76,15 @@ python validation/equivalence/verify_authority_sources.py
 ```
 
 The qualification workflows reproduce the frozen Stage 1 authority and regression contracts, including Linux, Windows, G14 book problems and clean-package validation.
+
+
+### Stage 2 qualification documentation
+
+- `docs/UI_SPEC.md`
+- `docs/UI_ARCHITECTURE.md`
+- `docs/UI_TEST_MATRIX.md`
+- `docs/UI_MOCKUP_CONFORMANCE.md`
+- `docs/UI_PACKAGING.md`
+- `docs/UI_KNOWN_LIMITATIONS.md`
+
+The final gate is `UI1–UI20`; it is emitted by the final workflow only after both Linux and Windows qualifications succeed.
