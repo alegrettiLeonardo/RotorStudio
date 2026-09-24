@@ -1,0 +1,137 @@
+name: Stage 1 G14 and Phase 9 Qualification
+
+on:
+  push:
+    branches:
+      - feature/stage1-finalization-g14-phase9-20260924
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: stage1-final-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-phase9:
+    name: Linux Core + Phase9 + examples
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: Install Python
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+      - name: Build and test Fortran Release
+        run: |
+          cmake -S fortran -B build-stage1 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-stage1 -j2
+          ctest --test-dir build-stage1 --output-on-failure
+      - name: Python Core and Phase9 regression
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-stage1/libdrmrotor.so
+        run: |
+          python -m pytest python/tests -q | tee validation/reports/stage1_python_tests.txt
+          test ${PIPESTATUS[0]} -eq 0
+      - name: 22-example campaign
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-stage1/libdrmrotor.so
+        run: |
+          python scripts/run_example_campaign.py --outdir validation/reports/example_campaign_stage1 | tee validation/reports/example_campaign_stage1.txt
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Upload Core/Phase9 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-core-phase9-${{ github.sha }}
+          path: |
+            validation/reports/stage1_python_tests.txt
+            validation/reports/example_campaign_stage1*
+          if-no-files-found: warn
+          retention-days: 90
+
+  g14-book-problems:
+    name: G14 — 83 book problems + V2 trace equivalence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install host numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: Install Python
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+      - name: Build qualified Fortran core
+        run: |
+          cmake -S fortran -B build-g14 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-g14 -j2
+          ctest --test-dir build-g14 --output-on-failure
+      - name: Verify and inventory DRM problem archive
+        run: |
+          mkdir -p validation/reports/g14
+          python validation/book_problems/prepare_sources.py \
+            --zip reference/problems/DRM_problem_scripts.zip \
+            --outdir validation/reports/g14/problem_sources \
+            --inventory validation/reports/g14/problem_inventory.json \
+            | tee validation/reports/g14/problem_inventory_summary.txt
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Prepare Octave authority trace harness
+        run: |
+          python validation/book_problems/prepare_octave_runtime.py \
+            --software-dir reference/matlab_v2 \
+            --problem-dir validation/reports/g14/problem_sources \
+            --inventory validation/reports/g14/problem_inventory.json \
+            --runtime-dir validation/reports/g14/runtime
+      - name: Run all 83 original problem scripts with pinned Octave 7.1.0
+        run: |
+          mkdir -p validation/reports/g14/traces
+          docker pull gnuoctave/octave:7.1.0
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/work" \
+            -w /work \
+            gnuoctave/octave:7.1.0 \
+            octave --no-gui --quiet --eval \
+            "addpath('/work/reference/matlab_v2','-end'); addpath('/work/validation/reports/g14/runtime/problems','-end'); addpath('/work/validation/reports/g14/runtime/wrappers','-begin'); run_book_problem_suite('/work/validation/reports/g14/runtime/problems','/work/validation/reports/g14/traces','/work/validation/reports/g14/problem_status.csv');"
+      - name: Compare traced V2 solver calls to Fortran/Python
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-g14/libdrmrotor.so
+        run: |
+          python validation/book_problems/compare_traces.py \
+            --trace-dir validation/reports/g14/traces \
+            --status-csv validation/reports/g14/problem_status.csv \
+            --inventory validation/reports/g14/problem_inventory.json \
+            --output validation/reports/G14_BOOK_PROBLEMS.json \
+            | tee validation/reports/g14/g14_summary.txt
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Upload G14 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-g14-${{ github.sha }}
+          path: |
+            validation/reports/G14_BOOK_PROBLEMS.json
+            validation/reports/g14/
+          if-no-files-found: error
+          retention-days: 90
