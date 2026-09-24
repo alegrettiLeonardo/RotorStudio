@@ -87,6 +87,8 @@ class MainWindow(QMainWindow):
         self.runup_action = QAction("Run-up / Run-down", self)
         self.coaxial_action = QAction("Coaxial Rotor", self)
         self.asymmetric_action = QAction("Asymmetric Rotor", self)
+        self.cancel_action = QAction("Cancel Analysis", self)
+        self.cancel_action.setEnabled(False)
 
         self.new_action.triggered.connect(self.session.new_project)
         self.open_action.triggered.connect(self._choose_open)
@@ -103,6 +105,7 @@ class MainWindow(QMainWindow):
         self.runup_action.triggered.connect(self._configure_runup)
         self.coaxial_action.triggered.connect(self._configure_coaxial)
         self.asymmetric_action.triggered.connect(self._configure_asymmetric)
+        self.cancel_action.triggered.connect(self.jobs.cancel_current)
 
     def _build_menus(self):
         bar = self.menuBar()
@@ -127,6 +130,8 @@ class MainWindow(QMainWindow):
         self.analysis_menu.addSeparator()
         self.analysis_menu.addAction(self.coaxial_action)
         self.analysis_menu.addAction(self.asymmetric_action)
+        self.analysis_menu.addSeparator()
+        self.analysis_menu.addAction(self.cancel_action)
         self.bearings_menu = bar.addMenu("Bearings")
         self.results_menu = bar.addMenu("Results")
         bar.addMenu("Tools")
@@ -146,6 +151,8 @@ class MainWindow(QMainWindow):
         toolbar.addAction(self.critical_action)
         toolbar.addAction(self.synchronous_action)
         toolbar.addAction(self.frequency_action)
+        toolbar.addSeparator()
+        toolbar.addAction(self.cancel_action)
 
     def _build_shell(self):
         self.workspace = QTabWidget()
@@ -190,7 +197,9 @@ class MainWindow(QMainWindow):
 
     def _connect_jobs(self):
         self.jobs.jobStateChanged.connect(self._job_state_changed)
+        self.jobs.progress.connect(self._job_progress)
         self.jobs.completed.connect(self._job_completed)
+        self.jobs.cancelled.connect(self._job_cancelled)
         self.jobs.failed.connect(self._job_failed)
 
     def _choose_open(self):
@@ -333,22 +342,49 @@ class MainWindow(QMainWindow):
     def _job_state_changed(self, state, case):
         label = case.name or case.kind
         self.status_job.setText(f"{state.title()}: {label}")
-        if state in ("QUEUED", "RUNNING"):
+        self.cancel_action.setEnabled(state in ("QUEUED", "RUNNING"))
+        if state in ("QUEUED", "RUNNING", "CANCELLING", "CANCELLED"):
             self.session.log("INFO", f"{state}: {label}")
+
+    def _job_progress(self, case, current, total):
+        label = case.name or case.kind
+        self.status_job.setText(f"Running: {label} — {current}/{total}")
+        self.session.log("INFO", f"{label}: safe sweep point {current}/{total}")
+
+    def _job_cancelled(self, case, reason):
+        label = case.name or case.kind
+        self.cancel_action.setEnabled(False)
+        self.status_job.setText(f"Cancelled: {label}")
+        self.session.log("INFO", f"CANCELLED: {label} — {reason}")
 
     def _job_completed(self, outcome):
         record = self.session.add_result(
             outcome.execution,
             model_snapshot=outcome.model_snapshot,
         )
+        self.cancel_action.setEnabled(False)
         self.status_job.setText("Ready")
+        if outcome.cancellation_deferred:
+            self.session.log(
+                "WARNING",
+                "Cancellation was requested during a monolithic solver call. "
+                "The call was allowed to return safely and the real completed result is retained."
+            )
         self._show_result(record)
 
-    def _job_failed(self, message, trace, case):
-        label = case.name or case.kind
+    def _job_failed(self, failure):
+        label = failure.case.name or failure.case.kind
+        self.cancel_action.setEnabled(False)
         self.status_job.setText(f"Failed: {label}")
-        self.session.log("ERROR", f"{label}: {message}")
-        for line in trace.rstrip().splitlines():
+        self.messages_dock.set_checks([
+            f"FAIL — analysis: {label}",
+            f"solver status: {failure.status}",
+            f"{failure.exception_type}: {failure.message}",
+            f"action: {failure.guidance}",
+        ])
+        self.session.log("ERROR", f"{label}: {failure.exception_type}: {failure.message}")
+        self.session.log("ERROR", f"Suggested action: {failure.guidance}")
+        for line in failure.traceback.rstrip().splitlines():
             self.messages_dock.append_log("TRACE", line)
 
     def _show_result(self, record):

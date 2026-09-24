@@ -65,18 +65,31 @@ class AnalysisExecution:
     analysis_hash:str
     build_metadata:dict
 
+class AnalysisCancelled(RuntimeError):
+    """Raised only at a safe Python orchestration boundary, never inside LAPACK/Fortran."""
+    pass
+
 class AnalysisService:
     """Application dispatcher. Numerical physics stays in the existing Fortran-backed API."""
     def __init__(self,library_path=None,build_options=None):
         self.library_path=library_path;self.build_options=dict(build_options or {})
-    def execute(self,model:RotorModel|RotorProject,case:AnalysisCase):
+    def execute(self,model:RotorModel|RotorProject,case:AnalysisCase,*,progress_callback=None,cancel_check=None):
         project=model if isinstance(model,RotorProject) else None
         model=project.model if project is not None else model
         p=dict(case.parameters);k=case.kind.strip().lower();lib=self.library_path
         if k=="modal": result=run_modal(model,library_path=lib,**p)
         elif k=="modal_sweep":
             speeds=np.asarray(p.pop("speeds_rad_s"),float)
-            result=[run_modal(model,float(w),library_path=lib,**p) for w in speeds]
+            result=[]
+            total=int(speeds.size)
+            for index,w in enumerate(speeds,1):
+                if cancel_check is not None and cancel_check():
+                    raise AnalysisCancelled(f"modal_sweep cancelled safely before speed point {index}/{total}")
+                result.append(run_modal(model,float(w),library_path=lib,**p))
+                if progress_callback is not None:
+                    progress_callback(index,total)
+            if cancel_check is not None and cancel_check():
+                raise AnalysisCancelled(f"modal_sweep cancelled safely after speed point {total}/{total}")
         elif k=="frequency_response": result=run_frequency_response(model,library_path=lib,**p)
         elif k=="auxiliary_frequency_response": result=run_auxiliary_frequency_response(model,library_path=lib,**p)
         elif k=="foundation_frequency_response": result=run_foundation_frequency_response(model,library_path=lib,**p)
