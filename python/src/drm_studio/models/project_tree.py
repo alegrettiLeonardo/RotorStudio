@@ -92,8 +92,8 @@ class ProjectTreeModel(QAbstractItemModel):
             analysis.add(label)
 
         results = project.add("Results")
-        for record in self.session.results.values():
-            results.add(record.display_name)
+        for i, record in enumerate(self.session.results.values()):
+            self._add_ref(results, record.display_name, EntityRef("result", i))
 
         self.endResetModel()
 
