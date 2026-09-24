@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QPointF, QRectF, Signal
+from PySide6.QtCore import Qt, QPointF, QRectF, Signal, QSize
 from PySide6.QtGui import QColor, QBrush, QPen, QPolygonF
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QGraphicsView, QGraphicsScene,
-    QToolButton, QCheckBox, QStyle
+    QToolButton, QCheckBox, QButtonGroup
 )
 
 from drm_studio.application.session import EntityRef
+from drm_studio.resources import studio_icon
 from .analysis_modules import AnalysisModulesBar
 
 
@@ -18,6 +19,7 @@ class RotorView(QGraphicsView):
         self.session = session
         self.setBackgroundBrush(QBrush(QColor("#ffffff")))
         self.setDragMode(QGraphicsView.NoDrag)
+        self.setRenderHints(self.renderHints())
         self._panning = False
         self._pan_start = None
         self.show_node_numbers = True
@@ -43,27 +45,29 @@ class RotorView(QGraphicsView):
         z = {node.number: node.z_m * 1000.0 for node in model.nodes}
         min_z, max_z = min(z.values()), max(z.values())
         max_d = max([getattr(s, "outer_diameter_m", 0.05) * 1000.0 for s in model.shafts] + [50.0])
-        ypad = max(80.0, max_d * 2.2)
+        ypad = max(90.0, max_d * 2.35)
 
+        # Draw disks behind shaft, matching the mockup visual hierarchy.
         for i, disk in enumerate(model.disks):
             x = z.get(disk.node)
             if x is None:
                 continue
             if disk.disk_type in (1, 3):
-                thick = max(6.0, abs(disk.p4) * 1000.0)
-                dia = max(max_d * 1.8, abs(disk.p5) * 1000.0)
+                thick = max(8.0, abs(disk.p4) * 1000.0)
+                dia = max(max_d * 1.9, abs(disk.p5) * 1000.0)
             else:
-                thick = max(8.0, (max_z - min_z) * 0.015)
-                dia = max_d * 2.2
+                thick = max(10.0, (max_z - min_z) * 0.018)
+                dia = max_d * 2.25
             item = self.scene_obj.addRect(
                 x - thick / 2.0, -dia / 2.0, thick, dia,
-                QPen(QColor("#303030"), 1.2), QBrush(QColor("#c8cdd2"))
+                QPen(QColor("#232a30"), 1.3), QBrush(QColor("#c9ced3"))
             )
             ref = EntityRef("disk", i)
             item.setData(0, ref)
             item.setZValue(1)
             self._entity_items[ref] = item
 
+        # Shaft rectangles produce the stepped profile from the real geometry.
         for i, shaft in enumerate(model.shafts):
             x1, x2 = z.get(shaft.node1), z.get(shaft.node2)
             if x1 is None or x2 is None:
@@ -72,7 +76,9 @@ class RotorView(QGraphicsView):
             dia = max(8.0, (do * 1000.0) if do is not None else max_d * 0.5)
             rect = QRectF(min(x1, x2), -dia / 2.0, abs(x2 - x1), dia)
             item = self.scene_obj.addRect(
-                rect, QPen(QColor("#202020"), 1.1), QBrush(QColor("#2bc8cf"))
+                rect,
+                QPen(QColor("#16242f"), 1.15),
+                QBrush(QColor("#2fc9cf"))
             )
             ref = EntityRef("shaft", i)
             item.setData(0, ref)
@@ -80,64 +86,76 @@ class RotorView(QGraphicsView):
             self._entity_items[ref] = item
             if self.show_element_numbers:
                 txt = self.scene_obj.addText(str(i + 1))
-                txt.setDefaultTextColor(QColor("#23313f"))
+                txt.setDefaultTextColor(QColor("#21313e"))
                 txt.setPos((x1 + x2) / 2.0 - 5.0, dia / 2.0 + 4.0)
-                txt.setZValue(5)
+                txt.setZValue(8)
 
         for i, node in enumerate(model.nodes):
             x = z[node.number]
             dot = self.scene_obj.addEllipse(
-                x - 3.2, -3.2, 6.4, 6.4,
+                x - 3.0, -3.0, 6.0, 6.0,
                 QPen(QColor("#304050"), 1.0), QBrush(QColor("#ffd84d"))
             )
             ref = EntityRef("node", i)
             dot.setData(0, ref)
-            dot.setZValue(6)
+            dot.setZValue(7)
             self._entity_items[ref] = dot
             if self.show_node_numbers:
                 label = self.scene_obj.addText(str(node.number))
-                label.setDefaultTextColor(QColor("#1c2732"))
+                label.setDefaultTextColor(QColor("#182630"))
                 label.setPos(x - 5.0, max_d / 2.0 + 22.0)
-                label.setZValue(6)
+                label.setZValue(8)
 
         if self.show_bearings:
             for i, bearing in enumerate(model.bearings):
-                if bearing.bearing_type == 8:
-                    continue
                 x = z.get(bearing.node)
                 if x is None:
                     continue
-                h = max(22.0, max_d * 0.55)
-                poly = QPolygonF([
-                    QPointF(x, 0.0),
-                    QPointF(x - h * 0.45, h),
-                    QPointF(x + h * 0.45, h),
-                ])
-                item = self.scene_obj.addPolygon(
-                    poly, QPen(QColor("#155f3a"), 1.4), QBrush(QColor("#72e59f"))
-                )
+                if bearing.bearing_type == 8:
+                    # Seal: compact annular marker, not a fictitious support.
+                    r = max(8.0, max_d * 0.18)
+                    item = self.scene_obj.addEllipse(
+                        x-r, -r, 2*r, 2*r,
+                        QPen(QColor("#2568a5"), 2.0), QBrush(Qt.NoBrush)
+                    )
+                else:
+                    h = max(22.0, max_d * 0.55)
+                    poly = QPolygonF([
+                        QPointF(x, 0.0),
+                        QPointF(x - h * 0.45, h),
+                        QPointF(x + h * 0.45, h),
+                    ])
+                    item = self.scene_obj.addPolygon(
+                        poly,
+                        QPen(QColor("#145d38"), 1.5),
+                        QBrush(QColor("#75df9c"))
+                    )
+                    self.scene_obj.addLine(
+                        x - h * 0.70, h, x + h * 0.70, h,
+                        QPen(QColor("#145d38"), 1.3)
+                    )
                 ref = EntityRef("bearing", i)
                 item.setData(0, ref)
-                item.setZValue(4)
+                item.setZValue(5)
                 self._entity_items[ref] = item
-                self.scene_obj.addLine(
-                    x - h * 0.7, h, x + h * 0.7, h,
-                    QPen(QColor("#155f3a"), 1.2)
-                )
 
+        # Axis glyph.
         x0 = min_z
-        self.scene_obj.addLine(x0, ypad * 0.85, x0 + 55, ypad * 0.85, QPen(QColor("#111"), 1.5))
-        self.scene_obj.addLine(x0, ypad * 0.85, x0, ypad * 0.85 - 42, QPen(QColor("#111"), 1.5))
-        tx = self.scene_obj.addText("X")
-        tx.setPos(x0 + 57, ypad * 0.85 - 10)
-        ty = self.scene_obj.addText("Y")
-        ty.setPos(x0 - 13, ypad * 0.85 - 57)
-        omega = self.scene_obj.addText("Ω ↻")
+        ay = ypad * 0.86
+        self.scene_obj.addLine(x0, ay, x0 + 58, ay, QPen(QColor("#111111"), 1.5))
+        self.scene_obj.addLine(x0, ay, x0, ay - 45, QPen(QColor("#111111"), 1.5))
+        tx = self.scene_obj.addText("X"); tx.setPos(x0 + 60, ay - 11)
+        ty = self.scene_obj.addText("Y"); ty.setPos(x0 - 14, ay - 60)
+        omega = self.scene_obj.addText("Ω")
         omega.setScale(1.35)
-        omega.setPos(max_z - 55, -ypad * 0.9)
+        omega.setPos(max_z - 46, -ypad * 0.92)
+        self.scene_obj.addLine(
+            max_z - 28, -ypad * 0.72, max_z - 10, -ypad * 0.55,
+            QPen(QColor("#151515"), 1.5)
+        )
 
         self.scene_obj.setSceneRect(
-            min_z - 60, -ypad, max(max_z - min_z + 120, 300), ypad * 2
+            min_z - 65, -ypad, max(max_z - min_z + 130, 320), ypad * 2
         )
         self._update_selection(self.session.selection)
 
@@ -145,8 +163,8 @@ class RotorView(QGraphicsView):
         for entity_ref, item in self._entity_items.items():
             selected = entity_ref == ref
             pen = item.pen()
-            pen.setColor(QColor("#ff3131") if selected else QColor("#202020"))
-            pen.setWidthF(2.2 if selected else 1.1)
+            pen.setColor(QColor("#ff2f2f") if selected else QColor("#202020"))
+            pen.setWidthF(2.3 if selected else 1.15)
             item.setPen(pen)
 
     def mousePressEvent(self, event):
@@ -156,7 +174,7 @@ class RotorView(QGraphicsView):
             self.setCursor(Qt.ClosedHandCursor)
             event.accept()
             return
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.LeftButton and self.dragMode() == QGraphicsView.NoDrag:
             item = self.itemAt(event.position().toPoint())
             while item is not None:
                 ref = item.data(0)
@@ -193,27 +211,24 @@ class RotorView(QGraphicsView):
         factor = 1.15 if event.angleDelta().y() > 0 else 1 / 1.15
         self.scale(factor, factor)
 
-    def zoom_in(self):
-        self.scale(1.2, 1.2)
-
-    def zoom_out(self):
-        self.scale(1 / 1.2, 1 / 1.2)
+    def zoom_in(self): self.scale(1.2, 1.2)
+    def zoom_out(self): self.scale(1 / 1.2, 1 / 1.2)
 
     def fit_view(self):
         if self.scene_obj.items():
             self.fitInView(self.scene_obj.sceneRect(), Qt.KeepAspectRatio)
 
+    def set_pan_mode(self, enabled):
+        self.setDragMode(QGraphicsView.ScrollHandDrag if enabled else QGraphicsView.NoDrag)
+
     def set_node_numbers(self, value):
-        self.show_node_numbers = bool(value)
-        self.rebuild_scene()
+        self.show_node_numbers = bool(value); self.rebuild_scene()
 
     def set_element_numbers(self, value):
-        self.show_element_numbers = bool(value)
-        self.rebuild_scene()
+        self.show_element_numbers = bool(value); self.rebuild_scene()
 
     def set_bearings(self, value):
-        self.show_bearings = bool(value)
-        self.rebuild_scene()
+        self.show_bearings = bool(value); self.rebuild_scene()
 
 
 class RotorModelPage(QWidget):
@@ -226,31 +241,50 @@ class RotorModelPage(QWidget):
     runupRequested = Signal()
     coaxialRequested = Signal()
     asymmetricRequested = Signal()
+    bearingRequested = Signal()
 
     def __init__(self, session, parent=None):
         super().__init__(parent)
         outer = QVBoxLayout(self)
         outer.setContentsMargins(3, 3, 3, 3)
+        outer.setSpacing(4)
+
         controls = QHBoxLayout()
+        controls.setContentsMargins(0, 0, 0, 0)
 
         self.select_button = QToolButton()
         self.select_button.setText("Select")
+        self.select_button.setIcon(studio_icon("model"))
         self.select_button.setCheckable(True)
         self.select_button.setChecked(True)
 
+        self.pan_button = QToolButton()
+        self.pan_button.setText("Pan")
+        self.pan_button.setIcon(studio_icon("pan"))
+        self.pan_button.setCheckable(True)
+
         self.zoom_in_button = QToolButton()
-        self.zoom_in_button.setIcon(self.style().standardIcon(QStyle.SP_ArrowUp))
+        self.zoom_in_button.setIcon(studio_icon("zoom_in"))
         self.zoom_in_button.setText("Zoom In")
+
         self.zoom_out_button = QToolButton()
-        self.zoom_out_button.setIcon(self.style().standardIcon(QStyle.SP_ArrowDown))
+        self.zoom_out_button.setIcon(studio_icon("zoom_out"))
         self.zoom_out_button.setText("Zoom Out")
+
         self.fit_button = QToolButton()
+        self.fit_button.setIcon(studio_icon("fit"))
         self.fit_button.setText("Fit View")
 
+        mode_group=QButtonGroup(self)
+        mode_group.setExclusive(True)
+        mode_group.addButton(self.select_button)
+        mode_group.addButton(self.pan_button)
+
         for button in (
-            self.select_button, self.zoom_in_button,
+            self.select_button, self.pan_button, self.zoom_in_button,
             self.zoom_out_button, self.fit_button
         ):
+            button.setIconSize(QSize(18,18))
             button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
             controls.addWidget(button)
 
@@ -271,6 +305,8 @@ class RotorModelPage(QWidget):
         self.modules = AnalysisModulesBar()
         outer.addWidget(self.modules)
 
+        self.select_button.toggled.connect(lambda checked: self.view.set_pan_mode(False) if checked else None)
+        self.pan_button.toggled.connect(self.view.set_pan_mode)
         self.zoom_in_button.clicked.connect(self.view.zoom_in)
         self.zoom_out_button.clicked.connect(self.view.zoom_out)
         self.fit_button.clicked.connect(self.view.fit_view)
@@ -286,3 +322,4 @@ class RotorModelPage(QWidget):
         self.modules.runupRequested.connect(self.runupRequested)
         self.modules.coaxialRequested.connect(self.coaxialRequested)
         self.modules.asymmetricRequested.connect(self.asymmetricRequested)
+        self.modules.bearingRequested.connect(self.bearingRequested)
