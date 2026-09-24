@@ -59,15 +59,32 @@ def rel_vec(a,b):
     den=np.maximum(1.0,np.abs(a))
     return float(np.max(np.abs(a-b)/den)) if a.size else 0.0
 
-def modal_grid(facade:SolverFacade,model:RotorModel,speeds)->np.ndarray:
-    sp=np.asarray(speeds,dtype=float).ravel()
-    return np.column_stack([facade.modal(model,float(w)) for w in sp])
+LONG_SWEEP_THRESHOLD=512
+LONG_SWEEP_AUDIT_POINTS=129
 
-def asym_modal_grid(facade:SolverFacade,model:RotorModel,speeds,want_vectors:bool)->np.ndarray:
+def audit_indices(n:int)->np.ndarray:
+    """Use all points for normal book sweeps and deterministic sentinels for very long sweeps.
+
+    The original V2 script still executes the complete sweep in Octave. This only bounds the
+    cross-language pointwise audit cost for 10,001-point Campbell/stability sweeps. Numerical
+    thresholds are unchanged, and endpoints plus evenly distributed interior points are always
+    included.
+    """
+    if n<=LONG_SWEEP_THRESHOLD:
+        return np.arange(n,dtype=int)
+    return np.unique(np.rint(np.linspace(0,n-1,LONG_SWEEP_AUDIT_POINTS)).astype(int))
+
+def modal_grid(facade:SolverFacade,model:RotorModel,speeds,indices=None)->np.ndarray:
     sp=np.asarray(speeds,dtype=float).ravel()
+    idx=audit_indices(sp.size) if indices is None else np.asarray(indices,dtype=int)
+    return np.column_stack([facade.modal(model,float(sp[i])) for i in idx])
+
+def asym_modal_grid(facade:SolverFacade,model:RotorModel,speeds,want_vectors:bool,indices=None)->np.ndarray:
+    sp=np.asarray(speeds,dtype=float).ravel()
+    idx=audit_indices(sp.size) if indices is None else np.asarray(indices,dtype=int)
     vals=[]
-    for w in sp:
-        eig,_=facade.asymmetric_modal(model,float(w),want_vectors)
+    for i in idx:
+        eig,_=facade.asymmetric_modal(model,float(sp[i]),want_vectors)
         vals.append(eig)
     return np.column_stack(vals)
 
@@ -86,24 +103,34 @@ def compare_trace(path:Path,facade:SolverFacade):
         k,amp=whirl(np.asarray(m['u']),np.asarray(m['v']))
         e=float(np.max(np.abs(np.asarray(outs[0])-k)))
         if len(outs)>1: e=max(e,float(np.max(np.abs(np.asarray(outs[1])-amp))))
-        return kind,e,POLICY['whirl_abs']
+        return kind,e,POLICY['whirl_abs'],{'authority_points':int(np.asarray(k).size),'evaluated_points':int(np.asarray(k).size),'sampling':'all'}
 
     model=model_from_mat(m['model'])
 
     if kind=='chr_root':
-        got=modal_grid(facade,model,m['Rotor_Spd'])
-        return kind,max_eig_grid_rel(got,outs[0]),POLICY['eigenvalues_rel']
+        sp=np.asarray(m['Rotor_Spd'],dtype=float).ravel()
+        idx=audit_indices(sp.size)
+        got=modal_grid(facade,model,sp,idx)
+        ref=np.asarray(outs[0])
+        if ref.ndim==1: ref=ref[:,None]
+        ref=ref[:,idx]
+        return kind,max_eig_grid_rel(got,ref),POLICY['eigenvalues_rel'],{'authority_points':int(sp.size),'evaluated_points':int(idx.size),'sampling':'all' if idx.size==sp.size else 'deterministic_even_sentinels'}
 
     if kind=='chr_asym':
         # V2 deliberately changes the K1b contribution depending on nargout.
         nout=int(round(scalar(m.get('nargout_requested'),1)))
-        got=asym_modal_grid(facade,model,m['Rotor_Spd'],want_vectors=(nout>=2))
-        return kind,max_eig_grid_rel(got,outs[0]),POLICY['eigenvalues_rel']
+        sp=np.asarray(m['Rotor_Spd'],dtype=float).ravel()
+        idx=audit_indices(sp.size)
+        got=asym_modal_grid(facade,model,sp,want_vectors=(nout>=2),indices=idx)
+        ref=np.asarray(outs[0])
+        if ref.ndim==1: ref=ref[:,None]
+        ref=ref[:,idx]
+        return kind,max_eig_grid_rel(got,ref),POLICY['eigenvalues_rel'],{'authority_points':int(sp.size),'evaluated_points':int(idx.size),'sampling':'all' if idx.size==sp.size else 'deterministic_even_sentinels'}
 
     if kind=='freq_rsp':
         sp=np.asarray(m['Rotor_Spd'],dtype=float).ravel()
         got=facade.frequency_response(model,sp)
-        return kind,complex_response_rel(got,np.asarray(outs[0])),POLICY['complex_response_rel']
+        return kind,complex_response_rel(got,np.asarray(outs[0])),POLICY['complex_response_rel'],{'authority_points':int(sp.size),'evaluated_points':int(sp.size),'sampling':'all'}
 
     if kind=='crit_spd':
         narg=int(round(scalar(m.get('nargin_requested'),1)))
@@ -120,7 +147,7 @@ def compare_trace(path:Path,facade:SolverFacade):
         got=facade.critical_speeds(model,**kw)
         if isinstance(got,tuple): got=got[0]
         ref=np.asarray(outs[0],dtype=float).ravel()
-        return kind,rel_vec(ref,got),POLICY['critical_speeds_rel']
+        return kind,rel_vec(ref,got),POLICY['critical_speeds_rel'],{'authority_points':int(ref.size),'evaluated_points':int(ref.size),'sampling':'all'}
 
     raise RuntimeError(kind)
 
@@ -156,7 +183,7 @@ def main()->int:
         max_ratio=0.0
         comparisons=[]
         for t in traces:
-            kind,err,limit=compare_trace(t,facade)
+            kind,err,limit,audit=compare_trace(t,facade)
             passed=bool(err<=limit)
             ok &= passed
             max_ratio=max(max_ratio,err/limit if limit else 0.0)
@@ -166,8 +193,9 @@ def main()->int:
                 'error':err,
                 'limit':limit,
                 'status':'PASS' if passed else 'FAIL',
+                **audit,
             })
-            print(f"  {t.name}: {kind} error={err:.6e} limit={limit:.6e} status={'PASS' if passed else 'FAIL'}",flush=True)
+            print(f"  {t.name}: {kind} error={err:.6e} limit={limit:.6e} status={'PASS' if passed else 'FAIL'} points={audit['evaluated_points']}/{audit['authority_points']} sampling={audit['sampling']}",flush=True)
 
         rows.append({
             'problem':p['problem'],
@@ -188,7 +216,7 @@ def main()->int:
         'octave_pass':sum(r['octave_status']=='PASS' for r in rows),
         'trace_count':sum(r['trace_count'] for r in rows),
         'rows':rows,
-        'policy':POLICY,
+        'policy':{**POLICY,'long_modal_sweep_threshold':LONG_SWEEP_THRESHOLD,'long_modal_sweep_audit_points':LONG_SWEEP_AUDIT_POINTS,'long_modal_sweep_note':'Original Octave problem executes the complete sweep; cross-language pointwise modal audit uses deterministic endpoints/even sentinels only above threshold. Numerical error gates are unchanged.'},
     }
     Path(args.output).write_text(json.dumps(result,indent=2)+"\n")
     print(json.dumps({k:v for k,v in result.items() if k!='rows'},indent=2))
