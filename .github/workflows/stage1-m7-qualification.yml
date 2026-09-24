@@ -221,7 +221,6 @@ jobs:
           mkdir -p validation/reports/g17_windows
           {
             echo "MSYSTEM=$MSYSTEM"
-            python --version
             gfortran --version | head -1
             cmake --version | head -1
             ninja --version
@@ -232,6 +231,12 @@ jobs:
             git status --porcelain=v1
           } | tee validation/reports/g17_windows/environment.txt
           echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+
+      - name: Record Windows Python environment
+        shell: pwsh
+        run: |
+          python --version | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
+          python -c "import sys; print(sys.executable)" | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
 
       - name: G1 authority source integrity
         shell: pwsh
