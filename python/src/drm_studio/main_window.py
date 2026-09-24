@@ -53,7 +53,8 @@ class MainWindow(QMainWindow):
         self._result_tabs = {}
 
         self.setObjectName("RotorDynamicsStudioMainWindow")
-        self.resize(1400, 900)
+        self.setWindowIcon(studio_icon("model"))
+        self.resize(1440, 900)
         self.setStyleSheet(APP_STYLESHEET)
         self._build_actions()
         self._build_menus()
