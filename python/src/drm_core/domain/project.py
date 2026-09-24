@@ -1,0 +1,1 @@
+from drm_core.stage1 import RotorProject\n__all__=['RotorProject']\n
