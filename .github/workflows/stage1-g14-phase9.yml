@@ -49,6 +49,16 @@ jobs:
         run: |
           python scripts/run_example_campaign.py --outdir validation/reports/example_campaign_stage1 | tee validation/reports/example_campaign_stage1.txt
           test ${PIPESTATUS[0]} -eq 0
+      - name: Complete and verify graphical outputs for all 22 examples
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+        run: |
+          python scripts/complete_example_graphics.py \
+            --campaign-dir validation/reports/example_campaign_stage1 \
+            --output validation/reports/EXAMPLE_GRAPHICS_STAGE1.json \
+            | tee validation/reports/example_graphics_stage1.txt
+          test ${PIPESTATUS[0]} -eq 0
+
       - name: Upload Core/Phase9 evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -57,6 +67,8 @@ jobs:
           path: |
             validation/reports/stage1_python_tests.txt
             validation/reports/example_campaign_stage1*
+            validation/reports/EXAMPLE_GRAPHICS_STAGE1.json
+            validation/reports/example_graphics_stage1.txt
           if-no-files-found: warn
           retention-days: 90
 
