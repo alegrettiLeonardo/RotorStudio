@@ -100,7 +100,11 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p validation/reports/g14
-          curl --fail --location --retry 3 --connect-timeout 20 \
+          # The legacy host currently presents a certificate whose SAN does not match
+          # www.rotordynamics.info. Transport authentication is therefore not used as
+          # provenance here; the downloaded bytes are accepted only if they match the
+          # independently frozen authoritative SHA256 below.
+          curl --insecure --fail --location --retry 3 --connect-timeout 20 \
             https://www.rotordynamics.info/DRM_problem_scripts.zip \
             --output validation/reports/g14/DRM_problem_scripts.zip
           echo "8b5db23fa57bc5e41f68ed9e25ab8f1f1a72e4a24b9e11af38dccdd4098501d1  validation/reports/g14/DRM_problem_scripts.zip" \
