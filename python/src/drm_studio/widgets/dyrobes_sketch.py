@@ -301,11 +301,14 @@ def build_dyrobes_scene(
         top = center_y - _visual_half_height(sketch, x, radial_scale)
         cy = top - 30.0
         scene.addLine(x, top, x, cy + 9.0, QPen(QColor("#e13d43"), 1.4)).setZValue(13)
-        scene.addEllipse(
+        unbalance_item = scene.addEllipse(
             QRectF(x - 8.0, cy - 8.0, 16.0, 16.0),
             QPen(QColor("#e13d43"), 1.4),
             QBrush(Qt.NoBrush),
-        ).setZValue(13)
+        )
+        unbalance_item.setZValue(13)
+        unbalance_item.setData(1, "unbalance")
+        unbalance_item.setData(2, index - 1)
         scene.addLine(x - 4.5, cy, x + 4.5, cy, QPen(QColor("#e13d43"), 1.2)).setZValue(14)
         _add_text(scene, f"u{index}", x + 8.0, cy - 10.0, "#c92a2a", 0.72)
 
@@ -319,7 +322,10 @@ def build_dyrobes_scene(
         junction = top - 22.0
         color = QColor("#2f9e44")
         pen = QPen(color, 1.25)
-        scene.addLine(x, top, x, junction, pen).setZValue(13)
+        probe_item = scene.addLine(x, top, x, junction, pen)
+        probe_item.setZValue(13)
+        probe_item.setData(1, "probe")
+        probe_item.setData(2, tuple(indices))
         if len(indices) >= 2:
             arm_y = junction - 14.0
             scene.addLine(x, junction, x - 13.0, arm_y, pen).setZValue(13)
