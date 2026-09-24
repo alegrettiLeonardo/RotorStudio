@@ -101,3 +101,26 @@ The preferred numerical change count is zero. Backward-compatible, non-solver AP
 - progress callbacks around safe outer loops.
 
 Any `drm_core`, `SolverFacade` or Fortran change triggers proportional Stage 1 regression. No Stage 2 change may relax a Stage 1 numerical threshold.
+
+
+## Cancellation boundary
+
+Cancellation is an orchestration feature, not a numerical interruption mechanism. `SolverJobManager` has one worker thread and six terminal/transition states: QUEUED, RUNNING, CANCELLING, CANCELLED, COMPLETED and FAILED.
+
+A queued `QRunnable` may be removed before execution. The only current cooperative running boundary is `modal_sweep`, whose existing Python outer loop checks a cancellation callback between complete calls to `run_modal`. No LAPACK or Fortran call is interrupted. Monolithic analyses acknowledge CANCELLING but finish their real call and retain the completed result.
+
+## Result lifecycle
+
+`ResultRecord` stores the source model hash. Model edits recompute stale state; if undo restores the original physical model hash the result becomes current again. Results may be viewed while stale, rerun or removed explicitly.
+
+Exports consume result objects only:
+- plots use `drm_core.post.export_figure`;
+- CSV uses explicit real-valued result columns and `export_csv`;
+- native numeric data uses `export_npz`;
+- reports call `write_analysis_report`.
+
+None of these paths calls a solver merely because the user changes visualization or exports data.
+
+## Frozen application
+
+The PyInstaller one-directory build packages `drm_studio`, `drm_core`, Qt plugins, Matplotlib, the qualified Fortran shared library and its required non-system runtime dependencies. Frozen startup resolves the bundled solver path. Qualification executes from a clean extracted directory with source/developer environment variables removed.
