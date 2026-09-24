@@ -5,12 +5,12 @@ from pathlib import Path
 from PySide6.QtCore import Qt, QSettings
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QLabel, QFileDialog, QMessageBox,
-    QToolBar, QStyle
+    QMainWindow, QFileDialog, QMessageBox, QToolBar, QStyle, QTabWidget, QLabel
 )
 
 from .application.session import ProjectSession
-from .docks.messages import MessagesDock
+from .docks import MessagesDock, ProjectExplorerDock, PropertyInspectorDock
+from .widgets import RotorModelPage
 from .style import APP_STYLESHEET
 
 
@@ -58,32 +58,34 @@ class MainWindow(QMainWindow):
         project.addAction(self.exit_action)
         model = bar.addMenu("Model")
         model.addActions([self.undo_action, self.redo_action])
-        bar.addMenu("Analysis")
-        bar.addMenu("Bearings")
-        bar.addMenu("Results")
+        self.analysis_menu = bar.addMenu("Analysis")
+        self.bearings_menu = bar.addMenu("Bearings")
+        self.results_menu = bar.addMenu("Results")
         bar.addMenu("Tools")
         bar.addMenu("Help")
 
     def _build_toolbar(self):
-        tb = QToolBar("Main", self)
-        tb.setObjectName("MainToolbar")
-        tb.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.addToolBar(tb)
-        tb.addActions([self.new_action, self.open_action, self.save_action])
-        tb.addSeparator()
-        tb.addActions([self.undo_action, self.redo_action])
+        toolbar = QToolBar("Main", self)
+        toolbar.setObjectName("MainToolbar")
+        toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.addToolBar(toolbar)
+        toolbar.addActions([self.new_action, self.open_action, self.save_action])
+        toolbar.addSeparator()
+        toolbar.addActions([self.undo_action, self.redo_action])
 
     def _build_shell(self):
-        host = QWidget()
-        lay = QVBoxLayout(host)
-        lay.setContentsMargins(0, 0, 0, 0)
-        placeholder = QLabel(
-            "Stage 2 workspace\nProject Explorer, rotor editor and result views are added by the next vertical slice."
-        )
-        placeholder.setAlignment(Qt.AlignCenter)
-        placeholder.setStyleSheet("background:white;color:#456;")
-        lay.addWidget(placeholder)
-        self.setCentralWidget(host)
+        self.workspace = QTabWidget()
+        self.workspace.setDocumentMode(True)
+        self.workspace.setMovable(True)
+        self.model_page = RotorModelPage(self.session)
+        self.workspace.addTab(self.model_page, "Rotor Model")
+        self.setCentralWidget(self.workspace)
+
+        self.project_dock = ProjectExplorerDock(self.session, self)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.project_dock)
+
+        self.property_dock = PropertyInspectorDock(self.session, self)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.property_dock)
 
         self.messages_dock = MessagesDock(self.session, self)
         self.addDockWidget(Qt.BottomDockWidgetArea, self.messages_dock)
@@ -101,7 +103,8 @@ class MainWindow(QMainWindow):
 
     def _choose_open(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, "Open RotorStudio Project", "", "RotorStudio Project (*.rds *.json);;JSON (*.json);;All Files (*)"
+            self, "Open RotorStudio Project", "",
+            "RotorStudio Project (*.rds *.json);;JSON (*.json);;All Files (*)"
         )
         if path:
             try:
@@ -111,6 +114,7 @@ class MainWindow(QMainWindow):
 
     def open_project(self, path: str | Path):
         self.session.open_project(path)
+        self.model_page.view.fit_view()
 
     def _save(self):
         if self.session.path is None:
@@ -122,7 +126,8 @@ class MainWindow(QMainWindow):
 
     def _save_as(self):
         path, _ = QFileDialog.getSaveFileName(
-            self, "Save RotorStudio Project", "", "RotorStudio Project (*.rds);;JSON (*.json)"
+            self, "Save RotorStudio Project", "",
+            "RotorStudio Project (*.rds);;JSON (*.json)"
         )
         if path:
             if not Path(path).suffix:
@@ -138,22 +143,24 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"Rotor Dynamics Studio — {name}{mark}")
 
     def _refresh_status(self):
-        m = self.session.project.model
+        model = self.session.project.model
+        bearings = sum(1 for bearing in model.bearings if bearing.bearing_type != 8)
         self.status_counts.setText(
-            f"Nodes: {len(m.nodes)}   Elements: {len(m.shafts)}   Disks: {len(m.disks)}   Bearings: {len(m.bearings)}"
+            f"Nodes: {len(model.nodes)}   Elements: {len(model.shafts)}   "
+            f"Disks: {len(model.disks)}   Bearings: {bearings}"
         )
 
     def _restore_settings(self):
-        s = QSettings()
-        geo = s.value("main/geometry")
-        state = s.value("main/state")
-        if geo is not None:
-            self.restoreGeometry(geo)
+        settings = QSettings()
+        geometry = settings.value("main/geometry")
+        state = settings.value("main/state")
+        if geometry is not None:
+            self.restoreGeometry(geometry)
         if state is not None:
             self.restoreState(state)
 
     def closeEvent(self, event):
-        s = QSettings()
-        s.setValue("main/geometry", self.saveGeometry())
-        s.setValue("main/state", self.saveState())
+        settings = QSettings()
+        settings.setValue("main/geometry", self.saveGeometry())
+        settings.setValue("main/state", self.saveState())
         super().closeEvent(event)
