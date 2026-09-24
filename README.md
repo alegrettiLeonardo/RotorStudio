@@ -48,6 +48,13 @@ BLAS / LAPACK
 
 The Stage 2 rule is strict: **the UI does not implement rotor-dynamics physics**. The Python API, CLI, Fortran tests and Stage 1 qualification remain headless and must continue to pass unchanged.
 
+### Stage 2.1 — Visual Conformance
+
+Stage 2.1 refines the presentation layer against the supplied desktop mockups without changing Fortran physics. It adds a dense CAE command toolbar with QtAwesome icons, mockup-style document pagination, contextual Results Properties, a dedicated Bearing Performance workspace, improved dock proportions and a real 3-D mode-shape view with red deflected centerline, magenta whirl-orbit stations and black undeformed reference.
+
+Qualification is performed by the `Stage 2.1 Visual Conformance` workflow. See `docs/UI_STAGE21_VISUAL_CONFORMANCE.md`.
+
+
 ## Local Linux build and regression
 
 ```bash
