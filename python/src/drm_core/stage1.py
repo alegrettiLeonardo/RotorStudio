@@ -1,5 +1,5 @@
 from __future__ import annotations
-from dataclasses import dataclass,field,asdict,is_dataclass
+from dataclasses import dataclass,field,asdict,is_dataclass,replace
 from datetime import datetime,timezone
 from pathlib import Path
 from typing import Any
@@ -69,7 +69,9 @@ class AnalysisService:
     """Application dispatcher. Numerical physics stays in the existing Fortran-backed API."""
     def __init__(self,library_path=None,build_options=None):
         self.library_path=library_path;self.build_options=dict(build_options or {})
-    def execute(self,model:RotorModel,case:AnalysisCase):
+    def execute(self,model:RotorModel|RotorProject,case:AnalysisCase):
+        project=model if isinstance(model,RotorProject) else None
+        model=project.model if project is not None else model
         p=dict(case.parameters);k=case.kind.strip().lower();lib=self.library_path
         if k=="modal": result=run_modal(model,library_path=lib,**p)
         elif k=="modal_sweep":
@@ -86,8 +88,24 @@ class AnalysisService:
         elif k=="foundation_time_response": result=run_foundation_time_response(model,library_path=lib,**p)
         elif k=="runup": result=run_runup(model,library_path=lib,**p)
         else: raise ValueError(f"unsupported AnalysisCase.kind={case.kind!r}")
-        meta=collect_build_metadata(lib,{**self.build_options,**case.options})
-        return AnalysisExecution(case,result,analysis_hash(model,case,meta),meta)
+        effective_options={**self.build_options,**case.options}
+        ah=analysis_hash(model,case,effective_options)
+        meta=collect_build_metadata(lib,effective_options)
+        meta["model_hash"]=model.model_hash()
+        meta["analysis_hash"]=ah
+        if project is not None:
+            meta["project_hash"]=project.project_hash()
+        def attach(value):
+            if is_dataclass(value) and hasattr(value,"metadata"):
+                merged=dict(getattr(value,"metadata") or {})
+                merged.update({"analysis_hash":ah,"build":meta,"options":effective_options})
+                return replace(value,metadata=merged)
+            return value
+        if isinstance(result,list):
+            result=[attach(x) for x in result]
+        else:
+            result=attach(result)
+        return AnalysisExecution(case,result,ah,meta)
 
 def _legacy_payload(m:RotorModel):
     return {"node":[[n.number,n.z_m] for n in m.nodes],"shaft":[s.legacy_row() for s in m.shafts],
