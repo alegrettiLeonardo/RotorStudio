@@ -46,6 +46,7 @@ def main(argv=None) -> int:
     app = QApplication.instance() or QApplication(sys.argv[:1])
     win = MainWindow()
     if args.qualification_smoke:
+        app.setQuitOnLastWindowClosed(False)
         from .qualification import PackagedQualification
         project = Path(args.qualification_project) if args.qualification_project else _bundled_smoke_project()
         runner = PackagedQualification(app, win, args.qualification_smoke, project)
