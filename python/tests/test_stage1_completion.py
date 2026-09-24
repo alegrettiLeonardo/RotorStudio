@@ -16,3 +16,13 @@ def test_fft_v2_scaling_and_exports(tmp_path):
     t=np.linspace(0,1,101);r=np.sin(2*np.pi*5*t)[None,:];o=fft_scale(r,t);assert np.allclose(o.spectrum,(2/101)*np.fft.fft(r,axis=1))
     sp=np.array([0.,10.,20.]);ev=np.array([[-1+5j,-1+6j,-1+7j],[-1-5j,-1-6j,-1-7j]]);fig=plot_root_locus(sp,ev).figure
     m=export_bundle(tmp_path,{"root":fig},{"speed":sp},{"scope":"test"});assert all((tmp_path/f"root.{x}").is_file() for x in ("png","svg","pdf"));assert (tmp_path/"data.npz").is_file() and (tmp_path/"data.csv").is_file()
+
+def test_python_core_has_no_desktop_or_web_ui_dependencies():
+    root=Path(__file__).resolve().parents[1]/"src"/"drm_core"
+    forbidden=("PySide6","PyQt","tkinter","wxPython","electron","streamlit","gradio")
+    offenders=[]
+    for p in root.rglob("*.py"):
+        txt=p.read_text(errors="replace")
+        for token in forbidden:
+            if token in txt:offenders.append((str(p.relative_to(root)),token))
+    assert offenders==[]
