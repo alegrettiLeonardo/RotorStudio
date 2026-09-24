@@ -1,9 +1,6 @@
 name: Stage 1 G14 and Phase 9 Qualification
 
 on:
-  push:
-    branches:
-      - feature/stage1-finalization-g14-phase9-20260924
   pull_request:
     branches:
       - main
