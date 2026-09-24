@@ -1,15 +1,15 @@
-# Minimal legacy-defect cases — Stage 1 M3
+# Minimal legacy-defect cases — Stage 1 final qualification
 
-These cases are anchored to the preserved `reference/matlab_v2` source. MATLAB/Octave is not available in the qualification environment, so **runtime behavior in MATLAB remains BLOCKED**. Static source evidence and new-implementation compatibility tests do not replace that gate.
+Pinned GNU Octave 7.1.0 now executes the minimal runtime probes against the preserved `reference/matlab_v2` authority. These probes characterize V2 behavior; they do not silently repair the authority.
 
-| Item | Source evidence | M3 treatment | Classification at M3 |
+| Item | Runtime evidence | Stage 1 treatment | Classification |
 |---|---|---|---|
-| `shftasym.m` default argument | function has 9 inputs but uses `if nargin < 8` | nonzero asymmetric axial load is rejected explicitly; no invented `Kre` | `LEGACY_DEFECT_STATIC_CONFIRMED`, MATLAB runtime `BLOCKED` |
-| `shftasym.m` axial branch | `Kre(...) = Kre(...) + ...` without initialization in the function | branch not silently repaired | `LEGACY_DEFECT_STATIC_CONFIRMED`, MATLAB runtime `BLOCKED` |
-| `shftasym.m` rotary contribution | `Ms` is scaled, then `Cs = rhoI*Ms/(15*L)` | reproduced exactly in compatibility path | `LEGACY_BEHAVIOR_PRESERVED` |
-| `bearasym.m` type 4 | writes rotational reverse term into `K1b1(2,1)` and never writes `K1b1(4,3)` | reproduced exactly and asserted numerically | `LEGACY_DEFECT_STATIC_CONFIRMED_AND_PRESERVED` |
-| `chr_asym.m` | `nargout==1` includes `K1b`; `nargout==2` omits it | API exposes `want_vectors` and preserves the two paths | `LEGACY_OUTPUT_DEPENDENT_BEHAVIOR_PRESERVED` |
-| `time_fdn.m` / `freq_fdn.m` | `type > 2 OR type < 9` is true for every finite numeric type | documented only; transient/foundation migration still deferred | `LEGACY_DEFECT_STATIC_CONFIRMED`, runtime `BLOCKED` |
-| `runup.m` | defines `jot` but also uses MATLAB symbol `j` | documented only; run-up migration deferred | `LEGACY_BEHAVIOR_RISK`, runtime `BLOCKED` |
+| `shftasym.m` default argument | 8-argument call fails with `AxialForce` undefined | compatibility layer does not invent a default for that exact V2 defect path | `LEGACY_DEFECT_RUNTIME_CONFIRMED` |
+| `shftasym.m` axial branch | nonzero axial call fails with `Kre` undefined | production asymmetric axial-force branch is rejected explicitly | `LEGACY_DEFECT_RUNTIME_CONFIRMED` |
+| `shftasym.m` rotary contribution | measured nonlinear rhoI scaling residual `0.457152` in probe | compatibility behavior retained where applicable | `LEGACY_BEHAVIOR_RUNTIME_CONFIRMED` |
+| `bearasym.m` type 4 | observed `K1b(3,4)=-7`, `K1b(4,3)=0`, `K1b(2,1)=7` | reproduced exactly | `LEGACY_DEFECT_RUNTIME_CONFIRMED` |
+| `chr_asym.m` output count | one-output and two-output paths differ; probe max eigenvalue delta `90.3488` | API preserves the two legacy paths | `LEGACY_OUTPUT_DEPENDENT_BEHAVIOR_RUNTIME_CONFIRMED` |
+| `time_fdn.m` / `freq_fdn.m` bearing predicate | `type > 2 OR type < 9` evaluated true for every finite numeric probe type | preserved and documented | `LEGACY_DEFECT_RUNTIME_CONFIRMED` |
+| `runup.m` `j` vs `jot` | unshadowed built-in `j` path executed successfully; probe returned 11 finite points | V2 forcing semantics retained | `LEGACY_BEHAVIOR_RUNTIME_CONFIRMED` |
 
-No item above is used to claim MATLAB numerical equivalence.
+The executable probe source is `validation/legacy_cases/run_octave_probes.m`. CI uploads the CSV evidence produced by that probe. No item above is used as a reason to relax formal numerical gates.

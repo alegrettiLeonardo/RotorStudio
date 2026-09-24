@@ -1,0 +1,286 @@
+name: Stage 1 G14 and Phase 9 Qualification
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: stage1-final-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-phase9:
+    name: Linux Core + Phase9 + examples
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: Install Python
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+      - name: Build and test Fortran Release
+        run: |
+          cmake -S fortran -B build-stage1 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-stage1 -j2
+          ctest --test-dir build-stage1 --output-on-failure
+      - name: Python Core and Phase9 regression
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-stage1/libdrmrotor.so
+        run: |
+          python -m pytest python/tests -q | tee validation/reports/stage1_python_tests.txt
+          test ${PIPESTATUS[0]} -eq 0
+      - name: 22-example campaign
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-stage1/libdrmrotor.so
+        run: |
+          python scripts/run_example_campaign.py --outdir validation/reports/example_campaign_stage1 | tee validation/reports/example_campaign_stage1.txt
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Complete and verify graphical outputs for all 22 examples
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+        run: |
+          python scripts/complete_example_graphics.py \
+            --campaign-dir validation/reports/example_campaign_stage1 \
+            --output validation/reports/EXAMPLE_GRAPHICS_STAGE1.json \
+            | tee validation/reports/example_graphics_stage1.txt
+          test ${PIPESTATUS[0]} -eq 0
+
+      - name: Upload Core/Phase9 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-core-phase9-${{ github.sha }}
+          path: |
+            validation/reports/stage1_python_tests.txt
+            validation/reports/example_campaign_stage1*
+            validation/reports/EXAMPLE_GRAPHICS_STAGE1.json
+            validation/reports/example_graphics_stage1.txt
+          if-no-files-found: warn
+          retention-days: 90
+
+  g14-book-problems:
+    name: G14 — 83 book problems + V2 trace equivalence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install host numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: Install Python
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+      - name: Build qualified Fortran core
+        run: |
+          cmake -S fortran -B build-g14 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-g14 -j2
+          ctest --test-dir build-g14 --output-on-failure
+      - name: Retrieve, verify and inventory authoritative DRM problem archive
+        run: |
+          set -o pipefail
+          mkdir -p validation/reports/g14
+          # The legacy host currently presents a certificate whose SAN does not match
+          # www.rotordynamics.info. Transport authentication is therefore not used as
+          # provenance here; the downloaded bytes are accepted only if they match the
+          # independently frozen authoritative SHA256 below.
+          curl --insecure --fail --location --retry 3 --connect-timeout 20 \
+            https://www.rotordynamics.info/DRM_problem_scripts.zip \
+            --output validation/reports/g14/DRM_problem_scripts.zip
+          echo "8b5db23fa57bc5e41f68ed9e25ab8f1f1a72e4a24b9e11af38dccdd4098501d1  validation/reports/g14/DRM_problem_scripts.zip" \
+            | sha256sum --check -
+          python validation/book_problems/prepare_sources.py \
+            --zip validation/reports/g14/DRM_problem_scripts.zip \
+            --outdir validation/reports/g14/problem_sources \
+            --inventory validation/reports/g14/problem_inventory.json \
+            | tee validation/reports/g14/problem_inventory_summary.txt
+      - name: Prepare Octave authority trace harness
+        run: |
+          python validation/book_problems/prepare_octave_runtime.py \
+            --software-dir reference/matlab_v2 \
+            --problem-dir validation/reports/g14/problem_sources \
+            --inventory validation/reports/g14/problem_inventory.json \
+            --runtime-dir validation/reports/g14/runtime
+      - name: Run all 83 original problem scripts with pinned Octave 7.1.0
+        run: |
+          mkdir -p validation/reports/g14/traces
+          docker pull gnuoctave/octave:7.1.0
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/work" \
+            -w /work \
+            gnuoctave/octave:7.1.0 \
+            octave --no-gui --quiet --eval \
+            "addpath('/work/reference/matlab_v2','-end'); addpath('/work/validation/reports/g14/runtime/problems','-end'); addpath('/work/validation/reports/g14/runtime/wrappers','-begin'); run_book_problem_suite('/work/validation/reports/g14/runtime/problems','/work/validation/reports/g14/traces','/work/validation/reports/g14/problem_status.csv');"
+      - name: Compare traced V2 solver calls to Fortran/Python
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-g14/libdrmrotor.so
+        run: |
+          python validation/book_problems/compare_traces.py \
+            --trace-dir validation/reports/g14/traces \
+            --status-csv validation/reports/g14/problem_status.csv \
+            --inventory validation/reports/g14/problem_inventory.json \
+            --output validation/reports/G14_BOOK_PROBLEMS.json \
+            | tee validation/reports/g14/g14_summary.txt
+          test ${PIPESTATUS[0]} -eq 0
+      - name: Upload G14 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-g14-${{ github.sha }}
+          path: |
+            validation/reports/G14_BOOK_PROBLEMS.json
+            validation/reports/g14/
+          if-no-files-found: error
+          retention-days: 90
+
+
+  legacy-defect-probes:
+    name: Legacy V2 defect runtime probes — Octave 7.1.0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute preserved V2 minimal probes
+        run: |
+          mkdir -p validation/reports/legacy_probes
+          docker pull gnuoctave/octave:7.1.0
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/work" \
+            -w /work \
+            gnuoctave/octave:7.1.0 \
+            octave --no-gui --quiet --eval \
+            "addpath('/work/reference/matlab_v2'); addpath('/work/validation/legacy_cases'); run_octave_probes('/work/validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv');"
+          test -s validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv
+          cat validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv
+          test "$(grep -c ',PASS,' validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv)" -eq 7
+          test "$(grep -c ',FAIL,' validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv || true)" -eq 0
+      - name: Upload legacy probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-legacy-probes-${{ github.sha }}
+          path: validation/reports/legacy_probes/
+          if-no-files-found: error
+          retention-days: 90
+
+
+  clean-package:
+    name: G18 — clean Stage 1 package qualification
+    needs:
+      - core-phase9
+      - g14-book-problems
+      - legacy-defect-probes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install clean-package toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev unzip
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Stage original DRM problem archive into package tree
+        run: |
+          mkdir -p reference/problems
+          curl --insecure --fail --location --retry 3 --connect-timeout 20 \
+            https://www.rotordynamics.info/DRM_problem_scripts.zip \
+            --output reference/problems/DRM_problem_scripts.zip
+          echo "8b5db23fa57bc5e41f68ed9e25ab8f1f1a72e4a24b9e11af38dccdd4098501d1  reference/problems/DRM_problem_scripts.zip" \
+            | sha256sum --check -
+
+      - name: Build deterministic Stage 1 ZIP
+        run: |
+          mkdir -p validation/reports/package
+          SHORT_SHA="${GITHUB_SHA::12}"
+          PKG="validation/reports/package/DRM_Fortran_Python_Stage1_${SHORT_SHA}.zip"
+          python scripts/package_stage1.py \
+            --root . \
+            --output "$PKG" \
+            --manifest validation/reports/package/PACKAGE_MANIFEST.json \
+            | tee validation/reports/package/package_build.txt
+          echo "STAGE1_PACKAGE=$PKG" >> "$GITHUB_ENV"
+          test -s "$PKG"
+          test -s "$PKG.sha256"
+      - name: Verify package hygiene
+        run: |
+          python - <<'PY'
+          import os, zipfile, sys
+          p=os.environ['STAGE1_PACKAGE']
+          bad=[]
+          with zipfile.ZipFile(p) as z:
+              for n in z.namelist():
+                  parts=n.split('/')
+                  if any(x in parts for x in ('.git','.venv','__pycache__','.pytest_cache')): bad.append(n)
+                  if n.lower().endswith(('.pyc','.pyo','.o','.obj','.mod','.so','.dll','.dylib')): bad.append(n)
+          if bad:
+              print("FORBIDDEN_PACKAGE_ENTRIES")
+              print("\n".join(bad))
+              sys.exit(1)
+          print("PACKAGE_HYGIENE=PASS")
+          PY
+      - name: Extract into empty directory
+        run: |
+          CLEAN_DIR="$(mktemp -d)"
+          mkdir -p "$CLEAN_DIR/pkg"
+          unzip -q "$STAGE1_PACKAGE" -d "$CLEAN_DIR/pkg"
+          echo "CLEAN_DIR=$CLEAN_DIR/pkg" >> "$GITHUB_ENV"
+          test ! -e "$CLEAN_DIR/pkg/.git"
+      - name: Configure/build/test Fortran from extracted package
+        run: |
+          cmake -S "$CLEAN_DIR/fortran" -B "$CLEAN_DIR/build-release" -DCMAKE_BUILD_TYPE=Release
+          cmake --build "$CLEAN_DIR/build-release" -j2
+          ctest --test-dir "$CLEAN_DIR/build-release" --output-on-failure
+      - name: Install/test Python from extracted package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e "$CLEAN_DIR/python[test]"
+          export PYTHONPATH="$CLEAN_DIR/python/src:$CLEAN_DIR"
+          export DRMROTOR_LIB="$CLEAN_DIR/build-release/libdrmrotor.so"
+          cd "$CLEAN_DIR"
+          python validation/equivalence/verify_authority_sources.py
+          python -m pytest python/tests -q
+          python scripts/run_example_campaign.py --outdir validation/reports/clean_package_examples
+          python scripts/complete_example_graphics.py \
+            --campaign-dir validation/reports/clean_package_examples \
+            --output validation/reports/CLEAN_PACKAGE_EXAMPLE_GRAPHICS.json
+      - name: Record clean-package evidence
+        run: |
+          {
+            echo "G18_CLEAN_PACKAGE=PASS"
+            echo "source_sha=$GITHUB_SHA"
+            cat "$STAGE1_PACKAGE.sha256"
+            python --version
+            gfortran --version | head -1
+            cmake --version | head -1
+          } | tee validation/reports/package/CLEAN_PACKAGE_STATUS.txt
+      - name: Upload final Stage 1 package
+        uses: actions/upload-artifact@v4
+        with:
+          name: DRM-Fortran-Python-Stage1-${{ github.sha }}
+          path: |
+            validation/reports/package/
+          if-no-files-found: error
+          retention-days: 90

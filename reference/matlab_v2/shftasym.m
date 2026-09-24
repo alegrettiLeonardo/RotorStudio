@@ -7,7 +7,7 @@ function [M0e,C1e,K0e,K2e] = shftasym(Shaft_Type,L,EIx,EIy,Phix,Phiy,rhoA,rhoI,A
 %  This function generates the element matrices for an asymmetric shaft
 %  element in rotating co-ordinates.
 %
-%  Both Euler and Timoshenko beam theory included
+%  Both Euler and	Timoshenko beam theory included
 %
 %    K0e  is the returned stiffness matrix
 %    M0e  is the returned mass matrix
@@ -71,6 +71,7 @@ if (include_shear_effects==0)
    Phiy = 0; 
 end
 
+% stiffness element
 K0xe = [12          6*L   -12           6*L;
        6*L (4+Phix)*L*L  -6*L  (2-Phix)*L*L;
        -12         -6*L    12          -6*L;
@@ -85,6 +86,7 @@ K0e = zeros(8,8);
 K0e([1 4 5 8],[1 4 5 8]) = K0xe;
 K0e([2 3 6 7],[2 3 6 7]) = K0ye;
 
+% element stiffness matrix due to an axial load
 if AxialForce ~= 0
    k1 = 72 + 120*Phix + 60*Phix^2;
    k2 = 6*L;
@@ -108,6 +110,12 @@ if AxialForce ~= 0
    Kre([2 3 6 7],[2 3 6 7]) = Kre([2 3 6 7],[2 3 6 7]) + KFye;
 end
 
+% element mass matrix
+% note that Phix must equal Phiy, otherwise the time dependence
+% due to the transformation between the rotating and stationary
+% frames remains - leading to an equation with parametric excitation.
+% Here we neglect shear in the element mass matrix
+% Note we also get a contribution to the C1 matrix
 m1 = 156;
 m2 = 22*L;
 m3 = 54;
@@ -133,7 +141,9 @@ C1e = [0 -m1  m2   0   0 -m3  m4   0;
      -m4   0   0 -m6  m2   0   0 -m5;
        0 -m4  m6   0   0  m2  m5   0];
 C1e = rhoA*L*C1e/210;
-
+ 
+% include the rotary inertia effects in the mass matrix
+% note there is also a contribution to the C1e matrix
 if (include_rotary_inertia~=0)
    m7 = 36;
    m8 = 3*L;
@@ -161,6 +171,8 @@ if (include_rotary_inertia~=0)
    C1e = C1e + Cs;
 end
 
+% element gyroscopic matrix
+% shear and rotary inrtia effects neglected in gyroscopic matrix
 if (include_gyroscopic==1)
    k1 = 36;
    k2 = 3*L;
@@ -185,3 +197,6 @@ if (include_gyroscopic==1)
            k2    0    0   k4  -k2    0    0   k3];
    K2e = K2e + 2*rhoI*G1e/(15*L);
 end
+   
+
+
