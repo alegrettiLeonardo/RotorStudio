@@ -1,14 +1,6 @@
 name: Stage 1 Final Qualification
 
-on:
-  push:
-    branches:
-      - feature/stage1-final-closure
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
-
+# Full Stage-1 closure is intentionally manual while G14 is the active gate.\n# Re-enable automatic final qualification only after G14 has evidence-backed PASS.\non:\n  workflow_dispatch:\n
 concurrency:
   group: stage1-final-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
