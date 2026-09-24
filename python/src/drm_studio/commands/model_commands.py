@@ -67,3 +67,22 @@ class EditBearingPropertiesCommand(QUndoCommand):
 
     def undo(self):
         self._assign(self.old_bearing)
+
+
+class EditDiskCommand(QUndoCommand):
+    """Undoable replacement of a qualified Stage 1 Disk."""
+
+    def __init__(self, session, disk_index: int, new_disk, text: str | None = None):
+        self.session=session;self.disk_index=int(disk_index)
+        self.old_disk=session.project.model.disks[self.disk_index]
+        self.new_disk=new_disk
+        candidate=copy.deepcopy(session.project.model);candidate.disks[self.disk_index]=new_disk
+        validate_model(candidate,analysis="stationary")
+        super().__init__(text or f"Edit disk {self.disk_index+1}")
+
+    def _assign(self,disk):
+        self.session.project.model.disks[self.disk_index]=disk
+        self.session.notify_model_changed()
+
+    def redo(self):self._assign(self.new_disk)
+    def undo(self):self._assign(self.old_disk)
