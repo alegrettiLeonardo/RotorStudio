@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
 from drm_studio.application.session import EntityRef
 from drm_studio.resources import studio_icon
 from .analysis_modules import AnalysisModulesBar
+from .dyrobes_sketch import build_dyrobes_scene
 
 
 class RotorView(QGraphicsView):
@@ -25,6 +26,7 @@ class RotorView(QGraphicsView):
         self.show_node_numbers = True
         self.show_element_numbers = True
         self.show_bearings = True
+        self.dyrobes_style = True
         self._entity_items = {}
 
         session.modelChanged.connect(self.rebuild_scene)
@@ -36,6 +38,16 @@ class RotorView(QGraphicsView):
         self.scene_obj.clear()
         self._entity_items = {}
         model = self.session.project.model
+        if self.dyrobes_style and (model.nodes or self.session.project.metadata.get("sketch")):
+            self._entity_items = build_dyrobes_scene(
+                self.scene_obj,
+                self.session,
+                show_node_numbers=self.show_node_numbers,
+                show_element_numbers=self.show_element_numbers,
+                show_bearings=self.show_bearings,
+            )
+            self._update_selection(self.session.selection)
+            return
         if not model.nodes:
             item = self.scene_obj.addText("No rotor model loaded")
             item.setDefaultTextColor(QColor("#5b6976"))
@@ -230,6 +242,11 @@ class RotorView(QGraphicsView):
     def set_bearings(self, value):
         self.show_bearings = bool(value); self.rebuild_scene()
 
+    def set_dyrobes_style(self, value):
+        self.dyrobes_style = bool(value)
+        self.rebuild_scene()
+        self.fit_view()
+
 
 class RotorModelPage(QWidget):
     modalRequested = Signal()
@@ -295,9 +312,16 @@ class RotorModelPage(QWidget):
         self.elements_check.setChecked(True)
         self.bearings_check = QCheckBox("Show Bearings")
         self.bearings_check.setChecked(True)
+        self.dyrobes_check = QCheckBox("DyRoBeS Sketch")
+        self.dyrobes_check.setChecked(True)
+        self.dyrobes_check.setToolTip(
+            "Reference-style engineering sketch: stepped shaft, mass envelopes, "
+            "bearing triangles, unbalance and response-probe symbols."
+        )
         controls.addWidget(self.nodes_check)
         controls.addWidget(self.elements_check)
         controls.addWidget(self.bearings_check)
+        controls.addWidget(self.dyrobes_check)
         outer.addLayout(controls)
 
         self.view = RotorView(session)
@@ -313,6 +337,7 @@ class RotorModelPage(QWidget):
         self.nodes_check.toggled.connect(self.view.set_node_numbers)
         self.elements_check.toggled.connect(self.view.set_element_numbers)
         self.bearings_check.toggled.connect(self.view.set_bearings)
+        self.dyrobes_check.toggled.connect(self.view.set_dyrobes_style)
         self.modules.modalRequested.connect(self.modalRequested)
         self.modules.campbellRequested.connect(self.campbellRequested)
         self.modules.criticalRequested.connect(self.criticalRequested)
