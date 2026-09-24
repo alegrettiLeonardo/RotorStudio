@@ -5,7 +5,7 @@ from PySide6.QtGui import QColor, QBrush, QPen
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QSplitter, QToolButton, QLabel,
     QGraphicsView, QGraphicsScene, QTableWidget, QTableWidgetItem,
-    QHeaderView, QTabWidget, QPlainTextEdit
+    QHeaderView, QTabWidget, QPlainTextEdit, QAbstractItemView
 )
 
 from drm_studio.docks.bearing_editor import BearingInspectorWidget, _BEARING_NAMES, _schema
@@ -95,7 +95,7 @@ class BearingPerformancePage(QWidget):
         self.table.horizontalHeader().setSectionResizeMode(0,QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(1,QHeaderView.ResizeToContents)
         self.table.horizontalHeader().setSectionResizeMode(2,QHeaderView.ResizeToContents)
-        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         results_layout.addWidget(self.table,1)
         self.boundary=QLabel(
             "Only Stage 1 bearing/seal models are enabled. Unsupported BePerf families remain disabled."
