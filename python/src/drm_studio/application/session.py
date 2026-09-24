@@ -21,6 +21,7 @@ class ResultRecord:
     key: str
     execution: AnalysisExecution
     source_model_hash: str
+    model_snapshot: Any | None = None
     stale: bool = False
 
     @property
@@ -87,6 +88,19 @@ class ProjectSession(QObject):
         self.log("INFO", f"Project saved: {target}")
         return target
 
+    def upsert_analysis_case(self, case) -> int:
+        for i, existing in enumerate(self.project.analyses):
+            if existing.name == case.name and existing.kind == case.kind:
+                if existing != case:
+                    self.project.analyses[i] = case
+                    self._set_dirty(True)
+                    self.projectChanged.emit()
+                return i
+        self.project.analyses.append(case)
+        self._set_dirty(True)
+        self.projectChanged.emit()
+        return len(self.project.analyses) - 1
+
     def set_selection(self, ref: EntityRef | None) -> None:
         if ref == self.selection:
             return
@@ -107,10 +121,16 @@ class ProjectSession(QObject):
         if changed:
             self.resultsChanged.emit()
 
-    def add_result(self, execution: AnalysisExecution) -> ResultRecord:
+    def add_result(self, execution: AnalysisExecution, model_snapshot=None) -> ResultRecord:
         key = execution.case.name or execution.case.kind
         source = str(execution.build_metadata.get("model_hash", self.current_model_hash))
-        record = ResultRecord(key, execution, source, source != self.current_model_hash)
+        record = ResultRecord(
+            key=key,
+            execution=execution,
+            source_model_hash=source,
+            model_snapshot=model_snapshot,
+            stale=source != self.current_model_hash,
+        )
         self.results[key] = record
         self.resultAdded.emit(record)
         self.resultsChanged.emit()
