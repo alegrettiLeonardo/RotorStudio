@@ -77,7 +77,7 @@ def compare_trace(path:Path):
         vals=[run_modal(model,float(w)).eigenvalues for w in sp]
         got=np.column_stack(vals); ref=np.asarray(outs[0])
         if ref.ndim==1: ref=ref[:,None]
-        return kind,eigenvalue_max_rel(ref,got),POLICY['eigenvalues_rel']
+        return kind,max(eigenvalue_max_rel(got[:,i],ref[:,i]) for i in range(ref.shape[1])),POLICY['eigenvalues_rel']
     if kind=='chr_asym':
         sp=np.asarray(m['Rotor_Spd'],dtype=float).ravel()
         vals=[run_asymmetric_modal(model,float(w),with_eigenvectors=False).eigenvalues for w in sp]
