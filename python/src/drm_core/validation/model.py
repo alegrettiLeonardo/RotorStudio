@@ -1,4 +1,5 @@
 from drm_core.domain.model import RotorModel,ShaftElement,TaperedShaftElement,AsymmetricShaftElement
+from drm_core.validation.contracts import validate_bearing_contract
 class ModelValidationError(ValueError): pass
 
 def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
@@ -30,6 +31,8 @@ def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
     for i,b in enumerate(m.bearings,1):
         if b.node not in z: raise ModelValidationError(f"Bearing[{i}]: received node={b.node}; expected existing node; correct node")
         if b.bearing_type not in allowed_bear: raise ModelValidationError(f"Bearing[{i}]: received type={b.bearing_type}; expected {sorted(allowed_bear)} for {analysis} analysis")
+        try: validate_bearing_contract(b)
+        except ValueError as exc: raise ModelValidationError(f"Bearing[{i}] K/C contract: {exc}") from exc
         if b.bearing_type==20:
             if not b.properties: raise ModelValidationError(f"Bearing[{i}] type 20: missing second node and coupling coefficients")
             node2=int(round(b.properties[0]))
