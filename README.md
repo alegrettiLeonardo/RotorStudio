@@ -48,6 +48,22 @@ BLAS / LAPACK
 
 The Stage 2 rule is strict: **the UI does not implement rotor-dynamics physics**. The Python API, CLI, Fortran tests and Stage 1 qualification remain headless and must continue to pass unchanged.
 
+### DyRoBeS / iRdin engineering sketch
+
+RotorStudio can open historical iRdin/VB6 `*.txt` calculations as a DyRoBeS-style
+engineering sketch. The renderer shows stepped shaft geometry, cyan
+mass/package envelopes, A/B bearing symbols, unbalance markers and grouped
+response probes. The real `EST-12735185-CRYOSTAR_V2.txt` rotor is included as
+a regression fixture.
+
+The import is deliberately conservative: shaft geometry/material are mapped
+exactly into `RotorModel`, while legacy distributed masses and speed-dependent
+bearing tables remain preserved as sketch metadata. Projects requiring those
+unmapped numerical semantics are explicitly
+`BLOCKED_FOR_NUMERICAL_ANALYSIS` rather than silently approximated.
+
+See `docs/DYROBES_ROTOR_SKETCH.md`.
+
 ### Stage 2.1 — Visual Conformance
 
 Stage 2.1 refines the presentation layer against the supplied desktop mockups without changing Fortran physics. It adds a dense CAE command toolbar with QtAwesome icons, mockup-style document pagination, contextual Results Properties, a dedicated Bearing Performance workspace, improved dock proportions and a real 3-D mode-shape view with red deflected centerline, magenta whirl-orbit stations and black undeformed reference.
