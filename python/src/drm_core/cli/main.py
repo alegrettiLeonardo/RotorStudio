@@ -33,8 +33,7 @@ def main():
     if a.cmd=='validate':
         from drm_core.validation.model import validate_model;validate_model(model,analysis=a.analysis);print('PASS')
     elif a.cmd=='modal':
-        r=run_modal(model,rpm_to_rad_s(a.speed_rpm),a.lib);print('
-'.join(f'{x.real:.12e} {x.imag:+.12e}j' for x in r.eigenvalues))
+        r=run_modal(model,rpm_to_rad_s(a.speed_rpm),a.lib);print('\\n'.join(f'{x.real:.12e} {x.imag:+.12e}j' for x in r.eigenvalues))
     elif a.cmd=='campbell':
         rpm=np.arange(a.start_rpm,a.stop_rpm+0.5*a.step_rpm,a.step_rpm);spv=rpm_to_rad_s(rpm)
         eig=np.column_stack([run_modal(model,float(w),a.lib).eigenvalues for w in spv])
@@ -56,14 +55,12 @@ def main():
         r=run_critical_speeds(model,a.lib,**kw)
         for x in r.critical_speeds_rad_s:print(f'{x:.12e} rad/s  {rad_s_to_rpm(x):.8f} rpm')
     elif a.cmd=='coaxial-modal':
-        r=run_coaxial_modal(model,rpm_to_rad_s(a.speed_rpm),a.lib);print('
-'.join(f'{x.real:.12e} {x.imag:+.12e}j' for x in r.eigenvalues))
+        r=run_coaxial_modal(model,rpm_to_rad_s(a.speed_rpm),a.lib);print('\\n'.join(f'{x.real:.12e} {x.imag:+.12e}j' for x in r.eigenvalues))
     elif a.cmd=='coaxial-frequency-response':
         rpm=np.arange(a.start_rpm,a.stop_rpm+0.5*a.step_rpm,a.step_rpm);r=run_coaxial_frequency_response(model,rpm_to_rad_s(rpm),a.lib)
         for j,s in enumerate(rpm):print(f'{s:.8g},'+','.join(f'{abs(x):.12e}' for x in r.response[:,j]))
     elif a.cmd=='asymmetric-modal':
-        r=run_asymmetric_modal(model,rpm_to_rad_s(a.speed_rpm),a.lib,a.with_eigenvectors);print('
-'.join(f'{x.real:.12e} {x.imag:+.12e}j' for x in r.eigenvalues))
+        r=run_asymmetric_modal(model,rpm_to_rad_s(a.speed_rpm),a.lib,a.with_eigenvectors);print('\\n'.join(f'{x.real:.12e} {x.imag:+.12e}j' for x in r.eigenvalues))
     elif a.cmd=='asymmetric-frequency-response':
         rpm=np.arange(a.start_rpm,a.stop_rpm+0.5*a.step_rpm,a.step_rpm);r=run_asymmetric_frequency_response(model,rpm_to_rad_s(rpm),a.lib)
         for j,s in enumerate(rpm):print(f'{s:.8g},'+','.join(f'{abs(x):.12e}' for x in r.response[:,j]))
