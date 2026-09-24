@@ -715,6 +715,16 @@ class MainWindow(QMainWindow):
 
     def _refresh_status(self):
         model = self.session.project.model
+        sketch = dict(self.session.project.metadata.get("sketch") or {})
+        if sketch:
+            self.status_counts.setText(
+                f"Sections: {len(sketch.get('sections') or [])}   "
+                f"Masses: {len(sketch.get('masses') or [])}   "
+                f"Bearings: {len(sketch.get('bearings') or [])}   "
+                f"Probes: {len(sketch.get('probes') or [])}   "
+                "Imported Sketch"
+            )
+            return
         bearings = sum(1 for bearing in model.bearings if bearing.bearing_type != 8)
         self.status_counts.setText(
             f"Nodes: {len(model.nodes)}   Elements: {len(model.shafts)}   "
