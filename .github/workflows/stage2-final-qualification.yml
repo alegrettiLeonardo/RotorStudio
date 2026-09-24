@@ -24,6 +24,8 @@ jobs:
       DRMROTOR_LIB: ${{ github.workspace }}/build-stage2-final/libdrmrotor.so
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install numerical and desktop dependencies
         run: |
@@ -147,6 +149,8 @@ jobs:
       QT_QPA_PLATFORM: offscreen
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: msys2/setup-msys2@v2
         with:
@@ -290,6 +294,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Require both platform qualifications
         env:
