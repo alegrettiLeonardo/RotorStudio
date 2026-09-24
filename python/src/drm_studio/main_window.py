@@ -227,7 +227,11 @@ class MainWindow(QMainWindow):
         self.workspace.setMovable(True)
         self.model_page = RotorModelPage(self.session)
         self.workspace.addTab(self.model_page, studio_icon("model"), "Rotor Model")
-        self.bearing_page = None
+        self.bearing_page = BearingPerformancePage(self.session)
+        self.workspace.addTab(self.bearing_page, studio_icon("bearing"), "Bearing Performance")
+        self.plus_page = QWidget()
+        plus_index = self.workspace.addTab(self.plus_page, "+")
+        self.workspace.setTabEnabled(plus_index, False)
         self.setCentralWidget(self.workspace)
 
         self.project_dock = ProjectExplorerDock(self.session, self)
@@ -297,9 +301,6 @@ class MainWindow(QMainWindow):
         self.workspace.setCurrentWidget(view)
 
     def _open_bearing_performance(self):
-        if self.bearing_page is None:
-            self.bearing_page = BearingPerformancePage(self.session)
-            self.workspace.addTab(self.bearing_page, studio_icon("bearing"), "Bearing Performance")
         self.workspace.setCurrentWidget(self.bearing_page)
         ref = self.session.selection
         if ref is not None and ref.kind == "bearing":
@@ -560,7 +561,9 @@ class MainWindow(QMainWindow):
                 self.workspace.removeTab(idx)
             old.deleteLater()
         self._result_tabs[record.key] = view
-        idx = self.workspace.addTab(view, self._result_tab_label(record, view))
+        plus_index = self.workspace.indexOf(self.plus_page)
+        insert_at = plus_index if plus_index >= 0 else self.workspace.count()
+        idx = self.workspace.insertTab(insert_at, view, self._result_tab_label(record, view))
         self.workspace.setCurrentIndex(idx)
 
     def _result_tab_label(self, record, view=None):
