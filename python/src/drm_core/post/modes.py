@@ -47,7 +47,8 @@ def plot_mode_3d(
     eigenvalue=None,
     ax=None,
     *,
-    orbit_samples=96,
+    orbit_samples=72,
+    orbit_stations=34,
     points_per_element=24,
     reference_line=True,
     show_node_markers=True,
@@ -86,11 +87,17 @@ def plot_mode_3d(
     theta=np.linspace(0.0,2.0*np.pi,int(orbit_samples),endpoint=True)
     jot=-1j if eigenvalue is not None and np.imag(eigenvalue)<0 else 1j
     exp_theta=np.exp(jot*theta)
-    for i in range(len(model.nodes)):
-        ox=np.real(v[4*i]*exp_theta)/scale
-        oy=np.real(v[4*i+1]*exp_theta)/scale
-        oz=np.full(theta.size,zn[i])
-        ax.plot(oz,ox,oy,color="#ff35f2",linewidth=0.6,alpha=0.95,zorder=3)
+
+    # Plot orbit ellipses at interpolated stations, not only FE nodes. This
+    # reproduces the dense DRM mode-shape visualization while using exactly
+    # the same complex eigenvector interpolation as the red centerline.
+    nstations=max(2,min(int(orbit_stations),zzn.size))
+    stations=np.unique(np.linspace(0,zzn.size-1,nstations).astype(int))
+    for k in stations:
+        ox=np.real(xc[k]*exp_theta)/scale
+        oy=np.real(yc[k]*exp_theta)/scale
+        oz=np.full(theta.size,zzn[k])
+        ax.plot(oz,ox,oy,color="#ff35f2",linewidth=0.48,alpha=0.9,zorder=3)
 
     if show_node_markers:
         ax.plot(
