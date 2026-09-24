@@ -86,6 +86,15 @@ class ProjectTreeModel(QAbstractItemModel):
                 "coaxial",
             )
 
+        sketch = dict(p.metadata.get("sketch") or {})
+        if sketch:
+            imported = model.add("Imported Engineering Sketch", icon_name="model")
+            imported.add(f"Distributed Masses ({len(sketch.get('masses') or [])})", icon_name="critical")
+            imported.add(f"Legacy Bearings ({len(sketch.get('bearings') or [])})", icon_name="bearing")
+            imported.add(f"Unbalance Locations ({len(sketch.get('unbalance') or [])})", icon_name="synchronous")
+            imported.add(f"Response Probes ({len(sketch.get('probes') or [])})", icon_name="frequency")
+            imported.add(f"Supports ({len(sketch.get('supports') or [])})", icon_name="foundation")
+
         analysis = project.add("Analysis", icon_name="analysis")
         cases = analysis.add(f"Cases ({len(p.analyses)})", icon_name="report")
         for i, case in enumerate(p.analyses):

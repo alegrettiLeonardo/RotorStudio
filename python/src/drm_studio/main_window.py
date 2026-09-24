@@ -346,7 +346,8 @@ class MainWindow(QMainWindow):
     def _choose_open(self):
         path, _ = QFileDialog.getOpenFileName(
             self, "Open RotorStudio Project", "",
-            "RotorStudio Project (*.rds *.json);;JSON (*.json);;All Files (*)"
+            "RotorStudio / iRdin (*.rds *.json *.txt);;RotorStudio Project (*.rds *.json);;"
+            "iRdin Legacy (*.txt);;JSON (*.json);;All Files (*)"
         )
         if path:
             try:
@@ -356,6 +357,14 @@ class MainWindow(QMainWindow):
 
     def open_project(self, path: str | Path):
         self.session.open_project(path)
+        readiness = dict(self.session.project.metadata.get("numerical_readiness") or {})
+        if readiness and str(readiness.get("status", "READY")).upper() != "READY":
+            entries = [
+                f"INFO — imported engineering sketch: {self.session.project.name}",
+                f"NUMERICAL STATUS — {readiness.get('status')}",
+            ]
+            entries.extend(f"BLOCKED — {reason}" for reason in readiness.get("reasons") or [])
+            self.messages_dock.set_checks(entries)
         self.model_page.view.fit_view()
 
     def _save(self):
@@ -448,6 +457,19 @@ class MainWindow(QMainWindow):
             self.run_analysis(dialog.analysis_case())
 
     def run_analysis(self, case) -> bool:
+        readiness = dict(self.session.project.metadata.get("numerical_readiness") or {})
+        status = str(readiness.get("status", "READY")).upper()
+        if status not in {"READY", "QUALIFIED", "PASS"}:
+            reasons = readiness.get("reasons") or []
+            self.messages_dock.set_checks(
+                [f"BLOCKED — numerical readiness: {status}"]
+                + [f"BLOCKED — {reason}" for reason in reasons]
+            )
+            self.session.log(
+                "WARNING",
+                "Analysis not started: imported engineering sketch is not numerically qualified."
+            )
+            return False
         analysis_family = (
             "coaxial" if case.kind.startswith("coaxial_")
             else "rotating" if case.kind.startswith("asymmetric_")
@@ -693,6 +715,16 @@ class MainWindow(QMainWindow):
 
     def _refresh_status(self):
         model = self.session.project.model
+        sketch = dict(self.session.project.metadata.get("sketch") or {})
+        if sketch:
+            self.status_counts.setText(
+                f"Sections: {len(sketch.get('sections') or [])}   "
+                f"Masses: {len(sketch.get('masses') or [])}   "
+                f"Bearings: {len(sketch.get('bearings') or [])}   "
+                f"Probes: {len(sketch.get('probes') or [])}   "
+                "Imported Sketch"
+            )
+            return
         bearings = sum(1 for bearing in model.bearings if bearing.bearing_type != 8)
         self.status_counts.setText(
             f"Nodes: {len(model.nodes)}   Elements: {len(model.shafts)}   "

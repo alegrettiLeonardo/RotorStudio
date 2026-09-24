@@ -75,6 +75,16 @@ class AnalysisService:
         self.library_path=library_path;self.build_options=dict(build_options or {})
     def execute(self,model:RotorModel|RotorProject,case:AnalysisCase,*,progress_callback=None,cancel_check=None):
         project=model if isinstance(model,RotorProject) else None
+        if project is not None:
+            readiness = dict(project.metadata.get("numerical_readiness") or {})
+            status = str(readiness.get("status", "READY")).upper()
+            if status not in {"READY", "QUALIFIED", "PASS"}:
+                reasons = readiness.get("reasons") or []
+                detail = "; ".join(str(item) for item in reasons) or "imported project is not numerically qualified"
+                raise ValueError(
+                    f"RotorProject numerical readiness is {status}: {detail}. "
+                    "Use the engineering sketch for review or complete an explicit qualified numerical mapping."
+                )
         model=project.model if project is not None else model
         p=dict(case.parameters);k=case.kind.strip().lower();lib=self.library_path
         if k=="modal": result=run_modal(model,library_path=lib,**p)

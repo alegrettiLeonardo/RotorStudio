@@ -7,7 +7,7 @@ from typing import Any
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtGui import QUndoStack
 
-from drm_core import RotorModel, RotorProject, AnalysisExecution, load_project, save_project
+from drm_core import RotorModel, RotorProject, AnalysisExecution, load_project, save_project, load_irdin_project
 
 
 @dataclass(frozen=True)
@@ -75,6 +75,18 @@ class ProjectSession(QObject):
 
     def open_project(self, path: str | Path) -> None:
         p = Path(path)
+        if p.suffix.lower() == ".txt":
+            project = load_irdin_project(p)
+            # Never bind Save to the legacy source. The first save must be an
+            # explicit RotorStudio .rds/JSON Save As so the historical input is
+            # preserved unchanged.
+            self.set_project(project, None)
+            self.log("INFO", f"Legacy iRdin project imported read-only from source: {p}")
+            readiness = dict(project.metadata.get("numerical_readiness") or {})
+            if str(readiness.get("status", "READY")).upper() != "READY":
+                for reason in readiness.get("reasons") or []:
+                    self.log("WARNING", f"Imported model numerical gate: {reason}")
+            return
         self.set_project(load_project(p), p)
 
     def save(self, path: str | Path | None = None) -> Path:
