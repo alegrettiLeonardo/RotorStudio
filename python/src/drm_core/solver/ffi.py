@@ -49,11 +49,16 @@ def _prepare_windows_dll_search(library_path: Path) -> None:
     for directory in candidates:
         try:
             resolved = directory.resolve()
+            is_dir = resolved.is_dir()
         except OSError:
+            # PATH on managed/corporate Windows machines may contain locations
+            # that exist but cannot be stat'ed by the current user.  A single
+            # inaccessible entry must not prevent registration of valid solver
+            # dependency directories such as MSYS2 UCRT64.
             continue
 
         key = os.path.normcase(str(resolved))
-        if key in _dll_directory_paths or not resolved.is_dir():
+        if key in _dll_directory_paths or not is_dir:
             continue
 
         try:
