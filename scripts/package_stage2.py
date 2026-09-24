@@ -62,6 +62,24 @@ def make_smoke_project(path: Path):
     save_project(RotorProject("Stage 2 Packaged Smoke", model, analyses), path)
 
 
+def linux_runtime_libraries(solver):
+    try:
+        output = subprocess.check_output(["ldd", str(solver)], text=True)
+    except (OSError, subprocess.CalledProcessError):
+        return []
+    wanted = ("gfortran", "quadmath", "blas", "lapack", "openblas")
+    found = {}
+    for line in output.splitlines():
+        if "=>" not in line:
+            continue
+        name, rest = line.split("=>", 1)
+        token = rest.strip().split()[0] if rest.strip() else ""
+        path = Path(token)
+        if path.is_file() and any(key in name.lower() for key in wanted):
+            found[path.name] = path
+    return list(found.values())
+
+
 def windows_runtime_dlls():
     roots = []
     explicit = os.environ.get("DRMROTOR_DLL_DIRS", "")
@@ -121,8 +139,9 @@ def main():
     ]
 
     runtime_dlls = windows_runtime_dlls() if os.name == "nt" else []
-    for dll in runtime_dlls:
-        pyinstaller.extend(["--add-binary", f"{dll}{os.pathsep}."])
+    runtime_shared = linux_runtime_libraries(solver) if os.name != "nt" else []
+    for dependency in [*runtime_dlls, *runtime_shared]:
+        pyinstaller.extend(["--add-binary", f"{dependency}{os.pathsep}."])
 
     pyinstaller.append(str(ROOT / "scripts" / "rotorstudio_entry.py"))
     subprocess.check_call(pyinstaller, cwd=ROOT)
@@ -139,6 +158,7 @@ def main():
         "solver_source_name": solver.name,
         "solver_sha256": sha256(solver),
         "windows_runtime_dlls": [p.name for p in runtime_dlls],
+        "linux_runtime_libraries": [p.name for p in runtime_shared],
         "entry": "RotorDynamicsStudio.exe" if os.name == "nt" else "RotorDynamicsStudio",
         "smoke_project": "examples/Stage2_Smoke.rds",
     }
