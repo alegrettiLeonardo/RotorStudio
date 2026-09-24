@@ -73,3 +73,19 @@ def test_critical_iterative_method3_preserves_v2_closest_to_initial_estimate_rul
     m=const_model();initial=np.array([80.,350.]);expected=_iter_initial_oracle(m,initial)
     actual,it,conv=backend().critical_speeds(m,ncrit=2,max_iterations=30,tol=1e-9,method=3,initial_estimates=initial,return_diagnostics=True)
     assert np.all(conv);assert np.allclose(actual,expected,rtol=2e-9,atol=2e-7)
+
+def two_fluid_formal_model():
+    E=211e9;G=81.2e9;rho=7810.
+    nodes=[Node(i+1,.25*i) for i in range(7)]
+    shafts=[ShaftElement(2,i,i+1,.05,0.,rho,E,G,2e-5) for i in range(1,7)]
+    disks=[Disk.geometric(3,rho,.07,.28,.05),Disk.geometric(5,rho,.07,.35,.05)]
+    bearings=[Bearing(7,1,(525.,.1,.03,1e-4,.1)),Bearing(7,7,(525.,.1,.03,1e-4,.1))]
+    return RotorModel(nodes,shafts,disks,bearings)
+
+def test_method2_reuses_the_original_500rpm_spectrum_for_each_critical():
+    m=two_fluid_formal_model()
+    expected=_iter_mode_number_oracle(m,ncrit=2,maxiter=20,tol=1e-6)
+    actual,it,conv=backend().critical_speeds(m,ncrit=2,max_iterations=20,tol=1e-6,method=2,return_diagnostics=True)
+    assert it.tolist()==[20,20]
+    assert conv.tolist()==[False,False]
+    assert np.allclose(actual,expected,rtol=3e-9,atol=2e-7)
