@@ -533,6 +533,7 @@ def main() -> int:
 
     for item in inventory["rows"]:
         cid = item["id"]
+        print(f"G14_CASE_BEGIN {cid} class={item['classification']}", flush=True)
         r1 = runtime1.get(cid)
         r2 = runtime2.get(cid)
         row = {
@@ -592,7 +593,9 @@ def main() -> int:
             cases.append(row)
             continue
 
+        print(f"G14_DETERMINISM_BEGIN {cid}", flush=True)
         deterministic = check_reference_determinism(cid, run1, run2)
+        print(f"G14_DETERMINISM_END {cid} status={deterministic.get('status')}", flush=True)
         row["determinism"] = deterministic
         row["probe_mechanism"] = deterministic.get("mechanism", "")
         row["numeric_count"] = deterministic.get(
@@ -611,16 +614,20 @@ def main() -> int:
         product = None
         if item["classification"] == "A_SOLVER":
             product_required += 1
+            print(f"G14_PRODUCT_BEGIN {cid} class=A_SOLVER", flush=True)
             workspace = loadmat(
                 run1 / "workspaces" / f"Problem_{cid}.mat", simplify_cells=True
             )
             product = run_solver_case(cid, workspace, service)
+            print(f"G14_PRODUCT_END {cid} status={product.get('status')}", flush=True)
         elif item["classification"] == "A_WITH_ANALYTIC_ORACLE":
             product_required += 1
+            print(f"G14_PRODUCT_BEGIN {cid} class=A_WITH_ANALYTIC_ORACLE", flush=True)
             workspace = loadmat(
                 run1 / "workspaces" / f"Problem_{cid}.mat", simplify_cells=True
             )
             product = run_hybrid_case(cid, workspace, service)
+            print(f"G14_PRODUCT_END {cid} status={product.get('status')}", flush=True)
 
         if product is not None:
             row["product"] = product
