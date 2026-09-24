@@ -6,7 +6,7 @@ if str(ROOT) not in sys.path: sys.path.insert(0,str(ROOT))
 from examples.legacy_campaign import run_named
 from examples.chapter05.example_05_08_01 import main as ex50801
 from examples.chapter06.example_06_06_01 import main as ex60601
-from examples.chapter07.example_07_06_01 import main as ex70601
+from examples.chapter07.example_07_06_01 import main as ex70601\nfrom examples.graphics import render_campaign_graphics
 
 REMAINING=['05_08_03','05_09_01','05_09_02','05_09_03','05_09_04','05_09_05','05_09_06','05_09_07','05_09_09','05_09_10','06_03_01','06_03_02','06_03_03','06_05_01','06_08_01','06_10_01','06_11_01','07_07_01','07_09_01']
 
