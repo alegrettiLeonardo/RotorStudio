@@ -31,12 +31,12 @@ class SpecialRotorResultView(QWidget):
             vals=(str(i+1),f"{value.real:.6g}",f"{value.imag:.6g}",f"{abs(value.imag)/(2*np.pi):.6g}","Stable" if value.real<0 else "Unstable" if value.real>0 else "Neutral")
             for j,text in enumerate(vals):table.setItem(i,j,QTableWidgetItem(text))
         split.addWidget(table)
-        fig=Figure(figsize=(5,4),tight_layout=True);canvas=FigureCanvasQTAgg(fig);ax=fig.add_subplot(111)
+        self.figure=Figure(figsize=(5,4),tight_layout=True);fig=self.figure;canvas=FigureCanvasQTAgg(fig);ax=fig.add_subplot(111)
         ax.scatter(eig.real,eig.imag,s=14);ax.axvline(0.0,linewidth=.8);ax.set_xlabel("Real λ (rad/s)");ax.set_ylabel("Imag λ (rad/s)");ax.set_title("Eigenvalue Map");ax.grid(True)
         split.addWidget(canvas);outer.addWidget(split,1)
 
     def _build_response(self,outer):
-        fig=Figure(figsize=(8,6),tight_layout=True);canvas=FigureCanvasQTAgg(fig);axes=[fig.add_subplot(211),fig.add_subplot(212)]
+        self.figure=Figure(figsize=(8,6),tight_layout=True);fig=self.figure;canvas=FigureCanvasQTAgg(fig);axes=[fig.add_subplot(211),fig.add_subplot(212)]
         outnodes=self.record.execution.case.options.get("outnodes",[1.1])
         plot_response(self.result.speeds_rad_s,self.result.response,outnodes,axes=axes)
         axes[0].set_title("Rotor Response")
