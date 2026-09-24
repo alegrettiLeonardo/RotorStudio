@@ -285,6 +285,9 @@ class MainWindow(QMainWindow):
 
     def _workspace_changed(self, _index):
         self._refresh_result_actions()
+        if self.workspace.currentWidget() is self.bearing_page:
+            self.property_dock.show_bearing_context()
+            return
         _, record, _ = self._current_result()
         if record is not None:
             self.property_dock.show_result_context(record)
