@@ -84,31 +84,8 @@ class BearingPerformancePage(QWidget):
         center_layout.addWidget(self.lower_tabs)
         body.addWidget(center)
 
-        results=QWidget()
-        results_layout=QVBoxLayout(results)
-        results_layout.setContentsMargins(3,3,3,3)
-        title=QLabel("Bearing / Seal Properties")
-        title.setObjectName("SectionHeaderTitle")
-        results_layout.addWidget(title)
-        self.table=QTableWidget(0,3)
-        self.table.setHorizontalHeaderLabels(["Parameter","Value","Units"])
-        self.table.horizontalHeader().setSectionResizeMode(0,QHeaderView.Stretch)
-        self.table.horizontalHeader().setSectionResizeMode(1,QHeaderView.ResizeToContents)
-        self.table.horizontalHeader().setSectionResizeMode(2,QHeaderView.ResizeToContents)
-        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        results_layout.addWidget(self.table,1)
-        self.boundary=QLabel(
-            "Only Stage 1 bearing/seal models are enabled. Unsupported BePerf families remain disabled."
-        )
-        self.boundary.setWordWrap(True)
-        self.boundary.setStyleSheet("color:#60758a;")
-        results_layout.addWidget(self.boundary)
-        results.setMinimumWidth(270)
-        body.addWidget(results)
-
-        body.setStretchFactor(0,3)
-        body.setStretchFactor(1,5)
-        body.setStretchFactor(2,3)
+        body.setStretchFactor(0, 4)
+        body.setStretchFactor(1, 7)
         outer.addWidget(body,1)
 
         session.selectionChanged.connect(lambda _:self.refresh())
@@ -126,7 +103,6 @@ class BearingPerformancePage(QWidget):
     def refresh(self):
         bearing=self._selected()
         self.scene.clear()
-        self.table.setRowCount(0)
         if bearing is None:
             self.heading.setText("Bearing / Seal Schematic — select a bearing in Project Explorer")
             self.coefficient_note.setPlainText("Select a real Stage 1 bearing or seal to inspect its parameters.")
@@ -135,7 +111,6 @@ class BearingPerformancePage(QWidget):
         name=_BEARING_NAMES.get(bearing.bearing_type,f"Type {bearing.bearing_type}")
         self.heading.setText(f"{name} — Node {bearing.node}")
         self._draw_schematic(bearing)
-        self._populate_table(bearing)
 
         if bearing.bearing_type in (3,4,5,6,20):
             self.coefficient_note.setPlainText(
@@ -190,18 +165,3 @@ class BearingPerformancePage(QWidget):
         self.scene.setSceneRect(40,-35,360,365)
         self.graphics.fitInView(self.scene.sceneRect(),Qt.KeepAspectRatio)
 
-    def _populate_table(self,bearing):
-        schema=_schema(bearing.bearing_type)
-        self.table.setRowCount(len(schema)+2)
-        basic=[("Type",str(bearing.bearing_type),_BEARING_NAMES.get(bearing.bearing_type,"")),
-               ("Node",str(bearing.node),"")]
-        for row,values in enumerate(basic):
-            for col,value in enumerate(values):
-                self.table.setItem(row,col,QTableWidgetItem(value))
-        props=list(bearing.properties)
-        for offset,(name,unit,scale) in enumerate(schema,2):
-            value=props[offset-2] if offset-2<len(props) else 0.0
-            shown=float(value)*scale
-            self.table.setItem(offset,0,QTableWidgetItem(name))
-            self.table.setItem(offset,1,QTableWidgetItem(f"{shown:.8g}"))
-            self.table.setItem(offset,2,QTableWidgetItem(unit))
