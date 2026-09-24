@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/stage1-final-closure
+      - main
   pull_request:
     branches:
       - main

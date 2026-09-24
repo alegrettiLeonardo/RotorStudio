@@ -1,33 +1,48 @@
-# RotorStudio — Fortran 2018 + Python Core — Stage 1 M7
+# RotorStudio — Fortran 2018 + Python Core
 
-RotorStudio is the Stage 1 migration of the DRM rotor-dynamics toolbox to a Fortran 2018 numerical core with a Python pre/post-processing and orchestration layer. Stage 1 intentionally contains no desktop UI.
+RotorStudio is the qualified migration of the DRM rotor-dynamics software to a Fortran 2018 numerical core with a GUI-independent Python Core for domain modelling, validation, units, persistence, orchestration, post-processing, reports, CLI and examples.
 
-`Rotor_Software_v2` remains the numerical and behavioural authority.
+`Rotor_Software_v2` remains the numerical and behavioural authority. The desktop application is Stage 2 and consumes the qualified Stage 1 Core; it does not replace or reimplement the solver.
 
-## M7 qualification closure
+## Stage 1 — FINAL
 
-The qualified implementation has completed the formal V2 equivalence gates G5–G12 with a frozen GNU Octave 7.1.0 authority run. The qualified head `224a279a5450f7d6054f639efe2f7ce306aa00e9` was merged into `main` by `97d482655f363fcc821b10879a3853066d6d6a0b`.
+Stage 1 is functionally closed for its declared scope.
 
-User-executed evidence on the qualified head:
+- **G1–G19: PASS**
+- **Python qualification suite: 57/57 PASS**
+- **G14 book-problem regression: 83/83 inventoried and semantically classified; 83/83 deterministic regressions; 20/20 A/hybrid product comparisons**
+- **G17 Windows execution: PASS**
+- **G18 clean-package qualification: PASS**
+- **Phase 9 / Python Core: PASS**
+- **22-example campaign and graphical coverage: PASS**
 
-- Fortran Release CTest: **5/5 PASS**
-- Python qualification suite: **49/49 PASS**
-- 22-example campaign: **33/33 PASS**, **22 unique examples**
-- Formal equivalence G5–G12: **OVERALL PASS**
-- No formal threshold was relaxed after observing Fortran results.
+The final evidence matrix is recorded in:
 
-M7 adds repository-owned authority-source integrity checks and CI that continuously reproduces:
+- `validation/reports/QUALIFICATION_STATUS_STAGE1_FINAL.md`
+- `docs/ARCHITECTURE.md`
+- `docs/PYTHON_API.md`
+- `docs/FORTRAN_API.md`
+- `docs/UI_STAGE2_CONTRACT.md`
 
-1. Linux Release build, CTest, Python tests and the example campaign.
-2. Linux Debug build with runtime checks.
-3. Formal G5–G12 equivalence using the pinned `gnuoctave/octave:7.1.0` authority runtime.
+Historical M2–M7 reports are retained unchanged for traceability; they are not the current Stage 1 status.
 
-See:
+## Stage 2 — Desktop UI
 
-- `validation/reports/QUALIFICATION_STATUS_M7.md`
-- `validation/reports/FORMAL_EQUIVALENCE_M7.json`
-- `validation/equivalence/authority_source_manifest.json`
-- `.github/workflows/stage1-m7-qualification.yml`
+Stage 2 adds the PySide6 / Qt 6 desktop application over the existing qualified stack:
+
+```text
+PySide6 / Qt 6 desktop UI
+        ↓
+drm_core / AnalysisService
+        ↓
+SolverFacade / ctypes ABI
+        ↓
+Fortran 2018
+        ↓
+BLAS / LAPACK
+```
+
+The Stage 2 rule is strict: **the UI does not implement rotor-dynamics physics**. The Python API, CLI, Fortran tests and Stage 1 qualification remain headless and must continue to pass unchanged.
 
 ## Local Linux build and regression
 
@@ -50,12 +65,10 @@ python scripts/run_example_campaign.py --outdir validation/reports/example_campa
 
 ## Formal authority reproduction
 
-First verify that the committed numerical V2 authority sources exactly match the frozen source manifest:
+Verify that the committed numerical V2 authority sources exactly match the frozen source manifest:
 
 ```bash
 python validation/equivalence/verify_authority_sources.py
 ```
 
-Then generate the independent transient references, create an authority baseline with GNU Octave 7.1.0, freeze transient tolerances before comparison, and run the formal comparator. The CI workflow performs these steps automatically and uploads the resulting evidence.
-
-The next unclosed engineering gates are G14 (independent book-problem regression) and G17 (Windows execution qualification).
+The qualification workflows reproduce the frozen Stage 1 authority and regression contracts, including Linux, Windows, G14 book problems and clean-package validation.
