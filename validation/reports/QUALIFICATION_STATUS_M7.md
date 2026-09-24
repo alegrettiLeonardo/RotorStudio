@@ -36,7 +36,7 @@ The authority baseline and transient tolerance policy were created before the fi
 | G16 Linux execution | PASS | Release/pytest/examples executed on Ubuntu; M7 CI makes this continuous |
 | G17 Windows execution | BLOCKED | Windows build/execution qualification not yet implemented |
 | G18 clean package validation | PASS | prior clean-package gate retained; M7 CI validates repository checkout directly |
-| G19 reproducible formal CI | PENDING_CI | workflow added in M7; pinned Octave 7.1.0 Docker authority, source-integrity check, tolerance freeze, G5–G12 comparator, artifact upload |
+| G19 reproducible formal CI | PASS | GitHub Actions run #8 / ID 35982543106: Linux Release+Python+examples PASS, Linux Debug PASS, pinned Octave 7.1.0 formal G5–G12 PASS; evidence artifacts uploaded |
 
 ## G7 qualification semantics
 
@@ -54,4 +54,4 @@ For kappa, the fixed `1e-10` criterion qualifies the legacy V2 `whirl` transform
 
 The formal job verifies the V2 source manifest, generates the independent transient references, generates a fresh authority baseline with Octave 7.1.0, freezes transient tolerances before the Fortran comparison, runs the formal comparator, and uploads the complete evidence bundle.
 
-The local frozen evidence is recorded in `FORMAL_EQUIVALENCE_M7.json`. CI-generated baseline hashes may differ between runs because the MAT file contains metadata such as generation time and path; the source manifest, engine version, threshold policy algorithm, and numerical gates are the reproducibility anchors.
+The local frozen evidence and the first successful CI reproduction are recorded in `FORMAL_EQUIVALENCE_M7.json`. GitHub Actions run #8 (ID `35982543106`) completed all three M7 jobs successfully. CI-generated baseline hashes may differ between runs because the MAT file contains metadata such as generation time and path; the source manifest, engine version, threshold policy algorithm, and numerical gates are the reproducibility anchors.
