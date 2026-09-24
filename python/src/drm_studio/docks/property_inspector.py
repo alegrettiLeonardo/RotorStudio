@@ -13,6 +13,7 @@ from drm_core.units import m_to_mm, mm_to_m, pa_to_mpa, mpa_to_pa
 from drm_core.validation.model import ModelValidationError
 from drm_studio.commands.model_commands import SetShaftPropertyCommand
 from drm_studio.docks.bearing_editor import BearingInspectorWidget
+from drm_studio.docks.disk_editor import DiskInspectorWidget
 
 
 def _spin(decimals=4, minimum=0.0, maximum=1.0e12):
@@ -34,13 +35,8 @@ class PropertyInspectorDock(QDockWidget):
         self.shaft_tab = QWidget()
         self.tabs.addTab(self.shaft_tab, "Shaft")
 
-        disk_tab = QWidget()
-        disk_layout = QVBoxLayout(disk_tab)
-        disk_text = QLabel("Disk editor is integrated in a later Stage 2 vertical slice.")
-        disk_text.setWordWrap(True)
-        disk_layout.addWidget(disk_text)
-        disk_layout.addStretch(1)
-        self.tabs.addTab(disk_tab, "Disk")
+        self.disk_tab = DiskInspectorWidget(session)
+        self.tabs.addTab(self.disk_tab, "Disk")
 
         self.bearing_tab = BearingInspectorWidget(session)
         self.tabs.addTab(self.bearing_tab, "Bearing")
@@ -129,6 +125,8 @@ class PropertyInspectorDock(QDockWidget):
     def _selection_changed(self, ref):
         if ref is not None and ref.kind == "bearing":
             self.tabs.setCurrentWidget(self.bearing_tab)
+        elif ref is not None and ref.kind == "disk":
+            self.tabs.setCurrentWidget(self.disk_tab)
         elif ref is not None and ref.kind == "shaft":
             self.tabs.setCurrentWidget(self.shaft_tab)
         self.refresh(ref)
