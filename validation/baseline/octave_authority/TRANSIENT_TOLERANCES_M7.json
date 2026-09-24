@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "qualification": "M7",
+  "authority_engine": "GNU Octave 7.1.0",
+  "authority_baseline_sha256_user_run": "a2f8eb6d36dc3db8c9b1b9fd93a18aa9482d8ef16e31c3df95a108aad7432ab3",
+  "source_archive_sha256": "bc42d18020013a537da6e7785a3d6b15533cd881939410c5e2a58c8563db5344",
+  "policy": "10x Octave-V2-vs-independent-oracle discrepancy, frozen before Fortran comparison; numerical limits unchanged from the user-executed freeze",
+  "threshold_adjusted_after_comparison": false,
+  "source_reference_byte_sha256_at_freeze": {
+    "time_fdn": "35c9a61134015564a292453f6a477adc2198922a70237f7bae9aaf48c0042b07",
+    "runup": "2aac280960c0bf44ce939e527964a5d9cd8738c77afbe5b48169c235651c13b6"
+  },
+  "scope": {
+    "time_fdn_response_dofs": [
+      8,
+      9,
+      16,
+      17
+    ],
+    "runup_response_dofs": [
+      24,
+      25
+    ],
+    "runup_scope_rtol": 2e-7,
+    "runup_scope_atol": 2e-10,
+    "runup_scope_max_points": 50000
+  },
+  "time_fdn_matlab_vs_oracle_max_abs_m": 6.068872494645458e-8,
+  "runup_matlab_vs_oracle_max_abs_m": 5.651861731619076e-7,
+  "time_fdn_max_abs_m": 6.068872494645458e-7,
+  "runup_max_abs_m": 0.000005651861731619076,
+  "time_fdn_force_max_abs": 1e-12
+}
