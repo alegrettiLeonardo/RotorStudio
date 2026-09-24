@@ -30,6 +30,7 @@ from .result_views import (
 )
 from .widgets import RotorModelPage
 from .style import APP_STYLESHEET
+from .commands import ReplaceRotorDefinitionsCommand
 
 
 class MainWindow(QMainWindow):
@@ -178,6 +179,7 @@ class MainWindow(QMainWindow):
         self.model_page.foundationRequested.connect(self._configure_foundation_response)
         self.model_page.runupRequested.connect(self._configure_runup)
         self.model_page.coaxialRequested.connect(self._configure_coaxial)
+        self.model_page.asymmetricRequested.connect(self._configure_asymmetric)
 
     def _connect_session(self):
         self.session.projectChanged.connect(self._refresh_title)
@@ -279,9 +281,16 @@ class MainWindow(QMainWindow):
             self.run_analysis(dialog.analysis_case())
 
     def _configure_coaxial(self):
-        dialog = SpecialRotorSetupDialog("coaxial", self)
+        dialog = SpecialRotorSetupDialog("coaxial", self, self.session.project.model.rotors)
         if dialog.exec() == QDialog.Accepted:
-            self.run_analysis(dialog.analysis_case())
+            try:
+                definitions = dialog.rotor_definitions()
+                if definitions != self.session.project.model.rotors:
+                    self.session.undo_stack.push(ReplaceRotorDefinitionsCommand(self.session, definitions))
+                self.run_analysis(dialog.analysis_case())
+            except (ValueError, ModelValidationError) as exc:
+                self.messages_dock.set_checks(["FAIL — " + str(exc)])
+                self.session.log("ERROR", str(exc))
 
     def _configure_asymmetric(self):
         dialog = SpecialRotorSetupDialog("asymmetric", self)

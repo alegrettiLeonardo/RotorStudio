@@ -86,3 +86,24 @@ class EditDiskCommand(QUndoCommand):
 
     def redo(self):self._assign(self.new_disk)
     def undo(self):self._assign(self.old_disk)
+
+
+
+class ReplaceRotorDefinitionsCommand(QUndoCommand):
+    """Undoable replacement of qualified coaxial RotorDefinition rows."""
+
+    def __init__(self, session, definitions, text="Edit coaxial rotor definitions"):
+        self.session=session
+        self.old=list(session.project.model.rotors)
+        self.new=list(definitions)
+        candidate=copy.deepcopy(session.project.model)
+        candidate.rotors=list(self.new)
+        validate_model(candidate,analysis="coaxial")
+        super().__init__(text)
+
+    def _assign(self,definitions):
+        self.session.project.model.rotors=list(definitions)
+        self.session.notify_model_changed()
+
+    def redo(self):self._assign(self.new)
+    def undo(self):self._assign(self.old)

@@ -225,6 +225,7 @@ class RotorModelPage(QWidget):
     foundationRequested = Signal()
     runupRequested = Signal()
     coaxialRequested = Signal()
+    asymmetricRequested = Signal()
 
     def __init__(self, session, parent=None):
         super().__init__(parent)
@@ -284,3 +285,4 @@ class RotorModelPage(QWidget):
         self.modules.foundationRequested.connect(self.foundationRequested)
         self.modules.runupRequested.connect(self.runupRequested)
         self.modules.coaxialRequested.connect(self.coaxialRequested)
+        self.modules.asymmetricRequested.connect(self.asymmetricRequested)
