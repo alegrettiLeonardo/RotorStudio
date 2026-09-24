@@ -1,6 +1,12 @@
 from __future__ import annotations
 
 import numpy as np
+from validation.equivalence.comparators import (
+    rel_fro as _formal_rel_fro,
+    match_modes as _formal_match_modes,
+    eigenvalue_max_rel as _formal_eigenvalue_max_rel,
+    complex_response_rel as _formal_complex_response_rel,
+)
 
 # Frozen G5-G12 thresholds. G14 reuses them for like-for-like physics.
 MATRIX_REL = 1.0e-12
@@ -38,11 +44,31 @@ def scalar_vector(reference, actual, threshold: float = ANALYTICAL_REL) -> dict:
 
 
 def matrix(reference, actual) -> dict:
-    return scalar_vector(reference, actual, MATRIX_REL) | {"metric": "matrix_rel"}
+    err = _formal_rel_fro(np.asarray(actual), np.asarray(reference))
+    return {
+        "metric": "matrix_rel",
+        "error": err,
+        "threshold": MATRIX_REL,
+        "pass": bool(np.isfinite(err) and err <= MATRIX_REL),
+    }
 
 
 def eigenvalues(reference, actual) -> dict:
-    return scalar_vector(reference, actual, EIG_REL) | {"metric": "eig_rel"}
+    reference = np.asarray(reference).ravel()
+    actual = np.asarray(actual).ravel()
+    if reference.shape != actual.shape:
+        err = float("inf")
+        mapping = []
+    else:
+        mapping = _formal_match_modes(actual, reference)
+        err = _formal_eigenvalue_max_rel(actual, reference, mapping)
+    return {
+        "metric": "eig_rel",
+        "error": err,
+        "threshold": EIG_REL,
+        "pass": bool(np.isfinite(err) and err <= EIG_REL),
+        "matching": "validation.equivalence.comparators.match_modes",
+    }
 
 
 def frequencies(reference, actual) -> dict:
@@ -50,7 +76,15 @@ def frequencies(reference, actual) -> dict:
 
 
 def response(reference, actual) -> dict:
-    return scalar_vector(reference, actual, RESPONSE_REL) | {"metric": "complex_response_rel"}
+    reference = np.asarray(reference)
+    actual = np.asarray(actual)
+    err = float("inf") if reference.shape != actual.shape else _formal_complex_response_rel(actual, reference)
+    return {
+        "metric": "complex_response_rel",
+        "error": err,
+        "threshold": RESPONSE_REL,
+        "pass": bool(np.isfinite(err) and err <= RESPONSE_REL),
+    }
 
 
 def critical(reference, actual) -> dict:
