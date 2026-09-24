@@ -111,6 +111,7 @@ class AnalysisService:
         meta["analysis_hash"]=ah
         if project is not None:
             meta["project_hash"]=project.project_hash()
+            meta["project_name"]=project.name
         def attach(value):
             if is_dataclass(value) and hasattr(value,"metadata"):
                 merged=dict(getattr(value,"metadata") or {})
@@ -143,7 +144,15 @@ def load_project(path):
     return RotorProject(d.get("name","Rotor project"),model,cases,d.get("metadata",{}),d.get("created_utc",""))
 
 def _summary(v):
-    if isinstance(v,np.ndarray):return {"shape":list(v.shape),"dtype":str(v.dtype)}
+    if isinstance(v,np.ndarray):
+        flat=np.asarray(v).reshape(-1)
+        preview=[]
+        for x in flat[:16]:
+            item=x.item() if hasattr(x,"item") else x
+            if isinstance(item,complex):preview.append({"real":float(item.real),"imag":float(item.imag)})
+            elif isinstance(item,(np.integer,np.floating)):preview.append(item.item())
+            else:preview.append(item)
+        return {"shape":list(v.shape),"dtype":str(v.dtype),"preview":preview}
     if is_dataclass(v):return {k:_summary(x) for k,x in asdict(v).items()}
     if isinstance(v,dict):return {str(k):_summary(x) for k,x in v.items()}
     if isinstance(v,(list,tuple)):return [_summary(x) for x in v]
@@ -151,7 +160,17 @@ def _summary(v):
 
 def write_analysis_report(execution:AnalysisExecution,outdir,stem=None):
     out=Path(outdir);out.mkdir(parents=True,exist_ok=True);stem=stem or (execution.case.name or execution.case.kind)
-    payload={"analysis_hash":execution.analysis_hash,"case":execution.case.canonical_dict(),"build_metadata":execution.build_metadata,"result":_summary(execution.result)}
+    payload={"analysis_hash":execution.analysis_hash,"case":execution.case.canonical_dict(),"build_metadata":execution.build_metadata,
+             "unit_convention":"Canonical SI; explicit frequency fields are in Hz and angular speed fields in rad/s.",
+             "status":"COMPLETED","result":_summary(execution.result)}
     jp=out/f"{stem}.json";jp.write_text(json.dumps(payload,indent=2,sort_keys=True))
-    mp=out/f"{stem}.md";mp.write_text("# Analysis report — "+stem+"\n\n- analysis hash: `"+execution.analysis_hash+"`\n- kind: `"+execution.case.kind+"`\n\n## Build/options metadata\n```json\n"+json.dumps(execution.build_metadata,indent=2,sort_keys=True)+"\n```\n")
+    mp=out/f"{stem}.md";mp.write_text(
+        "# Analysis report — "+stem+"\n\n"
+        "- status: `COMPLETED`\n"
+        "- analysis hash: `"+execution.analysis_hash+"`\n"
+        "- kind: `"+execution.case.kind+"`\n"
+        "- units: canonical SI; frequency fields in Hz and angular speeds in rad/s\n\n"
+        "## Build/options metadata\n```json\n"+json.dumps(execution.build_metadata,indent=2,sort_keys=True)+"\n```\n\n"
+        "## Result summary\n```json\n"+json.dumps(payload["result"],indent=2,sort_keys=True)+"\n```\n"
+    )
     return {"json":jp,"markdown":mp}
