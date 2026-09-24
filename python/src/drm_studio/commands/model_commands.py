@@ -37,3 +37,33 @@ class SetShaftPropertyCommand(QUndoCommand):
     def undo(self):
         old = self.session.project.model.shafts[self.shaft_index]
         self._assign(replace(old, **{self.attribute: self.old_value}))
+
+
+class EditBearingPropertiesCommand(QUndoCommand):
+    """Undoable replacement of the selected Stage 1 Bearing properties."""
+
+    def __init__(self, session, bearing_index: int, new_properties, text: str | None = None):
+        from drm_core.domain.model import Bearing
+        self.session = session
+        self.bearing_index = int(bearing_index)
+        self.old_bearing = session.project.model.bearings[self.bearing_index]
+        self.new_bearing = Bearing(
+            self.old_bearing.bearing_type,
+            self.old_bearing.node,
+            tuple(float(x) for x in new_properties),
+        )
+        candidate = copy.deepcopy(session.project.model)
+        candidate.bearings[self.bearing_index] = self.new_bearing
+        analysis = "coaxial" if self.new_bearing.bearing_type == 20 else "stationary"
+        validate_model(candidate, analysis=analysis)
+        super().__init__(text or f"Edit bearing {self.bearing_index + 1}")
+
+    def _assign(self, bearing):
+        self.session.project.model.bearings[self.bearing_index] = bearing
+        self.session.notify_model_changed()
+
+    def redo(self):
+        self._assign(self.new_bearing)
+
+    def undo(self):
+        self._assign(self.old_bearing)
