@@ -227,8 +227,6 @@ jobs:
             echo "gfortran=$(command -v gfortran)"
             echo "cmake=$(command -v cmake)"
             echo "ninja=$(command -v ninja)"
-            git rev-parse HEAD
-            git status --porcelain=v1
           } | tee validation/reports/g17_windows/environment.txt
           echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
 
@@ -237,6 +235,9 @@ jobs:
         run: |
           python --version | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
           python -c "import sys; print(sys.executable)" | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
+          "UCRT64_BIN=$env:UCRT64_BIN" | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
+          git rev-parse HEAD | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
+          git status --porcelain=v1 | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
 
       - name: G1 authority source integrity
         shell: pwsh
