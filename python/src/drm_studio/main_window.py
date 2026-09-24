@@ -281,6 +281,9 @@ class MainWindow(QMainWindow):
         self.session.dirtyChanged.connect(lambda _: self._refresh_title())
         self.session.resultsChanged.connect(self._refresh_result_tabs)
         self.session.selectionChanged.connect(self._navigate_result_selection)
+        self.session.selectionChanged.connect(
+            lambda _ref: self._workspace_changed(self.workspace.currentIndex())
+        )
         self.workspace.currentChanged.connect(self._workspace_changed)
 
     def _workspace_changed(self, _index):
