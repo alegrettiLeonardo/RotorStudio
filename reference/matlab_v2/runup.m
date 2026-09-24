@@ -29,7 +29,7 @@ function [time,response,speed] = runup(model,alpha,tspan,nr)
 % NOTE - NO FLUID BEARINGS FOR THIS SCRIPT
 % NOTE - NO SHAFT DAMPING
 
-if nargin < 4
+if nargin < 4 % no model reduction
     nr = 0;
 end
 
@@ -37,6 +37,7 @@ Node_Def = model.node;
 Force_Def = model.force;
 Bearing_Def = model.bearing;
 
+% check to make sure there are no speed dependent bearings
 nbearing = size(Bearing_Def,1);
 const_bearing = 1;
 for ib=1:nbearing
@@ -52,30 +53,35 @@ if ~const_bearing
     return
 end
     
+
+% obtain model of rotor
 [M0,C0,C1,K0,K1] = rotormtx(model);
 [nnode,ncol_node] = size(Node_Def);
 ndof = 4*nnode;
 
+% sort out zeroed DoF and determine bearing model
 [Mb,Cb,Kb,zero_dof] = bearmtx(model,0.0);
 dof = 1:ndof;
 dof(zero_dof) = [];
 
+% calculate machine model
 M = M0 + Mb;
 K = K0 + Kb;
 C = C0 + Cb;
 
+% sort out forcing
 [nforce,ncol_force] = size(Force_Def);
 ubforce = zeros(ndof,1);
 jot = sqrt(-1);
 for iforce = 1:nforce
-    if Force_Def(iforce,1) == 1
+    if Force_Def(iforce,1) == 1  % unbalance force
         node = Force_Def(iforce,2);
         unbal_mag = Force_Def(iforce,3);
         unbal_phase = Force_Def(iforce,4);
         force_dof = [4*node-3; 4*node-2];
         ubforce(force_dof) = ubforce(force_dof) + unbal_mag*exp(jot*unbal_phase)*[1; -j];
     end
-    if Force_Def(iforce,1) == 2
+    if Force_Def(iforce,1) == 2  % unbalance moment
         node = Force_Def(iforce,2);
         unbal_mag = Force_Def(iforce,3);
         unbal_phase = Force_Def(iforce,4);
@@ -83,11 +89,12 @@ for iforce = 1:nforce
         ubforce(force_dof) = ubforce(force_dof) + unbal_mag*exp(jot*unbal_phase)*[j; 1];
     end
 end 
-ubforce(zero_dof) = [];
+ubforce(zero_dof) = [];  % remove force from zeroed dof 
 
+% reduce the model
 [ndofz,junk] = size(M);
 nr = round(nr);
-if nr > 0 & nr < ndofz
+if nr > 0 & nr < ndofz     % model reduction based on undamped modes
     [eigvec,eigval] = eig(K,M);
     [eigval,isort] = sort(diag(eigval));
     eigvec = eigvec(:,isort);
@@ -100,6 +107,7 @@ else
     nr = ndofz;
 end
 disp(['>>>> Maximum frequency of reduced system is ' num2str(eigmaxr) ' Hz'])
+% disp(sqrt(eigval(1:nr))/(2*pi))
 
 Mr = Tr.'*M*Tr;
 Cr = Tr.'*C*Tr;
@@ -123,9 +131,12 @@ speed = 2*alpha(1)*time + alpha(2)*ones(size(time));
 
 return
 
+
 function [qdot] = deriv(t,q,A,A1,B,alpha)
 
 phi = alpha(1)*t*t + alpha(2)*t + alpha(3);
 d_phi = 2*alpha(1)*t + alpha(2);
 dd_phi = 2*alpha(1);
 qdot = A*q + A1*q*d_phi + real(B*(d_phi*d_phi-j*dd_phi)*exp(j*phi));
+
+
