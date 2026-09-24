@@ -11,3 +11,5 @@ from .post.phase9 import FFTResult,fft_scale,plot_root_locus,plot_eigenvalue_tra
 __all__=[n for n in globals() if not n.startswith("_")]
 
 from .post.modes import plot_mode_3d
+
+from .importers import IrdinImportError, load_irdin_project
