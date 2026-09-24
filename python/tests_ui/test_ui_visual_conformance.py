@@ -99,7 +99,7 @@ def test_real_modal_mode_shape_3d_contains_centerline_reference_and_orbits():
     assert "#ff35f2" in colors
     assert "black" in colors
     assert len(ax.lines) >= len(model.nodes) + 2
-    assert ax.get_xlabel() == "X"
-    assert ax.get_ylabel() == "Y"
-    assert ax.get_zlabel() == "Z"
+    assert ax.get_xlabel() == "Z"
+    assert ax.get_ylabel() == "X"
+    assert ax.get_zlabel() == "Y"
     plt.close(fig)
