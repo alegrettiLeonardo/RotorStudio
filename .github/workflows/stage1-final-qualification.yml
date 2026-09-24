@@ -1,0 +1,141 @@
+name: Stage 1 Final Qualification
+
+on:
+  push:
+    branches:
+      - feature/stage1-final-closure
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: stage1-final-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stage1-final-linux:
+    name: G14 + Phase 9 + examples + legacy + clean package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+
+      - name: Install Python Core
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+
+      - name: Materialize exact 83-problem authority
+        run: |
+          python validation/book_problems/materialize_archive.py             --target reference/drm_problem_scripts             --write-zip validation/reports/DRM_problem_scripts.authority.zip
+          python validation/book_problems/inventory.py             --problem-dir reference/drm_problem_scripts             --output validation/reports/G14_INVENTORY.json
+
+      - name: Verify frozen V2 numerical authority
+        run: |
+          set -o pipefail
+          python validation/equivalence/verify_authority_sources.py             | tee validation/reports/AUTHORITY_SOURCE_INTEGRITY_STAGE1.json
+
+      - name: Generate Phase 0 inventory
+        run: |
+          python scripts/generate_phase0_inventory.py
+
+      - name: Build and test Fortran Release
+        run: |
+          cmake -S fortran -B build-release -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-release -j2
+          ctest --test-dir build-release --output-on-failure
+
+      - name: Python qualification suite
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-release/libdrmrotor.so
+        run: |
+          set -o pipefail
+          python -m pytest python/tests -q             | tee validation/reports/PYTEST_STAGE1.txt
+
+      - name: Complete 22-example graphical campaign
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-release/libdrmrotor.so
+        run: |
+          set -o pipefail
+          python scripts/run_example_campaign.py             --outdir validation/reports/example_campaign_stage1             | tee validation/reports/EXAMPLE_CAMPAIGN_STAGE1.txt
+          python - <<'PY'
+          import json
+          p=json.load(open('validation/reports/example_campaign_stage1/graphics_manifest.json'))
+          assert p['unique_examples']==22 and p['complete_examples']==22 and not p['missing'], p
+          print('GRAPHICS_22=PASS')
+          PY
+
+      - name: Pull pinned Octave 7.1.0
+        run: |
+          docker pull gnuoctave/octave:7.1.0
+          docker image inspect gnuoctave/octave:7.1.0 --format '{{index .RepoDigests 0}}'             > validation/reports/OCTAVE_7_1_DIGEST.txt
+
+      - name: Execute all 83 original DRM book problems
+        run: |
+          mkdir -p validation/reports/book_problems
+          docker run --rm             -v "${GITHUB_WORKSPACE}:/work"             -w /work             gnuoctave/octave:7.1.0             octave --no-gui --quiet --eval             "addpath('/work/validation/book_problems/octave'); run_problem_suite('/work','/work/validation/reports/book_problems');"
+
+      - name: G14 Python-Fortran regression for Class A
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-release/libdrmrotor.so
+        run: |
+          python validation/book_problems/run_regression.py
+
+      - name: Execute legacy-defect minimal runtime probes
+        run: |
+          docker run --rm             -v "${GITHUB_WORKSPACE}:/work"             -w /work             gnuoctave/octave:7.1.0             octave --no-gui --quiet --eval             "addpath('/work/validation/legacy_cases'); octave_runtime_probe('/work','/work/validation/reports/LEGACY_RUNTIME_OCTAVE_7_1.json');"
+
+      - name: Build Stage 1 delivery ZIP
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          python scripts/package_stage1.py --id "${GITHUB_SHA::12}"
+
+      - name: Clean-package qualification from empty extraction tree
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+        run: |
+          ZIP_PATH="$(ls dist/DRM_Fortran_Python_Stage1_*.zip | head -1)"
+          python scripts/qualify_clean_package.py "$ZIP_PATH"             --report validation/reports/CLEAN_PACKAGE_QUALIFICATION.json
+
+      - name: Record final Linux closure
+        run: |
+          python - <<'PY'
+          import glob,hashlib,json,os,pathlib
+          zp=pathlib.Path(glob.glob('dist/DRM_Fortran_Python_Stage1_*.zip')[0])
+          data={
+            'schema_version':1,'status':'PASS','head_sha':os.environ.get('GITHUB_SHA'),
+            'G14':'PASS','phase9':'PASS','python_core':'PASS',
+            'examples_graphical':'22/22 PASS','legacy_octave_7_1':'PASS',
+            'phase0_docs':'PASS','G18_clean_package':'PASS',
+            'zip':zp.name,'zip_sha256':hashlib.sha256(zp.read_bytes()).hexdigest(),
+          }
+          pathlib.Path('validation/reports/STAGE1_FINAL_LINUX.json').write_text(json.dumps(data,indent=2,sort_keys=True))
+          print(json.dumps(data,indent=2))
+          PY
+
+      - name: Upload Stage 1 final evidence and package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-final-${{ github.sha }}
+          path: |
+            dist/
+            validation/reports/
+          if-no-files-found: error
+          retention-days: 90
