@@ -202,3 +202,21 @@ M1 does not receive PASS if a mock solver is used for the end-to-end path.
 - Calculated shaft section properties are deferred rather than duplicated in UI.
 - No results are persisted in the Stage 1 project JSON because the current persistence contract stores model, analyses and metadata only.
 - Constraints have no typed Stage 1 domain collection and therefore appear only as a disabled/zero-count group until a qualified non-numerical representation exists.
+
+
+## UI-9 to UI-11 closure
+
+The completed closure adds only presentation/orchestration around already qualified capabilities:
+
+- coaxial rotor-definition editing with signed speed factors, type-20 coupling support, modal and synchronous response;
+- asymmetric rotating-frame setup/result views with pre-solver validation of the existing rotating-frame restrictions;
+- type-sensitive bearing/seal editor for Stage 1 types 1–8 and coaxial type 20;
+- structured asynchronous failure records;
+- conservative cooperative cancellation at the Python modal-sweep boundary and queued-job removal;
+- result rerun/remove navigation;
+- model-hash stale restoration after undo;
+- PNG/SVG/PDF plot bundles, CSV and NPZ data exports through existing Core export helpers;
+- reports through the existing `write_analysis_report` layer;
+- PyInstaller frozen application packaging and clean-install qualification on Linux and Windows.
+
+No new rotor-dynamics numerical algorithm is introduced by these features. Unsupported bearing families remain explicitly unavailable.
