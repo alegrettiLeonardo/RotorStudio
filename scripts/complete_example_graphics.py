@@ -37,6 +37,8 @@ def _plot_dir(d:Path):
                 files=save_figure(fig,d/"summary",formats=("png","svg","pdf"),dpi=140);plt.close(fig);return files
             if "right_bearing_k" in keys and "critical_rad_s" in keys:
                 x=np.asarray(z["right_bearing_k"],float).ravel();y=np.asarray(z["critical_rad_s"],float)*60/(2*np.pi)
+                if y.ndim>1 and y.shape[-1]==x.size: y=y.reshape((-1,x.size)).T
+                elif y.ndim>1 and y.shape[0]==x.size: y=y.reshape((x.size,-1))
                 fig,ax=plt.subplots();ax.semilogx(x,y);ax.set_xlabel("Right bearing stiffness (N/m)");ax.set_ylabel("Critical speed (rpm)");ax.grid(True);ax.set_title(d.name)
                 files=save_figure(fig,d/"summary",formats=("png","svg","pdf"),dpi=140);plt.close(fig);return files
             for xkey in ("rpm","omega_rpm","hz","NE"):
