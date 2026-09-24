@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "authority": "Rotor_Software_v2",
+  "original_zip_sha256": "bc42d18020013a537da6e7785a3d6b15533cd881939410c5e2a58c8563db5344",
+  "normalization": "CRLF/CR converted to LF before SHA256",
+  "required_numeric_sources": {
+    "bearasym.m": "919a7e6f3db2480dc3679df89dfe9adef404fc73345c9c1a2b1cde18af373fb9",
+    "bearmtx.m": "89becb4738ac30b39c0b07783d209d2ae21277f3655c029d313abae77ae19a50",
+    "chr_asym.m": "c036c0e35ad012f0a191733105fd5411fa63ad368973c0c2e30993d1d9ecee20",
+    "chr_root.m": "ab4ecb954dc552e7b8a95fb2dcc021ee38f5c032fae31045bc36de39b24b1482",
+    "chr_root_coax.m": "3a75e6470e31efb6b215ffb75cb14b7f2651adf73b928ddb25dc1f65e3583c6e",
+    "crit_spd.m": "6b2a2eeeb0abaaf2fbfe146f055b257ef6199379d341230f321de4fddf8a53bb",
+    "freq_asym.m": "07e86df0f0299da040e43e239ed7f5176af51c0dec22ff3a44a6dc69861fff50",
+    "freq_aux.m": "f836a682938501e1bdc1b2bf7849aa0371f257efd1dc17faac4852cb6d49a3dc",
+    "freq_fdn.m": "79edb86e3df969f16175df84e3392307d8b86da71b5f6261e1421e809efdf215",
+    "freq_rsp.m": "a3cb4bf665933fbdf273bcdae104148b344bbcef3d9bd13714975fae51c04285",
+    "freq_rsp_coax.m": "61e527179abe96f651cc7e2ccf6e340d4d646302e7b07b0ac43ebe62cd02c405",
+    "rotorasym.m": "ce011eea51ee20745d6968a9ae5d4a43bd50fae29048822c7ee5fc8c8346b6d6",
+    "rotormtx.m": "7843aa43faac608ae88a123302ae77a6799d817247af18cd75446b21cec5a994",
+    "runup.m": "81ad102dcc7e1cdd14d3d15b8f2c612449151918b05574fadfe1d24ce0cb2117",
+    "shftasym.m": "6d766e90cc091dbb8d84dace86ea7fdceb39e728be9f093a017ffaa5ea47fdd2",
+    "shftelem.m": "edeb38f01e3604b41f3c8f3ac8cc80c4649d081f379ce53ecccc92e78674c169",
+    "taper.m": "bcf8eade9a6dec22c08b77abc4b53afc1b4456e9279a137196ccef12638219f6",
+    "time_fdn.m": "fa3eebfa55ca4219191346ac8dc0534f98310169bc01d239a75739f0489bbc4c",
+    "whirl.m": "9178048c7e98393de76a033986c11f01d52ccfebf95f8120dc653a8d980f5f14"
+  }
+}
