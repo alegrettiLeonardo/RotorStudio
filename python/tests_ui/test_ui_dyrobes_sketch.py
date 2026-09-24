@@ -61,20 +61,18 @@ def test_real_cryostar_reference_sketch_renders_mass_shaft_unbalance_and_probe_c
     window.model_page.view.viewport().render(image)
     assert not image.isNull()
 
-    targets = {
-        QColor("#19c9d2").name().lower(),  # distributed mass/package envelope
-        QColor("#e13d43").name().lower(),  # unbalance
-        QColor("#2f9e44").name().lower(),  # response probes
-    }
-    found = set()
-    for y in range(0, image.height(), 2):
-        for x in range(0, image.width(), 2):
-            color = QColor.fromRgba(image.pixel(x, y)).name().lower()
-            if color in targets:
-                found.add(color)
-        if found == targets:
-            break
-    assert found == targets
+    # Antialiasing changes exact edge pixels across Qt/platform builds, so
+    # validate the authoritative QGraphicsScene presentation properties rather
+    # than depending on an exact raster sample of one-pixel-wide symbols.
+    tagged = {}
+    for item in window.model_page.view.scene_obj.items():
+        tag = item.data(1)
+        if tag and str(tag) not in tagged:
+            tagged[str(tag)] = item
+
+    assert tagged["mass"].brush().color().name().lower() == "#19c9d2"
+    assert tagged["unbalance"].pen().color().name().lower() == "#e13d43"
+    assert tagged["probe"].pen().color().name().lower() == "#2f9e44"
 
 
 def test_imported_cryostar_analysis_button_is_blocked_before_job_submission(qtbot):
