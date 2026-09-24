@@ -173,6 +173,9 @@ class PropertyInspectorDock(QDockWidget):
             self.error_label.setText("")
             self.session.log("INFO", f"Shaft {idx + 1}: {attr} updated")
         except (ModelValidationError, ValueError, AttributeError) as exc:
+            # Restore the authoritative domain value first, then keep the
+            # validation diagnostic visible.  refresh() intentionally clears
+            # stale diagnostics during normal selection/model changes.
+            self.refresh(self.session.selection)
             self.error_label.setText(str(exc))
             self.session.log("ERROR", str(exc))
-            self.refresh(self.session.selection)
