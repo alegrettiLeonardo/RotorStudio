@@ -1,8 +1,9 @@
-function generate_authority_baseline(root_dir,out_dir)
+function generate_authority_baseline(root_dir,out_dir,src)
 if nargin < 1, error('root_dir required'); end
 if nargin < 2, out_dir = fullfile(root_dir,'validation','baseline','matlab_authority'); end
+if nargin < 3 || isempty(src), src = fullfile(root_dir,'reference','matlab_v2'); end
 if ~exist(out_dir,'dir'), mkdir(out_dir); end
-src=fullfile(root_dir,'reference','matlab_v2');addpath(src);
+addpath(src);
 meta_version=version;meta_computer=computer;meta_date=datestr(now,30);meta_source_dir=src;
 
 circ_M=zeros(8,8,8);circ_C1=zeros(8,8,8);circ_K0=zeros(8,8,8);circ_K1=zeros(8,8,8);
