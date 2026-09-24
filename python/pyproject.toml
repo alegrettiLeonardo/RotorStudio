@@ -1,15 +1,22 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
+
 [project]
 name = "drm-core"
 version = "0.9.0"
 description = "Python core for the DRM Fortran 2018 rotor dynamics solver"
 requires-python = ">=3.10"
 dependencies = ["numpy>=1.24", "matplotlib>=3.7"]
+
 [project.scripts]
 drm-cli = "drm_core.cli.main:main"
+drm-studio = "drm_studio.app:main"
+
 [tool.setuptools.packages.find]
-where=["src"]
+where = ["src"]
+
 [project.optional-dependencies]
-test = ["pytest>=7", "scipy>=1.10"]\nstudio = ["PySide6>=6.8,<7"]\nui-test = ["pytest-qt>=4.4"]
+test = ["pytest>=7", "scipy>=1.10"]
+studio = ["PySide6>=6.8,<7"]
+ui-test = ["pytest-qt>=4.4"]
