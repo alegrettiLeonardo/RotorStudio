@@ -115,7 +115,13 @@ def record_data_table(record):
 
 def export_record_csv(record, path):
     header, data = record_data_table(record)
-    return export_csv(path, [data[:, i] for i in range(data.shape[1])], header=header)
+    # drm_core's public Stage 1 CSV API is keyword-column based and preserves
+    # explicit column names.  Keep the UI adapter on that API rather than
+    # reaching into an alternate export implementation.
+    return export_csv(
+        path,
+        **{name: data[:, i] for i, name in enumerate(header)},
+    )
 
 
 def export_record_native(record, path):
