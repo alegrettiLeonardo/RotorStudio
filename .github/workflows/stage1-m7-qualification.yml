@@ -216,26 +216,22 @@ jobs:
           cache-dependency-path: python/pyproject.toml
 
       - name: Record Windows qualification environment
-        shell: pwsh
+        shell: msys2 {0}
         run: |
-          New-Item -ItemType Directory -Force validation/reports/g17_windows | Out-Null
-          $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
-          $env:CMAKE_PREFIX_PATH = "C:\msys64\ucrt64"
-          python --version | Tee-Object -FilePath validation/reports/g17_windows/environment.txt
-          & C:\msys64\ucrt64\bin\gfortran.exe --version | Select-Object -First 1 | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
-          & C:\msys64\ucrt64\bin\cmake.exe --version | Select-Object -First 1 | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
-          & C:\msys64\ucrt64\bin\ninja.exe --version | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
-          where.exe gfortran | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
-          where.exe cmake | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
-          where.exe ninja | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
-          git rev-parse HEAD | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
-          git status --porcelain=v1 | Tee-Object -FilePath validation/reports/g17_windows/environment.txt -Append
-
-      - name: Install Python qualification dependencies
-        shell: pwsh
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e "./python[test]"
+          mkdir -p validation/reports/g17_windows
+          {
+            echo "MSYSTEM=$MSYSTEM"
+            python --version
+            gfortran --version | head -1
+            cmake --version | head -1
+            ninja --version
+            echo "gfortran=$(command -v gfortran)"
+            echo "cmake=$(command -v cmake)"
+            echo "ninja=$(command -v ninja)"
+            git rev-parse HEAD
+            git status --porcelain=v1
+          } | tee validation/reports/g17_windows/environment.txt
+          echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
 
       - name: G1 authority source integrity
         shell: pwsh
@@ -245,42 +241,44 @@ jobs:
           $out | Tee-Object -FilePath validation/reports/g17_windows/authority_source_integrity.json
           if ($code -ne 0) { exit $code }
 
-      - name: Configure and build Release with MSYS2 UCRT64
+      - name: Install Python qualification dependencies
         shell: pwsh
         run: |
-          $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
-          $env:CMAKE_PREFIX_PATH = "C:\msys64\ucrt64"
-          & C:\msys64\ucrt64\bin\cmake.exe -S fortran -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=C:/msys64/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=C:/msys64/ucrt64 -DBLA_VENDOR=OpenBLAS
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & C:\msys64\ucrt64\bin\cmake.exe --build build-release --parallel
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & C:\msys64\ucrt64\bin\ctest.exe --test-dir build-release --output-on-failure
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install --upgrade pip
+          python -m pip install -e "./python[test]"
+
+      - name: Configure and build Release with MSYS2 UCRT64
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-release --parallel
+          ctest --test-dir build-release --output-on-failure
 
       - name: Locate and load Fortran DLL
         shell: pwsh
         run: |
-          $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+          $env:PATH = "$env:UCRT64_BIN;$env:PATH"
           $dll = Get-ChildItem .\build-release -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
           if (-not $dll) { throw "drmrotor DLL not found" }
           "DRMROTOR_LIB=$($dll.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "PYTHONPATH=$PWD\python\src;$PWD" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "DRMROTOR_DLL_DIRS=C:\msys64\ucrt64\bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMROTOR_DLL_DIRS=$env:UCRT64_BIN" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           $env:DRMROTOR_LIB = $dll.FullName
           $env:PYTHONPATH = "$PWD\python\src;$PWD"
-          $env:DRMROTOR_DLL_DIRS = "C:\msys64\ucrt64\bin"
-          python -c "from drm_core.solver.ffi import load_library; load_library(); print('DRMROTOR_DLL_LOAD=PASS')"
+          $env:DRMROTOR_DLL_DIRS = $env:UCRT64_BIN
+          python -c "import ctypes,os; h=os.add_dll_directory(os.environ['UCRT64_BIN']); ctypes.CDLL(os.environ['DRMROTOR_LIB']); print('DRMROTOR_DLL_LOAD=PASS')"
+          python -c "from drm_core.solver.ffi import load_library; load_library(); print('DRMROTOR_PRODUCTION_LOAD=PASS')"
 
       - name: Explicit Python-Fortran ABI probe
         shell: pwsh
         run: |
-          $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+          $env:PATH = "$env:UCRT64_BIN;$env:PATH"
           python -c "import numpy as np; from validation.equivalence.element_abi import circular; mats=circular(2,0.25,0.05,0.0,211e9,81.2e9,7810.0,0.0,0.0); assert len(mats)==4 and all(a.shape==(8,8) and np.isfinite(a).all() for a in mats); print('G17_ABI=PASS')"
 
       - name: Python qualification suite
         shell: pwsh
         run: |
-          $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+          $env:PATH = "$env:UCRT64_BIN;$env:PATH"
           $out = python -m pytest python\tests -q
           $code = $LASTEXITCODE
           $out | Tee-Object -FilePath validation/reports/g17_windows/pytest.txt
@@ -289,23 +287,18 @@ jobs:
       - name: 22-example campaign
         shell: pwsh
         run: |
-          $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+          $env:PATH = "$env:UCRT64_BIN;$env:PATH"
           $out = python scripts\run_example_campaign.py --outdir validation\reports\example_campaign_windows
           $code = $LASTEXITCODE
           $out | Tee-Object -FilePath validation/reports/g17_windows/example_campaign.txt
           if ($code -ne 0) { exit $code }
 
       - name: Configure and build Debug with MSYS2 UCRT64
-        shell: pwsh
+        shell: msys2 {0}
         run: |
-          $env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
-          $env:CMAKE_PREFIX_PATH = "C:\msys64\ucrt64"
-          & C:\msys64\ucrt64\bin\cmake.exe -S fortran -B build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_Fortran_COMPILER=C:/msys64/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=C:/msys64/ucrt64 -DBLA_VENDOR=OpenBLAS
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & C:\msys64\ucrt64\bin\cmake.exe --build build-debug --parallel
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & C:\msys64\ucrt64\bin\ctest.exe --test-dir build-debug --output-on-failure
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cmake -S fortran -B build-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-debug --parallel
+          ctest --test-dir build-debug --output-on-failure
 
       - name: Upload Windows G17 evidence
         if: always()
