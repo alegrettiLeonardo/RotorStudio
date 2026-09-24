@@ -40,7 +40,9 @@ jobs:
 
       - name: Verify frozen V2 authority sources
         run: |
-          python validation/equivalence/verify_authority_sources.py             | tee validation/reports/authority_source_integrity_M7.json
+          set -o pipefail
+          python validation/equivalence/verify_authority_sources.py \
+            | tee validation/reports/authority_source_integrity_M7.json
 
       - name: Build Fortran Release
         run: |
@@ -53,14 +55,19 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
           DRMROTOR_LIB: ${{ github.workspace }}/build-release/libdrmrotor.so
         run: |
-          python -m pytest python/tests -q             | tee validation/reports/pytest_M7.txt
+          set -o pipefail
+          python -m pytest python/tests -q \
+            | tee validation/reports/pytest_M7.txt
 
       - name: Run 22-example campaign
         env:
           PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
           DRMROTOR_LIB: ${{ github.workspace }}/build-release/libdrmrotor.so
         run: |
-          python scripts/run_example_campaign.py             --outdir validation/reports/example_campaign_M7             | tee validation/reports/example_campaign_M7.txt
+          set -o pipefail
+          python scripts/run_example_campaign.py \
+            --outdir validation/reports/example_campaign_M7 \
+            | tee validation/reports/example_campaign_M7.txt
 
       - name: Upload Linux Release evidence
         if: always()
@@ -118,7 +125,9 @@ jobs:
       - name: Verify frozen V2 authority sources
         run: |
           mkdir -p validation/reports/m7_ci
-          python validation/equivalence/verify_authority_sources.py             | tee validation/reports/m7_ci/authority_source_integrity.json
+          set -o pipefail
+          python validation/equivalence/verify_authority_sources.py \
+            | tee validation/reports/m7_ci/authority_source_integrity.json
 
       - name: Build Fortran Release for formal comparison
         run: |
@@ -132,12 +141,17 @@ jobs:
           DRMROTOR_LIB: ${{ github.workspace }}/build-formal/libdrmrotor.so
         run: |
           python validation/baseline/transient/generate_source_baseline.py
-          sha256sum validation/baseline/transient/*_source_reference.npz             | tee validation/reports/m7_ci/source_reference_hashes.sha256
+          set -o pipefail
+          sha256sum validation/baseline/transient/*_source_reference.npz \
+            | tee validation/reports/m7_ci/source_reference_hashes.sha256
 
       - name: Pull pinned Octave 7.1.0 authority runtime
         run: |
           docker pull gnuoctave/octave:7.1.0
-          docker image inspect gnuoctave/octave:7.1.0             --format '{{index .RepoDigests 0}}'             | tee validation/reports/m7_ci/octave_container_digest.txt
+          set -o pipefail
+          docker image inspect gnuoctave/octave:7.1.0 \
+            --format '{{index .RepoDigests 0}}' \
+            | tee validation/reports/m7_ci/octave_container_digest.txt
 
       - name: Generate V2 authority baseline with Octave 7.1.0
         run: |
@@ -145,7 +159,9 @@ jobs:
           docker run --rm             -v "${GITHUB_WORKSPACE}:/work"             -w /work             gnuoctave/octave:7.1.0             octave --no-gui --quiet --eval             "addpath('/work/validation/equivalence/matlab'); generate_authority_baseline('/work','/work/validation/reports/m7_ci/authority');"
           test -s validation/reports/m7_ci/authority/authority_baseline.mat
           cat validation/reports/m7_ci/authority/MATLAB_AUTHORITY_METADATA.txt
-          sha256sum validation/reports/m7_ci/authority/authority_baseline.mat             | tee validation/reports/m7_ci/authority/authority_baseline.mat.sha256
+          set -o pipefail
+          sha256sum validation/reports/m7_ci/authority/authority_baseline.mat \
+            | tee validation/reports/m7_ci/authority/authority_baseline.mat.sha256
 
       - name: Freeze transient tolerances before Fortran comparison
         env:
@@ -153,7 +169,9 @@ jobs:
           DRMROTOR_LIB: ${{ github.workspace }}/build-formal/libdrmrotor.so
         run: |
           python validation/equivalence/freeze_transient_tolerances.py             --matlab-baseline validation/reports/m7_ci/authority/authority_baseline.mat             --source-reference-dir validation/baseline/transient             --output validation/reports/m7_ci/authority/TRANSIENT_TOLERANCES.json
-          sha256sum validation/reports/m7_ci/authority/TRANSIENT_TOLERANCES.json             | tee validation/reports/m7_ci/authority/TRANSIENT_TOLERANCES.json.sha256
+          set -o pipefail
+          sha256sum validation/reports/m7_ci/authority/TRANSIENT_TOLERANCES.json \
+            | tee validation/reports/m7_ci/authority/TRANSIENT_TOLERANCES.json.sha256
 
       - name: Run formal equivalence G5-G12
         env:
