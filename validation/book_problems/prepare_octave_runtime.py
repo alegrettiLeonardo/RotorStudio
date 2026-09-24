@@ -44,7 +44,7 @@ end
 end
 """}
 
-TRACE_HELPER="""function path = drm_trace_file(kind)
+PLOT_NOOP_NAMES=('picrotor','plotcamp','plotresp','plotmode')\n\nTRACE_HELPER="""function path = drm_trace_file(kind)
  persistent counters;if isempty(counters),counters=struct();end
  if ~isfield(counters,kind),counters.(kind)=0;end;counters.(kind)=counters.(kind)+1;
  trace_dir=getenv('DRM_TRACE_DIR');problem=getenv('DRM_TRACE_PROBLEM');
@@ -75,7 +75,7 @@ def rename_function(text,old,new):
  return out
 
 def sanitize(text):
- return "\n".join("% harness-disabled: "+ln if re.match(r"^\s*(clear|close\s+all)\s*;?\s*$",ln,re.I) else ln for ln in text.splitlines())+"\n"
+ return "\n".join("% harness-disabled: "+ln if re.match(r"^\s*(clear(?:\s+all)?|clearvars|close(?:\s+all)?)\s*;?\s*$",ln,re.I) else ln for ln in text.splitlines())+"\n"
 
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--software-dir',required=True);ap.add_argument('--problem-dir',required=True);ap.add_argument('--inventory',required=True);ap.add_argument('--runtime-dir',required=True);a=ap.parse_args()
@@ -84,7 +84,7 @@ def main():
  (sanitized/'inventory_runtime.json').write_text(json.dumps({'problems':[{'problem':p['problem']} for p in inv['problems']]}))
  for fn in TRACE_FUNCTIONS:
   src=(software/f'{fn}.m').read_text(errors='replace');(wrappers/f'authority_{fn}.m').write_text(rename_function(src,fn,f'authority_{fn}'));(wrappers/f'{fn}.m').write_text(WRAPPERS[fn])
- (wrappers/'drm_trace_file.m').write_text(TRACE_HELPER);(wrappers/'run_book_problem_suite.m').write_text(RUNNER)
+ (wrappers/'drm_trace_file.m').write_text(TRACE_HELPER);(wrappers/'run_book_problem_suite.m').write_text(RUNNER)\n for name in PLOT_NOOP_NAMES:(wrappers/f'{name}.m').write_text(f'function varargout = {name}(varargin)\\nvarargout=cell(1,nargout);\\nend\\n')
  for e in inv['problems']:
   p=problems/f"{e['problem']}.m";(sanitized/p.name).write_text(sanitize(p.read_text(errors='replace')))
  if (problems/'bnpr.m').exists():shutil.copy2(problems/'bnpr.m',sanitized/'bnpr.m')
