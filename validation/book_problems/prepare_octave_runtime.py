@@ -134,7 +134,7 @@ def sanitize_script(text: str, name: str) -> str:
     if name == 'Problem_03_12.m':
         # MATLAB permits `do` as an identifier; GNU Octave reserves it for do/until.
         text = re.sub(r"\bdo\b", "do_octave", text)
-    return text if text.endswith("\\n") else text+"\\n"
+    return text if text.endswith("\n") else text+"\n"
 
 
 
