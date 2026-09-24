@@ -12,6 +12,7 @@ from drm_core.domain.model import ShaftElement
 from drm_core.units import m_to_mm, mm_to_m, pa_to_mpa, mpa_to_pa
 from drm_core.validation.model import ModelValidationError
 from drm_studio.commands.model_commands import SetShaftPropertyCommand
+from drm_studio.docks.bearing_editor import BearingInspectorWidget
 
 
 def _spin(decimals=4, minimum=0.0, maximum=1.0e12):
@@ -32,14 +33,25 @@ class PropertyInspectorDock(QDockWidget):
         self.tabs = QTabWidget()
         self.shaft_tab = QWidget()
         self.tabs.addTab(self.shaft_tab, "Shaft")
-        for label in ("Disk", "Bearing", "Analysis Setup"):
-            widget = QWidget()
-            layout = QVBoxLayout(widget)
-            text = QLabel(f"{label} editor is integrated in a later Stage 2 vertical slice.")
-            text.setWordWrap(True)
-            layout.addWidget(text)
-            layout.addStretch(1)
-            self.tabs.addTab(widget, label)
+
+        disk_tab = QWidget()
+        disk_layout = QVBoxLayout(disk_tab)
+        disk_text = QLabel("Disk editor is integrated in a later Stage 2 vertical slice.")
+        disk_text.setWordWrap(True)
+        disk_layout.addWidget(disk_text)
+        disk_layout.addStretch(1)
+        self.tabs.addTab(disk_tab, "Disk")
+
+        self.bearing_tab = BearingInspectorWidget(session)
+        self.tabs.addTab(self.bearing_tab, "Bearing")
+
+        analysis_tab = QWidget()
+        analysis_layout = QVBoxLayout(analysis_tab)
+        analysis_text = QLabel("Analysis setup is configured through persistent AnalysisCase dialogs.")
+        analysis_text.setWordWrap(True)
+        analysis_layout.addWidget(analysis_text)
+        analysis_layout.addStretch(1)
+        self.tabs.addTab(analysis_tab, "Analysis Setup")
 
         form = QFormLayout(self.shaft_tab)
         self.heading = QLabel("No shaft selected")
@@ -99,7 +111,7 @@ class PropertyInspectorDock(QDockWidget):
         for field in self._edit_map:
             field.editingFinished.connect(lambda f=field: self._commit_field(f))
 
-        session.selectionChanged.connect(self.refresh)
+        session.selectionChanged.connect(self._selection_changed)
         session.modelChanged.connect(lambda: self.refresh(session.selection))
         self.refresh(None)
 
@@ -113,6 +125,13 @@ class PropertyInspectorDock(QDockWidget):
         label.setStyleSheet("color:#667788;")
         layout.addWidget(label)
         return host
+
+    def _selection_changed(self, ref):
+        if ref is not None and ref.kind == "bearing":
+            self.tabs.setCurrentWidget(self.bearing_tab)
+        elif ref is not None and ref.kind == "shaft":
+            self.tabs.setCurrentWidget(self.shaft_tab)
+        self.refresh(ref)
 
     def _selected_shaft(self):
         ref = self.session.selection

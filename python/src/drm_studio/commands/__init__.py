@@ -1,2 +1,2 @@
-from .model_commands import SetShaftPropertyCommand
-__all__ = ["SetShaftPropertyCommand"]
+from .model_commands import SetShaftPropertyCommand, EditBearingPropertiesCommand
+__all__ = ["SetShaftPropertyCommand", "EditBearingPropertiesCommand"]
