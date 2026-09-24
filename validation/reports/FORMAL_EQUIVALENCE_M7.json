@@ -66,5 +66,30 @@
       "detail": "eig1=1.522e-13,eig2=3.131e-13,MAC=1.000000000,rsp=3.853e-15"
     }
   },
-  "overall": "PASS"
+  "overall": "PASS",
+  "ci_reproduction": {
+    "status": "PASS",
+    "workflow": "Stage 1 M7 Qualification",
+    "run_id": 35982543106,
+    "run_number": 8,
+    "head_branch": "feature/stage1-m7-ci-qualification-closure",
+    "head_sha": "00efce0f31678105c895f927c15982f6951dd2c5",
+    "jobs": {
+      "linux_release_python_examples": "PASS",
+      "linux_debug_runtime_checks": "PASS",
+      "formal_octave_7_1_G5_G12": "PASS"
+    },
+    "artifacts": [
+      {
+        "id": 10800931204,
+        "name": "m7-linux-release-f4364c2be8baa3f00fb5290b1f0d4952c60fc850",
+        "digest": "sha256:0fd41663eab0d9309f9debd340a4fa8de1a037e0295d341938b750d287cbbf6e"
+      },
+      {
+        "id": 10800588917,
+        "name": "m7-formal-octave-7.1-f4364c2be8baa3f00fb5290b1f0d4952c60fc850",
+        "digest": "sha256:06d0e6ee34754806c4c1acd68b04f877bf278a915d4b64bc1e0d5270e4c15c45"
+      }
+    ]
+  }
 }
