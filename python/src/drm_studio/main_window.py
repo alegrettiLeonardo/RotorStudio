@@ -12,17 +12,19 @@ from drm_core import AnalysisService
 from drm_core.analysis.modal import ModalResult
 from drm_core.analysis.critical_speed import CriticalSpeedResult
 from drm_core.analysis.frequency_response import FrequencyResponseResult
+from drm_core.analysis.transient import TransientResult
 from drm_core.validation.model import validate_model, ModelValidationError
 
 from .application import ProjectSession, SolverJobManager
 from .analysis_pages import (
     ModalSetupDialog, CampbellSetupDialog, CriticalSpeedSetupDialog,
     SynchronousResponseSetupDialog, FrequencyResponseSetupDialog,
+    FoundationTimeSetupDialog, RunupSetupDialog,
 )
 from .docks import MessagesDock, ProjectExplorerDock, PropertyInspectorDock
 from .result_views import (
     ModalResultView, CampbellResultView, CriticalSpeedResultView,
-    FrequencyResponseResultView,
+    FrequencyResponseResultView, TransientResultView,
 )
 from .widgets import RotorModelPage
 from .style import APP_STYLESHEET
@@ -78,6 +80,8 @@ class MainWindow(QMainWindow):
         self.synchronous_action = QAction("Synchronous Response", self)
         self.frequency_action = QAction("Frequency Response", self)
         self.foundation_action = QAction("Foundation Excitation", self)
+        self.foundation_time_action = QAction("Foundation Time Response", self)
+        self.runup_action = QAction("Run-up / Run-down", self)
 
         self.new_action.triggered.connect(self.session.new_project)
         self.open_action.triggered.connect(self._choose_open)
@@ -90,6 +94,8 @@ class MainWindow(QMainWindow):
         self.synchronous_action.triggered.connect(self._configure_synchronous)
         self.frequency_action.triggered.connect(self._configure_frequency_response)
         self.foundation_action.triggered.connect(self._configure_foundation_response)
+        self.foundation_time_action.triggered.connect(self._configure_foundation_time)
+        self.runup_action.triggered.connect(self._configure_runup)
 
     def _build_menus(self):
         bar = self.menuBar()
@@ -109,6 +115,8 @@ class MainWindow(QMainWindow):
         self.analysis_menu.addAction(self.synchronous_action)
         self.analysis_menu.addAction(self.frequency_action)
         self.analysis_menu.addAction(self.foundation_action)
+        self.analysis_menu.addAction(self.foundation_time_action)
+        self.analysis_menu.addAction(self.runup_action)
         self.bearings_menu = bar.addMenu("Bearings")
         self.results_menu = bar.addMenu("Results")
         bar.addMenu("Tools")
@@ -159,6 +167,7 @@ class MainWindow(QMainWindow):
         self.model_page.synchronousRequested.connect(self._configure_synchronous)
         self.model_page.frequencyRequested.connect(self._configure_frequency_response)
         self.model_page.foundationRequested.connect(self._configure_foundation_response)
+        self.model_page.runupRequested.connect(self._configure_runup)
 
     def _connect_session(self):
         self.session.projectChanged.connect(self._refresh_title)
@@ -249,6 +258,16 @@ class MainWindow(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             self.run_analysis(dialog.analysis_case())
 
+    def _configure_foundation_time(self):
+        dialog = FoundationTimeSetupDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
+    def _configure_runup(self):
+        dialog = RunupSetupDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
     def run_analysis(self, case) -> bool:
         analysis_family = (
             "coaxial" if case.kind.startswith("coaxial_")
@@ -257,6 +276,20 @@ class MainWindow(QMainWindow):
         )
         try:
             validate_model(self.session.project.model, analysis=analysis_family)
+            force_types = {force.force_type for force in self.session.project.model.forces}
+            required = {
+                "frequency_response": ({1, 2, 3}, "mass/couple unbalance or bent-shaft Force type 1, 2, or 3"),
+                "auxiliary_frequency_response": ({6, 7}, "spinner or auxiliary-bearing Force type 6 or 7"),
+                "foundation_frequency_response": ({4}, "foundation frequency-domain Force type 4"),
+                "foundation_time_response": ({5}, "foundation pulse Force type 5"),
+            }
+            if case.kind in required:
+                accepted, description = required[case.kind]
+                if not (force_types & accepted):
+                    raise ModelValidationError(
+                        f"{case.kind}: model has force types {sorted(force_types)}; "
+                        f"expected {description}; add the required forcing before analysis"
+                    )
         except ModelValidationError as exc:
             self.messages_dock.set_checks([f"FAIL — {exc}"])
             self.session.log("ERROR", str(exc))
@@ -309,6 +342,9 @@ class MainWindow(QMainWindow):
         elif isinstance(result, FrequencyResponseResult):
             view = FrequencyResponseResultView(record)
             prefix = "Response"
+        elif isinstance(result, TransientResult):
+            view = TransientResultView(record)
+            prefix = "Transient" if record.execution.case.kind != "runup" else "Run-up"
         if view is None:
             return
         view._tab_prefix = prefix
