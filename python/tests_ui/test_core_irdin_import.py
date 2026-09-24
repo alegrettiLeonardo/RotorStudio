@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from drm_core import AnalysisCase, AnalysisService, load_irdin_project
+from drm_core import AnalysisCase, AnalysisService, load_irdin_project, load_project, save_project
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -72,3 +72,18 @@ def test_real_cryostar_import_is_explicitly_blocked_from_numerical_analysis():
     case = AnalysisCase("modal", {"speed_rad_s": 0.0}, "Must Not Run")
     with pytest.raises(ValueError, match="BLOCKED_FOR_NUMERICAL_ANALYSIS"):
         AnalysisService().execute(project, case)
+
+
+def test_real_cryostar_import_can_be_saved_as_rds_and_reopened_without_losing_sketch(tmp_path):
+    project = load_irdin_project(FIXTURE)
+    target = tmp_path / "cryostar_imported.rds"
+    save_project(project, target)
+    reopened = load_project(target)
+
+    assert reopened.name == project.name
+    assert reopened.model.model_hash() == project.model.model_hash()
+    assert reopened.metadata["source_format"] == "iRdin/VB6 INI"
+    assert reopened.metadata["numerical_readiness"]["status"] == "BLOCKED_FOR_NUMERICAL_ANALYSIS"
+    assert len(reopened.metadata["sketch"]["sections"]) == 16
+    assert len(reopened.metadata["sketch"]["masses"]) == 3
+    assert len(reopened.metadata["sketch"]["bearings"]) == 2
