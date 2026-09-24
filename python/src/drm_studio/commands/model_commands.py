@@ -77,7 +77,7 @@ class EditDiskCommand(QUndoCommand):
         self.old_disk=session.project.model.disks[self.disk_index]
         self.new_disk=new_disk
         candidate=copy.deepcopy(session.project.model);candidate.disks[self.disk_index]=new_disk
-        validate_model(candidate,analysis="stationary")
+        validate_model(candidate,analysis=_model_validation_family(candidate))
         super().__init__(text or f"Edit disk {self.disk_index+1}")
 
     def _assign(self,disk):
