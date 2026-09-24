@@ -1,0 +1,175 @@
+name: Stage 1 M7 Qualification
+
+on:
+  push:
+    branches:
+      - main
+      - feature/stage1-m7-ci-qualification-closure
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: m7-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-release:
+    name: Linux Release + Python + examples
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+
+      - name: Install Python qualification dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+
+      - name: Verify frozen V2 authority sources
+        run: |
+          python validation/equivalence/verify_authority_sources.py             | tee validation/reports/authority_source_integrity_M7.json
+
+      - name: Build Fortran Release
+        run: |
+          cmake -S fortran -B build-release -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-release -j2
+          ctest --test-dir build-release --output-on-failure
+
+      - name: Run Python qualification suite
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-release/libdrmrotor.so
+        run: |
+          python -m pytest python/tests -q             | tee validation/reports/pytest_M7.txt
+
+      - name: Run 22-example campaign
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-release/libdrmrotor.so
+        run: |
+          python scripts/run_example_campaign.py             --outdir validation/reports/example_campaign_M7             | tee validation/reports/example_campaign_M7.txt
+
+      - name: Upload Linux Release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m7-linux-release-${{ github.sha }}
+          path: |
+            validation/reports/authority_source_integrity_M7.json
+            validation/reports/pytest_M7.txt
+            validation/reports/example_campaign_M7*
+          if-no-files-found: warn
+          retention-days: 90
+
+  linux-debug:
+    name: Linux Debug runtime checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+
+      - name: Build and test Fortran Debug
+        run: |
+          cmake -S fortran -B build-debug -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build-debug -j2
+          ctest --test-dir build-debug --output-on-failure
+
+  formal-octave-7-1:
+    name: Frozen Octave 7.1.0 formal G5-G12
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install host numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+
+      - name: Install Python qualification dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+
+      - name: Verify frozen V2 authority sources
+        run: |
+          mkdir -p validation/reports/m7_ci
+          python validation/equivalence/verify_authority_sources.py             | tee validation/reports/m7_ci/authority_source_integrity.json
+
+      - name: Build Fortran Release for formal comparison
+        run: |
+          cmake -S fortran -B build-formal -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-formal -j2
+          ctest --test-dir build-formal --output-on-failure
+
+      - name: Generate independent transient source references
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-formal/libdrmrotor.so
+        run: |
+          python validation/baseline/transient/generate_source_baseline.py
+          sha256sum validation/baseline/transient/*_source_reference.npz             | tee validation/reports/m7_ci/source_reference_hashes.sha256
+
+      - name: Pull pinned Octave 7.1.0 authority runtime
+        run: |
+          docker pull gnuoctave/octave:7.1.0
+          docker image inspect gnuoctave/octave:7.1.0             --format '{{index .RepoDigests 0}}'             | tee validation/reports/m7_ci/octave_container_digest.txt
+
+      - name: Generate V2 authority baseline with Octave 7.1.0
+        run: |
+          mkdir -p validation/reports/m7_ci/authority
+          docker run --rm             -v "${GITHUB_WORKSPACE}:/work"             -w /work             gnuoctave/octave:7.1.0             octave --no-gui --quiet --eval             "addpath('/work/validation/equivalence/matlab'); generate_authority_baseline('/work','/work/validation/reports/m7_ci/authority');"
+          test -s validation/reports/m7_ci/authority/authority_baseline.mat
+          cat validation/reports/m7_ci/authority/MATLAB_AUTHORITY_METADATA.txt
+          sha256sum validation/reports/m7_ci/authority/authority_baseline.mat             | tee validation/reports/m7_ci/authority/authority_baseline.mat.sha256
+
+      - name: Freeze transient tolerances before Fortran comparison
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-formal/libdrmrotor.so
+        run: |
+          python validation/equivalence/freeze_transient_tolerances.py             --matlab-baseline validation/reports/m7_ci/authority/authority_baseline.mat             --source-reference-dir validation/baseline/transient             --output validation/reports/m7_ci/authority/TRANSIENT_TOLERANCES.json
+          sha256sum validation/reports/m7_ci/authority/TRANSIENT_TOLERANCES.json             | tee validation/reports/m7_ci/authority/TRANSIENT_TOLERANCES.json.sha256
+
+      - name: Run formal equivalence G5-G12
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-formal/libdrmrotor.so
+        run: |
+          python validation/equivalence/run_formal_equivalence.py             --matlab-baseline validation/reports/m7_ci/authority/authority_baseline.mat             --transient-tolerances validation/reports/m7_ci/authority/TRANSIENT_TOLERANCES.json             --output validation/reports/m7_ci/FORMAL_EQUIVALENCE_M7_CI.json
+          python -m json.tool validation/reports/m7_ci/FORMAL_EQUIVALENCE_M7_CI.json
+
+      - name: Upload formal equivalence evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m7-formal-octave-7.1-${{ github.sha }}
+          path: |
+            validation/reports/m7_ci/
+            validation/baseline/transient/*_source_reference.npz
+          if-no-files-found: error
+          retention-days: 90
