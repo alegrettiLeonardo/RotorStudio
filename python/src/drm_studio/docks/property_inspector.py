@@ -6,14 +6,15 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QDockWidget, QWidget, QVBoxLayout, QFormLayout, QLineEdit, QLabel,
     QDoubleSpinBox, QSpinBox, QTabWidget, QHBoxLayout, QStackedWidget,
-    QGroupBox, QPushButton, QGridLayout
+    QGroupBox, QPushButton, QGridLayout, QTableWidget, QTableWidgetItem,
+    QHeaderView, QAbstractItemView
 )
 
 from drm_core.domain.model import ShaftElement
 from drm_core.units import m_to_mm, mm_to_m, pa_to_mpa, mpa_to_pa
 from drm_core.validation.model import ModelValidationError
 from drm_studio.commands.model_commands import SetShaftPropertyCommand
-from drm_studio.docks.bearing_editor import BearingInspectorWidget
+from drm_studio.docks.bearing_editor import BearingInspectorWidget, _schema, _BEARING_NAMES
 from drm_studio.docks.disk_editor import DiskInspectorWidget
 
 
@@ -157,6 +158,31 @@ class PropertyInspectorDock(QDockWidget):
         self.quick_report_button.clicked.connect(self.reportRequested)
 
         self.stack.addWidget(self.results_page)
+
+        # ---------------- Bearing Performance Results ----------------
+        self.bearing_results_page = QWidget()
+        bearing_results_layout = QVBoxLayout(self.bearing_results_page)
+        bearing_results_layout.setContentsMargins(8, 8, 8, 8)
+        bearing_results_layout.setSpacing(8)
+        self.bearing_results_heading = QLabel("Bearing / Seal")
+        self.bearing_results_heading.setObjectName("SectionHeaderTitle")
+        bearing_results_layout.addWidget(self.bearing_results_heading)
+        self.bearing_results_table = QTableWidget(0, 3)
+        self.bearing_results_table.setHorizontalHeaderLabels(["Parameter", "Value", "Units"])
+        self.bearing_results_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.bearing_results_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.bearing_results_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        self.bearing_results_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        bearing_results_layout.addWidget(self.bearing_results_table, 1)
+        self.bearing_results_note = QLabel(
+            "Only qualified Stage 1 bearing/seal inputs and coefficients are displayed. "
+            "No pressure or thermal result is fabricated."
+        )
+        self.bearing_results_note.setWordWrap(True)
+        self.bearing_results_note.setStyleSheet("color:#60758a;")
+        bearing_results_layout.addWidget(self.bearing_results_note)
+        self.stack.addWidget(self.bearing_results_page)
+
         self.setWidget(self.stack)
 
         self._edit_map = {
@@ -190,6 +216,31 @@ class PropertyInspectorDock(QDockWidget):
     def show_entity_context(self):
         self.setWindowTitle("Element Properties")
         self.stack.setCurrentWidget(self.tabs)
+
+    def show_bearing_context(self):
+        self.setWindowTitle("Results - Bearing Performance")
+        self.stack.setCurrentWidget(self.bearing_results_page)
+        ref = self.session.selection
+        self.bearing_results_table.setRowCount(0)
+        if ref is None or ref.kind != "bearing" or not (0 <= ref.index < len(self.session.project.model.bearings)):
+            self.bearing_results_heading.setText("Bearing / Seal — select an item in Project Explorer")
+            return
+        bearing = self.session.project.model.bearings[ref.index]
+        name = _BEARING_NAMES.get(bearing.bearing_type, f"Type {bearing.bearing_type}")
+        self.bearing_results_heading.setText(f"{name} — Node {bearing.node}")
+        schema = _schema(bearing.bearing_type)
+        self.bearing_results_table.setRowCount(len(schema) + 2)
+        basic = [("Type", bearing.bearing_type, name), ("Node", bearing.node, "")]
+        for row, values in enumerate(basic):
+            for col, value in enumerate(values):
+                self.bearing_results_table.setItem(row, col, QTableWidgetItem(str(value)))
+        props = list(bearing.properties)
+        for row, (label, unit, scale) in enumerate(schema, 2):
+            value = props[row - 2] if row - 2 < len(props) else 0.0
+            shown = float(value) * scale
+            self.bearing_results_table.setItem(row, 0, QTableWidgetItem(label))
+            self.bearing_results_table.setItem(row, 1, QTableWidgetItem(f"{shown:.8g}"))
+            self.bearing_results_table.setItem(row, 2, QTableWidgetItem(unit))
 
     def show_result_context(self, record):
         if record is None:
