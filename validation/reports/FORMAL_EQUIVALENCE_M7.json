@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "milestone": "M7",
+  "qualification_basis": "User-executed frozen Octave 7.1.0 authority probe before M7 CI automation",
+  "qualified_code_sha": "224a279a5450f7d6054f639efe2f7ce306aa00e9",
+  "merged_main_sha": "97d482655f363fcc821b10879a3853066d6d6a0b",
+  "authority": {
+    "engine": "GNU Octave 7.1.0",
+    "computer": "x86_64-pc-linux-gnu",
+    "rotor_software_v2_zip_sha256": "bc42d18020013a537da6e7785a3d6b15533cd881939410c5e2a58c8563db5344",
+    "authority_baseline_sha256": "a2f8eb6d36dc3db8c9b1b9fd93a18aa9482d8ef16e31c3df95a108aad7432ab3",
+    "transient_tolerance_policy_sha256": "bc2d8ededdb7eb9c4a5206eae2207f90df0d32671ac9f97585612a7c69988af1",
+    "note": "Authority baseline and transient tolerance policy were frozen before the final Fortran comparison; no post-comparison threshold relaxation."
+  },
+  "environment": {
+    "python": "3.12.3",
+    "gfortran": "13.3.0",
+    "cmake": "3.28.3",
+    "octave": "7.1.0"
+  },
+  "regression": {
+    "ctest_release": "5/5 PASS",
+    "pytest": "49/49 PASS",
+    "example_campaign": "33/33 PASS; 22 unique examples"
+  },
+  "thresholds": {
+    "matrix_rel": 1e-12,
+    "eig_rel": 1e-8,
+    "freq_rel": 1e-8,
+    "mac_min": 0.999999,
+    "response_rel": 1e-8,
+    "critical_rel": 0.000001,
+    "kappa_absrel": 1e-10
+  },
+  "gates": {
+    "G5": {
+      "status": "PASS",
+      "detail": "max element rel=2.056e-16"
+    },
+    "G6": {
+      "status": "PASS",
+      "detail": "max matrix rel=3.256e-16"
+    },
+    "G7": {
+      "status": "PASS",
+      "detail": "eig=1.628e-12,freq=1.147e-12,isolated_MAC=1.000000000,whirl_kappa=1.885e-14,end_to_end_kappa_diag=3.264e-10,nonisolated_skipped=56"
+    },
+    "G8": {
+      "status": "PASS",
+      "detail": "rsp=4.680e-14,aux=1.869e-13,fdn=1.535e-14"
+    },
+    "G9": {
+      "status": "PASS",
+      "detail": "direct=2.595e-12,iter=5.209e-11"
+    },
+    "G10": {
+      "status": "PASS",
+      "detail": "time=8.315e-08,runup=5.266e-07,force=4.441e-16,time_dofs=[8,9,16,17],runup_dofs=[24,25]"
+    },
+    "G11": {
+      "status": "PASS",
+      "detail": "eig=3.880e-14,MAC=1.000000000,rsp=3.987e-15"
+    },
+    "G12": {
+      "status": "PASS",
+      "detail": "eig1=1.522e-13,eig2=3.131e-13,MAC=1.000000000,rsp=3.853e-15"
+    }
+  },
+  "overall": "PASS"
+}
