@@ -1,11 +1,17 @@
+from __future__ import annotations
+import math
 from drm_core.domain.model import RotorModel,ShaftElement,TaperedShaftElement,AsymmetricShaftElement
 class ModelValidationError(ValueError): pass
+
+_BEAR_PROP_COUNTS={1:0,2:0,3:4,4:8,5:8,6:32,8:6}
+def _finite(values): return all(math.isfinite(float(x)) for x in values)
 
 def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
     if not m.nodes: raise ModelValidationError("RotorModel.nodes: received empty list; expected at least one node; add nodes before analysis")
     ids=[n.number for n in m.nodes]
     if len(ids)!=len(set(ids)): raise ModelValidationError(f"RotorModel.nodes: received duplicate node numbers {ids}; expected unique node numbers; renumber nodes")
     z={n.number:n.z_m for n in m.nodes}
+    if not _finite(z.values()): raise ModelValidationError("RotorModel.nodes: received non-finite axial position; expected finite SI metres; correct node coordinates")
     for i,s in enumerate(m.shafts,1):
         if s.node1 not in z or s.node2 not in z: raise ModelValidationError(f"ShaftElement[{i}]: received connectivity ({s.node1},{s.node2}); expected existing nodes; correct node references")
         L=z[s.node2]-z[s.node1]
@@ -18,7 +24,7 @@ def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
         elif isinstance(s,TaperedShaftElement):
             if analysis=="rotating": raise ModelValidationError(f"TaperedShaftElement[{i}]: rotating-frame legacy solver does not support tapered shafts; use stationary/coaxial analysis")
             if not (s.outer_diameter_1_m>s.inner_diameter_1_m>=0 and s.outer_diameter_2_m>s.inner_diameter_2_m>=0): raise ModelValidationError(f"TaperedShaftElement[{i}]: invalid end diameters; expected do1>di1>=0 and do2>di2>=0")
-            if s.E_pa<=0 or s.rho_kg_m3<=0: raise ModelValidationError(f"TaperedShaftElement[{i}]: expected E>0 and rho>0")
+            if s.E_pa<=0 or s.rho_kg_m3<=0: raise ModelValidationError(f"TaperedShaftElement[{i}]: received E={s.E_pa}, rho={s.rho_kg_m3}; expected E>0 and rho>0; correct material")
         elif isinstance(s,AsymmetricShaftElement):
             if analysis!="rotating": raise ModelValidationError(f"AsymmetricShaftElement[{i}]: type={s.shaft_type} belongs to rotating-frame solver; use asymmetric analysis")
             if s.axial_force_n!=0: raise ModelValidationError(f"AsymmetricShaftElement[{i}]: received axial_force_n={s.axial_force_n}; Rotor_Software_v2 shftasym axial-force branch references undefined Kre; compatibility target blocks this branch rather than silently correcting it")
@@ -30,10 +36,17 @@ def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
     for i,b in enumerate(m.bearings,1):
         if b.node not in z: raise ModelValidationError(f"Bearing[{i}]: received node={b.node}; expected existing node; correct node")
         if b.bearing_type not in allowed_bear: raise ModelValidationError(f"Bearing[{i}]: received type={b.bearing_type}; expected {sorted(allowed_bear)} for {analysis} analysis")
-        if b.bearing_type==20:
-            if not b.properties: raise ModelValidationError(f"Bearing[{i}] type 20: missing second node and coupling coefficients")
-            node2=int(round(b.properties[0]))
+        props=tuple(b.properties)
+        if not _finite(props): raise ModelValidationError(f"Bearing[{i}] type {b.bearing_type}: received non-finite properties {props}; expected finite SI coefficients")
+        if b.bearing_type==7:
+            if len(props) not in (5,6): raise ModelValidationError(f"Bearing[{i}] type 7: received {len(props)} properties; expected 5 short-bearing coefficients plus optional nonlinear flag")
+        elif b.bearing_type==20:
+            if len(props)<1: raise ModelValidationError(f"Bearing[{i}] type 20: received no properties; expected second node plus coupling coefficients")
+            node2=int(round(props[0]))
             if node2 not in z: raise ModelValidationError(f"Bearing[{i}] type 20: received node2={node2}; expected existing node")
+        elif b.bearing_type in _BEAR_PROP_COUNTS:
+            want=_BEAR_PROP_COUNTS[b.bearing_type]
+            if len(props)!=want: raise ModelValidationError(f"Bearing[{i}] type {b.bearing_type}: received {len(props)} properties {props}; expected exactly {want}; correct K/C/seal coefficients")
     if analysis=="coaxial":
         if not m.rotors: raise ModelValidationError("RotorModel.rotors: received empty list; coaxial analysis requires RotorDefinition rows")
         covered=set()
