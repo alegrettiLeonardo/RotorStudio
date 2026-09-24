@@ -202,6 +202,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Stage original DRM problem archive into package tree
+        run: |
+          mkdir -p reference/problems
+          curl --insecure --fail --location --retry 3 --connect-timeout 20 \
+            https://www.rotordynamics.info/DRM_problem_scripts.zip \
+            --output reference/problems/DRM_problem_scripts.zip
+          echo "8b5db23fa57bc5e41f68ed9e25ab8f1f1a72e4a24b9e11af38dccdd4098501d1  reference/problems/DRM_problem_scripts.zip" \
+            | sha256sum --check -
+
       - name: Build deterministic Stage 1 ZIP
         run: |
           mkdir -p validation/reports/package
