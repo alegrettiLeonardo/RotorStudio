@@ -144,3 +144,33 @@ jobs:
             validation/reports/g14/
           if-no-files-found: error
           retention-days: 90
+
+
+  legacy-defect-probes:
+    name: Legacy V2 defect runtime probes — Octave 7.1.0
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute preserved V2 minimal probes
+        run: |
+          mkdir -p validation/reports/legacy_probes
+          docker pull gnuoctave/octave:7.1.0
+          docker run --rm \
+            -v "${GITHUB_WORKSPACE}:/work" \
+            -w /work \
+            gnuoctave/octave:7.1.0 \
+            octave --no-gui --quiet --eval \
+            "addpath('/work/reference/matlab_v2'); addpath('/work/validation/legacy_cases'); run_octave_probes('/work/validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv');"
+          test -s validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv
+          cat validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv
+          test "$(grep -c ',PASS,' validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv)" -eq 7
+          test "$(grep -c ',FAIL,' validation/reports/legacy_probes/LEGACY_RUNTIME_PROBES.csv || true)" -eq 0
+      - name: Upload legacy probe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-legacy-probes-${{ github.sha }}
+          path: validation/reports/legacy_probes/
+          if-no-files-found: error
+          retention-days: 90
