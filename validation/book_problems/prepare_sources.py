@@ -47,7 +47,12 @@ def main():
     probs=[]
     for p in sorted(out.glob('Problem_*.m')):
         txt=p.read_text(errors='replace')
-        calls=[k for k in SOLVER_CALLS if re.search(r'\b'+re.escape(k)+r'\s*\(',txt,re.I)]
+        # MATLAB identifiers are case-sensitive for this authority set. Strip comments
+        # before call detection so prose and commented-out examples do not turn an
+        # analytical problem into an A_SOLVER case (e.g. Problem_07_02), and do not
+        # confuse variables such as crit_Spd with the function crit_spd.
+        executable='\n'.join(line.split('%',1)[0] for line in txt.splitlines())
+        calls=[k for k in SOLVER_CALLS if re.search(r'\b'+re.escape(k)+r'\s*\(',executable)]
         probs.append({
             'problem':p.stem,
             'sha256':sha256_bytes(p.read_bytes()),
@@ -73,7 +78,7 @@ def main():
     Path(a.inventory).parent.mkdir(parents=True,exist_ok=True)
     Path(a.inventory).write_text(json.dumps(inv,indent=2)+'\n')
 
-    if len(probs)!=83 or inv['classification']!={'A_SOLVER':19,'B_ANALYTICAL':64}:
+    if len(probs)!=83 or inv['classification']!={'A_SOLVER':17,'B_ANALYTICAL':66}:
         raise SystemExit(f'unexpected problem inventory {inv["classification"]} count={len(probs)}')
 
     print(json.dumps({
