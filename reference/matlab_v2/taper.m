@@ -96,7 +96,12 @@ b2 = 3*pi*(roj^2*Dro^2-rij^2*Dri^2)/(2*Itj);
 g2 = pi*(roj*Dro^3-rij*Dri^3)/Itj;
 d2 = pi*(Dro^4-Dri^4)/(4*Itj);
 
+% Note: If there is no taper Dro = Dri = 0 and hence
+% a1 = b1 = a2 = b2 = g2 = d2 = 0.
+
+
 % Element stiffness
+
 k1 = 1260+630*a2+504*b2+441*g2+396*d2;
 k2 = L*(630+210*a2+147*b2+126*g2+114*d2-phi*(105*a2+105*b2+94.5*g2+84*d2));
 k3 = L*(630+420*a2+357*b2+315*g2+282*d2+phi*(105*a2+105*b2+94.5*g2+84*d2));
@@ -119,6 +124,8 @@ ka = [k1   0   0  k2 -k1   0   0  k3;
        0 -k3  k5   0   0  k3  k6   0;
       k3   0   0  k5 -k3   0   0  k6];
 
+% kb=G*Aj*phi^2/(12*chi*L*(1+phi)^2)* ...
+
 kb = [k7   0   0  k8 -k7   0   0  k8;
        0  k7 -k8   0   0 -k7 -k8   0;
        0 -k8  k9   0   0  k8  k9   0;
@@ -132,11 +139,14 @@ ke = E*Itj/(105*L^3*(1+phi)^2)*(ka+105*phi*kb);
 K0e = ke;
 K1e = zeros(8,8); 
 
+
+% Stiffness due to axial force
 if AxialForce ~= 0
   k10 = 36+60*phi+3*phi^2;
   k11 = L*3;
   k12 = L^2*(4+5*phi+2.5*phi^2);
   k13 = L^2*(1+5*phi+2.5*phi^2);
+
   kG = AxialForce/(30*L*(1+phi)^2)*...
      [k10    0    0  k11 -k10    0    0  k11;
         0  k10 -k11    0    0 -k10 -k11    0;
@@ -149,6 +159,8 @@ if AxialForce ~= 0
   K0e = K0e + kG;
 end   
 
+
+% Mass matrix
 m1 = (468+882*phi+420*phi^2)+a1*(108+210*phi+105*phi^2)+b1*(38+78*phi+42*phi^2);
 m2 = L*((66+115.5*phi+52.5*phi^2)+a1*(21+40.5*phi+21*phi^2)+b1*(8.5+18*phi+10.5*phi^2));
 m3 = (162+378*phi+210*phi^2)+a1*(81+189*phi+105*phi^2)+b1*(46+111*phi+63*phi^2);
@@ -181,6 +193,7 @@ m15 = L^2*((7+35*phi-35*phi^2)+a2*(3.5+17.5*phi-17.5*phi^2)+b2*(3+10.5*phi-10.5*
 m16 = L^2*((28+35*phi+70*phi^2)+a2*(21+42*phi+52.5*phi^2)+b2*(18+42*phi+42*phi^2) ...
        +g2*(16.25+40*phi+35*phi^2)+d2*(15+37.5*phi+30*phi^2));
 
+   
 if include_rotary_inertia
   mR = rho*Itj/(210*L*(1+phi)^2)*...
      [m11    0    0  m12 -m11    0    0  m13;
@@ -193,6 +206,11 @@ if include_rotary_inertia
       m13    0    0 -m15 -m13    0    0  m16];      
   M0e = mT + mR;
 end    
+
+
+
+% Gyroscopic
+% Note G is related to 2*mR (check)
 
 if include_gyroscopic
   ge = rho*Itj/(105*L*(1+phi)^2)*...

@@ -116,7 +116,7 @@ pulse_duration = Force_Def(2*nbearing+2);
 % reduce the model
 [ndofz,junk] = size(M);
 nr = round(nr);
-if nr > 0 & nr < ndofz
+if nr > 0 & nr < ndofz     % model reduction based on undamped modes
     [eigvec,eigval] = eig(K,M);
     [eigval,isort] = sort(diag(eigval));
     eigvec = eigvec(:,isort);
@@ -129,6 +129,7 @@ else
     nr = ndofz;
 end
 disp(['>>>> Maximum frequency of reduced system is ' num2str(eigmaxr) ' Hz'])
+
 
 Mr = Tr.'*M*Tr;
 Cr = Tr.'*C*Tr;
@@ -156,6 +157,7 @@ response(dof,:) = Tr*q(:,1:nr).';
 
 return
 
+
 function [qdot] = deriv(t,q,A,B2,B1,B0,pulse_duration)
 
 if t > pulse_duration
@@ -167,3 +169,4 @@ else
     ydd = -om*om*y;
     qdot = A*q + B2*ydd + B1*yd + B0*y;
 end
+
