@@ -13,18 +13,20 @@ from drm_core.analysis.modal import ModalResult
 from drm_core.analysis.critical_speed import CriticalSpeedResult
 from drm_core.analysis.frequency_response import FrequencyResponseResult
 from drm_core.analysis.transient import TransientResult
+from drm_core.analysis.coaxial import CoaxialModalResult, CoaxialFrequencyResponseResult
+from drm_core.analysis.asymmetric import AsymmetricModalResult, AsymmetricFrequencyResponseResult
 from drm_core.validation.model import validate_model, ModelValidationError
 
 from .application import ProjectSession, SolverJobManager
 from .analysis_pages import (
     ModalSetupDialog, CampbellSetupDialog, CriticalSpeedSetupDialog,
     SynchronousResponseSetupDialog, FrequencyResponseSetupDialog,
-    FoundationTimeSetupDialog, RunupSetupDialog,
+    FoundationTimeSetupDialog, RunupSetupDialog, SpecialRotorSetupDialog,
 )
 from .docks import MessagesDock, ProjectExplorerDock, PropertyInspectorDock
 from .result_views import (
     ModalResultView, CampbellResultView, CriticalSpeedResultView,
-    FrequencyResponseResultView, TransientResultView,
+    FrequencyResponseResultView, TransientResultView, SpecialRotorResultView,
 )
 from .widgets import RotorModelPage
 from .style import APP_STYLESHEET
@@ -82,6 +84,8 @@ class MainWindow(QMainWindow):
         self.foundation_action = QAction("Foundation Excitation", self)
         self.foundation_time_action = QAction("Foundation Time Response", self)
         self.runup_action = QAction("Run-up / Run-down", self)
+        self.coaxial_action = QAction("Coaxial Rotor", self)
+        self.asymmetric_action = QAction("Asymmetric Rotor", self)
 
         self.new_action.triggered.connect(self.session.new_project)
         self.open_action.triggered.connect(self._choose_open)
@@ -96,6 +100,8 @@ class MainWindow(QMainWindow):
         self.foundation_action.triggered.connect(self._configure_foundation_response)
         self.foundation_time_action.triggered.connect(self._configure_foundation_time)
         self.runup_action.triggered.connect(self._configure_runup)
+        self.coaxial_action.triggered.connect(self._configure_coaxial)
+        self.asymmetric_action.triggered.connect(self._configure_asymmetric)
 
     def _build_menus(self):
         bar = self.menuBar()
@@ -117,6 +123,9 @@ class MainWindow(QMainWindow):
         self.analysis_menu.addAction(self.foundation_action)
         self.analysis_menu.addAction(self.foundation_time_action)
         self.analysis_menu.addAction(self.runup_action)
+        self.analysis_menu.addSeparator()
+        self.analysis_menu.addAction(self.coaxial_action)
+        self.analysis_menu.addAction(self.asymmetric_action)
         self.bearings_menu = bar.addMenu("Bearings")
         self.results_menu = bar.addMenu("Results")
         bar.addMenu("Tools")
@@ -168,6 +177,7 @@ class MainWindow(QMainWindow):
         self.model_page.frequencyRequested.connect(self._configure_frequency_response)
         self.model_page.foundationRequested.connect(self._configure_foundation_response)
         self.model_page.runupRequested.connect(self._configure_runup)
+        self.model_page.coaxialRequested.connect(self._configure_coaxial)
 
     def _connect_session(self):
         self.session.projectChanged.connect(self._refresh_title)
@@ -268,6 +278,16 @@ class MainWindow(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             self.run_analysis(dialog.analysis_case())
 
+    def _configure_coaxial(self):
+        dialog = SpecialRotorSetupDialog("coaxial", self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
+    def _configure_asymmetric(self):
+        dialog = SpecialRotorSetupDialog("asymmetric", self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
     def run_analysis(self, case) -> bool:
         analysis_family = (
             "coaxial" if case.kind.startswith("coaxial_")
@@ -345,6 +365,12 @@ class MainWindow(QMainWindow):
         elif isinstance(result, TransientResult):
             view = TransientResultView(record)
             prefix = "Transient" if record.execution.case.kind != "runup" else "Run-up"
+        elif isinstance(result, (CoaxialModalResult, CoaxialFrequencyResponseResult)):
+            view = SpecialRotorResultView(record)
+            prefix = "Coaxial"
+        elif isinstance(result, (AsymmetricModalResult, AsymmetricFrequencyResponseResult)):
+            view = SpecialRotorResultView(record)
+            prefix = "Asymmetric"
         if view is None:
             return
         view._tab_prefix = prefix

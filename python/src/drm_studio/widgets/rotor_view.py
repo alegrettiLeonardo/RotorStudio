@@ -224,6 +224,7 @@ class RotorModelPage(QWidget):
     frequencyRequested = Signal()
     foundationRequested = Signal()
     runupRequested = Signal()
+    coaxialRequested = Signal()
 
     def __init__(self, session, parent=None):
         super().__init__(parent)
@@ -282,3 +283,4 @@ class RotorModelPage(QWidget):
         self.modules.frequencyRequested.connect(self.frequencyRequested)
         self.modules.foundationRequested.connect(self.foundationRequested)
         self.modules.runupRequested.connect(self.runupRequested)
+        self.modules.coaxialRequested.connect(self.coaxialRequested)

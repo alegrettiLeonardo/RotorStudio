@@ -12,6 +12,7 @@ class AnalysisModulesBar(QGroupBox):
     frequencyRequested = Signal()
     foundationRequested = Signal()
     runupRequested = Signal()
+    coaxialRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__("Analysis Modules", parent)
@@ -24,7 +25,7 @@ class AnalysisModulesBar(QGroupBox):
             ("Frequency\nResponse", True),
             ("Foundation\nExcitation", True),
             ("Run-up /\nRun-down", True),
-            ("Coaxial\nRotor", False),
+            ("Coaxial\nRotor", True),
             ("Bearing\nPerformance", False),
         ]
         self.buttons = {}
@@ -45,3 +46,4 @@ class AnalysisModulesBar(QGroupBox):
         self.buttons["Frequency\nResponse"].clicked.connect(self.frequencyRequested)
         self.buttons["Foundation\nExcitation"].clicked.connect(self.foundationRequested)
         self.buttons["Run-up /\nRun-down"].clicked.connect(self.runupRequested)
+        self.buttons["Coaxial\nRotor"].clicked.connect(self.coaxialRequested)
