@@ -74,25 +74,29 @@ def plot_mode_3d(
     scale=max(float(np.nanmax(lateral)),np.finfo(float).eps)
 
     ax=ax or plt.figure().add_subplot(111,projection="3d")
+    # Map the machine axial coordinate to the matplotlib X axis so the
+    # physical Z shaft line reads diagonally across the page like the supplied
+    # DRM reference. Matplotlib axis labels retain the physical coordinate
+    # names: axial=Z, lateral=X/Y.
     if reference_line:
-        ax.plot(np.zeros_like(zn),np.zeros_like(zn),zn,color="black",linewidth=0.9,alpha=0.85)
+        ax.plot(zn,np.zeros_like(zn),np.zeros_like(zn),color="black",linewidth=0.9,alpha=0.85)
 
-    # Deflected real-phase centerline, matching the legacy DRM visual language.
-    ax.plot(xc.real/scale,yc.real/scale,zzn,color="red",linewidth=2.0,zorder=6)
+    ax.plot(zzn,xc.real/scale,yc.real/scale,color="red",linewidth=2.0,zorder=6)
 
     theta=np.linspace(0.0,2.0*np.pi,int(orbit_samples),endpoint=True)
-    exp_theta=np.exp(1j*theta)
+    jot=-1j if eigenvalue is not None and np.imag(eigenvalue)<0 else 1j
+    exp_theta=np.exp(jot*theta)
     for i in range(len(model.nodes)):
         ox=np.real(v[4*i]*exp_theta)/scale
         oy=np.real(v[4*i+1]*exp_theta)/scale
         oz=np.full(theta.size,zn[i])
-        ax.plot(ox,oy,oz,color="#ff35f2",linewidth=0.6,alpha=0.95,zorder=3)
+        ax.plot(oz,ox,oy,color="#ff35f2",linewidth=0.6,alpha=0.95,zorder=3)
 
     if show_node_markers:
         ax.plot(
+            zn,
             np.real(v[0::4])/scale,
             np.real(v[1::4])/scale,
-            zn,
             linestyle="none",
             marker="o",
             markersize=3.2,
@@ -104,13 +108,13 @@ def plot_mode_3d(
     if eigenvalue is not None:
         ax.set_title(f"Mode shape 3D — {abs(eigenvalue)/(2*np.pi):.6g} Hz",pad=8)
 
-    ax.set_xlabel("X",labelpad=2)
-    ax.set_ylabel("Y",labelpad=2)
-    ax.set_zlabel("Z",labelpad=2)
-    ax.set_xlim(-1.15,1.15)
+    ax.set_xlabel("Z",labelpad=2)
+    ax.set_ylabel("X",labelpad=2)
+    ax.set_zlabel("Y",labelpad=2)
+    ax.set_xlim(-0.02,1.02)
     ax.set_ylim(-1.15,1.15)
-    ax.set_zlim(-0.02,1.02)
-    ax.set_box_aspect((1.35,1.0,2.8))
+    ax.set_zlim(-1.15,1.15)
+    ax.set_box_aspect((2.8,1.15,1.15))
     ax.view_init(elev=float(view_elev),azim=float(view_azim))
     ax.grid(False)
 
