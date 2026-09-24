@@ -1,0 +1,26 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# CMake / native builds
+build-*/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+
+# Local qualification outputs
+validation/baseline/octave_probe/
+validation/baseline/matlab_authority/
+validation/baseline/transient/*_source_reference.npz
+validation/reports/example_campaign_local/
+validation/reports/OCTAVE_FORMAL_EQUIVALENCE_PROBE*.json
+validation/reports/OCTAVE_FORMAL_EQUIVALENCE_PROBE*.md
+validation/reports/G7_KAPPA_DIAGNOSTIC.txt
+validation/reports/*_trace.txt
+
+# Editor / OS
+.DS_Store
+Thumbs.db
