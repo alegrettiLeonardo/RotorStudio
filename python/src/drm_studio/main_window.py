@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt, QSettings, QSize
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
     QMainWindow, QFileDialog, QMessageBox, QToolBar, QStyle, QTabWidget, QLabel,
-    QDialog, QComboBox
+    QDialog, QComboBox, QWidget
 )
 
 from drm_core import AnalysisService
