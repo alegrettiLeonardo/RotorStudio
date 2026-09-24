@@ -10,12 +10,13 @@ from PySide6.QtWidgets import (
 
 from drm_core import AnalysisService
 from drm_core.analysis.modal import ModalResult
+from drm_core.analysis.critical_speed import CriticalSpeedResult
 from drm_core.validation.model import validate_model, ModelValidationError
 
 from .application import ProjectSession, SolverJobManager
-from .analysis_pages import ModalSetupDialog
+from .analysis_pages import ModalSetupDialog, CampbellSetupDialog, CriticalSpeedSetupDialog
 from .docks import MessagesDock, ProjectExplorerDock, PropertyInspectorDock
-from .result_views import ModalResultView
+from .result_views import ModalResultView, CampbellResultView, CriticalSpeedResultView
 from .widgets import RotorModelPage
 from .style import APP_STYLESHEET
 
@@ -65,6 +66,8 @@ class MainWindow(QMainWindow):
             "Modal / Characteristic Roots",
             self,
         )
+        self.campbell_action = QAction("Campbell Diagram", self)
+        self.critical_action = QAction("Critical Speeds", self)
 
         self.new_action.triggered.connect(self.session.new_project)
         self.open_action.triggered.connect(self._choose_open)
@@ -72,6 +75,8 @@ class MainWindow(QMainWindow):
         self.save_as_action.triggered.connect(self._save_as)
         self.exit_action.triggered.connect(self.close)
         self.modal_action.triggered.connect(self._configure_modal)
+        self.campbell_action.triggered.connect(self._configure_campbell)
+        self.critical_action.triggered.connect(self._configure_critical)
 
     def _build_menus(self):
         bar = self.menuBar()
@@ -85,6 +90,8 @@ class MainWindow(QMainWindow):
 
         self.analysis_menu = bar.addMenu("Analysis")
         self.analysis_menu.addAction(self.modal_action)
+        self.analysis_menu.addAction(self.campbell_action)
+        self.analysis_menu.addAction(self.critical_action)
         self.bearings_menu = bar.addMenu("Bearings")
         self.results_menu = bar.addMenu("Results")
         bar.addMenu("Tools")
@@ -100,6 +107,8 @@ class MainWindow(QMainWindow):
         toolbar.addActions([self.undo_action, self.redo_action])
         toolbar.addSeparator()
         toolbar.addAction(self.modal_action)
+        toolbar.addAction(self.campbell_action)
+        toolbar.addAction(self.critical_action)
 
     def _build_shell(self):
         self.workspace = QTabWidget()
@@ -126,6 +135,8 @@ class MainWindow(QMainWindow):
         self.statusBar().addPermanentWidget(self.status_counts)
 
         self.model_page.modalRequested.connect(self._configure_modal)
+        self.model_page.campbellRequested.connect(self._configure_campbell)
+        self.model_page.criticalRequested.connect(self._configure_critical)
 
     def _connect_session(self):
         self.session.projectChanged.connect(self._refresh_title)
@@ -187,6 +198,20 @@ class MainWindow(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             self.run_analysis(dialog.analysis_case())
 
+    def _configure_campbell(self):
+        existing = next(
+            (case for case in self.session.project.analyses if case.kind == "modal_sweep"),
+            None,
+        )
+        dialog = CampbellSetupDialog(existing, self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
+    def _configure_critical(self):
+        dialog = CriticalSpeedSetupDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
     def run_analysis(self, case) -> bool:
         analysis_family = (
             "coaxial" if case.kind.startswith("coaxial_")
@@ -229,21 +254,38 @@ class MainWindow(QMainWindow):
 
     def _show_result(self, record):
         result = record.execution.result
+        view = None
+        prefix = "Result"
         if isinstance(result, ModalResult):
             view = ModalResultView(record)
-            old = self._result_tabs.get(record.key)
-            if old is not None:
-                idx = self.workspace.indexOf(old)
-                if idx >= 0:
-                    self.workspace.removeTab(idx)
-                old.deleteLater()
-            self._result_tabs[record.key] = view
-            idx = self.workspace.addTab(view, self._result_tab_label(record))
-            self.workspace.setCurrentIndex(idx)
+            prefix = "Modal"
+        elif (
+            isinstance(result, list)
+            and result
+            and all(isinstance(item, ModalResult) for item in result)
+        ):
+            view = CampbellResultView(record)
+            prefix = "Campbell"
+        elif isinstance(result, CriticalSpeedResult):
+            view = CriticalSpeedResultView(record)
+            prefix = "Critical Speeds"
+        if view is None:
+            return
+        view._tab_prefix = prefix
+        old = self._result_tabs.get(record.key)
+        if old is not None:
+            idx = self.workspace.indexOf(old)
+            if idx >= 0:
+                self.workspace.removeTab(idx)
+            old.deleteLater()
+        self._result_tabs[record.key] = view
+        idx = self.workspace.addTab(view, self._result_tab_label(record, view))
+        self.workspace.setCurrentIndex(idx)
 
-    def _result_tab_label(self, record):
+    def _result_tab_label(self, record, view=None):
         label = record.execution.case.name or record.execution.case.kind
-        return f"Modal — {label}" + (" ⚠" if record.stale else "")
+        prefix = getattr(view, "_tab_prefix", "Result")
+        return f"{prefix} — {label}" + (" ⚠" if record.stale else "")
 
     def _refresh_result_tabs(self):
         for key, view in list(self._result_tabs.items()):
@@ -252,7 +294,7 @@ class MainWindow(QMainWindow):
                 continue
             idx = self.workspace.indexOf(view)
             if idx >= 0:
-                self.workspace.setTabText(idx, self._result_tab_label(record))
+                self.workspace.setTabText(idx, self._result_tab_label(record, view))
             view.record = record
             view.refresh_stale()
 

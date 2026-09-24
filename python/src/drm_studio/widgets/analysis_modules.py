@@ -6,14 +6,16 @@ from PySide6.QtWidgets import QHBoxLayout, QPushButton, QGroupBox
 
 class AnalysisModulesBar(QGroupBox):
     modalRequested = Signal()
+    campbellRequested = Signal()
+    criticalRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__("Analysis Modules", parent)
         layout = QHBoxLayout(self)
         labels = [
             ("Modal /\nChar. Roots", True),
-            ("Campbell\nDiagram", False),
-            ("Critical\nSpeeds", False),
+            ("Campbell\nDiagram", True),
+            ("Critical\nSpeeds", True),
             ("Synchronous\nResponse", False),
             ("Frequency\nResponse", False),
             ("Foundation\nExcitation", False),
@@ -33,3 +35,5 @@ class AnalysisModulesBar(QGroupBox):
             layout.addWidget(button, 1)
             self.buttons[text] = button
         self.buttons["Modal /\nChar. Roots"].clicked.connect(self.modalRequested)
+        self.buttons["Campbell\nDiagram"].clicked.connect(self.campbellRequested)
+        self.buttons["Critical\nSpeeds"].clicked.connect(self.criticalRequested)
