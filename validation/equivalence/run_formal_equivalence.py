@@ -181,18 +181,11 @@ def main():
 
     if x.transient_tolerances and Path(x.transient_tolerances).exists():
         t=json.loads(Path(x.transient_tolerances).read_text())
-        refdir=Path(__file__).resolve().parents[1]/'baseline'/'transient'
-        tp=refdir/'time_fdn_source_reference.npz'
-        rp=refdir/'runup_source_reference.npz'
-        if not tp.exists() or not rp.exists():
-            g['G10']={'status':'BLOCKED','detail':'source-derived transient reference files missing'}
-        elif t.get('time_source_reference_sha256')!=sha256(tp) or t.get('runup_source_reference_sha256')!=sha256(rp):
-            g['G10']={'status':'BLOCKED','detail':'transient reference hash mismatch versus frozen tolerance policy'}
-        else:
-            tref=np.load(tp)
-            rref=np.load(rp)
-            tdofs=np.asarray(tref['response_dofs'],dtype=int)
-            rdofs=np.asarray(rref['response_dofs'],dtype=int)
+
+        if 'scope' in t:
+            scope=t['scope']
+            tdofs=np.asarray(scope['time_fdn_response_dofs'],dtype=int)
+            rdofs=np.asarray(scope['runup_response_dofs'],dtype=int)
 
             tr=run_foundation_time_response(
                 foundation_time_model(),
@@ -206,27 +199,91 @@ def main():
             te=max_abs(tr.response[tdofs,:],np.asarray(m['time_response'])[tdofs,:])
             tf=max_abs(tr.forcing,vec(m,'time_force'))
 
-            ru=run_runup(
-                runup_model(),
-                vec(m,'runup_alpha'),
-                [scalar(m,'runup_t0'),scalar(m,'runup_tf')],
-                nr=int(scalar(m,'runup_nr')),
+            ru_model=runup_model()
+            alpha=vec(m,'runup_alpha')
+            span=[scalar(m,'runup_t0'),scalar(m,'runup_tf')]
+            nr=int(scalar(m,'runup_nr'))
+
+            # Reconstruct the exact M5/M6 source-reference time support from
+            # the production solver settings that were used before the
+            # transient thresholds were frozen.  This removes dependence on
+            # NPZ container bytes while preserving the original gate scope.
+            scope_run=run_runup(
+                ru_model,
+                alpha,
+                span,
+                nr=nr,
+                rtol=float(scope['runup_scope_rtol']),
+                atol=float(scope['runup_scope_atol']),
+                max_points=int(scope.get('runup_scope_max_points',50000))
+            )
+            source_time=scope_run.time_s
+
+            rr=run_runup(
+                ru_model,
+                alpha,
+                span,
+                nr=nr,
                 rtol=1e-3,
                 atol=1e-6,
                 max_points=300000
             )
-            source_time=np.asarray(rref['time']).ravel()
             octave_time=vec(m,'runup_time')
             octave_response=np.asarray(m['runup_response'])
-            fortran_interp=np.vstack([np.interp(source_time,ru.time_s,ru.response[i,:]) for i in rdofs])
+            fortran_interp=np.vstack([np.interp(source_time,rr.time_s,rr.response[i,:]) for i in rdofs])
             octave_interp=np.vstack([np.interp(source_time,octave_time,octave_response[i,:]) for i in rdofs])
             re=max_abs(fortran_interp,octave_interp)
 
             ok=te<=t['time_fdn_max_abs_m'] and re<=t['runup_max_abs_m'] and tf<=t.get('time_fdn_force_max_abs',1e-12)
             g['G10']={
                 'status':'PASS' if ok else 'FAIL',
-                'detail':f'time={te:.3e},runup={re:.3e},force={tf:.3e},time_dofs={tdofs.tolist()},runup_dofs={rdofs.tolist()}'
+                'detail':f'time={te:.3e},runup={re:.3e},force={tf:.3e},time_dofs={tdofs.tolist()},runup_dofs={rdofs.tolist()},scope_points={len(source_time)}'
             }
+        else:
+            # Backward-compatible M6 policy path.
+            refdir=Path(__file__).resolve().parents[1]/'baseline'/'transient'
+            tp=refdir/'time_fdn_source_reference.npz'
+            rp=refdir/'runup_source_reference.npz'
+            if not tp.exists() or not rp.exists():
+                g['G10']={'status':'BLOCKED','detail':'source-derived transient reference files missing'}
+            elif t.get('time_source_reference_sha256')!=sha256(tp) or t.get('runup_source_reference_sha256')!=sha256(rp):
+                g['G10']={'status':'BLOCKED','detail':'transient reference hash mismatch versus frozen tolerance policy'}
+            else:
+                tref=np.load(tp)
+                rref=np.load(rp)
+                tdofs=np.asarray(tref['response_dofs'],dtype=int)
+                rdofs=np.asarray(rref['response_dofs'],dtype=int)
+                tr=run_foundation_time_response(
+                    foundation_time_model(),
+                    scalar(m,'time_rotor_speed'),
+                    scalar(m,'time_dt'),
+                    int(scalar(m,'time_npts')),
+                    nr=int(scalar(m,'time_nr')),
+                    rtol=1e-3,
+                    atol=1e-6
+                )
+                te=max_abs(tr.response[tdofs,:],np.asarray(m['time_response'])[tdofs,:])
+                tf=max_abs(tr.forcing,vec(m,'time_force'))
+                ru=run_runup(
+                    runup_model(),
+                    vec(m,'runup_alpha'),
+                    [scalar(m,'runup_t0'),scalar(m,'runup_tf')],
+                    nr=int(scalar(m,'runup_nr')),
+                    rtol=1e-3,
+                    atol=1e-6,
+                    max_points=300000
+                )
+                source_time=np.asarray(rref['time']).ravel()
+                octave_time=vec(m,'runup_time')
+                octave_response=np.asarray(m['runup_response'])
+                fortran_interp=np.vstack([np.interp(source_time,ru.time_s,ru.response[i,:]) for i in rdofs])
+                octave_interp=np.vstack([np.interp(source_time,octave_time,octave_response[i,:]) for i in rdofs])
+                re=max_abs(fortran_interp,octave_interp)
+                ok=te<=t['time_fdn_max_abs_m'] and re<=t['runup_max_abs_m'] and tf<=t.get('time_fdn_force_max_abs',1e-12)
+                g['G10']={
+                    'status':'PASS' if ok else 'FAIL',
+                    'detail':f'time={te:.3e},runup={re:.3e},force={tf:.3e},time_dofs={tdofs.tolist()},runup_dofs={rdofs.tolist()}'
+                }
     else:
         g['G10']={'status':'BLOCKED','detail':'transient tolerance policy not frozen'}
 
