@@ -37,10 +37,20 @@ def model_from_mat(s) -> RotorModel:
     disc=arr(struct_field(s,'disc',[]))
     bearing=arr(struct_field(s,'bearing',[]))
     force=arr(struct_field(s,'force',[]))
-    bend=arr(struct_field(s,'bend',[]))
+    bend_raw=struct_field(s,'bend',[])
+    bend_np=np.asarray(bend_raw)
     rotors=arr(struct_field(s,'rotors',[]))
     def rows(a): return [] if a.size==0 else a.tolist()
-    return RotorModel.from_legacy_arrays(rows(node),rows(shaft),rows(disc),rows(bearing),rows(force),rows(bend),rows(rotors))
+    # scipy simplify_cells collapses MATLAB Nx1 bend vectors to 1-D. In V2 a
+    # one-column bend vector means one scalar displacement per sequential node,
+    # which RotorModel.from_legacy_arrays represents as N rows of length one.
+    if bend_np.size==0:
+        bend_rows=[]
+    elif bend_np.ndim==1:
+        bend_rows=[[float(x)] for x in bend_np.tolist()]
+    else:
+        bend_rows=bend_np.tolist()
+    return RotorModel.from_legacy_arrays(rows(node),rows(shaft),rows(disc),rows(bearing),rows(force),bend_rows,rows(rotors))
 
 def cell_outputs(m):
     tmp=m['tmp']
@@ -175,10 +185,17 @@ def main()->int:
     for idx,p in enumerate(inv['problems'],1):
         st=status.get(p['problem'],{'status':'MISSING','message':'not executed'})
         if st['status']!='PASS': ok=False
-        traces=sorted(trace_root.glob(f"{p['problem']}__*.mat"))
+        all_traces=sorted(trace_root.glob(f"{p['problem']}__*.mat"))
+        direct_kinds=set(p.get('solver_calls',[]))
+        # Wrappers can observe nested helper calls (notably whirl called internally
+        # by chr_root). G14 qualifies the solver calls made by the book script itself;
+        # nested helpers are already covered by their formal gates and by problems
+        # that call them directly. Filtering here prevents double-counting internal
+        # numerical noise as a separate book-problem contract.
+        traces=[t for t in all_traces if t.stem.split('__')[-1] in direct_kinds]
         if p['class']=='A_SOLVER' and not traces: ok=False
 
-        print(f"G14_PROGRESS {idx:02d}/{len(inv['problems'])} {p['problem']} class={p['class']} octave={st['status']} traces={len(traces)}",flush=True)
+        print(f"G14_PROGRESS {idx:02d}/{len(inv['problems'])} {p['problem']} class={p['class']} octave={st['status']} direct_traces={len(traces)} observed_traces={len(all_traces)} calls={sorted(direct_kinds)}",flush=True)
 
         max_ratio=0.0
         comparisons=[]
@@ -203,6 +220,8 @@ def main()->int:
             'octave_status':st['status'],
             'octave_message':st.get('message',''),
             'trace_count':len(traces),
+            'observed_trace_count':len(all_traces),
+            'direct_solver_calls':sorted(direct_kinds),
             'max_gate_ratio':max_ratio,
             'comparisons':comparisons,
         })
