@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from drm_core.analysis.modal import ModalResult
-from drm_core.post.modes import plot_mode
+from drm_core.post.modes import plot_mode_3d
 from drm_core.post.orbits import plot_orbits
 from drm_core.units import rad_s_to_rpm
 
@@ -159,7 +159,7 @@ class ModalResultView(QWidget):
             ax.set_axis_off()
         else:
             ax = self.mode_figure.add_subplot(111, projection="3d")
-            plot_mode(
+            plot_mode_3d(
                 self.model_snapshot,
                 np.asarray(vectors)[:, idx],
                 np.asarray(self.result.eigenvalues)[idx],
