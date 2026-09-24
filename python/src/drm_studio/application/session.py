@@ -137,6 +137,14 @@ class ProjectSession(QObject):
         self.log("INFO", f"Analysis completed: {record.display_name}")
         return record
 
+    def remove_result(self, key: str) -> bool:
+        if key not in self.results:
+            return False
+        del self.results[key]
+        self.resultsChanged.emit()
+        self.log("INFO", f"Result removed: {key}")
+        return True
+
     def _set_dirty(self, value: bool) -> None:
         value = bool(value)
         if value == self.dirty:
