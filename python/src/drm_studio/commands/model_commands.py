@@ -107,3 +107,33 @@ class ReplaceRotorDefinitionsCommand(QUndoCommand):
 
     def redo(self):self._assign(self.new)
     def undo(self):self._assign(self.old)
+
+
+
+def _model_validation_family(model):
+    from drm_core.domain.model import AsymmetricShaftElement
+    if any(isinstance(s, AsymmetricShaftElement) for s in model.shafts):
+        return "rotating"
+    if model.rotors or any(b.bearing_type == 20 for b in model.bearings):
+        return "coaxial"
+    return "stationary"
+
+
+class EditBearingCommand(QUndoCommand):
+    """Undoable replacement of bearing type, node and its qualified property tuple."""
+
+    def __init__(self, session, bearing_index: int, new_bearing, text: str | None = None):
+        self.session=session;self.bearing_index=int(bearing_index)
+        self.old_bearing=session.project.model.bearings[self.bearing_index]
+        self.new_bearing=new_bearing
+        candidate=copy.deepcopy(session.project.model)
+        candidate.bearings[self.bearing_index]=new_bearing
+        validate_model(candidate,analysis=_model_validation_family(candidate))
+        super().__init__(text or f"Edit bearing {self.bearing_index+1}")
+
+    def _assign(self,bearing):
+        self.session.project.model.bearings[self.bearing_index]=bearing
+        self.session.notify_model_changed()
+
+    def redo(self):self._assign(self.new_bearing)
+    def undo(self):self._assign(self.old_bearing)
