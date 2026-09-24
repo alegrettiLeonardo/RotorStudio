@@ -12,4 +12,4 @@ drm-cli = "drm_core.cli.main:main"
 [tool.setuptools.packages.find]
 where=["src"]
 [project.optional-dependencies]
-test = ["pytest>=7", "scipy>=1.10"]
+test = ["pytest>=7", "scipy>=1.10"]\nstudio = ["PySide6>=6.8,<7"]\nui-test = ["pytest-qt>=4.4"]
