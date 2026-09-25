@@ -183,6 +183,26 @@ def test_native_reynolds_q4_element_oracle():
     np.testing.assert_allclose(column, [0.1] * 4, rtol=0, atol=1e-14)
 
 
+def test_native_isoviscous_pressure_solver():
+    backend = AdvancedBearingBackend()
+    film = np.array([1.0, 1.0, 1.0, 0.8, 0.8, 0.8, 0.6, 0.6, 0.6])
+    pressure = backend.pressure_smooth_isoviscous(
+        total_e_x=2,
+        total_e_z=2,
+        arc_length_rad=np.pi / 2.0,
+        pad_length_m=1.0,
+        axial_length_m=1.0,
+        film_thickness_m=film,
+        viscosity_pa_s=1.0,
+        speed_surface_m_s=1.0,
+    )
+    np.testing.assert_allclose(pressure[4], 225.0 / 536.0, rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(
+        pressure[[0, 1, 2, 3, 5, 6, 7, 8]], 0.0, rtol=0, atol=1e-14
+    )
+    assert np.all(pressure >= -1e-14)
+
+
 def test_tilting_pad_table_preserves_spin_and_whirl_axes():
     # Linear surface kxx = 10*Omega + omega.  A synchronous-only
     # implementation would return 1650 at (Omega,omega)=(150,20), so this
