@@ -30,7 +30,7 @@ contains
 
     integer :: nn, it, p
     integer(ik) :: st
-    real(rk), allocatable :: p_static(:,:), moments(:)
+    real(rk), allocatable :: p_static(:,:), p_work(:,:), moments(:)
     real(rk), allocatable :: tilt_p(:), tilt_m(:)
     real(rk) :: xj, yj, fx_ext, fy_ext, fx_net, fy_net, load_scale
     real(rk) :: eps, eps_t, fxp, fyp, fxm, fym, ptmp, dx, dy, det, normd, denom
@@ -60,7 +60,7 @@ contains
     end if
 
     nn=(int(total_e_x)+1)*(int(total_e_z)+1)
-    allocate(p_static(nn,n_pads),moments(n_pads),tilt_p(n_pads),tilt_m(n_pads))
+    allocate(p_static(nn,n_pads),p_work(nn,n_pads),moments(n_pads),tilt_p(n_pads),tilt_m(n_pads))
     allocate(kdx(n_pads),kdy(n_pads),kxd(n_pads),kyd(n_pads),kdd(n_pads))
     allocate(cdx(n_pads),cdy(n_pads),cxd(n_pads),cyd(n_pads),cdd(n_pads))
     allocate(plen(n_pads),ip(n_pads))
@@ -140,12 +140,12 @@ contains
     ! Reynolds force/moment while holding each final pad tilt fixed.
     call tp_fixedtilt_state(speed,journal_diameter,radial_clearance,viscosity,pad_thickness,n_pads,pivot_angle, &
                             pad_arc,pad_axial_length,preload,offset,k_rotate,total_e_x,total_e_z,xj+eps,yj,tilt_angle, &
-                            fxp,fyp,moments,p_static,ptmp,st)
+                            fxp,fyp,moments,p_work,ptmp,st)
     if(st/=RB_OK)then;status=st;return;end if
     tilt_p=moments
     call tp_fixedtilt_state(speed,journal_diameter,radial_clearance,viscosity,pad_thickness,n_pads,pivot_angle, &
                             pad_arc,pad_axial_length,preload,offset,k_rotate,total_e_x,total_e_z,xj-eps,yj,tilt_angle, &
-                            fxm,fym,moments,p_static,ptmp,st)
+                            fxm,fym,moments,p_work,ptmp,st)
     if(st/=RB_OK)then;status=st;return;end if
     tilt_m=moments
     k_j(1,1)=-(fxp-fxm)/(2._rk*eps); k_j(2,1)=-(fyp-fym)/(2._rk*eps)
@@ -153,12 +153,12 @@ contains
 
     call tp_fixedtilt_state(speed,journal_diameter,radial_clearance,viscosity,pad_thickness,n_pads,pivot_angle, &
                             pad_arc,pad_axial_length,preload,offset,k_rotate,total_e_x,total_e_z,xj,yj+eps,tilt_angle, &
-                            fxp,fyp,moments,p_static,ptmp,st)
+                            fxp,fyp,moments,p_work,ptmp,st)
     if(st/=RB_OK)then;status=st;return;end if
     tilt_p=moments
     call tp_fixedtilt_state(speed,journal_diameter,radial_clearance,viscosity,pad_thickness,n_pads,pivot_angle, &
                             pad_arc,pad_axial_length,preload,offset,k_rotate,total_e_x,total_e_z,xj,yj-eps,tilt_angle, &
-                            fxm,fym,moments,p_static,ptmp,st)
+                            fxm,fym,moments,p_work,ptmp,st)
     if(st/=RB_OK)then;status=st;return;end if
     tilt_m=moments
     k_j(1,2)=-(fxp-fxm)/(2._rk*eps); k_j(2,2)=-(fyp-fym)/(2._rk*eps)
