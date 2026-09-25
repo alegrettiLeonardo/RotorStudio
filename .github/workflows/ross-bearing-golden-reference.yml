@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   generate-ross-6320eab9:
@@ -17,6 +17,9 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
 
       - name: Checkout pinned ROSS authority
         uses: actions/checkout@v4
@@ -52,3 +55,16 @@ jobs:
           path: tests/reference/ross_6320eab9/
           if-no-files-found: error
           retention-days: 90
+
+      - name: Freeze generated references on qualification branch
+        if: github.head_ref == 'feature/ross-bearings-rotorstudio-20260925'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/reference/ross_6320eab9
+          if git diff --cached --quiet; then
+            echo "Frozen ROSS references already match the pinned authority."
+            exit 0
+          fi
+          git commit -m "test: freeze ROSS 6320eab9 bearing golden cases"
+          git push origin HEAD:${{ github.head_ref }}
