@@ -4,6 +4,23 @@ set(CMAKE_Fortran_STANDARD 2018)
 set(CMAKE_Fortran_STANDARD_REQUIRED ON)
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
+
+# Standalone ROSS-derived bearing library.
+# This target is deliberately not consumed by drmrotor yet: RotorStudio
+# integration begins only after the native bearing gates and C ABI are frozen.
+add_library(drmbearings SHARED
+ bearings/src/rb_kinds.f90
+ bearings/src/rb_status.f90
+ bearings/src/rb_interpolation.f90
+ bearings/src/rb_rolling.f90
+ bearings/src/rb_cylindrical.f90
+ bearings/src/rb_squeeze_film_damper.f90)
+set_target_properties(drmbearings PROPERTIES OUTPUT_NAME drmbearings)
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(drmbearings PRIVATE
+  $<$<CONFIG:Debug>:-Wall -Wextra -Wimplicit-interface -ffree-line-length-none -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow>
+  $<$<CONFIG:Release>:-O2 -ffree-line-length-none>)
+endif()
 add_library(drmrotor SHARED
  src/rd_kinds.f90 src/rd_status.f90 src/rd_lapack.f90
  src/rd_shaft_circular.f90 src/rd_shaft_tapered.f90 src/rd_shaft_asymmetric.f90
@@ -36,3 +53,7 @@ add_test(NAME rotating_legacy_compatibility COMMAND test_rotating)
 add_executable(test_transient tests/test_transient.f90)
 target_link_libraries(test_transient PRIVATE drmrotor)
 add_test(NAME transient_dp45_reduction COMMAND test_transient)
+
+add_executable(test_ross_bearings_native bearings/tests/test_rb_native.f90)
+target_link_libraries(test_ross_bearings_native PRIVATE drmbearings)
+add_test(NAME ross_bearings_native_bf1_bf2_bf3_bf7 COMMAND test_ross_bearings_native)
