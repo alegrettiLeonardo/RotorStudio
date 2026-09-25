@@ -10,6 +10,7 @@ class SolverFacade:
     def prepare_offset_halves_bearing(self,**kwargs): return self.backend._bearing_provider().prepare_offset_halves_geometry(**kwargs)
     def prepare_plain_journal_bearing(self,**kwargs): return self.backend._bearing_provider().prepare_plain_journal_geometry(**kwargs)
     def prepare_tilting_pad_bearing(self,**kwargs): return self.backend._bearing_provider().prepare_tilting_pad(**kwargs)
+    def reduce_tilting_pad_dynamics(self,**kwargs): return self.backend._bearing_provider().reduce_tilting_pad_dynamics(**kwargs)
     def frequency_response(self,model,speeds_rad_s): return self.backend.frequency_response(model,speeds_rad_s)
     def auxiliary_frequency_response(self,model,rotor_speed_rad_s,omega_rad_s,direction=1.0): return self.backend.auxiliary_frequency_response(model,rotor_speed_rad_s,omega_rad_s,direction)
     def foundation_frequency_response(self,model,rotor_speed_rad_s,omega_rad_s): return self.backend.foundation_frequency_response(model,rotor_speed_rad_s,omega_rad_s)
