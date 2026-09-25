@@ -7,11 +7,13 @@ from drm_core import (
     CylindricalBearing,
     Force,
     Node,
+    PlainJournalPhysicsBearing,
     RollerBearing,
     RotorModel,
     ShaftElement,
     SqueezeFilmDamper,
     TiltingPadBearing,
+    TiltingPadPhysicsBearing,
 )
 from drm_core.solver.backend import FortranBackend
 from drm_core.solver.bearings_backend import AdvancedBearingBackend
@@ -244,6 +246,96 @@ def test_native_tilting_pad_dynamic_condensation_depends_on_whirl():
     np.testing.assert_allclose(c2[0, 0], expected.imag / omega, rtol=1e-13, atol=1e-13)
     assert not np.allclose(k1, k2)
     assert not np.allclose(c1, c2)
+
+
+def test_native_plain_journal_physics_provider():
+    bearing = PlainJournalPhysicsBearing(
+        node=1,
+        weight_n=112814.90696191376,
+        journal_diameter_m=0.3999992,
+        radial_clearance_m=0.000194564,
+        oil_viscosity_pa_s=0.01901574061455835,
+        pivot_angle_rad=(np.pi / 2.0, 3.0 * np.pi / 2.0),
+        pad_arc_rad=(3.07177948351002, 3.07177948351002),
+        pad_axial_length_m=(0.263144, 0.263144),
+        preload=(0.0, 0.0),
+        offset=(0.5, 0.5),
+        total_e_x_film=20,
+        total_e_z_film=10,
+        xj_ratio_initial=0.15,
+        yj_ratio_initial=-0.2,
+        force_tolerance=5e-3,
+    )
+    result = AdvancedBearingBackend().evaluate(
+        bearing, speed_rad_s=94.24777960769379
+    )
+    assert result.details["native"] is True
+    assert result.details["physics_provider"].startswith("Fortran Reynolds")
+    np.testing.assert_allclose(
+        [result.details["xj_ratio"], result.details["yj_ratio"]],
+        [0.40412769773157853, -0.35964988360804134],
+        rtol=8e-2,
+        atol=2e-2,
+    )
+    assert np.all(np.isfinite(result.K))
+    assert np.all(np.isfinite(result.C))
+    assert result.K[0, 0] > 0 and result.K[1, 1] > 0
+    assert result.C[0, 0] > 0 and result.C[1, 1] > 0
+
+
+def test_native_tilting_pad_physics_provider_and_whirl_condensation():
+    bearing = TiltingPadPhysicsBearing(
+        node=1,
+        weight_n=112814.90696191376,
+        journal_diameter_m=0.3999992,
+        radial_clearance_m=0.000194564,
+        oil_viscosity_pa_s=0.01901574061455835,
+        pad_thickness_m=0.149614636,
+        pad_density_kg_m3=7835.631544657211,
+        pivot_angle_rad=(
+            0.9424777960769379,
+            2.199114857512855,
+            3.4557519189487724,
+            4.71238898038469,
+            5.969026041820607,
+        ),
+        pad_arc_rad=(1.0471975511965976,) * 5,
+        pad_axial_length_m=(0.263144,) * 5,
+        preload=(0.3,) * 5,
+        offset=(0.5,) * 5,
+        k_rotate_nm_rad=(0.0,) * 5,
+        total_e_x_film=20,
+        total_e_z_film=10,
+        xj_ratio_initial=0.15,
+        yj_ratio_initial=-0.2,
+        force_tolerance=5e-3,
+    )
+    backend = AdvancedBearingBackend()
+    synchronous = backend.evaluate(
+        bearing,
+        speed_rad_s=94.24777960769379,
+        frequency_rad_s=94.24777960769379,
+    )
+    half_whirl = backend.evaluate(
+        bearing,
+        speed_rad_s=94.24777960769379,
+        frequency_rad_s=47.123889803846895,
+    )
+    assert synchronous.details["native"] is True
+    assert synchronous.details["physics_provider"].endswith("pad-DOF condensation")
+    np.testing.assert_allclose(
+        [synchronous.details["xj_ratio"], synchronous.details["yj_ratio"]],
+        [0.00043866240037811227, -0.6180219519234674],
+        rtol=2e-1,
+        atol=3e-2,
+    )
+    assert len(synchronous.details["tilt_angle_rad"]) == 5
+    assert np.all(np.isfinite(synchronous.K))
+    assert np.all(np.isfinite(synchronous.C))
+    assert synchronous.K[0, 0] > 0 and synchronous.K[1, 1] > 0
+    assert synchronous.C[0, 0] > 0 and synchronous.C[1, 1] > 0
+    # Pad inertia/condensation makes reduced coefficients whirl-frequency dependent.
+    assert not np.allclose(synchronous.K, half_whirl.K)
 
 
 def test_tilting_pad_table_preserves_spin_and_whirl_axes():
