@@ -8,6 +8,7 @@ program test_ross_bearings_native
   use rb_fixed_geometry, only: rb_partial_arc_geometry, rb_elliptical_geometry, rb_offset_halves_geometry, &
                                rb_multi_lobe_geometry, rb_pressure_dam_geometry, rb_plain_journal_geometry
   use rb_tilting_pad_config, only: rb_tilting_pad_prepare, RB_TP_CONVENTIONAL, RB_TP_MATCH_LOAD
+  use rb_reynolds_element, only: rb_reynolds_q4_element
   implicit none(type, external)
 
   integer(ik) :: st
@@ -21,9 +22,10 @@ program test_ross_bearings_native
   call test_cylindrical()
   call test_fixed_geometry()
   call test_tilting_pad_config()
+  call test_reynolds_element()
   call test_sfd()
 
-  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5cfg/BF7'
+  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5cfg/BF7'
 
 contains
 
@@ -207,6 +209,24 @@ contains
                                 0.3_rk,3._rk*pi_/2._rk,.false.,0._rk,0._rk,21_ik,10_ik,10_ik,pos,st)
     if (st /= RB_ERR_INPUT) error stop 377
   end subroutine test_tilting_pad_config
+
+  subroutine test_reynolds_element()
+    real(rk) :: em(4,4), ec(4)
+
+    call rb_reynolds_q4_element(2._rk,3._rk,5._rk,0.4_rk,0.2_rk,em,ec,st)
+    if (st /= RB_OK) error stop 381
+    call assert_close(em(1,1), 7._rk/3._rk, 1e-14_rk, 1e-14_rk, 382)
+    call assert_close(em(1,2), 2._rk/3._rk, 1e-14_rk, 1e-14_rk, 383)
+    call assert_close(em(1,3), -7._rk/6._rk, 1e-14_rk, 1e-14_rk, 384)
+    call assert_close(em(1,4), -11._rk/6._rk, 1e-14_rk, 1e-14_rk, 385)
+    call assert_close(em(2,1), em(1,2), 1e-14_rk, 1e-14_rk, 386)
+    call assert_close(em(4,4), em(1,1), 1e-14_rk, 1e-14_rk, 387)
+    call assert_close(ec(1), 0.1_rk, 1e-14_rk, 1e-14_rk, 388)
+    call assert_close(ec(4), 0.1_rk, 1e-14_rk, 1e-14_rk, 389)
+
+    call rb_reynolds_q4_element(2._rk,3._rk,5._rk,0._rk,0.2_rk,em,ec,st)
+    if (st /= RB_ERR_INPUT) error stop 390
+  end subroutine test_reynolds_element
 
   subroutine test_sfd()
     real(rk), parameter :: reyn_to_pas = 6894.757293168_rk
