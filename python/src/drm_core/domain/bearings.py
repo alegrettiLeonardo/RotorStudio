@@ -78,6 +78,42 @@ class TiltingPadBearing(CoefficientBearing):
 
 
 @dataclass(frozen=True)
+class PlainJournalPhysicsBearing:
+    """Native Fortran PlainJournal operating-point model.
+
+    This is the physical-input path.  It is intentionally separate from the
+    historical table-backed PlainJournalBearing while native parity is being
+    closed; once the THD/TEHD gates are complete this becomes the preferred
+    PlainJournal model and the table-backed form remains as an import/cache
+    representation.
+    """
+
+    node: int
+    weight_n: float
+    journal_diameter_m: float
+    radial_clearance_m: float
+    oil_viscosity_pa_s: float
+    pivot_angle_rad: tuple[float, ...]
+    pad_arc_rad: tuple[float, ...]
+    pad_axial_length_m: tuple[float, ...]
+    preload: tuple[float, ...]
+    offset: tuple[float, ...]
+    fxs_load_n: float = 0.0
+    fys_load_n: float = 0.0
+    total_e_x_film: int = 20
+    total_e_z_film: int = 10
+    xj_ratio_initial: float = 0.15
+    yj_ratio_initial: float = -0.2
+    relax_p: float = 0.5
+    max_iterations: int = 80
+    force_tolerance: float = 5e-3
+    thermal_type: str | None = None
+    tag: str = ""
+    provenance: dict[str, Any] = field(default_factory=dict)
+    model_family: str = field(default="plain_journal_physics", init=False)
+
+
+@dataclass(frozen=True)
 class BallBearing:
     node: int
     n_balls: float
@@ -142,6 +178,7 @@ AdvancedBearing: TypeAlias = (
     | MultiLobeBearing
     | PressureDamBearing
     | TiltingPadBearing
+    | PlainJournalPhysicsBearing
     | BallBearing
     | RollerBearing
     | CylindricalBearing
@@ -164,6 +201,7 @@ _NATIVE_CLASSES = {
     "RollerBearing": RollerBearing,
     "CylindricalBearing": CylindricalBearing,
     "SqueezeFilmDamper": SqueezeFilmDamper,
+    "PlainJournalPhysicsBearing": PlainJournalPhysicsBearing,
 }
 _ALL_CLASSES = {**_COEFF_CLASSES, **_NATIVE_CLASSES}
 
@@ -267,7 +305,41 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
         return
 
     scalars = []
-    if isinstance(bearing, BallBearing):
+    if isinstance(bearing, PlainJournalPhysicsBearing):
+        arrays = (
+            bearing.pivot_angle_rad,
+            bearing.pad_arc_rad,
+            bearing.pad_axial_length_m,
+            bearing.preload,
+            bearing.offset,
+        )
+        n = len(bearing.pivot_angle_rad)
+        if n < 1 or any(len(a) != n for a in arrays):
+            raise ValueError("PlainJournal physical per-pad arrays must be non-empty and have equal lengths")
+        scalars = [
+            bearing.weight_n,
+            bearing.journal_diameter_m,
+            bearing.radial_clearance_m,
+            bearing.oil_viscosity_pa_s,
+            *bearing.pivot_angle_rad,
+            *bearing.pad_arc_rad,
+            *bearing.pad_axial_length_m,
+            *bearing.preload,
+            *bearing.offset,
+        ]
+        if bearing.weight_n <= 0 or bearing.journal_diameter_m <= 0 or bearing.radial_clearance_m <= 0 or bearing.oil_viscosity_pa_s <= 0:
+            raise ValueError("PlainJournal weight/diameter/clearance/viscosity must be > 0")
+        if any(x <= 0 for x in bearing.pad_arc_rad) or any(x <= 0 for x in bearing.pad_axial_length_m):
+            raise ValueError("PlainJournal pad arc and axial length must be > 0")
+        if any(not 0 <= x < 1 for x in bearing.preload):
+            raise ValueError("PlainJournal preload must satisfy 0 <= preload < 1")
+        if any(not 0 <= x <= 1 for x in bearing.offset):
+            raise ValueError("PlainJournal offset must satisfy 0 <= offset <= 1")
+        if bearing.total_e_x_film < 2 or bearing.total_e_x_film % 2 or bearing.total_e_z_film < 2 or bearing.total_e_z_film % 2:
+            raise ValueError("PlainJournal Reynolds element counts must be even and >= 2")
+        if bearing.thermal_type not in {None, "adiabatic", "full"}:
+            raise ValueError("PlainJournal thermal_type must be None, 'adiabatic' or 'full'")
+    elif isinstance(bearing, BallBearing):
         scalars = [bearing.n_balls, bearing.d_balls_m, bearing.static_load_n]
         if bearing.n_balls <= 0 or bearing.d_balls_m <= 0 or bearing.static_load_n < 0:
             raise ValueError("ball bearing expects n_balls>0, d_balls_m>0 and static_load_n>=0")
