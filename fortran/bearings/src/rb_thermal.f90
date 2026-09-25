@@ -310,6 +310,13 @@ contains
       do iz=0,int(nz)
         nr=ix*(int(nz)+1)+iz+1
         mu_center(nr)=rb_mu_of_t(mu1,mu2,t1,t2,temp_new(ix*ny+int(ny_pad)+int(ny_film)/2+1))
+        ! The Reynolds operator in ROSS integrates Gamma through the finite
+        ! cross-film mesh.  A scalar effective viscosity must therefore carry
+        ! the same (1-1/ny^2) discrete factor used by the uniform-temperature
+        ! limit; this keeps the native 2-D pressure operator on the same grid
+        ! authority while the full radial viscosity profile is still being
+        ! represented by one equivalent nodal value.
+        if(ny_film>1) mu_center(nr)=mu_center(nr)/(1._rk-1._rk/real(ny_film*ny_film,rk))
       end do
     end do
     do iy=int(ny_pad),ny-1
