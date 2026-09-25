@@ -5,6 +5,7 @@ class SolverFacade:
     def modal_eigensystem(self,model,speed_rad_s): return self.backend.modal_eigensystem(model,speed_rad_s)
     def assemble(self,model,speed_rad_s=0.0): return self.backend.assemble_matrices(model,speed_rad_s)
     def bearings(self,model,speed_rad_s): return self.backend.bearings_matrices(model,speed_rad_s)
+    def advanced_bearing(self,bearing,speed_rad_s,frequency_rad_s=None): return self.backend._bearing_provider().evaluate(bearing,speed_rad_s,frequency_rad_s)
     def frequency_response(self,model,speeds_rad_s): return self.backend.frequency_response(model,speeds_rad_s)
     def auxiliary_frequency_response(self,model,rotor_speed_rad_s,omega_rad_s,direction=1.0): return self.backend.auxiliary_frequency_response(model,rotor_speed_rad_s,omega_rad_s,direction)
     def foundation_frequency_response(self,model,rotor_speed_rad_s,omega_rad_s): return self.backend.foundation_frequency_response(model,rotor_speed_rad_s,omega_rad_s)
