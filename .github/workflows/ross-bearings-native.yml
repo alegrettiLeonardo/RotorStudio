@@ -91,7 +91,7 @@ jobs:
           DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-release/libdrmbearings.so
         run: |
           set -o pipefail
-          python -m pytest python/tests_bearings/test_advanced_bearings_parity.py -q \
+          python -m pytest python/tests_bearings/test_advanced_bearings_parity.py -q -s \
             | tee validation/reports/ross_bearings_native/linux/b12_parity_pytest.txt
 
       - name: Record Linux evidence
