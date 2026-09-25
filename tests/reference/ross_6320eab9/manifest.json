@@ -14,13 +14,13 @@
     },
     "tilting_pad_asynchronous": {
       "json": "tilting_pad_asynchronous.json",
-      "json_sha256": "a72461b6c60ee98d4652f0fee648b49795b25a0fbca01d67ffc3720ac572520e",
+      "json_sha256": "514345b942709add01db9e98812b7def3ad1e50a53ca68944701187013875eed",
       "npz": "tilting_pad_asynchronous.npz",
       "npz_sha256": "3d78edfa639013b6ee9b7cfb5e7061263659b7cd3c967d4b1067673076a73a73"
     },
     "tilting_pad_synchronous_thd": {
       "json": "tilting_pad_synchronous_thd.json",
-      "json_sha256": "6fc7d71b539fba918038f2ff5f82b91db089b90f30d6adce7ec287050e9d5f77",
+      "json_sha256": "ca73ec8bc4acf659992a4c1e8828316455ba00d50c431840d20194a2484abeb2",
       "npz": "tilting_pad_synchronous_thd.npz",
       "npz_sha256": "ea2169da30a8b231e9d3b18b94af2da330318f1eb022da812d0aa2f25de84ca2"
     }
