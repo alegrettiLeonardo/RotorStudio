@@ -24,6 +24,7 @@ add_library(drmbearings SHARED
  bearings/src/rb_film_thickness.f90
  bearings/src/rb_pressure_isoviscous.f90
  bearings/src/rb_plain_journal_physics.f90
+ bearings/src/rb_tilting_pad_physics.f90
  bearings/src/rb_c_api.f90)
 set_target_properties(drmbearings PROPERTIES OUTPUT_NAME drmbearings)
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
