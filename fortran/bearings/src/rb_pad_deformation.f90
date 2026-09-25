@@ -37,7 +37,10 @@ contains
       status=RB_ERR_INPUT;return
     end if
     dx=pad_length/real(nx,rk);dy=pad_thickness/real(ny,rk)
-    bw=2*(int(ny)+2)+1;ncol=2*bw-1
+    ! Q4 displacement DOFs span from x(n1) to y(n3):
+    ! max DOF offset = 2*(ny+2)+1, therefore the Numerical-Recipes
+    ! half-bandwidth must be max_offset+1 = 2*ny+6.
+    bw=2*(int(ny)+3);ncol=2*bw-1
     allocate(a(ndof,ncol),rhs(ndof),alow(ndof,bw-1),ipiv(ndof),bcidx(ndof),pres(ndof))
     a=0._rk;rhs=0._rk;pres=0._rk
     alpha=young/((1._rk+poisson)*(1._rk-2._rk*poisson))
