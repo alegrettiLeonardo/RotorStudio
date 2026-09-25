@@ -114,6 +114,58 @@ def test_native_roller_cylindrical_and_sfd_oracles():
     np.testing.assert_allclose(sfd.details["p_max_pa"], 10248075.8971382, rtol=1e-4)
 
 
+def test_native_fixed_geometry_and_tilting_config():
+    backend = AdvancedBearingBackend()
+
+    elliptical = backend.prepare_elliptical_geometry(
+        pad_arc_rad=np.deg2rad(150.0),
+        preload=0.5,
+    )
+    np.testing.assert_allclose(
+        elliptical["pivot_angle_rad"], np.deg2rad([90.0, 270.0]), rtol=0, atol=1e-14
+    )
+    np.testing.assert_allclose(elliptical["preload"], [0.5, 0.5])
+
+    offset = backend.prepare_offset_halves_geometry(
+        pad_arc_rad=np.deg2rad(150.0),
+        preload=0.4,
+        offset=0.6,
+    )
+    np.testing.assert_allclose(offset["offset"], [0.6, 0.6])
+
+    plain = backend.prepare_plain_journal_geometry(
+        n_pads=4,
+        pad_arc_rad=np.deg2rad(80.0),
+        preload=0.1,
+        pad_axial_length_m=0.05,
+        journal_diameter_m=0.2,
+    )
+    np.testing.assert_allclose(
+        plain["pivot_angle_rad"], np.deg2rad([45.0, 135.0, 225.0, 315.0]), atol=1e-14
+    )
+    np.testing.assert_allclose(plain["pad_thickness_m"], 0.05, atol=1e-14)
+
+    pivot = np.deg2rad([18.0, 90.0, 162.0, 234.0, 306.0])
+    tp = backend.prepare_tilting_pad(
+        journal_diameter_m=101.6e-3,
+        radial_clearance_m=74.9e-6,
+        pad_thickness_m=12.7e-3,
+        pivot_angle_rad=pivot,
+        pad_arc_rad=np.deg2rad([60.0] * 5),
+        pad_axial_length_m=[50.8e-3] * 5,
+        preload=[0.5] * 5,
+        offset=[0.5] * 5,
+        bearing_type="conventional_tilting_pad",
+        equilibrium_type="match_load",
+        eccentricity=0.3,
+        attitude_angle_rad=3.0 * np.pi / 2.0,
+        total_ex_film=20,
+        total_ez_film=10,
+        total_ey_pad=10,
+    )
+    np.testing.assert_allclose(tp["initial_position"], [0.0, -0.3], atol=1e-14)
+    assert tp["native_stage"] == "geometry_config_only"
+
 def test_tilting_pad_table_preserves_spin_and_whirl_axes():
     # Linear surface kxx = 10*Omega + omega.  A synchronous-only
     # implementation would return 1650 at (Omega,omega)=(150,20), so this
