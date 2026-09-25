@@ -25,6 +25,7 @@ module rb_c_api
   public :: rb_pressure_smooth_isoviscous_c, rb_dynamic_reduce_tilts_c
   public :: rb_plain_journal_isoviscous_c, rb_tilting_pad_isoviscous_c
   public :: rb_plain_journal_multiphysics_c, rb_tilting_pad_multiphysics_c
+  public :: rb_plain_journal_multiphysics_pack_c, rb_tilting_pad_multiphysics_pack_c
 
 contains
 
@@ -553,5 +554,66 @@ contains
     t_max=real(tm,c_double);t_out=real(to,c_double);deform_max=real(dm,c_double);iterations=int(it,c_int)
     rb_tilting_pad_multiphysics_c=int(st,c_int)
   end function rb_tilting_pad_multiphysics_c
+
+
+  integer(c_int) function rb_plain_journal_multiphysics_pack_c(n_pads, rcfg, icfg, pivot_angle, pad_arc, pad_axial_length, &
+      preload, offset, k_out, c_out, summary) bind(C,name="rb_plain_journal_multiphysics_pack_c")
+    integer(c_int),value::n_pads
+    real(c_double),intent(in)::rcfg(*),pivot_angle(*),pad_arc(*),pad_axial_length(*),preload(*),offset(*)
+    integer(c_int),intent(in)::icfg(*)
+    real(c_double),intent(out)::k_out(4),c_out(4),summary(9)
+    real(rk),allocatable::piv(:),arc(:),alen(:),pre(:),off(:)
+    real(rk)::xr,yr,k(2,2),cc(2,2),fx,fy,pm,tm,to,dm
+    integer(ik)::st,it
+    integer::n
+    n=int(n_pads)
+    if(n<1)then;rb_plain_journal_multiphysics_pack_c=int(RB_ERR_INPUT,c_int);summary=0._c_double;return;end if
+    allocate(piv(n),arc(n),alen(n),pre(n),off(n))
+    piv=real(pivot_angle(1:n),rk);arc=real(pad_arc(1:n),rk);alen=real(pad_axial_length(1:n),rk)
+    pre=real(preload(1:n),rk);off=real(offset(1:n),rk)
+    call rb_plain_journal_multiphysics(real(rcfg(1),rk),real(rcfg(2),rk),real(rcfg(3),rk),real(rcfg(4),rk), &
+      real(rcfg(5),rk),real(rcfg(6),rk),real(rcfg(7),rk),real(rcfg(8),rk),real(rcfg(9),rk),real(rcfg(10),rk), &
+      real(rcfg(11),rk),real(rcfg(12),rk),real(rcfg(13),rk),int(icfg(1),ik),int(icfg(2),ik),real(rcfg(14),rk), &
+      real(rcfg(15),rk),real(rcfg(16),rk),real(rcfg(17),rk),real(rcfg(18),rk),real(rcfg(19),rk),real(rcfg(20),rk), &
+      real(rcfg(21),rk),real(rcfg(22),rk),real(rcfg(23),rk),int(n_pads,ik),piv,arc,alen,pre,off,int(icfg(3),ik), &
+      int(icfg(4),ik),int(icfg(5),ik),int(icfg(6),ik),real(rcfg(24),rk),real(rcfg(25),rk),real(rcfg(26),rk), &
+      real(rcfg(27),rk),int(icfg(7),ik),int(icfg(8),ik),real(rcfg(28),rk),real(rcfg(29),rk),xr,yr,k,cc,fx,fy,pm,tm,to,dm,it,st)
+    k_out=[real(k(1,1),c_double),real(k(2,1),c_double),real(k(1,2),c_double),real(k(2,2),c_double)]
+    c_out=[real(cc(1,1),c_double),real(cc(2,1),c_double),real(cc(1,2),c_double),real(cc(2,2),c_double)]
+    summary=[real(xr,c_double),real(yr,c_double),real(fx,c_double),real(fy,c_double),real(pm,c_double), &
+             real(tm,c_double),real(to,c_double),real(dm,c_double),real(it,c_double)]
+    rb_plain_journal_multiphysics_pack_c=int(st,c_int)
+  end function rb_plain_journal_multiphysics_pack_c
+
+  integer(c_int) function rb_tilting_pad_multiphysics_pack_c(n_pads, rcfg, icfg, pivot_angle, pad_arc, pad_axial_length, &
+      preload, offset, k_rotate, tilt_angle, k_out, c_out, summary) bind(C,name="rb_tilting_pad_multiphysics_pack_c")
+    integer(c_int),value::n_pads
+    real(c_double),intent(in)::rcfg(*),pivot_angle(*),pad_arc(*),pad_axial_length(*),preload(*),offset(*),k_rotate(*)
+    integer(c_int),intent(in)::icfg(*)
+    real(c_double),intent(out)::tilt_angle(*),k_out(4),c_out(4),summary(9)
+    real(rk),allocatable::piv(:),arc(:),alen(:),pre(:),off(:),krot(:),tilt(:)
+    real(rk)::xr,yr,k(2,2),cc(2,2),fx,fy,pm,tm,to,dm
+    integer(ik)::st,it
+    integer::n
+    n=int(n_pads)
+    if(n<1)then;rb_tilting_pad_multiphysics_pack_c=int(RB_ERR_INPUT,c_int);summary=0._c_double;return;end if
+    allocate(piv(n),arc(n),alen(n),pre(n),off(n),krot(n),tilt(n))
+    piv=real(pivot_angle(1:n),rk);arc=real(pad_arc(1:n),rk);alen=real(pad_axial_length(1:n),rk)
+    pre=real(preload(1:n),rk);off=real(offset(1:n),rk);krot=real(k_rotate(1:n),rk)
+    call rb_tilting_pad_multiphysics(real(rcfg(1),rk),real(rcfg(2),rk),real(rcfg(3),rk),real(rcfg(4),rk), &
+      real(rcfg(5),rk),real(rcfg(6),rk),real(rcfg(7),rk),real(rcfg(8),rk),real(rcfg(9),rk),real(rcfg(10),rk), &
+      real(rcfg(11),rk),real(rcfg(12),rk),real(rcfg(13),rk),real(rcfg(14),rk),int(icfg(1),ik),int(icfg(2),ik), &
+      real(rcfg(15),rk),real(rcfg(16),rk),real(rcfg(17),rk),real(rcfg(18),rk),real(rcfg(19),rk),real(rcfg(20),rk), &
+      real(rcfg(21),rk),real(rcfg(22),rk),real(rcfg(23),rk),real(rcfg(24),rk),real(rcfg(25),rk),int(n_pads,ik), &
+      piv,arc,alen,pre,off,krot,int(icfg(3),ik),int(icfg(4),ik),int(icfg(5),ik),int(icfg(6),ik),real(rcfg(26),rk), &
+      real(rcfg(27),rk),real(rcfg(28),rk),real(rcfg(29),rk),int(icfg(7),ik),int(icfg(8),ik),real(rcfg(30),rk), &
+      real(rcfg(31),rk),xr,yr,tilt,k,cc,fx,fy,pm,tm,to,dm,it,st)
+    tilt_angle(1:n)=real(tilt,c_double)
+    k_out=[real(k(1,1),c_double),real(k(2,1),c_double),real(k(1,2),c_double),real(k(2,2),c_double)]
+    c_out=[real(cc(1,1),c_double),real(cc(2,1),c_double),real(cc(1,2),c_double),real(cc(2,2),c_double)]
+    summary=[real(xr,c_double),real(yr,c_double),real(fx,c_double),real(fy,c_double),real(pm,c_double), &
+             real(tm,c_double),real(to,c_double),real(dm,c_double),real(it,c_double)]
+    rb_tilting_pad_multiphysics_pack_c=int(st,c_int)
+  end function rb_tilting_pad_multiphysics_pack_c
 
 end module rb_c_api
