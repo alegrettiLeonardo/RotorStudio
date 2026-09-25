@@ -22,6 +22,7 @@ jobs:
       QT_QPA_PLATFORM: offscreen
       PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
       DRMROTOR_LIB: ${{ github.workspace }}/build-stage2-final/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-stage2-final/libdrmbearings.so
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,11 +44,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e './python[test,studio,ui-test,package]'
 
-      - name: UI1 verify zero Fortran diff from Stage 2 baseline
+      - name: UI1 verify qualified legacy Fortran core is unchanged
         run: |
           mkdir -p validation/reports/stage2_final_linux
-          git diff --stat 168f53047125b71ea2b5c5a0602ce7f0aa88bd20 -- fortran | tee validation/reports/stage2_final_linux/fortran_diff.txt
-          test -z "$(git diff --name-only 168f53047125b71ea2b5c5a0602ce7f0aa88bd20 -- fortran)"
+          git diff --stat 168f53047125b71ea2b5c5a0602ce7f0aa88bd20 -- fortran/src fortran/tests | tee validation/reports/stage2_final_linux/legacy_fortran_core_diff.txt
+          test -z "$(git diff --name-only 168f53047125b71ea2b5c5a0602ce7f0aa88bd20 -- fortran/src fortran/tests)"
+          echo "Additive fortran/bearings and CMake integration are qualified by ROSS Bearings Native Qualification." | tee validation/reports/stage2_final_linux/additive_bearings_note.txt
 
       - name: Build qualified Fortran Release
         run: |
@@ -81,7 +83,7 @@ jobs:
       - name: Build Linux frozen application
         run: |
           ID="$(git rev-parse --short=12 HEAD)"
-          python scripts/package_stage2.py --solver "$DRMROTOR_LIB" --dist-dir dist/stage2 --work-dir build-stage2-pyinstaller --id "$ID"
+          python scripts/package_stage2.py --solver "$DRMROTOR_LIB" --bearing-solver "$DRMBEARINGS_LIB" --dist-dir dist/stage2 --work-dir build-stage2-pyinstaller --id "$ID"
           cat dist/stage2/PACKAGE_linux.json | tee validation/reports/stage2_final_linux/package.json
 
       - name: UI17/UI19 Linux clean extraction and real solver smoke
@@ -93,7 +95,7 @@ jobs:
           mkdir -p "$CLEAN" "$SMOKE"
           unzip -q "$ZIP" -d "$CLEAN"
           cd "$CLEAN"
-          unset PYTHONPATH DRMROTOR_LIB DRMROTOR_DLL_DIRS
+          unset PYTHONPATH DRMROTOR_LIB DRMROTOR_DLL_DIRS DRMBEARINGS_LIB DRMBEARINGS_DLL_DIRS
           ./RotorDynamicsStudio/RotorDynamicsStudio --qualification-smoke "$SMOKE"
           python - <<PY
           import json, pathlib
@@ -101,6 +103,8 @@ jobs:
           d=json.loads(p.read_text())
           assert d["status"]=="PASS", d
           assert d["backend"]=="Fortran2018/ctypes", d
+          assert d["advanced_bearing"]["status"]=="PASS", d
+          assert d["advanced_bearing"]["family"]=="ball", d
           print(json.dumps(d,indent=2,sort_keys=True))
           PY
           cp -r "$SMOKE" "$GITHUB_WORKSPACE/validation/reports/stage2_final_linux/clean_smoke"
@@ -117,7 +121,8 @@ jobs:
             "stage1":"57/57 PASS",
             "ui_tests":"PASS",
             "real_fortran_e2e":"PASS",
-            "fortran_diff_from_stage2_base":"ZERO",
+            "legacy_fortran_core_diff_from_stage2_base":"ZERO",
+            "advanced_bearing_runtime":"BUNDLED_AND_SMOKE_PASS",
             "frozen_app":"PASS",
             "clean_install":"PASS",
             "mockup_screenshots":"5/5",
@@ -180,12 +185,13 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e "./python[test,studio,ui-test,package]"
 
-      - name: UI1 verify zero Fortran diff from Stage 2 baseline
+      - name: UI1 verify qualified legacy Fortran core is unchanged
         shell: pwsh
         run: |
-          $files = git diff --name-only 168f53047125b71ea2b5c5a0602ce7f0aa88bd20 -- fortran
-          $files | Tee-Object -FilePath validation/reports/stage2_final_windows/fortran_diff.txt
-          if ($files) { throw "Fortran changed during Stage 2: $files" }
+          $files = git diff --name-only 168f53047125b71ea2b5c5a0602ce7f0aa88bd20 -- fortran/src fortran/tests
+          $files | Tee-Object -FilePath validation/reports/stage2_final_windows/legacy_fortran_core_diff.txt
+          if ($files) { throw "Qualified legacy Fortran core changed: $files" }
+          "Additive fortran/bearings and CMake integration are qualified by ROSS Bearings Native Qualification." | Set-Content validation/reports/stage2_final_windows/additive_bearings_note.txt
 
       - name: Build qualified Fortran Release with UCRT64
         shell: msys2 {0}
@@ -198,9 +204,13 @@ jobs:
         shell: pwsh
         run: |
           $dll = Get-ChildItem .\build-stage2-final -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bearingDll = Get-ChildItem .\build-stage2-final -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
           if (-not $dll) { throw "drmrotor DLL not found" }
+          if (-not $bearingDll) { throw "drmbearings DLL not found" }
           "DRMROTOR_LIB=$($dll.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_LIB=$($bearingDll.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "DRMROTOR_DLL_DIRS=$env:UCRT64_BIN" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_DLL_DIRS=$env:UCRT64_BIN" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "PYTHONPATH=$PWD\python\src;$PWD" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Stage 1 regression remains exactly 57 tests
@@ -231,7 +241,7 @@ jobs:
         run: |
           $env:PATH = "$env:UCRT64_BIN;$env:PATH"
           $id = $env:GITHUB_SHA.Substring(0,12)
-          python scripts\package_stage2.py --solver "$env:DRMROTOR_LIB" --dist-dir dist\stage2 --work-dir build-stage2-pyinstaller --id "$id"
+          python scripts\package_stage2.py --solver "$env:DRMROTOR_LIB" --bearing-solver "$env:DRMBEARINGS_LIB" --dist-dir dist\stage2 --work-dir build-stage2-pyinstaller --id "$id"
           Get-Content dist\stage2\PACKAGE_win32.json | Tee-Object -FilePath validation/reports/stage2_final_windows/package.json
 
       - name: UI18/UI19 Windows clean extraction and real solver smoke
@@ -247,11 +257,15 @@ jobs:
           Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
           Remove-Item Env:DRMROTOR_LIB -ErrorAction SilentlyContinue
           Remove-Item Env:DRMROTOR_DLL_DIRS -ErrorAction SilentlyContinue
+          Remove-Item Env:DRMBEARINGS_LIB -ErrorAction SilentlyContinue
+          Remove-Item Env:DRMBEARINGS_DLL_DIRS -ErrorAction SilentlyContinue
           $exe = Join-Path $clean "RotorDynamicsStudio\RotorDynamicsStudio.exe"
           $proc = Start-Process -FilePath $exe -ArgumentList @("--qualification-smoke", $smoke) -Wait -PassThru
           if ($proc.ExitCode -ne 0) { throw "packaged app smoke exit code $($proc.ExitCode)" }
           $payload = Get-Content (Join-Path $smoke "PACKAGED_SMOKE.json") | ConvertFrom-Json
           if ($payload.status -ne "PASS") { throw "packaged smoke failed" }
+          if ($payload.advanced_bearing.status -ne "PASS") { throw "packaged advanced-bearing smoke failed" }
+          if ($payload.advanced_bearing.family -ne "ball") { throw "unexpected packaged advanced-bearing family" }
           Copy-Item $smoke validation\reports\stage2_final_windows\clean_smoke -Recurse
 
       - name: Record Windows final evidence
@@ -266,7 +280,8 @@ jobs:
             stage1 = "57/57 PASS"
             ui_tests = "PASS"
             real_fortran_e2e = "PASS"
-            fortran_diff_from_stage2_base = "ZERO"
+            legacy_fortran_core_diff_from_stage2_base = "ZERO"
+            advanced_bearing_runtime = "BUNDLED_AND_SMOKE_PASS"
             frozen_app = "PASS"
             clean_install = "PASS"
             artifact = $zip.Name
@@ -331,7 +346,8 @@ jobs:
               "windows_frozen":"PASS",
               "clean_install":"PASS on Linux and Windows",
               "mockup_screenshots":"5 real application screenshots generated on Linux",
-              "fortran_diff":"ZERO vs STAGE2_BASE_HEAD",
+              "legacy_fortran_core_diff":"ZERO vs STAGE2_BASE_HEAD",
+              "advanced_bearing_runtime":"bundled libdrmbearings + clean frozen smoke PASS",
             },
           }
           pathlib.Path("validation/reports/STAGE2_FINAL_QUALIFICATION.json").write_text(json.dumps(payload,indent=2,sort_keys=True))
