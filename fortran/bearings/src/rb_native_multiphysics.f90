@@ -71,7 +71,7 @@ contains
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1))
     mu=mu1;mu_new=mu1;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     xj=xj0*cb;yj=yj0*cb
-    call rb_groove_forces(np,d,piv,arc,alen,ambient_press1,ambient_press2,fx_groove,fy_groove)
+    call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
     fxext=fxs_load+fx_groove;fyext=fys_load-weight+fy_groove;outer_done=0
 
     do it=1,int(outer_iterations)
@@ -235,7 +235,7 @@ contains
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1))
     mu=mu1;mu_new=mu1;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     xj=xj0*cb;yj=yj0*cb
-    call rb_groove_forces(np,d,piv,arc,alen,ambient_press1,ambient_press2,fx_groove,fy_groove)
+    call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
     fxext=fxs_load+fx_groove;fyext=fys_load-weight+fy_groove;outer_done=0
 
     do it=1,int(outer_iterations)
@@ -353,9 +353,9 @@ contains
   end subroutine rb_tilting_pad_multiphysics
 
 
-  subroutine rb_groove_forces(np,d,piv,arc,alen,ambient1,ambient2,fxg,fyg)
+  subroutine rb_groove_forces(np,d,piv,arc,alen,off,ambient1,ambient2,fxg,fyg)
     integer(ik),intent(in)::np
-    real(rk),intent(in)::d,piv(np),arc(np),alen(np),ambient1,ambient2
+    real(rk),intent(in)::d,piv(np),arc(np),alen(np),off(np),ambient1,ambient2
     real(rk),intent(out)::fxg,fyg
     integer::p
     real(rk)::press_groove,leading_angle,trailing_angle,arc_groove,alpha,groove_angle,fr,pi_
@@ -364,13 +364,13 @@ contains
     pi_=acos(-1._rk);press_groove=.5_rk*(ambient1+ambient2)
     do p=1,int(np)
       if(p==1)then
-        leading_angle=piv(np)-.5_rk*arc(np)+arc(np)
-        trailing_angle=piv(1)-.5_rk*arc(1)
+        leading_angle=piv(np)-off(np)*arc(np)+arc(np)
+        trailing_angle=piv(1)-off(1)*arc(1)
         arc_groove=trailing_angle-leading_angle
         if(arc_groove<0._rk)arc_groove=2._rk*pi_+arc_groove
       else
-        leading_angle=piv(p-1)-.5_rk*arc(p-1)+arc(p-1)
-        trailing_angle=piv(p)-.5_rk*arc(p)
+        leading_angle=piv(p-1)-off(p-1)*arc(p-1)+arc(p-1)
+        trailing_angle=piv(p)-off(p)*arc(p)
         arc_groove=trailing_angle-leading_angle
         ! Preserve pinned ROSS 6320eab9 behaviour literally: the non-first-pad
         ! wrap branch adds 360.0 even though all angles are radians.
