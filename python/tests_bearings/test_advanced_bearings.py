@@ -4,10 +4,13 @@ from drm_core import (
     BallBearing,
     Bearing,
     CoefficientBearing,
+    CylindricalBearing,
     Force,
     Node,
+    RollerBearing,
     RotorModel,
     ShaftElement,
+    SqueezeFilmDamper,
     TiltingPadBearing,
 )
 from drm_core.solver.backend import FortranBackend
@@ -41,6 +44,74 @@ def test_native_ball_oracle():
     np.testing.assert_allclose(result.K[1, 1], 1.00906269e8, rtol=1e-7)
     np.testing.assert_allclose(result.C[0, 0], 580.2110481, rtol=1e-7)
     np.testing.assert_allclose(result.C[1, 1], 1261.32836543, rtol=1e-7)
+
+
+def test_native_roller_cylindrical_and_sfd_oracles():
+    backend = AdvancedBearingBackend()
+
+    roller = backend.evaluate(
+        RollerBearing(
+            node=1,
+            n_rollers=8,
+            l_rollers_m=0.03,
+            static_load_n=500.0,
+            alpha_rad=np.pi / 6,
+        ),
+        speed_rad_s=100.0,
+    )
+    np.testing.assert_allclose(roller.K[0, 0], 2.72821927e8, rtol=1e-7)
+    np.testing.assert_allclose(roller.K[1, 1], 5.56779444e8, rtol=1e-7)
+    np.testing.assert_allclose(roller.C[0, 0], 3410.27409251, rtol=1e-7)
+    np.testing.assert_allclose(roller.C[1, 1], 6959.74304593, rtol=1e-7)
+
+    cylindrical = backend.evaluate(
+        CylindricalBearing(
+            node=1,
+            weight_n=525.0,
+            bearing_length_m=0.03,
+            journal_diameter_m=0.1,
+            radial_clearance_m=1.0e-4,
+            oil_viscosity_pa_s=0.1,
+        ),
+        speed_rad_s=1500.0 * 2.0 * np.pi / 60.0,
+    )
+    np.testing.assert_allclose(
+        cylindrical.K / 1e6,
+        [[12.80796, 16.393593], [-25.060393, 8.815303]],
+        rtol=2e-6,
+        atol=2e-5,
+    )
+    np.testing.assert_allclose(
+        cylindrical.C / 1e3,
+        [[232.89693, -81.924371], [-81.924371, 294.911619]],
+        rtol=2e-6,
+        atol=2e-5,
+    )
+    np.testing.assert_allclose(
+        cylindrical.details["eccentricity_ratio"], 0.266298, rtol=2e-5
+    )
+    np.testing.assert_allclose(
+        cylindrical.details["attitude_angle_rad"], 0.198931, rtol=2e-5
+    )
+
+    reyn_to_pas = 6894.757293168
+    sfd = backend.evaluate(
+        SqueezeFilmDamper(
+            node=1,
+            axial_length_m=0.9 * 0.0254,
+            journal_diameter_m=5.1 * 0.0254,
+            radial_clearance_m=0.003 * 0.0254,
+            eccentricity_ratio=0.5,
+            viscosity_pa_s=4.05640e-6 * reyn_to_pas,
+            geometry="groove-end_seals",
+            cavitation=True,
+        ),
+        speed_rad_s=0.0,
+        frequency_rad_s=18600.0 * 2.0 * np.pi / 60.0,
+    )
+    np.testing.assert_allclose(sfd.K[0, 0], 1.69362187e8, rtol=1e-4)
+    np.testing.assert_allclose(sfd.C[0, 0], 118283.83590277865, rtol=1e-4)
+    np.testing.assert_allclose(sfd.details["p_max_pa"], 10248075.8971382, rtol=1e-4)
 
 
 def test_tilting_pad_table_preserves_spin_and_whirl_axes():
