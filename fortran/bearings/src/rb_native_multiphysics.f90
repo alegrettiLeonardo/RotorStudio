@@ -266,7 +266,7 @@ contains
       thermal_type,deform_type,tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
       convec_edges,convec_back,np,piv,arc,alen,pre,off,krot,nx,nz,ny_pad,ny_film,xj0,yj0,relax_p,relax_t, &
       max_iterations,outer_iterations,force_tol,field_tol,xj_ratio,yj_ratio,tilt,k_out,c_out,fx,fy,pmax,tmax,tout, &
-      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in,ambient_press1_in,ambient_press2_in)
+      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in,ambient_press1_in,ambient_press2_in,hotoil_lamda_in)
     real(rk),intent(in)::speed,omega,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
     integer(ik),intent(in)::thermal_type,deform_type,np,nx,nz,ny_pad,ny_film,max_iterations,outer_iterations
     real(rk),intent(in)::tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
@@ -275,24 +275,25 @@ contains
     real(rk),intent(out)::xj_ratio,yj_ratio,tilt(np),k_out(2,2),c_out(2,2),fx,fy,pmax,tmax,tout,deform_max
     integer(ik),intent(out)::iterations,status
     real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:)
-    real(rk),intent(in),optional::temp_reference_in,ambient_press1_in,ambient_press2_in
+    real(rk),intent(in),optional::temp_reference_in,ambient_press1_in,ambient_press2_in,hotoil_lamda_in
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
     real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,q_in_pad,q_out_pad
-    real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx
+    real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx,hotoil_lamda,inlet_delta,qcarry
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:),mom(:)
-    real(rk),allocatable::px(:),tpad(:),def(:)
+    real(rk),allocatable::px(:),tpad(:),def(:),temp_inlet_pad(:),temp_outlet_pad(:),q_in_arr(:),q_out_arr(:),temp_inlet_new(:)
     real(rk),allocatable::kdx_last(:),kdy_last(:),kxd_last(:),kyd_last(:),kdd_last(:)
     real(rk)::kj_last(2,2)
     real(rk)::fxext,fyext,fx_groove,fy_groove,ambient_press1,ambient_press2
 
     temp_reference=temp_supply;temp_j_work=temp_journal;temp_j_delta=0._rk
     if(present(temp_reference_in))temp_reference=temp_reference_in
-    ambient_press1=0._rk;ambient_press2=0._rk
+    ambient_press1=0._rk;ambient_press2=0._rk;hotoil_lamda=0._rk
     if(present(ambient_press1_in))ambient_press1=ambient_press1_in
     if(present(ambient_press2_in))ambient_press2=ambient_press2_in
+    if(present(hotoil_lamda_in))hotoil_lamda=hotoil_lamda_in
     status=RB_OK;xj_ratio=0._rk;yj_ratio=0._rk;tilt=0._rk;k_out=0._rk;c_out=0._rk
     fx=0._rk;fy=0._rk;pmax=0._rk;tmax=temp_supply;tout=temp_supply;deform_max=0._rk;iterations=0_ik
     if(.not.rb_check_common(speed,d,cb,mu1,np,arc,alen,pre,off,nx,nz,relax_p,max_iterations,force_tol) .or. &
@@ -312,7 +313,7 @@ contains
     nn=(int(nx)+1)*(int(nz)+1);nfull=(int(nx)+1)*(int(ny_pad)+int(ny_film)+1);npp=(int(nx)+1)*(int(ny_pad)+1)
     allocate(mu(nn,np),mu_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np),mom(np))
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
-    allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1))
+    allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1),temp_inlet_pad(np),temp_outlet_pad(np),q_in_arr(np),q_out_arr(np),temp_inlet_new(np))
     allocate(kdx_last(np),kdy_last(np),kxd_last(np),kyd_last(np),kdd_last(np))
     kj_last=0._rk;kdx_last=0._rk;kdy_last=0._rk;kxd_last=0._rk;kyd_last=0._rk;kdd_last=0._rk
     ! ROSS initializes the film with lubricant viscosity evaluated at the
@@ -333,6 +334,7 @@ contains
       delta=delta/(1._rk-1._rk/real(ny_film*ny_film,rk))
     end if
     mu=delta;mu_new=delta;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
+    temp_inlet_pad=temp_supply;temp_outlet_pad=temp_supply;q_in_arr=0._rk;q_out_arr=0._rk;temp_inlet_new=temp_supply
     xj=xj0*cb;yj=yj0*cb
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
