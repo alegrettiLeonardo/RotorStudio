@@ -880,27 +880,42 @@ contains
     real(rk),intent(out)::tilt(np),press(:,:),h(:,:),mom(np),fx,fy,pmax
     integer(ik),intent(out)::status
     integer::p,iter,nn
-    real(rk)::r,lead,xp,rtilt,lo,hi,t,fi,gi,mi,pm,s1,s2,h1,h2
+    real(rk)::r,lead,xp,rtilt,lo,hi,t,fi,gi,mi,pm,s1,s2,dhmin
     integer(ik)::st
     status=RB_OK;fx=0._rk;fy=0._rk;pmax=0._rk;nn=(int(nx)+1)*(int(nz)+1);r=.5_rk*d
     do p=1,int(np)
       lead=piv(p)-arc(p)*off(p);xp=off(p)*arc(p);rtilt=r+cb+tp
       s1=sin(-xp);s2=sin(arc(p)-xp)
       if(abs(s1)<1e-12_rk .or. abs(s2)<1e-12_rk)then;status=RB_ERR_INPUT;return;end if
-      h1=cb/(1._rk-pre(p))-xj*cos(lead)-yj*sin(lead)-pre(p)*(cb/(1._rk-pre(p)))*cos(-xp)+dh(1,p)
-      h2=cb/(1._rk-pre(p))-xj*cos(lead+arc(p))-yj*sin(lead+arc(p))-pre(p)*(cb/(1._rk-pre(p)))*cos(arc(p)-xp)+dh(int(nx)+1,p)
-      lo=h1/(rtilt*s1);hi=h2/(rtilt*s2);if(lo>hi)then;t=lo;lo=hi;hi=t;end if
-      lo=lo-1e-4_rk;hi=hi+1e-4_rk
-      do iter=1,120
-        t=.5_rk*(lo+hi)
+
+      ! ROSS 6320eab9 tilt_angle_range uses the bore clearance (not Cp/preload)
+      ! and the minimum deformation over the pad to construct conservative
+      ! contact bounds.  The root itself is then found by moment bisection.
+      dhmin=min(0._rk,minval(dh(:,p)))
+      hi=(cb+dhmin-xj*cos(lead+arc(p))-yj*sin(lead+arc(p)))/(rtilt*s2)
+      lo=(cb+dhmin-xj*cos(lead)-yj*sin(lead))/(rtilt*s1)
+      if(lo>hi)then;t=lo;lo=hi;hi=t;end if
+
+      do iter=1,100
+        if(abs(hi-lo)<1e-8_rk)then
+          t=lo
+        else
+          t=.5_rk*(lo+hi)
+        end if
+
         call pad_static(speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),krot(p),nx,nz,xj,yj,t,mu(:,p),dh(:,p), &
                         press(1:nn,p),h(1:nn,p),fi,gi,mi,pm,st)
         if(st/=RB_OK)then
           if(t>0._rk)then;hi=t;else;lo=t;end if
           cycle
         end if
-        if(abs(mi)<=1e-6_rk*max(1._rk,abs(krot(p)*max(abs(t),1e-9_rk)),abs(fi*r)))exit
-        if(mi>=0._rk)then;lo=t;else;hi=t;end if
+
+        if(abs(hi-lo)<1e-8_rk)exit
+        if(mi>=0._rk)then
+          lo=t
+        else
+          hi=t
+        end if
       end do
       if(st/=RB_OK)then;status=st;return;end if
       tilt(p)=t;mom(p)=mi;fx=fx+fi;fy=fy+gi;pmax=max(pmax,pm)
