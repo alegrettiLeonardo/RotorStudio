@@ -123,6 +123,9 @@ class PlainJournalPhysicsBearing:
     temperature2_k: float | None = None
     temperature_journal_k: float | None = None
     temperature_ambient_k: float | None = None
+    temperature_reference_k: float | None = None
+    ambient_pressure_1_pa: float = 0.0
+    ambient_pressure_2_pa: float = 0.0
     pad_conductivity_w_mk: float | None = None
     pad_young_pa: float | None = None
     pad_poisson: float | None = None
@@ -179,6 +182,9 @@ class TiltingPadPhysicsBearing:
     temperature2_k: float | None = None
     temperature_journal_k: float | None = None
     temperature_ambient_k: float | None = None
+    temperature_reference_k: float | None = None
+    ambient_pressure_1_pa: float = 0.0
+    ambient_pressure_2_pa: float = 0.0
     pad_conductivity_w_mk: float | None = None
     pad_young_pa: float | None = None
     pad_poisson: float | None = None
@@ -462,6 +468,9 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
             bearing.viscosity2_pa_s,
             bearing.temperature1_k,
             bearing.temperature2_k,
+            bearing.temperature_reference_k,
+            bearing.ambient_pressure_1_pa,
+            bearing.ambient_pressure_2_pa,
             bearing.pad_conductivity_w_mk,
             bearing.pad_young_pa,
             bearing.pad_poisson,
