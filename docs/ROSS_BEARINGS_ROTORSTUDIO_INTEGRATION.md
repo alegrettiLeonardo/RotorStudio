@@ -15,6 +15,26 @@ AMB / magnetic bearings remain out of scope.
 
 ## Implemented integration slice
 
+### Native hydrodynamic implementation progress
+
+The standalone Fortran bearing engine now also contains source-faithful
+building blocks from the current ROSS fluid-film implementation:
+
+- fixed-geometry translators for PartialArc, Elliptical, OffsetHalves,
+  MultiLobe, PressureDam and PlainJournal;
+- TiltingPad configuration validation and ROSS-compatible initial-position
+  mapping;
+- the Allaire Q4 Reynolds element matrix/source kernel;
+- ROSS banded Reynolds assembly/LU/cavitating back-substitution kernels;
+- the rigid/isoviscous baseline film-thickness kernel used as the next
+  TiltingPad/PlainJournal native-solver layer.
+
+These are qualified as implementation sub-gates only. They do **not** yet
+constitute the complete native PlainJournal/TiltingPad operating-point solver:
+pressure-field orchestration, journal/pad equilibrium, perturbation fields,
+pad-DOF condensation and THD/TEHD remain open.
+
+
 The RotorStudio solver can now consume two complementary advanced-bearing
 paths without changing the frozen legacy type 1–8 / 20 implementation.
 
@@ -149,14 +169,12 @@ optional.
 The dedicated workflow keeps the existing frozen Stage-1 collection at
 exactly 57 tests and runs the new bearing qualification separately.
 
-The new integration tests cover:
-
-1. ROSS oracle value for the native ball-bearing implementation;
-2. independent spin/whirl interpolation for a TiltingPad coefficient grid;
-3. exact collapse of a constant advanced bearing to the legacy type-5 modal
-   path;
-4. speed-dependent bearing re-evaluation at every synchronous FRF point;
-5. save/reopen of a typed TiltingPad coefficient model with provenance.
+The integration tests now cover native Ball/Roller/Cylindrical/SFD oracles,
+fixed-geometry and TiltingPad configuration ABI, the Reynolds Q4 kernel,
+independent spin/whirl interpolation for a TiltingPad coefficient grid,
+exact collapse of a constant advanced bearing to the legacy type-5 modal
+path, speed-dependent bearing re-evaluation at every synchronous FRF point,
+and save/reopen of a typed TiltingPad coefficient model with provenance.
 
 No family should be labelled `NATIVE_TEHD_QUALIFIED` until its remaining
 standalone bearing-physics gates are implemented and compared to the frozen
