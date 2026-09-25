@@ -132,6 +132,7 @@ class PlainJournalPhysicsBearing:
     pad_expansion_1_k: float | None = None
     convection_edges_w_m2k: float = 0.0
     convection_back_w_m2k: float = 0.0
+    hot_oil_lambda: float = 0.0
     tag: str = ""
     provenance: dict[str, Any] = field(default_factory=dict)
     model_family: str = field(default="plain_journal_physics", init=False)
@@ -191,6 +192,7 @@ class TiltingPadPhysicsBearing:
     pad_expansion_1_k: float | None = None
     convection_edges_w_m2k: float = 0.0
     convection_back_w_m2k: float = 0.0
+    hot_oil_lambda: float = 0.0
     relax_temperature: float = 0.5
     outer_iterations: int = 30
     force_tolerance: float = 2e-3
@@ -559,6 +561,8 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
             raise ValueError("SFD geometry must be groove, end_seals or groove-end_seals")
 
     if isinstance(bearing, (PlainJournalPhysicsBearing, TiltingPadPhysicsBearing)):
+        if not 0.0 <= float(bearing.hot_oil_lambda) <= 1.0:
+            raise ValueError("hot_oil_lambda must satisfy 0 <= value <= 1")
         if bearing.thermal_type is not None:
             required = {
                 "oil_supply_temperature_k": bearing.oil_supply_temperature_k,

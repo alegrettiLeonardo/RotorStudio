@@ -274,6 +274,7 @@ class AdvancedBearingBackend:
                 bearing.temperature_reference_k or supply,
                 bearing.ambient_pressure_1_pa,
                 bearing.ambient_pressure_2_pa,
+                bearing.hot_oil_lambda,
             ],
             dtype=np.float64,
         )
@@ -381,6 +382,7 @@ class AdvancedBearingBackend:
                 bearing.temperature_reference_k or supply,
                 bearing.ambient_pressure_1_pa,
                 bearing.ambient_pressure_2_pa,
+                bearing.hot_oil_lambda,
             ],
             dtype=np.float64,
         )
