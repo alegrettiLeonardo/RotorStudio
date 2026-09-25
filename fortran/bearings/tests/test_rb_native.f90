@@ -134,7 +134,7 @@ contains
     integer(ik) :: np
     real(rk) :: pivot2(2), arc2(2), pre2(2), off2(2)
     real(rk) :: track_arc(2), track_len(2), track_depth(2)
-    real(rk) :: pre3(3), off3(3), pivot3(3), arc3(3)
+    real(rk) :: pre3_in(3), off3_in(3), pre3(3), off3(3), pivot3(3), arc3(3)
     real(rk) :: p1(1), a1(1), pr1(1), o1(1)
     real(rk) :: pj_pivot(4), pj_arc(4), pj_pre(4), pj_off(4), pj_len(4), pj_thick
 
@@ -155,9 +155,9 @@ contains
     if (st /= RB_OK .or. np /= 2) error stop 358
     call assert_close(off2(1), 0.6_rk, 1e-14_rk, 1e-14_rk, 359)
 
-    pre3 = [0.3_rk, 0.4_rk, 0.5_rk]
-    off3 = [0.45_rk, 0.5_rk, 0.55_rk]
-    call rb_multi_lobe_geometry(3_ik, 100._rk*pi_/180._rk, pre3, off3, 0._rk, .false., &
+    pre3_in = [0.3_rk, 0.4_rk, 0.5_rk]
+    off3_in = [0.45_rk, 0.5_rk, 0.55_rk]
+    call rb_multi_lobe_geometry(3_ik, 100._rk*pi_/180._rk, pre3_in, off3_in, 0._rk, .false., &
                                 pivot3, arc3, pre3, off3, st)
     if (st /= RB_OK) error stop 360
     call assert_close(pivot3(1), pi_/3._rk, 1e-14_rk, 1e-14_rk, 361)
