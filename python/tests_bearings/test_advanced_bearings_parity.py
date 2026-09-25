@@ -288,6 +288,7 @@ def test_b12_reference_authority_is_frozen():
 def test_b12_plain_journal_isoviscous_parity():
     golden, fields = _load("plain_journal_isoviscous")
     native = _plain_native(golden["inputs"])
+    print("B12_FIELD_L2 plain_iso pressure", _relative_l2(native["pressure"], fields["pressure_field_pa"]))
     _assert_scalar_and_matrices(native, golden)
     assert _relative_l2(native["pressure"], fields["pressure_field_pa"]) <= 1.0e-2
 
@@ -295,6 +296,8 @@ def test_b12_plain_journal_isoviscous_parity():
 def test_b12_plain_journal_tehd_parity():
     golden, fields = _load("plain_journal_tehd")
     native = _plain_native(golden["inputs"])
+    print("B12_FIELD_L2 plain_tehd pressure", _relative_l2(native["pressure"], fields["pressure_field_pa"]))
+    print("B12_FIELD_L2 plain_tehd temperature", _relative_l2(native["temperature"], fields["temperature_field_k"]))
     _assert_scalar_and_matrices(native, golden, thermal=True, deformation=True)
     assert _relative_l2(native["pressure"], fields["pressure_field_pa"]) <= 1.0e-2
     assert _relative_l2(native["temperature"], fields["temperature_field_k"]) <= 1.0e-3
