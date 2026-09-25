@@ -74,7 +74,9 @@ contains
       end do
     end do
 
-    bandwidth = int((nz+1)+1,ik)
+    ! Current ROSS: bandwidth = node_k(0)-node_i(0)+1 = nz+3.
+    ! Keep the +1 inclusive span; nz+2 is too narrow for the i-k coupling.
+    bandwidth = int(nz+3,ik)
   end subroutine rb_reynolds_mesh_smooth
 
 end module rb_reynolds_mesh
