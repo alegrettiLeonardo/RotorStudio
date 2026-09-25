@@ -10,6 +10,7 @@ program test_ross_bearings_native
   use rb_tilting_pad_config, only: rb_tilting_pad_prepare, RB_TP_CONVENTIONAL, RB_TP_MATCH_LOAD
   use rb_reynolds_element, only: rb_reynolds_q4_element
   use rb_reynolds_banded, only: rb_lu_factor_band, rb_lu_solve_band_cavitating
+  use rb_reynolds_mesh, only: rb_reynolds_mesh_smooth
   use rb_film_thickness, only: rb_film_thickness_baseline
   implicit none(type, external)
 
@@ -26,10 +27,11 @@ program test_ross_bearings_native
   call test_tilting_pad_config()
   call test_reynolds_element()
   call test_reynolds_banded()
+  call test_reynolds_mesh()
   call test_film_thickness()
   call test_sfd()
 
-  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5film/BF5cfg/BF7'
+  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5mesh/BF5film/BF5cfg/BF7'
 
 contains
 
@@ -252,6 +254,27 @@ contains
     call assert_close(bvec(2),38._rk/41._rk,1e-13_rk,1e-13_rk,394)
     call assert_close(bvec(3),42._rk/41._rk,1e-13_rk,1e-13_rk,395)
   end subroutine test_reynolds_banded
+
+  subroutine test_reynolds_mesh()
+    real(rk) :: x(6), xr(6), z(6), el(2), ew(2), dxm(2,4), dzm(2,4)
+    integer(ik) :: ni(2), nj(2), nk(2), nl(2), bw
+
+    call rb_reynolds_mesh_smooth(1_ik,2_ik,pi_/2._rk,0.1_rk,0.06_rk, &
+                                 x,xr,z,ni,nj,nk,nl,el,ew,dxm,dzm,bw,st)
+    if (st /= RB_OK) error stop 401
+    if (bw /= 4_ik) error stop 402
+
+    call assert_close(x(1),0._rk,1e-14_rk,1e-14_rk,403)
+    call assert_close(x(4),0.1_rk,1e-14_rk,1e-14_rk,404)
+    call assert_close(xr(4),pi_/2._rk,1e-14_rk,1e-14_rk,408)
+    call assert_close(z(2),0.03_rk,1e-14_rk,1e-14_rk,409)
+    if (ni(1)/=0_ik .or. nj(1)/=3_ik .or. nk(1)/=4_ik .or. nl(1)/=1_ik) error stop 410
+    if (ni(2)/=1_ik .or. nj(2)/=4_ik .or. nk(2)/=5_ik .or. nl(2)/=2_ik) error stop 411
+    call assert_close(el(1),0.1_rk,1e-14_rk,1e-14_rk,412)
+    call assert_close(ew(1),0.03_rk,1e-14_rk,1e-14_rk,413)
+    call assert_close(dxm(1,1),-5._rk,1e-14_rk,1e-14_rk,414)
+    call assert_close(dzm(1,1),-1._rk/0.06_rk,1e-14_rk,1e-14_rk,415)
+  end subroutine test_reynolds_mesh
 
   subroutine test_film_thickness()
     integer(ik) :: idx0(4)
