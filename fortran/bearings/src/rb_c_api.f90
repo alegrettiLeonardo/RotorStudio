@@ -578,7 +578,8 @@ contains
       real(rcfg(15),rk),real(rcfg(16),rk),real(rcfg(17),rk),real(rcfg(18),rk),real(rcfg(19),rk),real(rcfg(20),rk), &
       real(rcfg(21),rk),real(rcfg(22),rk),real(rcfg(23),rk),int(n_pads,ik),piv,arc,alen,pre,off,int(icfg(3),ik), &
       int(icfg(4),ik),int(icfg(5),ik),int(icfg(6),ik),real(rcfg(24),rk),real(rcfg(25),rk),real(rcfg(26),rk), &
-      real(rcfg(27),rk),int(icfg(7),ik),int(icfg(8),ik),real(rcfg(28),rk),real(rcfg(29),rk),xr,yr,k,cc,fx,fy,pm,tm,to,dm,it,st)
+      real(rcfg(27),rk),int(icfg(7),ik),int(icfg(8),ik),real(rcfg(28),rk),real(rcfg(29),rk),xr,yr,k,cc,fx,fy,pm,tm,to,dm,it,st,temp_reference_in=real(rcfg(30),rk), &
+      ambient_press1_in=real(rcfg(31),rk),ambient_press2_in=real(rcfg(32),rk))
     k_out=[real(k(1,1),c_double),real(k(2,1),c_double),real(k(1,2),c_double),real(k(2,2),c_double)]
     c_out=[real(cc(1,1),c_double),real(cc(2,1),c_double),real(cc(1,2),c_double),real(cc(2,2),c_double)]
     summary=[real(xr,c_double),real(yr,c_double),real(fx,c_double),real(fy,c_double),real(pm,c_double), &
@@ -608,7 +609,8 @@ contains
       real(rcfg(21),rk),real(rcfg(22),rk),real(rcfg(23),rk),real(rcfg(24),rk),real(rcfg(25),rk),int(n_pads,ik), &
       piv,arc,alen,pre,off,krot,int(icfg(3),ik),int(icfg(4),ik),int(icfg(5),ik),int(icfg(6),ik),real(rcfg(26),rk), &
       real(rcfg(27),rk),real(rcfg(28),rk),real(rcfg(29),rk),int(icfg(7),ik),int(icfg(8),ik),real(rcfg(30),rk), &
-      real(rcfg(31),rk),xr,yr,tilt,k,cc,fx,fy,pm,tm,to,dm,it,st)
+      real(rcfg(31),rk),xr,yr,tilt,k,cc,fx,fy,pm,tm,to,dm,it,st,temp_reference_in=real(rcfg(32),rk), &
+      ambient_press1_in=real(rcfg(33),rk),ambient_press2_in=real(rcfg(34),rk))
     tilt_angle(1:n)=real(tilt,c_double)
     k_out=[real(k(1,1),c_double),real(k(2,1),c_double),real(k(1,2),c_double),real(k(2,2),c_double)]
     c_out=[real(cc(1,1),c_double),real(cc(2,1),c_double),real(cc(1,2),c_double),real(cc(2,2),c_double)]
