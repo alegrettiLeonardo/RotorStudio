@@ -72,10 +72,10 @@ contains
     mu=mu1;mu_new=mu1;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     xj=xj0*cb;yj=yj0*cb
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
-    fxext=fxs_load+fx_groove;fyext=fys_load-weight+fy_groove;outer_done=0
+    fxext=fxs_load;fyext=fys_load-weight;outer_done=0
 
     do it=1,int(outer_iterations)
-      call plain_equilibrium(speed,fxext,fyext,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
+      call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
                              max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st)
       if(st/=RB_OK)then;status=st;return;end if
 
@@ -144,7 +144,7 @@ contains
       status=RB_ERR_CONVERGENCE;return
     end if
 
-    call plain_equilibrium(speed,fxext,fyext,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
+    call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
                            max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st)
     if(st/=RB_OK)then;status=st;return;end if
     call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,k_out,c_out,st)
@@ -236,10 +236,10 @@ contains
     mu=mu1;mu_new=mu1;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     xj=xj0*cb;yj=yj0*cb
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
-    fxext=fxs_load+fx_groove;fyext=fys_load-weight+fy_groove;outer_done=0
+    fxext=fxs_load;fyext=fys_load-weight;outer_done=0
 
     do it=1,int(outer_iterations)
-      call tp_journal_equilibrium(speed,fxext,fyext,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
+      call tp_journal_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
                                   relax_p,max_iterations,force_tol,tilt,press,h,mom,fx,fy,pmax,iterations,st)
       if(st/=RB_OK)then;status=st;return;end if
       mu_new=mu;dh_new=dh;temp_delta=0._rk;def_delta=0._rk;tmax=temp_supply;tout=0._rk
@@ -311,7 +311,7 @@ contains
       status=RB_ERR_CONVERGENCE;return
     end if
 
-    call tp_journal_equilibrium(speed,fxext,fyext,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
+    call tp_journal_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
                                 relax_p,max_iterations,force_tol,tilt,press,h,mom,fx,fy,pmax,iterations,st)
     if(st/=RB_OK)then;status=st;return;end if
     call tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt, &
@@ -351,6 +351,37 @@ contains
       deformation_field(1:int(nx)+1,1:int(np))=dh(1:int(nx)+1,1:int(np))
     end if
   end subroutine rb_tilting_pad_multiphysics
+
+
+  subroutine rb_newton_step(kxx,kxy,kyx,kyy,fxnet,fynet,cb,dx,dy,status)
+    real(rk),intent(in)::kxx,kxy,kyx,kyy,fxnet,fynet,cb
+    real(rk),intent(out)::dx,dy
+    integer(ik),intent(out)::status
+    real(rk)::det,norm0
+    status=RB_OK;dx=0._rk;dy=0._rk
+    if(abs(kyy)>1e-6_rk .and. abs(kxx/kyy)<1e-4_rk)then
+      dx=0._rk;dy=fynet/kyy
+    else if(abs(kxx)>1e-6_rk .and. abs(kyy/kxx)<1e-4_rk)then
+      dx=fxnet/kxx;dy=0._rk
+    else if(abs(kxy)<1e-6_rk .and. abs(kyx)<1e-6_rk .and. abs(kxx)>1e-6_rk .and. abs(kyy)>1e-6_rk)then
+      dx=fxnet/kxx;dy=fynet/kyy
+    else
+      det=kxx*kyy-kxy*kyx
+      if(abs(det)<1e-6_rk)then
+        ! Sentinel requests the pinned ROSS singular-Jacobian fallback:
+        ! reset journal to the origin and apply delta_y=-0.2*cb.
+        dx=huge(1._rk);dy=0._rk;return
+      end if
+      dx=(kyy*fxnet-kxy*fynet)/det
+      dy=(-kyx*fxnet+kxx*fynet)/det
+    end if
+    norm0=sqrt(dx*dx+dy*dy)
+    if(norm0>.2_rk*cb)then
+      ! Preserve the deliberately sequential pinned ROSS clamp.
+      dx=dx*.2_rk*cb/norm0
+      dy=dy*.2_rk*cb/sqrt(dx*dx+dy*dy)
+    end if
+  end subroutine rb_newton_step
 
 
   subroutine rb_groove_forces(np,d,piv,arc,alen,off,ambient1,ambient2,fxg,fyg)
@@ -695,9 +726,9 @@ contains
   end subroutine plain_force
 
 
-  subroutine plain_equilibrium(speed,fxext,fyext,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax,maxit,tol, &
+  subroutine plain_equilibrium(speed,fxext,fyext,fxgroove,fygroove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax,maxit,tol, &
                                press,h,fx,fy,pmax,iterations,status)
-    real(rk),intent(in)::speed,fxext,fyext,d,cb,piv(np),arc(np),alen(np),pre(np),off(np),mu(:,:),dh(:,:),relax,tol
+    real(rk),intent(in)::speed,fxext,fyext,fxgroove,fygroove,d,cb,piv(np),arc(np),alen(np),pre(np),off(np),mu(:,:),dh(:,:),relax,tol
     integer(ik),intent(in)::np,nx,nz,maxit
     real(rk),intent(inout)::xj,yj
     real(rk),intent(out)::press(:,:),h(:,:),fx,fy,pmax
@@ -709,7 +740,7 @@ contains
     do it=1,int(maxit)
       call plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,h,fx,fy,pmax,st)
       if(st/=RB_OK)then;status=st;return;end if
-      fxn=fx+fxext;fyn=fy+fyext;iterations=int(it,ik)
+      fxn=fx+fxgroove+fxext;fyn=fy+fygroove+fyext;iterations=int(it,ik)
       if(sqrt(fxn*fxn+fyn*fyn)<=tol*scale .and. it>1)exit
       k11=0._rk;k21=0._rk;k12=0._rk;k22=0._rk
       do p=1,int(np)
@@ -722,16 +753,14 @@ contains
         if(st/=RB_OK)then;status=st;return;end if
         k12=k12+fp;k22=k22+gp
       end do
-      det=k11*k22-k12*k21
-      if(abs(det)<1e-6_rk)then;status=RB_ERR_CONVERGENCE;return;end if
-      dx=(k22*fxn-k12*fyn)/det;dy=(-k21*fxn+k11*fyn)/det
-      if(sqrt(dx*dx+dy*dy)>.2_rk*cb)then
-        dx=dx*.2_rk*cb/sqrt(dx*dx+dy*dy)
-        dy=dy*.2_rk*cb/sqrt(dx*dx+dy*dy)
+      call rb_newton_step(k11,k12,k21,k22,fxn,fyn,cb,dx,dy,st)
+      if(st/=RB_OK)then;status=st;return;end if
+      if(dx==huge(1._rk))then
+        xj=0._rk;yj=0._rk;dx=0._rk;dy=-.2_rk*cb
       end if
       xj=xj+relax*dx;yj=yj+relax*dy
     end do
-    if(sqrt((fx+fxext)**2+(fy+fyext)**2)>tol*scale)status=RB_ERR_CONVERGENCE
+    if(sqrt((fx+fxgroove+fxext)**2+(fy+fygroove+fyext)**2)>tol*scale)status=RB_ERR_CONVERGENCE
   end subroutine plain_equilibrium
 
 
@@ -805,9 +834,9 @@ contains
   end subroutine tp_force_eq
 
 
-  subroutine tp_journal_equilibrium(speed,fxext,fyext,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
+  subroutine tp_journal_equilibrium(speed,fxext,fyext,fxgroove,fygroove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
                                     relax,maxit,tol,tilt,press,h,mom,fx,fy,pmax,iterations,status)
-    real(rk),intent(in)::speed,fxext,fyext,d,cb,tp,piv(np),arc(np),alen(np),pre(np),off(np),krot(np),mu(:,:),dh(:,:),relax,tol
+    real(rk),intent(in)::speed,fxext,fyext,fxgroove,fygroove,d,cb,tp,piv(np),arc(np),alen(np),pre(np),off(np),krot(np),mu(:,:),dh(:,:),relax,tol
     integer(ik),intent(in)::np,nx,nz,maxit
     real(rk),intent(inout)::xj,yj
     real(rk),intent(out)::tilt(np),press(:,:),h(:,:),mom(np),fx,fy,pmax
@@ -820,7 +849,7 @@ contains
     do it=1,int(maxit)
       call tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt,press,h,mom,fx,fy,pmax,st)
       if(st/=RB_OK)then;status=st;return;end if
-      fxn=fx+fxext;fyn=fy+fyext;iterations=int(it,ik)
+      fxn=fx+fxgroove+fxext;fyn=fy+fygroove+fyext;iterations=int(it,ik)
       if(sqrt(fxn**2+fyn**2)<=tol*scale .and. it>1)exit
       k11=0._rk;k21=0._rk;k12=0._rk;k22=0._rk
       do p=1,int(np)
@@ -838,16 +867,14 @@ contains
           k12=k12-kxd*kdy/den;k22=k22-kyd*kdy/den
         end if
       end do
-      det=k11*k22-k12*k21
-      if(abs(det)<1e-6_rk)then;status=RB_ERR_CONVERGENCE;return;end if
-      dx=(k22*fxn-k12*fyn)/det;dy=(-k21*fxn+k11*fyn)/det
-      if(sqrt(dx*dx+dy*dy)>.2_rk*cb)then
-        dx=dx*.2_rk*cb/sqrt(dx*dx+dy*dy)
-        dy=dy*.2_rk*cb/sqrt(dx*dx+dy*dy)
+      call rb_newton_step(k11,k12,k21,k22,fxn,fyn,cb,dx,dy,st)
+      if(st/=RB_OK)then;status=st;return;end if
+      if(dx==huge(1._rk))then
+        xj=0._rk;yj=0._rk;dx=0._rk;dy=-.2_rk*cb
       end if
       xj=xj+relax*dx;yj=yj+relax*dy
     end do
-    if(sqrt((fx+fxext)**2+(fy+fyext)**2)>tol*scale)status=RB_ERR_CONVERGENCE
+    if(sqrt((fx+fxgroove+fxext)**2+(fy+fygroove+fyext)**2)>tol*scale)status=RB_ERR_CONVERGENCE
     return
 900 status=st
   end subroutine tp_journal_equilibrium
