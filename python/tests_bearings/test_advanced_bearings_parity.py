@@ -92,8 +92,8 @@ def _plain_native(inp: dict):
             int(inp["total_e_z_film"]),
             int(inp["total_e_y_pad"]),
             int(inp["total_e_y_film"]),
-            120,
-            80,
+            100,
+            100,
         ],
         dtype=np.int32,
     )
@@ -190,8 +190,8 @@ def _tilting_native(inp: dict, whirl_rad_s: float):
             int(inp["total_e_z_film"]),
             int(inp["total_e_y_pad"]),
             int(inp["total_e_y_film"]),
-            120,
-            80,
+            100,
+            100,
         ],
         dtype=np.int32,
     )
