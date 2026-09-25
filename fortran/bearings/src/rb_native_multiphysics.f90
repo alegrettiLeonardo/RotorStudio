@@ -162,8 +162,12 @@ contains
       ! inlet mixing -> deformation.  A downstream state is not advanced
       ! while an upstream fixed point remains unconverged.
       tout=tout/real(np,rk)
-      mu=(1._rk-relax_t)*mu+relax_t*mu_new
-      gfun=(1._rk-relax_t)*gfun+relax_t*gfun_new
+      ! The thermal pad routines already apply RelaxT to the temperature
+      ! iterate before deriving viscosity/Gamma/G.  ROSS then scatters those
+      ! derived fields directly into the next hydrodynamic state; applying
+      ! RelaxT again here would double-relax viscosity for RelaxT < 1.
+      mu=mu_new
+      gfun=gfun_new
 
       if(thermal_type/=RB_THERMAL_ISOVISCOUS)then
         ! TEMP_ERROR = 0.01 degF in ROSS.
@@ -442,8 +446,12 @@ contains
       ! inlet mixing -> deformation.  A downstream state is not advanced
       ! while an upstream fixed point remains unconverged.
       tout=tout/real(np,rk)
-      mu=(1._rk-relax_t)*mu+relax_t*mu_new
-      gfun=(1._rk-relax_t)*gfun+relax_t*gfun_new
+      ! The thermal pad routines already apply RelaxT to the temperature
+      ! iterate before deriving viscosity/Gamma/G.  ROSS then scatters those
+      ! derived fields directly into the next hydrodynamic state; applying
+      ! RelaxT again here would double-relax viscosity for RelaxT < 1.
+      mu=mu_new
+      gfun=gfun_new
 
       if(thermal_type/=RB_THERMAL_ISOVISCOUS)then
         ! TEMP_ERROR = 0.01 degF in ROSS.
