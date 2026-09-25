@@ -365,5 +365,17 @@ def configure_bearing_library(lib):
         dptr, dptr, dptr, dptr,
     ]
     lib.rb_tilting_pad_multiphysics_pack_c.restype = ct.c_int
+    lib.rb_plain_journal_multiphysics_fields_pack_c.argtypes = [
+        ct.c_int, dptr, iptr,
+        dptr, dptr, dptr, dptr, dptr,
+        dptr, dptr, dptr, dptr, dptr, dptr,
+    ]
+    lib.rb_plain_journal_multiphysics_fields_pack_c.restype = ct.c_int
+    lib.rb_tilting_pad_multiphysics_fields_pack_c.argtypes = [
+        ct.c_int, dptr, iptr,
+        dptr, dptr, dptr, dptr, dptr, dptr,
+        dptr, dptr, dptr, dptr, dptr, dptr, dptr,
+    ]
+    lib.rb_tilting_pad_multiphysics_fields_pack_c.restype = ct.c_int
 
     return lib
