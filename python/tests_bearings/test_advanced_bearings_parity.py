@@ -239,6 +239,27 @@ def _relative_l2(actual, expected):
 def _assert_scalar_and_matrices(native, golden, *, thermal=False, deformation=False):
     o = golden["outputs"]
     s = native["summary"]
+    # Always emit a compact numeric delta table before the first hard gate.
+    # This is qualification evidence, not a tolerance relaxation: it keeps
+    # Windows/Linux CI failures diagnosable when an early scalar assert trips.
+    print(
+        "B12_DELTA",
+        json.dumps(
+            {
+                "native_summary": np.asarray(s, dtype=float).tolist(),
+                "ross_xy_p_t_deform": [
+                    o["xj_ratio"], o["yj_ratio"], o["p_max_pa"],
+                    o.get("t_max_k"), o.get("t_out_bulk_k"),
+                    o.get("deformation_max_m"),
+                ],
+                "native_K": np.asarray(native["K"], dtype=float).tolist(),
+                "ross_K": o["K_n_m"],
+                "native_C": np.asarray(native["C"], dtype=float).tolist(),
+                "ross_C": o["C_n_s_m"],
+            },
+            sort_keys=True,
+        ),
+    )
     np.testing.assert_allclose(s[0], o["xj_ratio"], rtol=0.0, atol=1.0e-5)
     np.testing.assert_allclose(s[1], o["yj_ratio"], rtol=0.0, atol=1.0e-5)
     np.testing.assert_allclose(s[4], o["p_max_pa"], rtol=1.0e-4, atol=1.0)
