@@ -152,9 +152,9 @@ contains
     ! audited by the B12 residual/output gates rather than converted here into
     ! a transport-level C-ABI error.
 
-    call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
-                           max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st,k_last)
-    if(st/=RB_OK)then;status=st;return;end if
+    ! Do not re-run journal equilibrium after the coupled loop.  Pinned ROSS
+    ! emits the last hydrodynamic state produced inside that loop; an extra
+    ! equilibrium pass over-converges xj/yj and changes p/K/C.
     call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
     ! ROSS 6320eab9 consumes the last in-loop Jacobian produced by the
@@ -331,9 +331,8 @@ contains
     ! audited by the B12 residual/output gates rather than converted here into
     ! a transport-level C-ABI error.
 
-    call tp_journal_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
-                                relax_p,max_iterations,force_tol,tilt,press,h,mom,fx,fy,pmax,iterations,st)
-    if(st/=RB_OK)then;status=st;return;end if
+    ! Same authority rule as PlainJournal: the last THD/hydrodynamic state is
+    ! the output state.  Do not execute an additional post-loop equilibrium.
     call tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt, &
                          press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
