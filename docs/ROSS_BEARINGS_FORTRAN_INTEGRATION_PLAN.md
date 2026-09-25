@@ -1,6 +1,6 @@
 # ROSS Bearings in Fortran → RotorStudio Integration Plan
 
-Status: **PLAN APPROVED FOR IMPLEMENTATION; ROTORSTUDIO NUMERICAL INTEGRATION NOT STARTED**
+Status: **NATIVE IMPLEMENTATION IN PROGRESS; ROTORSTUDIO NUMERICAL INTEGRATION NOT STARTED**
 
 RotorStudio base at plan freeze:
 
@@ -13,6 +13,48 @@ ROSS source authorities:
 - existing standalone bearing-fortran frozen ref: `petrobras/ross@631a249adbae414d5f5f986479b58f1a4c47935e`
 
 AMB / magnetic bearings are explicitly **out of scope**.
+
+## 0. Execution status at native implementation start
+
+Current native branch: `feature/ross-bearings-fortran-integration`.
+
+The first additive standalone target is `libdrmbearings`. It is built beside
+`libdrmrotor` but is **not linked into RotorStudio runtime yet**.
+
+Initial implementation gates now present in the branch:
+
+- **BF1** — generic ROSS coefficient interpolation core: constant/1-D/2-D
+  semantics, linear mode, PCHIP mode, and linear endpoint extrapolation;
+- **BF2** — BallBearingElement and RollerBearingElement formulas reimplemented
+  from current ROSS and pinned to current upstream oracle values;
+- **BF3** — current ROSS CylindricalBearing closed-form short-bearing model;
+- **BF7** — SqueezeFilmDamper, including groove, end-seals and combined
+  geometry branches with cavitation on/off.
+
+The remaining advanced journal/tilting/thrust work stays standalone until its
+native gates are closed. No `drm_core`, SolverFacade, RotorStudio UI, or existing
+legacy bearing packet consumes `libdrmbearings` at this stage.
+
+### Coordinate / DOF boundary
+
+ROSS uses x/y as radial directions and z as axial. RotorStudio's qualified
+lateral model owns two radial translations plus two rotations per station and
+does not currently expose a qualified axial translation DOF in the lateral
+assembly. Therefore:
+
+- ROSS x/y radial K/C/M map candidates are in scope for later lateral integration;
+- ROSS z/axial coefficients are preserved by the bearing provider but are **not**
+  silently injected into a RotorStudio lateral DOF;
+- `ThrustPad` is initially a Bearing Performance calculation only;
+- any axial rotor-dynamics coupling requires a separate axial-DOF qualification.
+
+### Seal boundary
+
+This plan is for **bearings**. ROSS `SealElement`, `LabyrinthSeal`,
+`HolePatternSeal` and `HybridSeal` are adjacent but not automatically pulled
+into this scope. RotorStudio's existing qualified seal path remains unchanged.
+A separate seal migration gate can be opened later without coupling it to AMB.
+
 
 ## 1. Governing rules
 
@@ -233,6 +275,14 @@ bearing_destroy(handle)
 ```
 
 A C binding exposes POD descriptors / opaque handles. Do not use the legacy RotorStudio 34-double bearing row for these models.
+
+## 4.1 Source/license provenance rule
+
+ROSS is Apache-2.0 licensed. Any directly ported algorithm or source-derived
+implementation must retain a provenance note identifying
+`petrobras/ross@6320eab9f890f1b3cc1710d508b446fe063ca68d` and preserve the
+required license/notice obligations. ROSS remains a development oracle, not a
+RotorStudio runtime dependency.
 
 ## 5. Qualification requirements before RotorStudio integration
 
