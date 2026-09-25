@@ -15,6 +15,8 @@ add_library(drmbearings SHARED
  bearings/src/rb_rolling.f90
  bearings/src/rb_cylindrical.f90
  bearings/src/rb_squeeze_film_damper.f90
+ bearings/src/rb_fixed_geometry.f90
+ bearings/src/rb_tilting_pad_config.f90
  bearings/src/rb_c_api.f90)
 set_target_properties(drmbearings PROPERTIES OUTPUT_NAME drmbearings)
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
@@ -57,4 +59,4 @@ add_test(NAME transient_dp45_reduction COMMAND test_transient)
 
 add_executable(test_ross_bearings_native bearings/tests/test_rb_native.f90)
 target_link_libraries(test_ross_bearings_native PRIVATE drmbearings)
-add_test(NAME ross_bearings_native_bf1_bf2_bf3_bf7 COMMAND test_ross_bearings_native)
+add_test(NAME ross_bearings_native_bf1_bf2_bf3_bf4_bf5cfg_bf7 COMMAND test_ross_bearings_native)
