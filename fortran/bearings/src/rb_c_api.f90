@@ -13,6 +13,7 @@ module rb_c_api
   use rb_dynamic_reduction, only: rb_dynamic_reduce_tilts
   use rb_plain_journal_physics, only: rb_plain_journal_isoviscous
   use rb_tilting_pad_physics, only: rb_tilting_pad_isoviscous
+  use rb_native_multiphysics, only: rb_plain_journal_multiphysics, rb_tilting_pad_multiphysics
   implicit none(type, external)
   private
 
@@ -23,6 +24,7 @@ module rb_c_api
   public :: rb_tilting_pad_prepare_c, rb_reynolds_q4_element_c
   public :: rb_pressure_smooth_isoviscous_c, rb_dynamic_reduce_tilts_c
   public :: rb_plain_journal_isoviscous_c, rb_tilting_pad_isoviscous_c
+  public :: rb_plain_journal_multiphysics_c, rb_tilting_pad_multiphysics_c
 
 contains
 
@@ -463,5 +465,93 @@ contains
     rb_tilting_pad_isoviscous_c=int(st,c_int)
   end function rb_tilting_pad_isoviscous_c
 
+
+
+  integer(c_int) function rb_plain_journal_multiphysics_c(speed,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube, &
+      thermal_type,deform_type,pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient,convec_edges, &
+      convec_back,n_pads,pivot_angle,pad_arc,pad_axial_length,preload,offset,total_e_x,total_e_z,total_e_y_pad,total_e_y_film, &
+      xj_ratio_initial,yj_ratio_initial,relax_p,relax_t,max_iterations,outer_iterations,force_tolerance,field_tolerance, &
+      xj_ratio,yj_ratio,k_out,c_out,fx_hydro,fy_hydro,p_max,t_max,t_out,deform_max,iterations) &
+      bind(C,name="rb_plain_journal_multiphysics_c")
+    real(c_double),value::speed,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
+    integer(c_int),value::thermal_type,deform_type
+    real(c_double),value::pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient,convec_edges,convec_back
+    integer(c_int),value::n_pads,total_e_x,total_e_z,total_e_y_pad,total_e_y_film
+    real(c_double),intent(in)::pivot_angle(*),pad_arc(*),pad_axial_length(*),preload(*),offset(*)
+    real(c_double),value::xj_ratio_initial,yj_ratio_initial,relax_p,relax_t,force_tolerance,field_tolerance
+    integer(c_int),value::max_iterations,outer_iterations
+    real(c_double),intent(out)::xj_ratio,yj_ratio,k_out(4),c_out(4),fx_hydro,fy_hydro,p_max,t_max,t_out,deform_max
+    integer(c_int),intent(out)::iterations
+    real(rk),allocatable::piv(:),arc(:),alen(:),pre(:),off(:)
+    real(rk)::xr,yr,k(2,2),cc(2,2),fx,fy,pm,tm,to,dm
+    integer(ik)::st,it
+    integer::n
+    n=int(n_pads)
+    if(n<1)then
+      rb_plain_journal_multiphysics_c=int(RB_ERR_INPUT,c_int);iterations=0_c_int;return
+    end if
+    allocate(piv(n),arc(n),alen(n),pre(n),off(n))
+    piv=real(pivot_angle(1:n),rk);arc=real(pad_arc(1:n),rk);alen=real(pad_axial_length(1:n),rk)
+    pre=real(preload(1:n),rk);off=real(offset(1:n),rk)
+    call rb_plain_journal_multiphysics(real(speed,rk),real(weight,rk),real(fxs_load,rk),real(fys_load,rk),real(d,rk), &
+      real(cb,rk),real(mu1,rk),real(mu2,rk),real(t1,rk),real(t2,rk),real(rho,rk),real(cp,rk),real(klube,rk), &
+      int(thermal_type,ik),int(deform_type,ik),real(pad_thickness,rk),real(kpad,rk),real(epad,rk),real(nupad,rk), &
+      real(alphapad,rk),real(temp_supply,rk),real(temp_journal,rk),real(temp_ambient,rk),real(convec_edges,rk), &
+      real(convec_back,rk),int(n_pads,ik),piv,arc,alen,pre,off,int(total_e_x,ik),int(total_e_z,ik),int(total_e_y_pad,ik), &
+      int(total_e_y_film,ik),real(xj_ratio_initial,rk),real(yj_ratio_initial,rk),real(relax_p,rk),real(relax_t,rk), &
+      int(max_iterations,ik),int(outer_iterations,ik),real(force_tolerance,rk),real(field_tolerance,rk),xr,yr,k,cc, &
+      fx,fy,pm,tm,to,dm,it,st)
+    xj_ratio=real(xr,c_double);yj_ratio=real(yr,c_double)
+    k_out=[real(k(1,1),c_double),real(k(2,1),c_double),real(k(1,2),c_double),real(k(2,2),c_double)]
+    c_out=[real(cc(1,1),c_double),real(cc(2,1),c_double),real(cc(1,2),c_double),real(cc(2,2),c_double)]
+    fx_hydro=real(fx,c_double);fy_hydro=real(fy,c_double);p_max=real(pm,c_double)
+    t_max=real(tm,c_double);t_out=real(to,c_double);deform_max=real(dm,c_double);iterations=int(it,c_int)
+    rb_plain_journal_multiphysics_c=int(st,c_int)
+  end function rb_plain_journal_multiphysics_c
+
+
+  integer(c_int) function rb_tilting_pad_multiphysics_c(speed,omega,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube, &
+      thermal_type,deform_type,pad_thickness,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
+      convec_edges,convec_back,n_pads,pivot_angle,pad_arc,pad_axial_length,preload,offset,k_rotate,total_e_x,total_e_z, &
+      total_e_y_pad,total_e_y_film,xj_ratio_initial,yj_ratio_initial,relax_p,relax_t,max_iterations,outer_iterations, &
+      force_tolerance,field_tolerance,xj_ratio,yj_ratio,tilt_angle,k_out,c_out,fx_hydro,fy_hydro,p_max,t_max,t_out, &
+      deform_max,iterations) bind(C,name="rb_tilting_pad_multiphysics_c")
+    real(c_double),value::speed,omega,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
+    integer(c_int),value::thermal_type,deform_type
+    real(c_double),value::pad_thickness,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
+    real(c_double),value::convec_edges,convec_back
+    integer(c_int),value::n_pads,total_e_x,total_e_z,total_e_y_pad,total_e_y_film
+    real(c_double),intent(in)::pivot_angle(*),pad_arc(*),pad_axial_length(*),preload(*),offset(*),k_rotate(*)
+    real(c_double),value::xj_ratio_initial,yj_ratio_initial,relax_p,relax_t,force_tolerance,field_tolerance
+    integer(c_int),value::max_iterations,outer_iterations
+    real(c_double),intent(out)::xj_ratio,yj_ratio,tilt_angle(*),k_out(4),c_out(4)
+    real(c_double),intent(out)::fx_hydro,fy_hydro,p_max,t_max,t_out,deform_max
+    integer(c_int),intent(out)::iterations
+    real(rk),allocatable::piv(:),arc(:),alen(:),pre(:),off(:),krot(:),tilt(:)
+    real(rk)::xr,yr,k(2,2),cc(2,2),fx,fy,pm,tm,to,dm
+    integer(ik)::st,it
+    integer::n
+    n=int(n_pads)
+    if(n<1)then
+      rb_tilting_pad_multiphysics_c=int(RB_ERR_INPUT,c_int);iterations=0_c_int;return
+    end if
+    allocate(piv(n),arc(n),alen(n),pre(n),off(n),krot(n),tilt(n))
+    piv=real(pivot_angle(1:n),rk);arc=real(pad_arc(1:n),rk);alen=real(pad_axial_length(1:n),rk)
+    pre=real(preload(1:n),rk);off=real(offset(1:n),rk);krot=real(k_rotate(1:n),rk)
+    call rb_tilting_pad_multiphysics(real(speed,rk),real(omega,rk),real(weight,rk),real(fxs_load,rk),real(fys_load,rk), &
+      real(d,rk),real(cb,rk),real(mu1,rk),real(mu2,rk),real(t1,rk),real(t2,rk),real(rho,rk),real(cp,rk),real(klube,rk), &
+      int(thermal_type,ik),int(deform_type,ik),real(pad_thickness,rk),real(pad_density,rk),real(kpad,rk),real(epad,rk), &
+      real(nupad,rk),real(alphapad,rk),real(temp_supply,rk),real(temp_journal,rk),real(temp_ambient,rk), &
+      real(convec_edges,rk),real(convec_back,rk),int(n_pads,ik),piv,arc,alen,pre,off,krot,int(total_e_x,ik), &
+      int(total_e_z,ik),int(total_e_y_pad,ik),int(total_e_y_film,ik),real(xj_ratio_initial,rk),real(yj_ratio_initial,rk), &
+      real(relax_p,rk),real(relax_t,rk),int(max_iterations,ik),int(outer_iterations,ik),real(force_tolerance,rk), &
+      real(field_tolerance,rk),xr,yr,tilt,k,cc,fx,fy,pm,tm,to,dm,it,st)
+    xj_ratio=real(xr,c_double);yj_ratio=real(yr,c_double);tilt_angle(1:n)=real(tilt,c_double)
+    k_out=[real(k(1,1),c_double),real(k(2,1),c_double),real(k(1,2),c_double),real(k(2,2),c_double)]
+    c_out=[real(cc(1,1),c_double),real(cc(2,1),c_double),real(cc(1,2),c_double),real(cc(2,2),c_double)]
+    fx_hydro=real(fx,c_double);fy_hydro=real(fy,c_double);p_max=real(pm,c_double)
+    t_max=real(tm,c_double);t_out=real(to,c_double);deform_max=real(dm,c_double);iterations=int(it,c_int)
+    rb_tilting_pad_multiphysics_c=int(st,c_int)
+  end function rb_tilting_pad_multiphysics_c
 
 end module rb_c_api
