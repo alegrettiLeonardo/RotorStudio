@@ -79,6 +79,14 @@ contains
     else
       delta=mu1
     end if
+    ! ROSS evaluates Gamma through the finite cross-film mesh.  For a
+    ! constant-viscosity smooth film with weight_e=weight_h=0, its trapezoidal
+    ! Gamma is the analytic -1/(12*mu) multiplied by (1-1/ny^2).  Store the
+    ! numerically equivalent viscosity on the isoviscous path so the native
+    ! 2-D Reynolds solve reproduces the pinned discrete operator exactly.
+    if(thermal_type==RB_THERMAL_ISOVISCOUS .and. ny_film>1)then
+      delta=delta/(1._rk-1._rk/real(ny_film*ny_film,rk))
+    end if
     mu=delta;mu_new=delta;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     xj=xj0*cb;yj=yj0*cb;k_last=0._rk
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
@@ -254,6 +262,14 @@ contains
       delta=mu1*exp(log(mu2/mu1)*(temp_supply-t1)/(t2-t1))
     else
       delta=mu1
+    end if
+    ! ROSS evaluates Gamma through the finite cross-film mesh.  For a
+    ! constant-viscosity smooth film with weight_e=weight_h=0, its trapezoidal
+    ! Gamma is the analytic -1/(12*mu) multiplied by (1-1/ny^2).  Store the
+    ! numerically equivalent viscosity on the isoviscous path so the native
+    ! 2-D Reynolds solve reproduces the pinned discrete operator exactly.
+    if(thermal_type==RB_THERMAL_ISOVISCOUS .and. ny_film>1)then
+      delta=delta/(1._rk-1._rk/real(ny_film*ny_film,rk))
     end if
     mu=delta;mu_new=delta;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     xj=xj0*cb;yj=yj0*cb
