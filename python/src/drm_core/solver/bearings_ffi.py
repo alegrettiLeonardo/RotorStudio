@@ -247,4 +247,29 @@ def configure_bearing_library(lib):
     ]
     lib.rb_pressure_smooth_isoviscous_c.restype = ct.c_int
 
+    lib.rb_dynamic_reduce_tilts_c.argtypes = [
+        ct.c_int,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        ct.c_double,
+        dptr,
+        ct.c_double,
+        ct.c_double,
+        dptr,
+        dptr,
+        dptr,
+    ]
+    lib.rb_dynamic_reduce_tilts_c.restype = ct.c_int
+
     return lib
