@@ -271,6 +271,9 @@ class AdvancedBearingBackend:
                 bearing.xj_ratio_initial, bearing.yj_ratio_initial,
                 bearing.relax_p, bearing.relax_temperature,
                 bearing.force_tolerance, bearing.field_tolerance,
+                bearing.temperature_reference_k or supply,
+                bearing.ambient_pressure_1_pa,
+                bearing.ambient_pressure_2_pa,
             ],
             dtype=np.float64,
         )
@@ -375,6 +378,9 @@ class AdvancedBearingBackend:
                 bearing.relax_temperature,
                 bearing.force_tolerance,
                 bearing.field_tolerance,
+                bearing.temperature_reference_k or supply,
+                bearing.ambient_pressure_1_pa,
+                bearing.ambient_pressure_2_pa,
             ],
             dtype=np.float64,
         )
