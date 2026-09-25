@@ -50,7 +50,7 @@ jobs:
         run: |
           cmake -S fortran -B build-bearings-debug -DCMAKE_BUILD_TYPE=Debug
           cmake --build build-bearings-debug -j2
-          ctest --test-dir build-bearings-debug -R ross_bearings_native_bf1_bf2_bf3_bf7 --output-on-failure
+          ctest --test-dir build-bearings-debug -R ross_bearings_native_bf1_bf2_bf3_bf4_bf5cfg_bf7 --output-on-failure
 
       - name: Frozen Stage 1 regression remains exactly 57
         env:
@@ -162,7 +162,7 @@ jobs:
         run: |
           cmake -S fortran -B build-bearings-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
           cmake --build build-bearings-debug --parallel
-          ctest --test-dir build-bearings-debug -R ross_bearings_native_bf1_bf2_bf3_bf7 --output-on-failure
+          ctest --test-dir build-bearings-debug -R ross_bearings_native_bf1_bf2_bf3_bf4_bf5cfg_bf7 --output-on-failure
 
       - name: Record Windows evidence
         shell: pwsh
