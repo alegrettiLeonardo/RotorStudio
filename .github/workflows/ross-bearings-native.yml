@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/ross-bearings-fortran-integration
+      - feature/ross-bearings-rotorstudio-20260925
   pull_request:
     branches:
       - main
@@ -62,6 +63,14 @@ jobs:
           grep -Eq '57 tests collected|57 collected' validation/reports/ross_bearings_native/linux/stage1_collection.txt
           python -m pytest python/tests -q | tee validation/reports/ross_bearings_native/linux/stage1_pytest.txt
 
+      - name: Qualify RotorStudio advanced-bearing integration
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-bearings-release/libdrmrotor.so
+          DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-release/libdrmbearings.so
+        run: |
+          python -m pytest python/tests_bearings -q | tee validation/reports/ross_bearings_native/linux/advanced_bearings_pytest.txt
+
       - name: Record Linux evidence
         run: |
           mkdir -p validation/reports/ross_bearings_native/linux
@@ -69,8 +78,11 @@ jobs:
           {
             echo "ROSS authority: 6320eab9f890f1b3cc1710d508b446fe063ca68d"
             echo "Native head: $GITHUB_SHA"
-            echo "Implemented gates: BF1 BF2 BF3 BF7"
-            echo "RotorStudio runtime integration: NOT_STARTED"
+            echo "Implemented gates: BF1 BF2 BF3 BF7 RB5 RB6 RB8 RB9 RB10"
+            echo "RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_COEFFICIENT_PROVIDER"
+            echo "Advanced native families: Ball Roller Cylindrical SFD"
+            echo "Advanced table families: PlainJournal FixedGeometry variants TiltingPad"
+            echo "Blocked by design: native TiltingPad TEHD, ThrustPad axial coupling, run-up/transient/coaxial/asymmetric"
           } > validation/reports/ross_bearings_native/linux/status.txt
 
       - uses: actions/upload-artifact@v4
@@ -123,8 +135,8 @@ jobs:
           @"
           ROSS authority: 6320eab9f890f1b3cc1710d508b446fe063ca68d
           Native head: $env:GITHUB_SHA
-          Implemented gates: BF1 BF2 BF3 BF7
-          RotorStudio runtime integration: NOT_STARTED
+          Implemented gates: BF1 BF2 BF3 BF7 RB5
+          RotorStudio runtime integration: C_ABI_BUILT; Python integration qualified on Linux job
           DLL: $($dll.FullName)
           SHA256: $hash
           "@ | Set-Content validation\reports\ross_bearings_native\windows\status.txt
