@@ -94,11 +94,18 @@ contains
 
         if(deform_type/=RB_DEFORM_NONE)then
           do ix=0,int(nx)
+            ! Match ROSS pad_temp_and_load: trapezoidal axial pressure
+            ! integral divided by the pad axial length.
             px(ix+1)=0._rk
             do iz=0,int(nz)
-              n=ix*(int(nz)+1)+iz+1;px(ix+1)=px(ix+1)+press(n,p)
+              n=ix*(int(nz)+1)+iz+1
+              if(iz==0 .or. iz==int(nz))then
+                px(ix+1)=px(ix+1)+0.5_rk*press(n,p)
+              else
+                px(ix+1)=px(ix+1)+press(n,p)
+              end if
             end do
-            px(ix+1)=px(ix+1)/real(int(nz)+1,rk)
+            px(ix+1)=px(ix+1)/real(nz,rk)
           end do
           if(deform_type==RB_DEFORM_PAD_MECHANICAL)then
             tpad=temp_supply
@@ -249,9 +256,18 @@ contains
 
         if(deform_type/=RB_DEFORM_NONE)then
           do ix=0,int(nx)
+            ! Match ROSS pad_temp_and_load: trapezoidal axial pressure
+            ! integral divided by the pad axial length.
             px(ix+1)=0._rk
-            do iz=0,int(nz);n=ix*(int(nz)+1)+iz+1;px(ix+1)=px(ix+1)+press(n,p);end do
-            px(ix+1)=px(ix+1)/real(int(nz)+1,rk)
+            do iz=0,int(nz)
+              n=ix*(int(nz)+1)+iz+1
+              if(iz==0 .or. iz==int(nz))then
+                px(ix+1)=px(ix+1)+0.5_rk*press(n,p)
+              else
+                px(ix+1)=px(ix+1)+press(n,p)
+              end if
+            end do
+            px(ix+1)=px(ix+1)/real(nz,rk)
           end do
           if(deform_type==RB_DEFORM_PAD_MECHANICAL)then
             tpad=temp_supply
