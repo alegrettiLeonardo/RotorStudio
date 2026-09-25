@@ -117,6 +117,26 @@ def _plain_native(inp: dict):
         _ptr(temperature),
         _ptr(deformation),
     )
+    if status != 0:
+        print(
+            "B12_STATUS_FAIL plain",
+            json.dumps(
+                {
+                    "status": int(status),
+                    "summary": np.asarray(summary, dtype=float).tolist(),
+                    "K": np.asarray(K, dtype=float).tolist(),
+                    "C": np.asarray(C, dtype=float).tolist(),
+                    "pressure_finite": bool(np.all(np.isfinite(pressure))),
+                    "pressure_max": float(np.nanmax(pressure)),
+                    "temperature_finite": bool(np.all(np.isfinite(temperature))),
+                    "temperature_min": float(np.nanmin(temperature)),
+                    "temperature_max": float(np.nanmax(temperature)),
+                    "deformation_finite": bool(np.all(np.isfinite(deformation))),
+                    "deformation_absmax": float(np.nanmax(np.abs(deformation))),
+                },
+                sort_keys=True,
+            ),
+        )
     assert status == 0, f"PlainJournal native B12 solve returned status={status}"
     return {
         "K": K.reshape((2, 2), order="F"),
@@ -260,6 +280,27 @@ def _tilting_native(inp: dict, whirl_rad_s: float):
         _ptr(temperature),
         _ptr(deformation),
     )
+    if status != 0:
+        print(
+            "B12_STATUS_FAIL tilting",
+            json.dumps(
+                {
+                    "status": int(status),
+                    "summary": np.asarray(summary, dtype=float).tolist(),
+                    "tilt": np.asarray(tilt, dtype=float).tolist(),
+                    "K": np.asarray(K, dtype=float).tolist(),
+                    "C": np.asarray(C, dtype=float).tolist(),
+                    "pressure_finite": bool(np.all(np.isfinite(pressure))),
+                    "pressure_max": float(np.nanmax(pressure)),
+                    "temperature_finite": bool(np.all(np.isfinite(temperature))),
+                    "temperature_min": float(np.nanmin(temperature)),
+                    "temperature_max": float(np.nanmax(temperature)),
+                    "deformation_finite": bool(np.all(np.isfinite(deformation))),
+                    "deformation_absmax": float(np.nanmax(np.abs(deformation))),
+                },
+                sort_keys=True,
+            ),
+        )
     assert status == 0, f"TiltingPad native B12 solve returned status={status}"
     return {
         "K": K.reshape((2, 2), order="F"),
