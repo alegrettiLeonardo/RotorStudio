@@ -21,7 +21,7 @@ contains
       thermal_type,deform_type,pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
       convec_edges,convec_back,np,piv,arc,alen,pre,off,nx,nz,ny_pad,ny_film,xj0,yj0,relax_p,relax_t, &
       max_iterations,outer_iterations,force_tol,field_tol,xj_ratio,yj_ratio,k_out,c_out,fx,fy,pmax,tmax,tout, &
-      deform_max,iterations,status,pressure_field,temperature_field,deformation_field)
+      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in)
     real(rk),intent(in)::speed,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
     integer(ik),intent(in)::thermal_type,deform_type,np,nx,nz,ny_pad,ny_film,max_iterations,outer_iterations
     real(rk),intent(in)::pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
@@ -30,15 +30,18 @@ contains
     real(rk),intent(out)::xj_ratio,yj_ratio,k_out(2,2),c_out(2,2),fx,fy,pmax,tmax,tout,deform_max
     integer(ik),intent(out)::iterations,status
     real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:)
+    real(rk),intent(in),optional::temp_reference_in
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
-    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex
+    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:)
     real(rk),allocatable::px(:),tpad(:),def(:)
     real(rk)::fxext,fyext
 
+    temp_reference=temp_supply
+    if(present(temp_reference_in))temp_reference=temp_reference_in
     status=RB_OK;xj_ratio=0._rk;yj_ratio=0._rk;k_out=0._rk;c_out=0._rk
     fx=0._rk;fy=0._rk;pmax=0._rk;tmax=temp_supply;tout=temp_supply;deform_max=0._rk;iterations=0_ik
     if(.not.rb_check_common(speed,d,cb,mu1,np,arc,alen,pre,off,nx,nz,relax_p,max_iterations,force_tol))then
@@ -107,25 +110,15 @@ contains
             end do
             px(ix+1)=px(ix+1)/real(nz,rk)
           end do
-          if(deform_type==RB_DEFORM_PAD_MECHANICAL)then
-            tpad=temp_supply
-          else if(thermal_type==RB_THERMAL_FULL)then
-            do ix=0,int(nx)
-              do iy=0,int(ny_pad)
-                tpad(ix*(int(ny_pad)+1)+iy+1)=tfull(ix*(int(ny_pad)+int(ny_film)+1)+iy+1,p)
-              end do
-            end do
-          else
-            do ix=0,int(nx)
-              delta=0._rk
-              do iz=0,int(nz);delta=delta+tad(ix*(int(nz)+1)+iz+1,p);end do
-              delta=delta/real(int(nz)+1,rk)
-              do iy=0,int(ny_pad);tpad(ix*(int(ny_pad)+1)+iy+1)=delta;end do
-            end do
-          end if
+          ! Pinned ROSS fixed-geometry deformation keeps the pad elastic
+          ! mesh at the material reference temperature for both mechanical
+          ! and pad_mechanical_thermal options.  Temperature-dependent film
+          ! viscosity remains active in THD/TEHD; the fixed-pad thermal
+          ! expansion load itself is zero by authority.
+          tpad=temp_reference
           pex=alphapad
           if(deform_type==RB_DEFORM_PAD_MECHANICAL)pex=0._rk
-          call rb_pad_surface_deformation(nx,ny_pad,0.5_rk*d*arc(p),pad_thickness,epad,nupad,pex,temp_supply, &
+          call rb_pad_surface_deformation(nx,ny_pad,0.5_rk*d*arc(p),pad_thickness,epad,nupad,pex,temp_reference, &
                                           tpad,px,.false.,off(p),def,st)
           if(st/=RB_OK)then;status=st;return;end if
           dh_new(:,p)=-def
@@ -190,7 +183,7 @@ contains
       thermal_type,deform_type,tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
       convec_edges,convec_back,np,piv,arc,alen,pre,off,krot,nx,nz,ny_pad,ny_film,xj0,yj0,relax_p,relax_t, &
       max_iterations,outer_iterations,force_tol,field_tol,xj_ratio,yj_ratio,tilt,k_out,c_out,fx,fy,pmax,tmax,tout, &
-      deform_max,iterations,status,pressure_field,temperature_field,deformation_field)
+      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in)
     real(rk),intent(in)::speed,omega,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
     integer(ik),intent(in)::thermal_type,deform_type,np,nx,nz,ny_pad,ny_film,max_iterations,outer_iterations
     real(rk),intent(in)::tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
@@ -199,15 +192,18 @@ contains
     real(rk),intent(out)::xj_ratio,yj_ratio,tilt(np),k_out(2,2),c_out(2,2),fx,fy,pmax,tmax,tout,deform_max
     integer(ik),intent(out)::iterations,status
     real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:)
+    real(rk),intent(in),optional::temp_reference_in
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
-    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex
+    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:),mom(:)
     real(rk),allocatable::px(:),tpad(:),def(:)
     real(rk)::fxext,fyext
 
+    temp_reference=temp_supply
+    if(present(temp_reference_in))temp_reference=temp_reference_in
     status=RB_OK;xj_ratio=0._rk;yj_ratio=0._rk;tilt=0._rk;k_out=0._rk;c_out=0._rk
     fx=0._rk;fy=0._rk;pmax=0._rk;tmax=temp_supply;tout=temp_supply;deform_max=0._rk;iterations=0_ik
     if(.not.rb_check_common(speed,d,cb,mu1,np,arc,alen,pre,off,nx,nz,relax_p,max_iterations,force_tol) .or. &
@@ -270,7 +266,7 @@ contains
             px(ix+1)=px(ix+1)/real(nz,rk)
           end do
           if(deform_type==RB_DEFORM_PAD_MECHANICAL)then
-            tpad=temp_supply
+            tpad=temp_reference
           else if(thermal_type==RB_THERMAL_FULL)then
             do ix=0,int(nx)
               do iy=0,int(ny_pad)
@@ -286,7 +282,7 @@ contains
             end do
           end if
           pex=alphapad;if(deform_type==RB_DEFORM_PAD_MECHANICAL)pex=0._rk
-          call rb_pad_surface_deformation(nx,ny_pad,0.5_rk*d*arc(p),tp,epad,nupad,pex,temp_supply,tpad,px, &
+          call rb_pad_surface_deformation(nx,ny_pad,0.5_rk*d*arc(p),tp,epad,nupad,pex,temp_reference,tpad,px, &
                                           .true.,off(p),def,st)
           if(st/=RB_OK)then;status=st;return;end if
           dh_new(:,p)=-def;def_delta=max(def_delta,maxval(abs(dh_new(:,p)-dh(:,p))))
