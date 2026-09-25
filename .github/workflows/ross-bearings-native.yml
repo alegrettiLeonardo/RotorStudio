@@ -69,6 +69,7 @@ jobs:
           DRMROTOR_LIB: ${{ github.workspace }}/build-bearings-release/libdrmrotor.so
           DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-release/libdrmbearings.so
         run: |
+          set -o pipefail
           python -m pytest python/tests_bearings -q | tee validation/reports/ross_bearings_native/linux/advanced_bearings_pytest.txt
 
       - name: Record Linux evidence
@@ -78,11 +79,11 @@ jobs:
           {
             echo "ROSS authority: 6320eab9f890f1b3cc1710d508b446fe063ca68d"
             echo "Native head: $GITHUB_SHA"
-            echo "Implemented gates: BF1 BF2 BF3 BF7 RB5 RB6 RB8 RB9 RB10"
+            echo "Implemented gates: BF1 BF2 BF3 BF5 BF6 BF7 B10 B11"
             echo "RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_COEFFICIENT_PROVIDER"
-            echo "Advanced native families: Ball Roller Cylindrical SFD"
-            echo "Advanced table families: PlainJournal FixedGeometry variants TiltingPad"
-            echo "Blocked by design: native TiltingPad TEHD, ThrustPad axial coupling, run-up/transient/coaxial/asymmetric"
+            echo "Advanced native families: Ball Roller Cylindrical SFD PlainJournal TiltingPad"
+            echo "Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface"
+            echo "Promotion blocker: B12 frozen ROSS numerical parity; ThrustPad/run-up/transient/coaxial/asymmetric remain out of scope"
           } > validation/reports/ross_bearings_native/linux/status.txt
 
       - uses: actions/upload-artifact@v4
@@ -174,9 +175,11 @@ jobs:
           @"
           ROSS authority: 6320eab9f890f1b3cc1710d508b446fe063ca68d
           Native head: $env:GITHUB_SHA
-          Implemented gates: BF1 BF2 BF3 BF7 RB5 RB6 RB8 RB9 RB10
+          Implemented gates: BF1 BF2 BF3 BF5 BF6 BF7 B10 B11
           RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_COEFFICIENT_PROVIDER
+          Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface
           Python qualification: Stage1 57 + advanced-bearing suite
+          Promotion blocker: B12 frozen ROSS numerical parity
           DLL: $($dll.FullName)
           SHA256: $hash
           "@ | Set-Content validation\reports\ross_bearings_native\windows\status.txt
