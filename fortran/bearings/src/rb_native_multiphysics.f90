@@ -1215,7 +1215,7 @@ contains
     real(rk),intent(out)::kred(2,2),cred(2,2)
     integer(ik),intent(out)::status
     real(rk),intent(in),optional::kj_in(2,2),kdx_in(np),kdy_in(np),kxd_in(np),kyd_in(np),kdd_in(np)
-    integer::nn,p
+    integer::nn,p,i
     logical::use_stiff_override
     real(rk)::fp,gp,mp
     real(rk)::kj(2,2),cj(2,2)
