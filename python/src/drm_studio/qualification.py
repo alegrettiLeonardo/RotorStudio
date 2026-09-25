@@ -5,7 +5,8 @@ from pathlib import Path
 
 from PySide6.QtCore import QObject, QTimer
 
-from drm_core import AnalysisCase
+from drm_core import AnalysisCase, BallBearing
+from drm_core.solver.facade import SolverFacade
 from drm_core.units import rpm_to_rad_s
 from drm_studio.main_window import MainWindow
 from drm_studio.result_views.io import export_view_plot_bundle
@@ -27,6 +28,7 @@ class PackagedQualification(QObject):
         self.project_path = Path(project_path)
         self.stage = "initial"
         self.records = []
+        self.bearing_smoke = None
         self._connect_window(window)
 
     def _connect_window(self, window):
@@ -38,6 +40,29 @@ class PackagedQualification(QObject):
 
     def start(self):
         try:
+            # Prove that the separately packaged advanced-bearing library can
+            # be loaded from a clean frozen extraction before any rotor solve.
+            bearing = BallBearing(
+                node=1,
+                n_balls=8,
+                d_balls_m=0.03,
+                static_load_n=500.0,
+                alpha_rad=0.5235987755982988,
+            )
+            evaluated = SolverFacade().advanced_bearing(
+                bearing, speed_rad_s=100.0
+            )
+            kxx = float(evaluated.K[0, 0])
+            if abs(kxx - 4.64168838e7) > 1e-7 * 4.64168838e7:
+                raise RuntimeError(
+                    f"packaged advanced-bearing oracle mismatch: Kxx={kxx}"
+                )
+            self.bearing_smoke = {
+                "family": evaluated.model_family,
+                "kxx_n_m": kxx,
+                "status": "PASS",
+            }
+
             self.window.open_project(self.project_path)
             self.window.show()
             self.stage = "modal_first"
@@ -129,6 +154,7 @@ class PackagedQualification(QObject):
                     "steps": [
                         "launch",
                         "open packaged example",
+                        "native advanced-bearing load/oracle",
                         "real modal",
                         "real Campbell",
                         "export PNG/SVG/PDF",
@@ -138,6 +164,7 @@ class PackagedQualification(QObject):
                         "real modal recompute",
                     ],
                     "result_count": len(self.records),
+                    "advanced_bearing": self.bearing_smoke,
                     "saved_project": str(self.output_dir / "packaged_saved_project.rds"),
                     "screenshot": str(screenshot),
                 }
