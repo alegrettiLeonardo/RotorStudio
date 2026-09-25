@@ -186,16 +186,17 @@ contains
   subroutine rb_thermal_full_pad(nx,nz,ny_pad,ny_film,pad_length,axial_length,pad_thickness,speed_surface,h,pressure, &
                                  mu_nodes,density,cp,lube_conduct,pad_conduct,temp_inlet,temp_journal,temp_ambient, &
                                  convec_edges,convec_back,relax_t,temp_old,mu1,mu2,t1,t2,temp_new,mu_center, &
-                                 temp_max,temp_outlet,q_in,q_out,rms_temp,status)
+                                 temp_max,temp_outlet,q_in,q_out,rms_temp,status,g_reynolds)
     integer(ik),intent(in)::nx,nz,ny_pad,ny_film
     real(rk),intent(in)::pad_length,axial_length,pad_thickness,speed_surface,h(:),pressure(:),mu_nodes(:)
     real(rk),intent(in)::density,cp,lube_conduct,pad_conduct,temp_inlet,temp_journal,temp_ambient
     real(rk),intent(in)::convec_edges,convec_back,relax_t,temp_old(:),mu1,mu2,t1,t2
     real(rk),intent(out)::temp_new(:),mu_center(:),temp_max,temp_outlet,q_in,q_out,rms_temp
     integer(ik),intent(out)::status
+    real(rk),intent(out),optional::g_reynolds(:)
     integer::nr,ny,nne,ix,iy,iz,n,n1,n2,n3,n4,bw,ncol,nbc,nnr,center,jf,ix_min
     real(rk)::dx,dz,eta,yrel,hx,mu,u,v,dudy,dwdy,avg_u,avg_v,avg_diss,dhdx
-    real(rk)::kx,ky,mx,my,pe,q,rt,avg_old,avg_raw,xi1h,xi2h,ratio,deta,gamma_eq
+    real(rk)::kx,ky,mx,my,pe,q,rt,avg_old,avg_raw,xi1h,xi2h,ratio,deta,gamma_eq,g_eq
     real(rk)::qrad,qax,turad,tuax,wz,hmin_local
     real(rk),allocatable::x(:),y(:),kx_n(:),ky_n(:),mx_n(:),my_n(:),p_n(:),q_n(:)
     real(rk),allocatable::mur(:),invr(:),cum1(:),cum2(:),igam(:)
@@ -212,6 +213,9 @@ contains
        size(h)<nnr .or. size(pressure)<nnr .or. size(mu_nodes)<nnr .or. size(temp_old)<nne .or. &
        size(temp_new)<nne .or. size(mu_center)<nnr)then
       status=RB_ERR_INPUT;return
+    end if
+    if(present(g_reynolds))then
+      if(size(g_reynolds)<nnr)then;status=RB_ERR_INPUT;return;end if
     end if
 
     dx=pad_length/real(nx,rk);dz=axial_length/real(nz,rk);center=int(nz)/2
@@ -366,9 +370,14 @@ contains
         eta=real(jf,rk)/real(ny_film,rk)
         igam(jf+1)=cum2(jf+1)-ratio*cum1(jf+1)
       end do
-      gamma_eq=0._rk
+      gamma_eq=0._rk;g_eq=0._rk
       do jf=1,int(ny_film)
         gamma_eq=gamma_eq+.5_rk*deta*(igam(jf)+igam(jf+1))
+        ! Generalized-Reynolds Couette function G = integral(Xi1/Xi1h)deta.
+        ! For constant viscosity this reduces exactly to 0.5; with a THD
+        ! cross-film viscosity gradient it is not 0.5 and must be retained in
+        ! the static Reynolds source term.
+        g_eq=g_eq+.5_rk*deta*(cum1(jf)/xi1h+cum1(jf+1)/xi1h)
       end do
       if(gamma_eq>=-tiny(1._rk))then
         status=RB_ERR_INPUT;return
@@ -377,6 +386,7 @@ contains
       do iz=0,int(nz)
         nr=ix*(int(nz)+1)+iz+1
         mu_center(nr)=mu
+        if(present(g_reynolds))g_reynolds(nr)=g_eq
       end do
     end do
     ! ROSS flow bookkeeping for regular-flooded smooth pads.  q_in is the
