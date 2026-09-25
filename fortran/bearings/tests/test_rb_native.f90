@@ -32,9 +32,10 @@ program test_ross_bearings_native
   call test_reynolds_mesh()
   call test_film_thickness()
   call test_pressure_isoviscous()
+  call test_dynamic_reduction()
   call test_sfd()
 
-  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5mesh/BF5film/BF5press/BF5cfg/BF7'
+  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5mesh/BF5film/BF5press/BF5cond/BF5cfg/BF7'
 
 contains
 
