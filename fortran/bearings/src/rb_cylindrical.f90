@@ -92,7 +92,10 @@ contains
 
     e = sqrt(root)
     eccentricity = e
-    attitude_angle = atan(pi_*sqrt(1._rk-e*e)/(4._rk*e))
+    ! Match the current ROSS expression literally: atan(pi*sqrt(1-e^2)/4*e).
+    ! The multiplication by e occurs after division by 4 (Python left-to-right
+    ! arithmetic), so this is not atan(pi*sqrt(1-e^2)/(4*e)).
+    attitude_angle = atan((pi_*sqrt(1._rk-e*e)/4._rk)*e)
 
     h0 = 1._rk / (pi_**2*(1._rk-e*e) + 16._rk*e*e)**1.5_rk
     auu = h0 * 4._rk * (pi_**2*(2._rk-e*e) + 16._rk*e*e)
