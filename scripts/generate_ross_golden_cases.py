@@ -78,7 +78,19 @@ def _result_record(run_case, ross_root: Path, fixture_name: str, *, overrides=No
         from ross.bearings.fluid_film import coefficients as _coeff
 
         _orig_dynamic_reduction = _coeff.dynamic_reduction
+        _orig_gamma_g_pert = _coeff.gamma_g_pert
         captured_blocks = {}
+        captured_gamma_g = {}
+
+        def _capture_gamma_g_pert(mesh, pad_index, pads, h_n, vis_effect_3d):
+            gamma, g = _orig_gamma_g_pert(mesh, pad_index, pads, h_n, vis_effect_3d)
+            # Smooth full-THD fixture: retain the nodal generalized-Reynolds
+            # fields that actually feed the final K/C perturbation solves.
+            captured_gamma_g[int(pad_index)] = {
+                "gamma": _jsonable(gamma),
+                "g": _jsonable(g),
+            }
+            return gamma, g
 
         def _capture_dynamic_reduction(total_pads, stiffness, damping_block, pads, pad_density, excit_rad, ip, k_rotate):
             names = (
@@ -94,10 +106,13 @@ def _result_record(run_case, ross_root: Path, fixture_name: str, *, overrides=No
             )
 
         _coeff.dynamic_reduction = _capture_dynamic_reduction
+        _coeff.gamma_g_pert = _capture_gamma_g_pert
         try:
             out = run_case(**inp, field_outputs=True)
         finally:
             _coeff.dynamic_reduction = _orig_dynamic_reduction
+            _coeff.gamma_g_pert = _orig_gamma_g_pert
+        captured_blocks["gamma_g"] = captured_gamma_g
     else:
         out = run_case(**inp, field_outputs=True)
 
