@@ -271,7 +271,9 @@ contains
         stride=int(ny_pad)+int(ny_film)+1
         do p=1,int(np)
           do ix=0,int(nx)
-            delta=sum(tfull(ix*stride+int(ny_pad)+1:ix*stride+stride,p))/real(int(ny_film)+1,rk)
+            delta=.5_rk*tfull(ix*stride+int(ny_pad)+1,p)+.5_rk*tfull(ix*stride+stride,p)
+            if(int(ny_film)>1)delta=delta+sum(tfull(ix*stride+int(ny_pad)+2:ix*stride+stride-1,p))
+            delta=delta/real(ny_film,rk)
             do iz=0,int(nz)
               n=ix*(int(nz)+1)+iz+1
               temperature_field(n,p)=delta
@@ -544,7 +546,9 @@ contains
         stride=int(ny_pad)+int(ny_film)+1
         do p=1,int(np)
           do ix=0,int(nx)
-            delta=sum(tfull(ix*stride+int(ny_pad)+1:ix*stride+stride,p))/real(int(ny_film)+1,rk)
+            delta=.5_rk*tfull(ix*stride+int(ny_pad)+1,p)+.5_rk*tfull(ix*stride+stride,p)
+            if(int(ny_film)>1)delta=delta+sum(tfull(ix*stride+int(ny_pad)+2:ix*stride+stride-1,p))
+            delta=delta/real(ny_film,rk)
             do iz=0,int(nz)
               n=ix*(int(nz)+1)+iz+1
               temperature_field(n,p)=delta
