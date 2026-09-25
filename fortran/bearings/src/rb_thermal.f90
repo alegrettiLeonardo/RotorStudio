@@ -239,11 +239,13 @@ contains
       end if
       ! ROSS full-THD uses the complete through-film viscosity profile in
       ! velocity, shear and dissipation.  Build the dimensional Xi1/Xi2
-      ! integrals from the previous relaxed temperature field before solving
-      ! the next energy iterate.
+      ! integrals from the PREVIOUS relaxed temperature field before solving
+      ! the next energy iterate.  temp_new is INTENT(OUT) and is undefined
+      ! on entry; reading it here is both physically wrong and a Fortran
+      ! memory/ABI correctness defect.
       do jf=0,int(ny_film)
         mur(jf+1)=max(rb_mu_of_t(mu1,mu2,t1,t2, &
-             temp_new(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
+             temp_old(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
         invr(jf+1)=1._rk/mur(jf+1)
       end do
       cum1=0._rk;cum2=0._rk
