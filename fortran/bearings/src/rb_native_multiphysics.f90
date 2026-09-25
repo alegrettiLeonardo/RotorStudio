@@ -37,7 +37,7 @@ contains
     integer(ik)::st
     real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,touti_bulk,rms,pex,temp_reference,k_last(2,2),q_in_pad,q_out_pad
     real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx,hotoil_lamda,inlet_delta,qcarry
-    real(rk),allocatable::mu(:,:),mu_new(:,:),gfun(:,:),gfun_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
+    real(rk),allocatable::mu(:,:),mu_new(:,:),mu_hydro(:,:),gfun(:,:),gfun_new(:,:),gfun_hydro(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:)
     real(rk),allocatable::px(:),tpad(:),def(:),temp_inlet_pad(:),temp_outlet_pad(:),q_in_arr(:),q_out_arr(:),temp_inlet_new(:)
     real(rk)::fxext,fyext,fx_groove,fy_groove,ambient_press1,ambient_press2
@@ -69,7 +69,7 @@ contains
 
     nn=(int(nx)+1)*(int(nz)+1);nfull=(int(nx)+1)*(int(ny_pad)+int(ny_film)+1)
     npp=(int(nx)+1)*(int(ny_pad)+1)
-    allocate(mu(nn,np),mu_new(nn,np),gfun(nn,np),gfun_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np))
+    allocate(mu(nn,np),mu_new(nn,np),mu_hydro(nn,np),gfun(nn,np),gfun_new(nn,np),gfun_hydro(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np))
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1),temp_inlet_pad(np),temp_outlet_pad(np),q_in_arr(np),q_out_arr(np),temp_inlet_new(np))
     ! ROSS initializes the film with lubricant viscosity evaluated at the
@@ -89,13 +89,14 @@ contains
     if(ny_film>1)then
       delta=delta/(1._rk-1._rk/real(ny_film*ny_film,rk))
     end if
-    mu=delta;mu_new=delta;gfun=.5_rk;gfun_new=.5_rk;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
+    mu=delta;mu_new=delta;mu_hydro=delta;gfun=.5_rk;gfun_new=.5_rk;gfun_hydro=.5_rk;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     temp_inlet_pad=temp_supply;temp_outlet_pad=temp_supply;q_in_arr=0._rk;q_out_arr=0._rk;temp_inlet_new=temp_supply
     xj=xj0*cb;yj=yj0*cb;k_last=0._rk
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
 
     do it=1,int(outer_iterations)
+      mu_hydro=mu;gfun_hydro=gfun
       call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,relax_p, &
                              max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st,k_last)
       if(st/=RB_OK)then;status=st;return;end if
@@ -252,7 +253,7 @@ contains
     ! Do not re-run journal equilibrium after the coupled loop.  Pinned ROSS
     ! emits the last hydrodynamic state produced inside that loop; an extra
     ! equilibrium pass over-converges xj/yj and changes p/K/C.
-    call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,press,k_out,c_out,st)
+    call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu_hydro,gfun_hydro,dh,xj,yj,press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
     ! ROSS 6320eab9 consumes the last in-loop Jacobian produced by the
     ! hydrodynamic equilibrium search.  Do not silently replace it with a
@@ -315,7 +316,7 @@ contains
     integer(ik)::st
     real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,touti_bulk,rms,pex,temp_reference,q_in_pad,q_out_pad
     real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx,hotoil_lamda,inlet_delta,qcarry
-    real(rk),allocatable::mu(:,:),mu_new(:,:),gfun(:,:),gfun_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
+    real(rk),allocatable::mu(:,:),mu_new(:,:),mu_hydro(:,:),gfun(:,:),gfun_new(:,:),gfun_hydro(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:),mom(:)
     real(rk),allocatable::px(:),tpad(:),def(:),temp_inlet_pad(:),temp_outlet_pad(:),q_in_arr(:),q_out_arr(:),temp_inlet_new(:)
     real(rk),allocatable::kdx_last(:),kdy_last(:),kxd_last(:),kyd_last(:),kdd_last(:)
@@ -345,7 +346,7 @@ contains
     end if
 
     nn=(int(nx)+1)*(int(nz)+1);nfull=(int(nx)+1)*(int(ny_pad)+int(ny_film)+1);npp=(int(nx)+1)*(int(ny_pad)+1)
-    allocate(mu(nn,np),mu_new(nn,np),gfun(nn,np),gfun_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np),mom(np))
+    allocate(mu(nn,np),mu_new(nn,np),mu_hydro(nn,np),gfun(nn,np),gfun_new(nn,np),gfun_hydro(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np),mom(np))
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1),temp_inlet_pad(np),temp_outlet_pad(np),q_in_arr(np),q_out_arr(np),temp_inlet_new(np))
     allocate(kdx_last(np),kdy_last(np),kxd_last(np),kyd_last(np),kdd_last(np))
@@ -367,13 +368,14 @@ contains
     if(ny_film>1)then
       delta=delta/(1._rk-1._rk/real(ny_film*ny_film,rk))
     end if
-    mu=delta;mu_new=delta;gfun=.5_rk;gfun_new=.5_rk;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
+    mu=delta;mu_new=delta;mu_hydro=delta;gfun=.5_rk;gfun_new=.5_rk;gfun_hydro=.5_rk;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     temp_inlet_pad=temp_supply;temp_outlet_pad=temp_supply;q_in_arr=0._rk;q_out_arr=0._rk;temp_inlet_new=temp_supply
     xj=xj0*cb;yj=yj0*cb
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
 
     do it=1,int(outer_iterations)
+      mu_hydro=mu;gfun_hydro=gfun
       call tp_journal_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj, &
                                   relax_p,max_iterations,force_tol,tilt,press,h,mom,fx,fy,pmax,iterations,st, &
                                   kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
@@ -535,7 +537,7 @@ contains
 
     ! Same authority rule as PlainJournal: the last THD/hydrodynamic state is
     ! the output state.  Do not execute an additional post-loop equilibrium.
-    call tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj,tilt, &
+    call tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu_hydro,gfun_hydro,dh,xj,yj,tilt, &
                          press,k_out,c_out,st,kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
     if(st/=RB_OK)then;status=st;return;end if
     fx=fx+fx_groove;fy=fy+fy_groove
