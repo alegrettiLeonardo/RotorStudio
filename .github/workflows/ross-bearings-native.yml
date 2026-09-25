@@ -139,8 +139,10 @@ jobs:
           if (-not $bear) { throw "drmbearings DLL not found" }
           "DRMROTOR_LIB=$($rotor.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "DRMBEARINGS_LIB=$($bear.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "DRMROTOR_DLL_DIRS=C:\msys64\ucrt64\bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "DRMBEARINGS_DLL_DIRS=C:\msys64\ucrt64\bin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $ucrtBin = Join-Path $env:RUNNER_TEMP "msys64\ucrt64\bin"
+          if (-not (Test-Path $ucrtBin)) { throw "MSYS2 UCRT64 runtime directory not found at $ucrtBin" }
+          "DRMROTOR_DLL_DIRS=$ucrtBin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_DLL_DIRS=$ucrtBin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Frozen Stage 1 and advanced-bearing Python qualification
         shell: pwsh
