@@ -96,7 +96,7 @@ contains
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
 
     do it=1,int(outer_iterations)
-      call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
+      call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,relax_p, &
                              max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st,k_last)
       if(st/=RB_OK)then;status=st;return;end if
 
@@ -114,7 +114,7 @@ contains
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),pad_thickness,speed*0.5_rk*d, &
                h(:,p),press(:,p),mu(:,p),rho,cp,klube,kpad,temp_inlet_pad(p),temp_j_work,temp_ambient,convec_edges, &
-               convec_back,relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st)
+               convec_back,relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st,gfun_new(:,p))
           q_in_arr(p)=q_in_pad;q_out_arr(p)=q_out_pad;temp_outlet_pad(p)=touti
           if(st/=RB_OK)then;status=st;return;end if
           temp_delta=temp_delta+rms*rms
@@ -638,15 +638,15 @@ contains
     integer(ik),intent(out)::status
     integer::nn,p
     real(rk)::xj,yj,fp,gp,mi
-    real(rk),allocatable::mu(:,:),dh(:,:),h(:,:)
+    real(rk),allocatable::mu(:,:),gfun(:,:),dh(:,:),h(:,:)
     integer(ik)::st
     nn=(int(nx)+1)*(int(nz)+1)
     if(viscosity<=0._rk .or. size(pressure,1)<nn .or. size(pressure,2)<int(np))then
       status=RB_ERR_INPUT;return
     end if
-    allocate(mu(nn,np),dh(int(nx)+1,np),h(nn,np))
-    mu=viscosity;dh=0._rk;xj=xj_ratio*cb;yj=yj_ratio*cb
-    call plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,pressure,h,fx,fy,pmax,st)
+    allocate(mu(nn,np),gfun(nn,np),dh(int(nx)+1,np),h(nn,np))
+    mu=viscosity;gfun=.5_rk;dh=0._rk;xj=xj_ratio*cb;yj=yj_ratio*cb
+    call plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,pressure,h,fx,fy,pmax,st)
     if(st/=RB_OK)then;status=st;return;end if
     k=0._rk
     do p=1,int(np)
@@ -1107,9 +1107,9 @@ contains
     real(rk),intent(out)::tilt(np),fx,fy,pmax
     integer(ik),intent(out)::status
     integer::nn
-    real(rk),allocatable::p(:,:),h(:,:),m(:)
-    nn=(int(nx)+1)*(int(nz)+1);allocate(p(nn,np),h(nn,np),m(np))
-    call tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,spread(0.5_rk,2,size(mu,2)),dh,xj,yj,tilt,p,h,m,fx,fy,pmax,status)
+    real(rk),allocatable::p(:,:),h(:,:),m(:),gfun(:,:)
+    nn=(int(nx)+1)*(int(nz)+1);allocate(p(nn,np),h(nn,np),m(np),gfun(nn,np));gfun=.5_rk
+    call tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj,tilt,p,h,m,fx,fy,pmax,status)
   end subroutine tp_force_eq
 
 
