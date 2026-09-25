@@ -10,6 +10,7 @@ program test_ross_bearings_native
   use rb_tilting_pad_config, only: rb_tilting_pad_prepare, RB_TP_CONVENTIONAL, RB_TP_MATCH_LOAD
   use rb_reynolds_element, only: rb_reynolds_q4_element
   use rb_reynolds_banded, only: rb_lu_factor_band, rb_lu_solve_band_cavitating
+  use rb_film_thickness, only: rb_film_thickness_baseline
   implicit none(type, external)
 
   integer(ik) :: st
@@ -25,9 +26,10 @@ program test_ross_bearings_native
   call test_tilting_pad_config()
   call test_reynolds_element()
   call test_reynolds_banded()
+  call test_film_thickness()
   call test_sfd()
 
-  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5cfg/BF7'
+  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5film/BF5cfg/BF7'
 
 contains
 
@@ -250,6 +252,29 @@ contains
     call assert_close(bvec(2),38._rk/41._rk,1e-13_rk,1e-13_rk,394)
     call assert_close(bvec(3),42._rk/41._rk,1e-13_rk,1e-13_rk,395)
   end subroutine test_reynolds_banded
+
+  subroutine test_film_thickness()
+    integer(ik) :: idx0(4)
+    real(rk) :: x(4), xr(4), dh(4), h(4), dhdx(4), hmin, xhmin
+    logical :: fullcav
+
+    idx0 = [0_ik,1_ik,2_ik,3_ik]
+    x = [0._rk,0._rk,1._rk,1._rk]
+    xr = [0._rk,0._rk,pi_/2._rk,pi_/2._rk]
+    dh = 0._rk
+
+    call rb_film_thickness_baseline(1_ik,0._rk,1._rk,0._rk,0._rk, &
+                                    1._rk,0._rk,0.2_rk,0._rk,4_ik,idx0,x,xr,dh, &
+                                    h,dhdx,hmin,xhmin,fullcav,st)
+    if (st /= RB_OK) error stop 396
+    call assert_close(h(1),0.8_rk,1e-14_rk,1e-14_rk,397)
+    call assert_close(h(3),1._rk,1e-14_rk,1e-14_rk,398)
+    call assert_close(hmin,0.8_rk,1e-14_rk,1e-14_rk,399)
+    call assert_close(xhmin,0._rk,1e-14_rk,1e-14_rk,400)
+    call assert_close(dhdx(1),0.2_rk,1e-14_rk,1e-14_rk,405)
+    call assert_close(dhdx(4),0.2_rk,1e-14_rk,1e-14_rk,406)
+    if (.not.fullcav) error stop 407
+  end subroutine test_film_thickness
 
   subroutine test_sfd()
     real(rk), parameter :: reyn_to_pas = 6894.757293168_rk
