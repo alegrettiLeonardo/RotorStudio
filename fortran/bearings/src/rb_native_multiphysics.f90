@@ -1217,7 +1217,7 @@ contains
     real(rk),intent(out)::kred(2,2),cred(2,2)
     integer(ik),intent(out)::status
     real(rk),intent(in),optional::kj_in(2,2),kdx_in(np),kdy_in(np),kxd_in(np),kyd_in(np),kdd_in(np)
-    integer::nn,p,i
+    integer::nn,p
     logical::use_stiff_override
     real(rk)::fp,gp,mp
     real(rk)::kj(2,2),cj(2,2)
@@ -1258,29 +1258,6 @@ contains
       call pad_pert(3_ik,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p),pstatic(:,p),fp,gp,mp,st);if(st/=RB_OK)goto 900
       cxd(p)=fp;cyd(p)=gp;cdd(p)=mp
     end do
-    ! Temporary B12 diagnostic surface: emit the unreduced coefficient
-    ! blocks for the 5-pad qualification fixtures.  These lines are removed
-    ! once the remaining near-zero cross-term discrepancy is isolated.
-    if(np==5_ik)then
-      if(maxval(abs(gfun-.5_rk))>1.e-12_rk)then
-        do p=1,int(np)
-          write(*,*) 'B12_NATIVE_GAMMA',p,(-1._rk/(12._rk*mu((nn/(int(nx)+1))*(i-1)+1+int(nz)/2,p)),i=1,int(nx)+1)
-          write(*,*) 'B12_NATIVE_GFUN',p,(gfun((nn/(int(nx)+1))*(i-1)+1+int(nz)/2,p),i=1,int(nx)+1)
-        end do
-      end if
-      write(*,*) 'B12_NATIVE_KJ',kj
-      write(*,*) 'B12_NATIVE_KDX',kdx
-      write(*,*) 'B12_NATIVE_KDY',kdy
-      write(*,*) 'B12_NATIVE_KXD',kxd
-      write(*,*) 'B12_NATIVE_KYD',kyd
-      write(*,*) 'B12_NATIVE_KDD',kdd
-      write(*,*) 'B12_NATIVE_CJ',cj
-      write(*,*) 'B12_NATIVE_CDX',cdx
-      write(*,*) 'B12_NATIVE_CDY',cdy
-      write(*,*) 'B12_NATIVE_CXD',cxd
-      write(*,*) 'B12_NATIVE_CYD',cyd
-      write(*,*) 'B12_NATIVE_CDD',cdd
-    end if
     call rb_dynamic_reduce_tilts(np,kj,cj,kdx,kdy,kxd,kyd,kdd,cdx,cdy,cxd,cyd,cdd,plen,tp,alen,pad_density,omega, &
                                  krot,kred,cred,ip,st)
     if(st/=RB_OK)goto 900
