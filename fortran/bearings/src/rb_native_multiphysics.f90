@@ -227,6 +227,8 @@ contains
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:),mom(:)
     real(rk),allocatable::px(:),tpad(:),def(:)
+    real(rk),allocatable::kdx_last(:),kdy_last(:),kxd_last(:),kyd_last(:),kdd_last(:)
+    real(rk)::kj_last(2,2)
     real(rk)::fxext,fyext,fx_groove,fy_groove,ambient_press1,ambient_press2
 
     temp_reference=temp_supply
@@ -254,6 +256,8 @@ contains
     allocate(mu(nn,np),mu_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np),mom(np))
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1))
+    allocate(kdx_last(np),kdy_last(np),kxd_last(np),kyd_last(np),kdd_last(np))
+    kj_last=0._rk;kdx_last=0._rk;kdy_last=0._rk;kxd_last=0._rk;kyd_last=0._rk;kdd_last=0._rk
     ! ROSS initializes the film with lubricant viscosity evaluated at the
     ! supply temperature, not blindly with viscosity1 (which is tabulated at
     ! temp1).  This matters even for thermal_type=None and is part of the
@@ -278,7 +282,8 @@ contains
 
     do it=1,int(outer_iterations)
       call tp_journal_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
-                                  relax_p,max_iterations,force_tol,tilt,press,h,mom,fx,fy,pmax,iterations,st)
+                                  relax_p,max_iterations,force_tol,tilt,press,h,mom,fx,fy,pmax,iterations,st, &
+                                  kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
       if(st/=RB_OK)then;status=st;return;end if
       mu_new=mu;dh_new=dh;temp_delta=0._rk;def_delta=0._rk;tmax=temp_supply;tout=0._rk
       do p=1,int(np)
@@ -351,7 +356,7 @@ contains
     ! Same authority rule as PlainJournal: the last THD/hydrodynamic state is
     ! the output state.  Do not execute an additional post-loop equilibrium.
     call tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt, &
-                         press,k_out,c_out,st)
+                         press,k_out,c_out,st,kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
     if(st/=RB_OK)then;status=st;return;end if
     fx=fx+fx_groove;fy=fy+fy_groove
     xj_ratio=xj/cb;yj_ratio=yj/cb
@@ -916,12 +921,14 @@ contains
 
 
   subroutine tp_journal_equilibrium(speed,fxext,fyext,fxgroove,fygroove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
-                                    relax,maxit,tol,tilt,press,h,mom,fx,fy,pmax,iterations,status)
+                                    relax,maxit,tol,tilt,press,h,mom,fx,fy,pmax,iterations,status, &
+                                    kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
     real(rk),intent(in)::speed,fxext,fyext,fxgroove,fygroove,d,cb,tp,piv(np),arc(np),alen(np),pre(np),off(np),krot(np),mu(:,:),dh(:,:),relax,tol
     integer(ik),intent(in)::np,nx,nz,maxit
     real(rk),intent(inout)::xj,yj
     real(rk),intent(out)::tilt(np),press(:,:),h(:,:),mom(np),fx,fy,pmax
     integer(ik),intent(out)::iterations,status
+    real(rk),intent(inout),optional::kj_last(2,2),kdx_last(np),kdy_last(np),kxd_last(np),kyd_last(np),kdd_last(np)
     integer::it,p,unconverge_number
     real(rk)::fxn,fyn,scale,fp,gp,mp,k11,k21,k12,k22,det,dx,dy,fobj,f_old,xj_old,yj_old
     real(rk)::kdx,kdy,kxd,kyd,kdd,den
@@ -947,17 +954,23 @@ contains
         call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
              mu(:,p),dh(:,p),press(:,p),fp,gp,kdx,st);if(st/=RB_OK)goto 900
         k11=k11+fp;k21=k21+gp
+        if(present(kdx_last)) kdx_last(p)=kdx
         call pad_stiff_pert(2_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
              mu(:,p),dh(:,p),press(:,p),fp,gp,kdy,st);if(st/=RB_OK)goto 900
         k12=k12+fp;k22=k22+gp
+        if(present(kdy_last)) kdy_last(p)=kdy
         call pad_stiff_pert(3_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
              mu(:,p),dh(:,p),press(:,p),kxd,kyd,kdd,st);if(st/=RB_OK)goto 900
+        if(present(kxd_last)) kxd_last(p)=kxd
+        if(present(kyd_last)) kyd_last(p)=kyd
+        if(present(kdd_last)) kdd_last(p)=kdd
         den=kdd+krot(p)
         if(abs(den)>1e-8_rk)then
           k11=k11-kxd*kdx/den;k21=k21-kyd*kdx/den
           k12=k12-kxd*kdy/den;k22=k22-kyd*kdy/den
         end if
       end do
+      if(present(kj_last)) kj_last=reshape([k11,k21,k12,k22],[2,2])
       call rb_newton_step(k11,k12,k21,k22,fxn,fyn,cb,dx,dy,st)
       if(st/=RB_OK)then;status=st;return;end if
       if(dx==huge(1._rk))then
@@ -989,13 +1002,16 @@ contains
   end subroutine tp_fixedtilt_fields
 
 
-  subroutine tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt,pstatic,kred,cred,status)
+  subroutine tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt,pstatic,kred,cred,status, &
+                             kj_in,kdx_in,kdy_in,kxd_in,kyd_in,kdd_in)
     real(rk),intent(in)::speed,omega,d,cb,tp,pad_density,piv(np),arc(np),alen(np),pre(np),off(np),krot(np)
     real(rk),intent(in)::mu(:,:),dh(:,:),xj,yj,tilt(np),pstatic(:,:)
     integer(ik),intent(in)::np,nx,nz
     real(rk),intent(out)::kred(2,2),cred(2,2)
     integer(ik),intent(out)::status
+    real(rk),intent(in),optional::kj_in(2,2),kdx_in(np),kdy_in(np),kxd_in(np),kyd_in(np),kdd_in(np)
     integer::nn,p
+    logical::use_stiff_override
     real(rk)::fp,gp,mp
     real(rk)::kj(2,2),cj(2,2)
     real(rk),allocatable::kdx(:),kdy(:),kxd(:),kyd(:),kdd(:)
@@ -1004,8 +1020,12 @@ contains
     nn=(int(nx)+1)*(int(nz)+1);status=RB_OK
     allocate(kdx(np),kdy(np),kxd(np),kyd(np),kdd(np))
     allocate(cdx(np),cdy(np),cxd(np),cyd(np),cdd(np),plen(np),ip(np));plen=.5_rk*d*arc
-    kj=0._rk
-    do p=1,int(np)
+    use_stiff_override=present(kj_in).and.present(kdx_in).and.present(kdy_in).and.present(kxd_in).and.present(kyd_in).and.present(kdd_in)
+    if(use_stiff_override .and. maxval(abs(kj_in))>0._rk)then
+      kj=kj_in;kdx=kdx_in;kdy=kdy_in;kxd=kxd_in;kyd=kyd_in;kdd=kdd_in
+    else
+      kj=0._rk
+      do p=1,int(np)
       call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p), &
                           pstatic(:,p),fp,gp,kdx(p),st);if(st/=RB_OK)goto 900
       kj(1,1)=kj(1,1)+fp;kj(2,1)=kj(2,1)+gp
@@ -1014,7 +1034,8 @@ contains
       kj(1,2)=kj(1,2)+fp;kj(2,2)=kj(2,2)+gp
       call pad_stiff_pert(3_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p), &
                           pstatic(:,p),kxd(p),kyd(p),kdd(p),st);if(st/=RB_OK)goto 900
-    end do
+      end do
+    end if
     cj=0._rk;cdx=0._rk;cdy=0._rk;cxd=0._rk;cyd=0._rk;cdd=0._rk
     do p=1,int(np)
       call pad_pert(1_ik,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p),pstatic(:,p),fp,gp,mp,st);if(st/=RB_OK)goto 900
