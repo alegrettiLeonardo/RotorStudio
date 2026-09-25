@@ -59,6 +59,7 @@ jobs:
           DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-debug/libdrmbearings.so
         run: |
           set -o pipefail
+          mkdir -p validation/reports/ross_bearings_native/linux
           python -m pytest python/tests_bearings/test_advanced_bearings.py -q \
             | tee validation/reports/ross_bearings_native/linux/packed_abi_debug_pytest.txt
 
