@@ -186,16 +186,17 @@ contains
   subroutine rb_thermal_full_pad(nx,nz,ny_pad,ny_film,pad_length,axial_length,pad_thickness,speed_surface,h,pressure, &
                                  mu_nodes,density,cp,lube_conduct,pad_conduct,temp_inlet,temp_journal,temp_ambient, &
                                  convec_edges,convec_back,relax_t,temp_old,mu1,mu2,t1,t2,temp_new,mu_center, &
-                                 temp_max,temp_outlet,rms_temp,status)
+                                 temp_max,temp_outlet,q_in,q_out,rms_temp,status)
     integer(ik),intent(in)::nx,nz,ny_pad,ny_film
     real(rk),intent(in)::pad_length,axial_length,pad_thickness,speed_surface,h(:),pressure(:),mu_nodes(:)
     real(rk),intent(in)::density,cp,lube_conduct,pad_conduct,temp_inlet,temp_journal,temp_ambient
     real(rk),intent(in)::convec_edges,convec_back,relax_t,temp_old(:),mu1,mu2,t1,t2
-    real(rk),intent(out)::temp_new(:),mu_center(:),temp_max,temp_outlet,rms_temp
+    real(rk),intent(out)::temp_new(:),mu_center(:),temp_max,temp_outlet,q_in,q_out,rms_temp
     integer(ik),intent(out)::status
-    integer::nr,ny,nne,ix,iy,iz,n,n1,n2,n3,n4,bw,ncol,nbc,nnr,center,jf
+    integer::nr,ny,nne,ix,iy,iz,n,n1,n2,n3,n4,bw,ncol,nbc,nnr,center,jf,ix_min
     real(rk)::dx,dz,eta,yrel,hx,mu,u,v,dudy,dwdy,avg_u,avg_v,avg_diss,dhdx
     real(rk)::kx,ky,mx,my,pe,q,rt,avg_old,avg_raw,xi1h,xi2h,ratio,deta,gamma_eq
+    real(rk)::qrad,qax,turad,tuax,wz,hmin_local
     real(rk),allocatable::x(:),y(:),kx_n(:),ky_n(:),mx_n(:),my_n(:),p_n(:),q_n(:)
     real(rk),allocatable::mur(:),invr(:),cum1(:),cum2(:),igam(:)
     real(rk),allocatable::dpdx(:),dpdz(:),a(:,:),rhs(:),alow(:,:),pres(:),raw(:)
@@ -203,7 +204,7 @@ contains
     real(rk)::em(4,4),ec(4)
     integer(ik)::st
 
-    status=RB_OK;temp_max=0._rk;temp_outlet=0._rk;rms_temp=0._rk
+    status=RB_OK;temp_max=0._rk;temp_outlet=0._rk;q_in=0._rk;q_out=0._rk;rms_temp=0._rk
     nnr=(int(nx)+1)*(int(nz)+1); ny=int(ny_pad)+int(ny_film)+1; nne=(int(nx)+1)*ny
     if(nx<2 .or. nz<2 .or. ny_pad<1 .or. ny_film<2 .or. pad_length<=0._rk .or. axial_length<=0._rk .or. &
        pad_thickness<=0._rk .or. speed_surface<=0._rk .or. density<=0._rk .or. cp<=0._rk .or. &
@@ -374,10 +375,57 @@ contains
         mu_center(nr)=mu
       end do
     end do
-    do iy=int(ny_pad),ny-1
-      n=int(nx)*ny+iy+1;temp_outlet=temp_outlet+temp_new(n)
+    ! ROSS flow bookkeeping for regular-flooded smooth pads.  q_in is the
+    ! leading-edge circumferential flow; q_out is the flow at h_min.  The
+    ! reported outlet is the mass-flux-weighted trailing-edge temperature.
+    hmin_local=huge(1._rk);ix_min=0
+    do ix=0,int(nx)
+      nr=ix*(int(nz)+1)+center+1
+      if(h(nr)<hmin_local)then
+        hmin_local=h(nr);ix_min=ix
+      end if
     end do
-    temp_outlet=temp_outlet/real(ny-int(ny_pad),rk)
+
+    do ix=0,int(nx)
+      if(ix/=0 .and. ix/=ix_min .and. ix/=int(nx))cycle
+      nr=ix*(int(nz)+1)+center+1;hx=h(nr)
+      do jf=0,int(ny_film)
+        mur(jf+1)=max(rb_mu_of_t(mu1,mu2,t1,t2, &
+             temp_old(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
+        invr(jf+1)=1._rk/mur(jf+1)
+      end do
+      cum1=0._rk;cum2=0._rk
+      deta=hx/real(ny_film,rk)
+      do jf=1,int(ny_film)
+        yrel=hx*real(jf,rk)/real(ny_film,rk)
+        cum1(jf+1)=cum1(jf)+.5_rk*deta*(invr(jf)+invr(jf+1))
+        cum2(jf+1)=cum2(jf)+.5_rk*deta*( &
+             hx*real(jf-1,rk)/real(ny_film,rk)*invr(jf)+yrel*invr(jf+1))
+      end do
+      xi1h=max(cum1(int(ny_film)+1),tiny(1._rk))
+      xi2h=cum2(int(ny_film)+1);ratio=xi2h/xi1h
+      qax=0._rk;tuax=0._rk
+      do iz=0,int(nz)
+        nr=ix*(int(nz)+1)+iz+1
+        qrad=0._rk;turad=0._rk
+        do jf=0,int(ny_film)
+          yrel=hx*real(jf,rk)/real(ny_film,rk)
+          u=dpdx(nr)*cum2(jf+1)+(speed_surface/xi1h-dpdx(nr)*ratio)*cum1(jf+1)
+          wz=1._rk;if(jf==0 .or. jf==int(ny_film))wz=.5_rk
+          qrad=qrad+wz*u*deta
+          if(ix==int(nx))then
+            turad=turad+wz*temp_new(ix*ny+int(ny_pad)+jf+1)*u*deta
+          end if
+        end do
+        wz=1._rk;if(iz==0 .or. iz==int(nz))wz=.5_rk
+        qax=qax+wz*qrad*dz
+        if(ix==int(nx))tuax=tuax+wz*turad*dz
+      end do
+      if(ix==0)q_in=qax
+      if(ix==ix_min)q_out=qax
+      if(ix==int(nx) .and. abs(qax)>tiny(1._rk))temp_outlet=tuax/qax
+    end do
+    if(q_out>q_in)q_out=q_in
   end subroutine rb_thermal_full_pad
 
   subroutine rb_energy_q4(x,y,kx,ky,mx,my,p,q,e,f)
