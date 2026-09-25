@@ -67,7 +67,43 @@ def _result_record(run_case, ross_root: Path, fixture_name: str, *, overrides=No
             raise ValueError("asynchronous golden case requires nonzero spin")
         inp["excit_ratios"] = float(omega) / omega_spin
 
-    out = run_case(**inp, field_outputs=True)
+    # For the synchronous TiltingPad THD qualification case, capture the
+    # unreduced ROSS coefficient blocks entering dynamic_reduction.  The B12
+    # reduced cross terms are small differences of much larger direct/coupled
+    # terms, so this diagnostic is necessary to distinguish a field-state
+    # mismatch from a condensation mismatch.  It is log-only and does not
+    # change the frozen golden payload.
+    captured_blocks = None
+    if fixture_name == "tilt_5pad_full":
+        from ross.bearings.fluid_film import coefficients as _coeff
+
+        _orig_dynamic_reduction = _coeff.dynamic_reduction
+        captured_blocks = {}
+
+        def _capture_dynamic_reduction(total_pads, stiffness, damping_block, pads, pad_density, excit_rad, ip, k_rotate):
+            names = (
+                "xx", "yx", "xy", "yy",
+                "deltax", "deltay", "xdelta", "ydelta", "deltadelta",
+                "xxi", "yxi", "xyi", "yyi",
+            )
+            captured_blocks["K"] = {name: _jsonable(getattr(stiffness, name)) for name in names}
+            captured_blocks["C"] = {name: _jsonable(getattr(damping_block, name)) for name in names}
+            captured_blocks["omega"] = float(excit_rad)
+            return _orig_dynamic_reduction(
+                total_pads, stiffness, damping_block, pads, pad_density, excit_rad, ip, k_rotate
+            )
+
+        _coeff.dynamic_reduction = _capture_dynamic_reduction
+        try:
+            out = run_case(**inp, field_outputs=True)
+        finally:
+            _coeff.dynamic_reduction = _orig_dynamic_reduction
+    else:
+        out = run_case(**inp, field_outputs=True)
+
+    if captured_blocks:
+        print("B12_ROSS_RAW_BLOCKS", json.dumps(captured_blocks, sort_keys=True))
+
     fields = out["fields"][0]
     pressure = np.asarray(fields["pressure"], dtype=float)
     temperature = np.asarray(fields["film_temperature"], dtype=float)
