@@ -631,6 +631,19 @@ class AdvancedBearingBackend:
         speed_rad_s: float,
         frequency_rad_s: float | None = None,
     ) -> Bearing:
+        # The native physical PlainJournal provider is deliberately available
+        # for standalone qualification before rotor coupling.  Do not promote
+        # it into the qualified legacy type-5 assembly until its ROSS oracle
+        # coefficient/equilibrium gate is closed.
+        if isinstance(bearing, PlainJournalPhysicsBearing) and not bool(
+            bearing.provenance.get("rotor_coupling_qualified", False)
+        ):
+            raise SolverLibraryError(
+                "PlainJournalPhysicsBearing native operating-point solver is still "
+                "under ROSS parity qualification; rotor assembly is blocked. "
+                "Use PlainJournalBearing/CoefficientBearing with a qualified table, "
+                "or explicitly qualified provenance after the parity gate closes."
+            )
         result = self.evaluate(bearing, speed_rad_s, frequency_rad_s)
         if np.max(np.abs(result.M)) > 1e-14:
             raise SolverLibraryError(
