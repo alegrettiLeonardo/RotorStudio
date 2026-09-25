@@ -1260,6 +1260,12 @@ contains
     ! blocks for the 5-pad qualification fixtures.  These lines are removed
     ! once the remaining near-zero cross-term discrepancy is isolated.
     if(np==5_ik)then
+      if(maxval(abs(gfun-.5_rk))>1.e-12_rk)then
+        do p=1,int(np)
+          write(*,*) 'B12_NATIVE_GAMMA',p,(-1._rk/(12._rk*mu((nn/(int(nx)+1))*(i-1)+1+int(nz)/2,p)),i=1,int(nx)+1)
+          write(*,*) 'B12_NATIVE_GFUN',p,(gfun((nn/(int(nx)+1))*(i-1)+1+int(nz)/2,p),i=1,int(nx)+1)
+        end do
+      end if
       write(*,*) 'B12_NATIVE_KJ',kj
       write(*,*) 'B12_NATIVE_KDX',kdx
       write(*,*) 'B12_NATIVE_KDY',kdy
