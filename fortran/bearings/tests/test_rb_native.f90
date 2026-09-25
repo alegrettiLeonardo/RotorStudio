@@ -15,6 +15,7 @@ program test_ross_bearings_native
   use rb_dynamic_reduction, only: rb_dynamic_reduce_tilts
   use rb_pressure_isoviscous, only: rb_pressure_smooth_isoviscous
   use rb_plain_journal_physics, only: rb_plain_journal_isoviscous
+  use rb_tilting_pad_physics, only: rb_tilting_pad_isoviscous
   implicit none(type, external)
 
   integer(ik) :: st
@@ -35,6 +36,7 @@ program test_ross_bearings_native
   call test_pressure_isoviscous()
   call test_dynamic_reduction()
   call test_plain_journal_physics()
+  call test_tilting_pad_physics()
   call test_sfd()
 
   print *, 'PASS standalone ROSS bearing native gates:'
@@ -400,6 +402,40 @@ contains
     if (cp(1,1) <= 0._rk .or. cp(2,2) <= 0._rk) error stop 425
     if (pm <= 0._rk) error stop 426
   end subroutine test_plain_journal_physics
+
+  subroutine test_tilting_pad_physics()
+    real(rk) :: piv(5), arcs(5), lens(5), pre(5), off(5), krot(5), tilt(5)
+    real(rk) :: xr, yr, kt(2,2), ct(2,2), fx, fy, pm
+    integer(ik) :: nit
+
+    piv=[0.9424777960769379_rk,2.199114857512855_rk,3.4557519189487724_rk, &
+         4.71238898038469_rk,5.969026041820607_rk]
+    arcs=1.0471975511965976_rk
+    lens=0.263144_rk
+    pre=0.3_rk
+    off=0.5_rk
+    krot=0._rk
+
+    call rb_tilting_pad_isoviscous(94.24777960769379_rk,94.24777960769379_rk, &
+                                    112814.90696191376_rk,0._rk,0._rk,0.3999992_rk,0.000194564_rk, &
+                                    0.01901574061455835_rk,0.149614636_rk,7835.631544657211_rk,5_ik, &
+                                    piv,arcs,lens,pre,off,krot,20_ik,10_ik,0.15_rk,-0.2_rk,0.5_rk, &
+                                    80_ik,5e-3_rk,xr,yr,tilt,kt,ct,fx,fy,pm,nit,st)
+    if(st/=RB_OK)then
+      print *,'TiltingPad status/iterations',st,nit
+      error stop 427
+    end if
+    print *,'TiltingPad oracle diagnostic xj,yj=',xr,yr
+    print *,'TiltingPad tilt=',tilt
+    print *,'TiltingPad K=',kt
+    print *,'TiltingPad C=',ct
+    print *,'TiltingPad F/Pmax=',fx,fy,pm
+
+    call assert_close(xr,0.00043866240037811227_rk,2e-1_rk,2e-2_rk,428)
+    call assert_close(yr,-0.6180219519234674_rk,1e-1_rk,3e-2_rk,429)
+    if(kt(1,1)<=0._rk .or. kt(2,2)<=0._rk)error stop 430
+    if(ct(1,1)<=0._rk .or. ct(2,2)<=0._rk)error stop 431
+  end subroutine test_tilting_pad_physics
 
   subroutine test_sfd()
     real(rk), parameter :: reyn_to_pas = 6894.757293168_rk
