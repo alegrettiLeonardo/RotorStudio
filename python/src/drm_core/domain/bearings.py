@@ -109,7 +109,7 @@ class PlainJournalPhysicsBearing:
     relax_temperature: float = 0.5
     max_iterations: int = 80
     outer_iterations: int = 30
-    force_tolerance: float = 5e-3
+    force_tolerance: float = 2e-3
     field_tolerance: float = 1e-3
     thermal_type: str | None = None
     deform_type: str | None = None
@@ -187,7 +187,7 @@ class TiltingPadPhysicsBearing:
     convection_back_w_m2k: float = 0.0
     relax_temperature: float = 0.5
     outer_iterations: int = 30
-    force_tolerance: float = 5e-3
+    force_tolerance: float = 2e-3
     field_tolerance: float = 1e-3
     tag: str = ""
     provenance: dict[str, Any] = field(default_factory=dict)
