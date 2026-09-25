@@ -32,6 +32,12 @@ Initial implementation gates now present in the branch:
 - **BF2** — BallBearingElement and RollerBearingElement formulas reimplemented
   from current ROSS and pinned to current upstream oracle values;
 - **BF3** — current ROSS CylindricalBearing closed-form short-bearing model;
+- **BF4** — fixed-geometry translators compiled and source-qualified for
+  PartialArc / Elliptical / OffsetHalves / MultiLobe / PressureDam / PlainJournal;
+- **BF5a** — source-faithful Reynolds Q4 element kernel;
+- **BF5band** — banded Reynolds assembly/LU/cavitating solve kernels;
+- **BF5film** — rigid/isoviscous baseline film-thickness kernel;
+- **BF5cfg** — TiltingPad configuration and initial-position gate;
 - **BF7** — SqueezeFilmDamper, including groove, end-seals and combined
   geometry branches with cavitation on/off.
 
@@ -206,6 +212,8 @@ Required outputs:
 
 ### BF4 — fixed-geometry wrapper layer
 
+**Current status: IMPLEMENTED / native geometry gate PASS on Linux; cross-platform CI tracked by the branch workflow.**
+
 Add source-faithful constructors which only generate input arrays for the already-qualified journal engine:
 
 - PartialArc;
@@ -218,6 +226,10 @@ Add source-faithful constructors which only generate input arrays for the alread
 No Reynolds/thermal equation is duplicated in wrappers.
 
 ### BF5 — TiltingPad rigid/isoviscous completion
+
+**Current partial status:** configuration, baseline film thickness, Reynolds Q4
+element and banded linear-solver kernels are implemented. The operating-point
+solver is not yet closed.
 
 Close G7.3 → G7.7 before turbulence/THD.
 
