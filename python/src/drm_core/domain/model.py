@@ -113,6 +113,12 @@ class RotorModel:
                 return [norm(x) for x in v]
             return v
         def d(x): return norm(vars(x))
-        return {"nodes":[d(x) for x in self.nodes],"shafts":[d(x) for x in self.shafts],"disks":[d(x) for x in self.disks],"bearings":[d(x) for x in self.bearings],"forces":[d(x) for x in self.forces],"bend":[d(x) for x in self.bend],"rotors":[d(x) for x in self.rotors],"advanced_bearings":[d(x) for x in self.advanced_bearings]}
+        payload={"nodes":[d(x) for x in self.nodes],"shafts":[d(x) for x in self.shafts],"disks":[d(x) for x in self.disks],"bearings":[d(x) for x in self.bearings],"forces":[d(x) for x in self.forces],"bend":[d(x) for x in self.bend],"rotors":[d(x) for x in self.rotors]}
+        # Preserve the frozen Stage-1 model hash byte-for-byte for legacy
+        # models.  The new key only participates once an advanced bearing is
+        # actually present.
+        if self.advanced_bearings:
+            payload["advanced_bearings"]=[d(x) for x in self.advanced_bearings]
+        return payload
     def model_hash(self)->str:
         return hashlib.sha256(json.dumps(self.canonical_dict(),sort_keys=True,separators=(",",":"),default=list).encode()).hexdigest()
