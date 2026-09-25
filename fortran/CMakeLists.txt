@@ -5,9 +5,9 @@ set(CMAKE_Fortran_STANDARD_REQUIRED ON)
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
-# Standalone ROSS-derived bearing library.
-# This target is deliberately not consumed by drmrotor yet: RotorStudio
-# integration begins only after the native bearing gates and C ABI are frozen.
+# ROSS-derived bearing library.  It remains a separate shared library from
+# drmrotor and is consumed through its stable C ABI by the Python Core.
+# The qualified legacy drmrotor bearing path is therefore left untouched.
 add_library(drmbearings SHARED
  bearings/src/rb_kinds.f90
  bearings/src/rb_status.f90
