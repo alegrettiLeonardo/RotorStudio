@@ -192,15 +192,19 @@ contains
     real(rk), intent(in) :: pivot_angle(n_pads),pad_arc(n_pads),pad_axial_length(n_pads),preload(n_pads),offset(n_pads)
     real(rk), intent(out) :: pressure(:,:),fx,fy,pmax
     integer(ik), intent(out) :: status
-    integer :: p
+    integer :: p, nn
     real(rk) :: fxi,fyi,pmi
+    real(rk), allocatable :: p_dummy(:)
 
     status=RB_OK; fx=0._rk; fy=0._rk; pmax=0._rk
     pressure=0._rk
+    nn=(int(total_e_x)+1)*(int(total_e_z)+1)
+    allocate(p_dummy(nn))
+    p_dummy=0._rk
     do p=1,int(n_pads)
       call rb_solve_pad(0_ik,speed,journal_diameter,radial_clearance,viscosity,pivot_angle(p),pad_arc(p), &
                         pad_axial_length(p),preload(p),offset(p),total_e_x,total_e_z,xj,yj, &
-                        pressure(:,p),pressure(:,p),fxi,fyi,pmi,status)
+                        p_dummy,pressure(:,p),fxi,fyi,pmi,status)
       if(status/=RB_OK)return
       fx=fx+fxi; fy=fy+fyi; pmax=max(pmax,pmi)
     end do
