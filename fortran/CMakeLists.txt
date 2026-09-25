@@ -17,6 +17,7 @@ add_library(drmbearings SHARED
  bearings/src/rb_squeeze_film_damper.f90
  bearings/src/rb_fixed_geometry.f90
  bearings/src/rb_tilting_pad_config.f90
+ bearings/src/rb_dynamic_reduction.f90
  bearings/src/rb_reynolds_element.f90
  bearings/src/rb_reynolds_banded.f90
  bearings/src/rb_reynolds_mesh.f90
