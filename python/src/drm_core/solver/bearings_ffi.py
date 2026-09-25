@@ -222,4 +222,15 @@ def configure_bearing_library(lib):
     ]
     lib.rb_tilting_pad_prepare_c.restype = ct.c_int
 
+    lib.rb_reynolds_q4_element_c.argtypes = [
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        dptr,
+        dptr,
+    ]
+    lib.rb_reynolds_q4_element_c.restype = ct.c_int
+
     return lib
