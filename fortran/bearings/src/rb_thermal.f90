@@ -150,7 +150,9 @@ contains
       rt=relax_t
     end if
     temp_new(1:nn)=rt*raw+(1._rk-rt)*temp_old(1:nn)
-    rms_temp=sqrt(sum((temp_new(1:nn)-temp_old(1:nn))**2)/real(nn,rk))
+    ! ROSS convergence residual is evaluated on the raw energy solve
+    ! (temp_adiab1) against the pre-iteration snapshot, before relaxation.
+    rms_temp=sqrt(sum((raw(1:nn)-temp_old(1:nn))**2)/real(nn,rk))
     temp_max=maxval(temp_new(1:nn))
     do iz=0,int(nz)
       n=int(nx)*(int(nz)+1)+iz+1; temp_outlet=temp_outlet+temp_new(n)
@@ -341,7 +343,10 @@ contains
     raw=rhs;avg_old=sum(temp_old(1:nne))/real(nne,rk);avg_raw=sum(raw)/real(nne,rk)
     if(abs(avg_raw-avg_old)>10._rk)then;rt=min(relax_t,10._rk/abs(avg_raw-avg_old));else;rt=relax_t;end if
     temp_new(1:nne)=rt*raw+(1._rk-rt)*temp_old(1:nne)
-    rms_temp=sqrt(sum((temp_new(1:nne)-temp_old(1:nne))**2)/real(nne,rk))
+    ! Match ROSS temp_full_residual: compare the unrelaxed raw solve
+    ! (temp_full1) with the old temperature.  Measuring the relaxed field
+    ! declares the THD inner fixed point too early.
+    rms_temp=sqrt(sum((raw(1:nne)-temp_old(1:nne))**2)/real(nne,rk))
     ! ROSS temp_maximum is the maximum Babbitt/pad-surface temperature,
     ! i.e. the film/pad interface for the smooth regular-flooded geometry.
     ! It is not the maximum anywhere across the lubricant film.
