@@ -128,6 +128,49 @@ def _plain_native(inp: dict):
     }
 
 
+
+def _plain_fixed_native(inp: dict, xj_ratio: float, yj_ratio: float):
+    backend = AdvancedBearingBackend()
+    n = len(inp["pivot_angle"])
+    arrays = [
+        np.ascontiguousarray(inp[key], dtype=np.float64)
+        for key in ("pivot_angle", "pad_arc", "pad_axial_length", "preload", "offset")
+    ]
+    beta = np.log(float(inp["viscosity2"]) / float(inp["viscosity1"])) / (
+        float(inp["temp2"]) - float(inp["temp1"])
+    )
+    mu_supply = float(inp["viscosity1"]) * np.exp(
+        beta * (float(inp["oil_supply_temperature"]) - float(inp["temp1"]))
+    )
+    rcfg = np.ascontiguousarray(
+        [
+            _scalar(inp["frequency"]),
+            float(inp["journal_diameter"]),
+            float(inp["radial_clearance"]),
+            mu_supply,
+            float(xj_ratio),
+            float(yj_ratio),
+        ],
+        dtype=np.float64,
+    )
+    nx, nz = int(inp["total_e_x_film"]), int(inp["total_e_z_film"])
+    icfg = np.ascontiguousarray([nx, nz], dtype=np.int32)
+    nn = (nx + 1) * (nz + 1)
+    K = np.empty(4, dtype=np.float64)
+    summary = np.empty(3, dtype=np.float64)
+    pressure = np.empty(n * nn, dtype=np.float64)
+    status = backend.lib.rb_plain_journal_fixed_state_pack_c(
+        n, _ptr(rcfg), _iptr(icfg), *(_ptr(a) for a in arrays),
+        _ptr(K), _ptr(summary), _ptr(pressure),
+    )
+    assert status == 0, f"PlainJournal fixed-state diagnostic returned status={status}"
+    return {
+        "K": K.reshape((2, 2), order="F"),
+        "summary": summary,
+        "pressure": pressure.reshape((n, nx + 1, nz + 1)),
+    }
+
+
 def _tilting_native(inp: dict, whirl_rad_s: float):
     backend = AdvancedBearingBackend()
     n = len(inp["pivot_angle"])
@@ -288,7 +331,13 @@ def test_b12_reference_authority_is_frozen():
 def test_b12_plain_journal_isoviscous_parity():
     golden, fields = _load("plain_journal_isoviscous")
     native = _plain_native(golden["inputs"])
+    fixed = _plain_fixed_native(
+        golden["inputs"], golden["outputs"]["xj_ratio"], golden["outputs"]["yj_ratio"]
+    )
     print("B12_FIELD_L2 plain_iso pressure", _relative_l2(native["pressure"], fields["pressure_field_pa"]))
+    print("B12_FIXED_GOLDEN_XY pressure", _relative_l2(fixed["pressure"], fields["pressure_field_pa"]))
+    print("B12_FIXED_GOLDEN_XY summary", fixed["summary"].tolist())
+    print("B12_FIXED_GOLDEN_XY K", fixed["K"].tolist())
     _assert_scalar_and_matrices(native, golden)
     assert _relative_l2(native["pressure"], fields["pressure_field_pa"]) <= 1.0e-2
 
