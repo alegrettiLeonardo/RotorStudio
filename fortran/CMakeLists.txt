@@ -14,7 +14,8 @@ add_library(drmbearings SHARED
  bearings/src/rb_interpolation.f90
  bearings/src/rb_rolling.f90
  bearings/src/rb_cylindrical.f90
- bearings/src/rb_squeeze_film_damper.f90)
+ bearings/src/rb_squeeze_film_damper.f90
+ bearings/src/rb_c_api.f90)
 set_target_properties(drmbearings PROPERTIES OUTPUT_NAME drmbearings)
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(drmbearings PRIVATE
