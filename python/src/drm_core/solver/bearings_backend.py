@@ -242,64 +242,87 @@ class AdvancedBearingBackend:
                 bearing.offset,
             )
         ]
+        supply = float(bearing.oil_supply_temperature_k or 300.0)
         pad_thickness = float(
             bearing.pad_thickness_m
             if bearing.pad_thickness_m is not None
             else bearing.journal_diameter_m / 4.0
         )
-        supply = float(bearing.oil_supply_temperature_k or 300.0)
-        mu2 = float(bearing.viscosity2_pa_s or bearing.oil_viscosity_pa_s)
-        t1 = float(bearing.temperature1_k or 300.0)
-        t2 = float(bearing.temperature2_k or 301.0)
-        rho = float(bearing.lubricant_density_kg_m3 or 1.0)
-        cp = float(bearing.lubricant_cp_j_kgk or 1.0)
-        klube = float(bearing.lubricant_conductivity_w_mk or 1.0)
-        kpad = float(bearing.pad_conductivity_w_mk or 1.0)
-        epad = float(bearing.pad_young_pa or 1.0)
-        nupad = float(bearing.pad_poisson or 0.3)
-        alphapad = float(bearing.pad_expansion_1_k or 0.0)
-        tj = float(bearing.temperature_journal_k or supply)
-        ta = float(bearing.temperature_ambient_k or supply)
-        xj = ct.c_double(); yj = ct.c_double()
-        K = np.empty(4, dtype=np.float64); C = np.empty(4, dtype=np.float64)
-        fx = ct.c_double(); fy = ct.c_double(); pmax = ct.c_double()
-        tmax = ct.c_double(); tout = ct.c_double(); deform = ct.c_double()
-        iterations = ct.c_int()
-        status = self.lib.rb_plain_journal_multiphysics_c(
-            float(speed), float(bearing.weight_n), float(bearing.fxs_load_n), float(bearing.fys_load_n),
-            float(bearing.journal_diameter_m), float(bearing.radial_clearance_m),
-            float(bearing.oil_viscosity_pa_s), mu2, t1, t2, rho, cp, klube,
-            _THERMAL_TYPE[bearing.thermal_type], _DEFORM_TYPE[bearing.deform_type],
-            pad_thickness, kpad, epad, nupad, alphapad, supply, tj, ta,
-            float(bearing.convection_edges_w_m2k), float(bearing.convection_back_w_m2k),
-            len(arrays[0]), *(self._ptr(a) for a in arrays),
-            int(bearing.total_e_x_film), int(bearing.total_e_z_film),
-            int(bearing.total_e_y_pad), int(bearing.total_e_y_film),
-            float(bearing.xj_ratio_initial), float(bearing.yj_ratio_initial),
-            float(bearing.relax_p), float(bearing.relax_temperature),
-            int(bearing.max_iterations), int(bearing.outer_iterations),
-            float(bearing.force_tolerance), float(bearing.field_tolerance),
-            ct.byref(xj), ct.byref(yj), self._ptr(K), self._ptr(C),
-            ct.byref(fx), ct.byref(fy), ct.byref(pmax), ct.byref(tmax), ct.byref(tout),
-            ct.byref(deform), ct.byref(iterations),
+        rcfg = np.ascontiguousarray(
+            [
+                speed, bearing.weight_n, bearing.fxs_load_n, bearing.fys_load_n,
+                bearing.journal_diameter_m, bearing.radial_clearance_m,
+                bearing.oil_viscosity_pa_s,
+                bearing.viscosity2_pa_s or bearing.oil_viscosity_pa_s,
+                bearing.temperature1_k or 300.0, bearing.temperature2_k or 301.0,
+                bearing.lubricant_density_kg_m3 or 1.0,
+                bearing.lubricant_cp_j_kgk or 1.0,
+                bearing.lubricant_conductivity_w_mk or 1.0,
+                pad_thickness,
+                bearing.pad_conductivity_w_mk or 1.0,
+                bearing.pad_young_pa or 1.0,
+                bearing.pad_poisson if bearing.pad_poisson is not None else 0.3,
+                bearing.pad_expansion_1_k or 0.0,
+                supply,
+                bearing.temperature_journal_k or supply,
+                bearing.temperature_ambient_k or supply,
+                bearing.convection_edges_w_m2k,
+                bearing.convection_back_w_m2k,
+                bearing.xj_ratio_initial, bearing.yj_ratio_initial,
+                bearing.relax_p, bearing.relax_temperature,
+                bearing.force_tolerance, bearing.field_tolerance,
+            ],
+            dtype=np.float64,
+        )
+        icfg = np.ascontiguousarray(
+            [
+                _THERMAL_TYPE[bearing.thermal_type],
+                _DEFORM_TYPE[bearing.deform_type],
+                bearing.total_e_x_film,
+                bearing.total_e_z_film,
+                bearing.total_e_y_pad,
+                bearing.total_e_y_film,
+                bearing.max_iterations,
+                bearing.outer_iterations,
+            ],
+            dtype=np.int32,
+        )
+        K = np.empty(4, dtype=np.float64)
+        C = np.empty(4, dtype=np.float64)
+        summary = np.empty(9, dtype=np.float64)
+        status = self.lib.rb_plain_journal_multiphysics_pack_c(
+            len(arrays[0]),
+            self._ptr(rcfg),
+            icfg.ctypes.data_as(ct.POINTER(ct.c_int)),
+            *(self._ptr(a) for a in arrays),
+            self._ptr(K),
+            self._ptr(C),
+            self._ptr(summary),
         )
         self._status(status, "PlainJournal native multiphysics")
+        xr, yr, fx, fy, pmax, tmax, tout, deform, iterations = summary
         return BearingEvaluation(
-            np.asarray(K).reshape((2, 2), order="F"),
-            np.asarray(C).reshape((2, 2), order="F"),
+            K.reshape((2, 2), order="F"),
+            C.reshape((2, 2), order="F"),
             np.zeros((2, 2)),
             bearing.model_family,
             {
                 "native": True,
                 "physics_provider": "Fortran Reynolds + equilibrium + THD/TEHD",
-                "xj_ratio": float(xj.value), "yj_ratio": float(yj.value),
-                "eccentricity_ratio": float(np.hypot(xj.value, yj.value)),
-                "attitude_angle_rad": float(np.arctan2(-xj.value, -yj.value)),
-                "fx_hydro_n": float(fx.value), "fy_hydro_n": float(fy.value),
-                "p_max_pa": float(pmax.value), "t_max_k": float(tmax.value),
-                "t_out_k": float(tout.value), "deformation_max_m": float(deform.value),
-                "iterations": int(iterations.value),
-                "thermal_type": bearing.thermal_type, "deform_type": bearing.deform_type,
+                "xj_ratio": float(xr),
+                "yj_ratio": float(yr),
+                "eccentricity_ratio": float(np.hypot(xr, yr)),
+                "attitude_angle_rad": float(np.arctan2(-xr, -yr)),
+                "fx_hydro_n": float(fx),
+                "fy_hydro_n": float(fy),
+                "p_max_pa": float(pmax),
+                "t_max_k": float(tmax),
+                "t_out_k": float(tout),
+                "deformation_max_m": float(deform),
+                "iterations": int(round(iterations)),
+                "thermal_type": bearing.thermal_type,
+                "deform_type": bearing.deform_type,
+                "abi": "packed-v1",
             },
         )
 
