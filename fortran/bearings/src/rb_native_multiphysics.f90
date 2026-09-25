@@ -109,7 +109,7 @@ contains
           call rb_thermal_adiabatic_pad(nx,nz,0.5_rk*d*arc(p),alen(p),speed*0.5_rk*d,h(:,p),press(:,p),mu(:,p), &
                rho,cp,klube,temp_inlet_pad(p),relax_t,tad(:,p),mu1,mu2,t1,t2,tad_new,muc,tmi,touti,rms,st)
           if(st/=RB_OK)then;status=st;return;end if
-          temp_delta=max(temp_delta,maxval(abs(tad_new-tad(:,p))))
+          temp_delta=max(temp_delta,rms)
           tad(:,p)=tad_new;mu_new(:,p)=muc
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),pad_thickness,speed*0.5_rk*d, &
@@ -117,7 +117,7 @@ contains
                convec_back,relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st)
           q_in_arr(p)=q_in_pad;q_out_arr(p)=q_out_pad;temp_outlet_pad(p)=touti
           if(st/=RB_OK)then;status=st;return;end if
-          temp_delta=max(temp_delta,maxval(abs(tfull_new-tfull(:,p))))
+          temp_delta=max(temp_delta,rms)
           tfull(:,p)=tfull_new;mu_new(:,p)=muc
         end select
         tmax=max(tmax,tmi);tout=tout+touti
@@ -149,67 +149,90 @@ contains
                                           tpad,px,.false.,off(p),def,st)
           if(st/=RB_OK)then;status=st;return;end if
           dh_new(:,p)=-def
-          def_delta=max(def_delta,maxval(abs(dh_new(:,p)-dh(:,p))))
+          def_delta=max(def_delta,sqrt(sum((dh_new(:,p)-dh(:,p))**2)/real(int(nx)+1,rk)))
         end if
       end do
 
-      ! ROSS averaged_film_temperature journal boundary: area-weighted mean of
-      ! the radially averaged film temperature over every pad.  The provider's
-      ! journal-temperature input is the initial iterate; full THD advances it
-      ! with the pinned 10 degF step limiter and RelaxT.
-      inlet_delta=0._rk
-      if(thermal_type/=RB_THERMAL_ISOVISCOUS .and. hotoil_lamda>0._rk)then
-        temp_inlet_new=temp_inlet_pad
-        do p=1,int(np)
-          n=p-1;if(n<1)n=int(np)
-          qcarry=hotoil_lamda*max(0._rk,q_out_arr(n))
-          if(q_in_arr(p)>tiny(1._rk))then
-            if(qcarry>q_in_arr(p))then
-              temp_inlet_new(p)=temp_outlet_pad(n)
-            else
-              temp_inlet_new(p)=(qcarry*temp_outlet_pad(n)+(q_in_arr(p)-qcarry)*temp_supply)/q_in_arr(p)
-            end if
-          else
-            temp_inlet_new(p)=temp_supply
-          end if
-        end do
-        inlet_delta=sqrt(sum((temp_inlet_new-temp_inlet_pad)**2)/real(np,rk))
-        temp_inlet_pad=(1._rk-relax_t)*temp_inlet_pad+relax_t*temp_inlet_new
-      end if
+      ! Match the pinned ROSS three-level THD convergence ordering with a
+      ! bounded state machine: thermal/viscosity -> journal temperature ->
+      ! inlet mixing -> deformation.  A downstream state is not advanced
+      ! while an upstream fixed point remains unconverged.
+      tout=tout/real(np,rk)
+      mu=(1._rk-relax_t)*mu+relax_t*mu_new
 
-      temp_j_delta=0._rk
-      if(thermal_type==RB_THERMAL_FULL)then
-        temp_sum=0._rk;temp_area=0._rk
-        stride=int(ny_pad)+int(ny_film)+1
-        do p=1,int(np)
-          do ix=0,int(nx)
-            delta=.5_rk*tfull(ix*stride+int(ny_pad)+1,p)+ &
-                  .5_rk*tfull(ix*stride+stride,p)
-            do iy=1,int(ny_film)-1
-              delta=delta+tfull(ix*stride+int(ny_pad)+iy+1,p)
+      if(thermal_type/=RB_THERMAL_ISOVISCOUS)then
+        ! TEMP_ERROR = 0.01 degF in ROSS.
+        if(temp_delta>=0.01_rk/1.8_rk)then
+          outer_done=it
+          cycle
+        end if
+
+        temp_j_delta=0._rk
+        if(thermal_type==RB_THERMAL_FULL)then
+          temp_sum=0._rk;temp_area=0._rk
+          stride=int(ny_pad)+int(ny_film)+1
+          do p=1,int(np)
+            do ix=0,int(nx)
+              delta=.5_rk*tfull(ix*stride+int(ny_pad)+1,p)+ &
+                    .5_rk*tfull(ix*stride+stride,p)
+              do iy=1,int(ny_film)-1
+                delta=delta+tfull(ix*stride+int(ny_pad)+iy+1,p)
+              end do
+              delta=delta/real(ny_film,rk)
+              wx=1._rk;if(ix==0 .or. ix==int(nx))wx=.5_rk
+              temp_sum=temp_sum+wx*delta*(0.5_rk*d*arc(p)/real(nx,rk))*alen(p)
             end do
-            delta=delta/real(ny_film,rk)
-            wx=1._rk;if(ix==0 .or. ix==int(nx))wx=.5_rk
-            temp_sum=temp_sum+wx*delta*(0.5_rk*d*arc(p)/real(nx,rk))*alen(p)
+            temp_area=temp_area+(0.5_rk*d*arc(p))*alen(p)
           end do
-          temp_area=temp_area+(0.5_rk*d*arc(p))*alen(p)
-        end do
-        if(temp_area>0._rk)then
-          temp_j_target=temp_sum/temp_area
-          temp_j_delta=abs(temp_j_target-temp_j_work)
-          tj_relax=relax_t
-          if(temp_j_delta>10._rk/1.8_rk) tj_relax=min(tj_relax,(10._rk/1.8_rk)/temp_j_delta)
-          temp_j_work=tj_relax*temp_j_target+(1._rk-tj_relax)*temp_j_work
+          if(temp_area>0._rk)then
+            temp_j_target=temp_sum/temp_area
+            temp_j_delta=abs(temp_j_target-temp_j_work)
+            tj_relax=relax_t
+            if(temp_j_delta>10._rk/1.8_rk)tj_relax=min(tj_relax,(10._rk/1.8_rk)/temp_j_delta)
+            temp_j_work=tj_relax*temp_j_target+(1._rk-tj_relax)*temp_j_work
+          end if
+          ! JTEMP_ERROR = 0.1 degF in ROSS.
+          if(temp_j_delta>=0.1_rk/1.8_rk)then
+            outer_done=it
+            cycle
+          end if
+        end if
+
+        inlet_delta=0._rk
+        temp_inlet_new=temp_inlet_pad
+        if(hotoil_lamda>0._rk)then
+          do p=1,int(np)
+            n=p-1;if(n<1)n=int(np)
+            qcarry=hotoil_lamda*max(0._rk,q_out_arr(n))
+            if(q_in_arr(p)>tiny(1._rk))then
+              if(qcarry>q_in_arr(p))then
+                temp_inlet_new(p)=temp_outlet_pad(n)
+              else
+                temp_inlet_new(p)=(qcarry*temp_outlet_pad(n)+(q_in_arr(p)-qcarry)*temp_supply)/q_in_arr(p)
+              end if
+            else
+              temp_inlet_new(p)=temp_supply
+            end if
+          end do
+          inlet_delta=sqrt(sum((temp_inlet_new-temp_inlet_pad)**2)/real(np,rk))
+          if(inlet_delta<0.5_rk/1.8_rk)then
+            temp_inlet_pad=temp_inlet_new
+          else
+            temp_inlet_pad=(1._rk-relax_t)*temp_inlet_pad+relax_t*temp_inlet_new
+            outer_done=it
+            cycle
+          end if
         end if
       end if
 
-      tout=tout/real(np,rk)
-      mu=(1._rk-relax_t)*mu+relax_t*mu_new
-      if(deform_type/=RB_DEFORM_NONE)dh=(1._rk-relax_t)*dh+relax_t*dh_new
-      deform_max=maxval(abs(dh));outer_done=it
-      if((thermal_type==RB_THERMAL_ISOVISCOUS .or. &
-          (temp_delta<=field_tol .and. temp_j_delta<=0.1_rk/1.8_rk .and. inlet_delta<=0.5_rk/1.8_rk)) .and. &
-         (deform_type==RB_DEFORM_NONE .or. def_delta<=field_tol*max(cb,1e-9_rk)))exit
+      if(deform_type/=RB_DEFORM_NONE)then
+        dh=(1._rk-relax_t)*dh+relax_t*dh_new
+        deform_max=maxval(abs(dh));outer_done=it
+        if(def_delta/max(cb,tiny(1._rk))>=1.e-3_rk)cycle
+      else
+        deform_max=0._rk;outer_done=it
+      end if
+      exit
     end do
 
     ! Pinned ROSS returns the last finite coupled state when a thermal /
@@ -353,14 +376,14 @@ contains
           call rb_thermal_adiabatic_pad(nx,nz,0.5_rk*d*arc(p),alen(p),speed*0.5_rk*d,h(:,p),press(:,p),mu(:,p), &
                rho,cp,klube,temp_inlet_pad(p),relax_t,tad(:,p),mu1,mu2,t1,t2,tad_new,muc,tmi,touti,rms,st)
           if(st/=RB_OK)then;status=st;return;end if
-          temp_delta=max(temp_delta,maxval(abs(tad_new-tad(:,p))));tad(:,p)=tad_new;mu_new(:,p)=muc
+          temp_delta=max(temp_delta,rms);tad(:,p)=tad_new;mu_new(:,p)=muc
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),tp,speed*0.5_rk*d,h(:,p), &
                press(:,p),mu(:,p),rho,cp,klube,kpad,temp_inlet_pad(p),temp_j_work,temp_ambient,convec_edges,convec_back, &
                relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st)
           q_in_arr(p)=q_in_pad;q_out_arr(p)=q_out_pad;temp_outlet_pad(p)=touti
           if(st/=RB_OK)then;status=st;return;end if
-          temp_delta=max(temp_delta,maxval(abs(tfull_new-tfull(:,p))));tfull(:,p)=tfull_new;mu_new(:,p)=muc
+          temp_delta=max(temp_delta,rms);tfull(:,p)=tfull_new;mu_new(:,p)=muc
         end select
         tmax=max(tmax,tmi);tout=tout+touti
 
@@ -399,63 +422,92 @@ contains
           call rb_pad_surface_deformation(nx,ny_pad,0.5_rk*d*arc(p),tp,epad,nupad,pex,temp_reference,tpad,px, &
                                           .true.,off(p),def,st)
           if(st/=RB_OK)then;status=st;return;end if
-          dh_new(:,p)=-def;def_delta=max(def_delta,maxval(abs(dh_new(:,p)-dh(:,p))))
+          dh_new(:,p)=-def;def_delta=max(def_delta,sqrt(sum((dh_new(:,p)-dh(:,p))**2)/real(int(nx)+1,rk)))
         end if
       end do
 
-      inlet_delta=0._rk
-      if(thermal_type/=RB_THERMAL_ISOVISCOUS .and. hotoil_lamda>0._rk)then
-        temp_inlet_new=temp_inlet_pad
-        do p=1,int(np)
-          n=p-1;if(n<1)n=int(np)
-          qcarry=hotoil_lamda*max(0._rk,q_out_arr(n))
-          if(q_in_arr(p)>tiny(1._rk))then
-            if(qcarry>q_in_arr(p))then
-              temp_inlet_new(p)=temp_outlet_pad(n)
-            else
-              temp_inlet_new(p)=(qcarry*temp_outlet_pad(n)+(q_in_arr(p)-qcarry)*temp_supply)/q_in_arr(p)
-            end if
-          else
-            temp_inlet_new(p)=temp_supply
-          end if
-        end do
-        inlet_delta=sqrt(sum((temp_inlet_new-temp_inlet_pad)**2)/real(np,rk))
-        temp_inlet_pad=(1._rk-relax_t)*temp_inlet_pad+relax_t*temp_inlet_new
-      end if
+      ! Match the pinned ROSS three-level THD convergence ordering with a
+      ! bounded state machine: thermal/viscosity -> journal temperature ->
+      ! inlet mixing -> deformation.  A downstream state is not advanced
+      ! while an upstream fixed point remains unconverged.
+      tout=tout/real(np,rk)
+      mu=(1._rk-relax_t)*mu+relax_t*mu_new
 
-      temp_j_delta=0._rk
-      if(thermal_type==RB_THERMAL_FULL)then
-        temp_sum=0._rk;temp_area=0._rk
-        stride=int(ny_pad)+int(ny_film)+1
-        do p=1,int(np)
-          do ix=0,int(nx)
-            delta=.5_rk*tfull(ix*stride+int(ny_pad)+1,p)+ &
-                  .5_rk*tfull(ix*stride+stride,p)
-            do iy=1,int(ny_film)-1
-              delta=delta+tfull(ix*stride+int(ny_pad)+iy+1,p)
+      if(thermal_type/=RB_THERMAL_ISOVISCOUS)then
+        ! TEMP_ERROR = 0.01 degF in ROSS.
+        if(temp_delta>=0.01_rk/1.8_rk)then
+          outer_done=it
+          cycle
+        end if
+
+        temp_j_delta=0._rk
+        if(thermal_type==RB_THERMAL_FULL)then
+          temp_sum=0._rk;temp_area=0._rk
+          stride=int(ny_pad)+int(ny_film)+1
+          do p=1,int(np)
+            do ix=0,int(nx)
+              delta=.5_rk*tfull(ix*stride+int(ny_pad)+1,p)+ &
+                    .5_rk*tfull(ix*stride+stride,p)
+              do iy=1,int(ny_film)-1
+                delta=delta+tfull(ix*stride+int(ny_pad)+iy+1,p)
+              end do
+              delta=delta/real(ny_film,rk)
+              wx=1._rk;if(ix==0 .or. ix==int(nx))wx=.5_rk
+              temp_sum=temp_sum+wx*delta*(0.5_rk*d*arc(p)/real(nx,rk))*alen(p)
             end do
-            delta=delta/real(ny_film,rk)
-            wx=1._rk;if(ix==0 .or. ix==int(nx))wx=.5_rk
-            temp_sum=temp_sum+wx*delta*(0.5_rk*d*arc(p)/real(nx,rk))*alen(p)
+            temp_area=temp_area+(0.5_rk*d*arc(p))*alen(p)
           end do
-          temp_area=temp_area+(0.5_rk*d*arc(p))*alen(p)
-        end do
-        if(temp_area>0._rk)then
-          temp_j_target=temp_sum/temp_area
-          temp_j_delta=abs(temp_j_target-temp_j_work)
-          tj_relax=relax_t
-          if(temp_j_delta>10._rk/1.8_rk) tj_relax=min(tj_relax,(10._rk/1.8_rk)/temp_j_delta)
-          temp_j_work=tj_relax*temp_j_target+(1._rk-tj_relax)*temp_j_work
+          if(temp_area>0._rk)then
+            temp_j_target=temp_sum/temp_area
+            temp_j_delta=abs(temp_j_target-temp_j_work)
+            tj_relax=relax_t
+            if(temp_j_delta>10._rk/1.8_rk)tj_relax=min(tj_relax,(10._rk/1.8_rk)/temp_j_delta)
+            temp_j_work=tj_relax*temp_j_target+(1._rk-tj_relax)*temp_j_work
+          end if
+          ! JTEMP_ERROR = 0.1 degF in ROSS.
+          if(temp_j_delta>=0.1_rk/1.8_rk)then
+            outer_done=it
+            cycle
+          end if
+        end if
+
+        inlet_delta=0._rk
+        temp_inlet_new=temp_inlet_pad
+        if(hotoil_lamda>0._rk)then
+          do p=1,int(np)
+            n=p-1;if(n<1)n=int(np)
+            qcarry=hotoil_lamda*max(0._rk,q_out_arr(n))
+            if(q_in_arr(p)>tiny(1._rk))then
+              if(qcarry>q_in_arr(p))then
+                temp_inlet_new(p)=temp_outlet_pad(n)
+              else
+                temp_inlet_new(p)=(qcarry*temp_outlet_pad(n)+(q_in_arr(p)-qcarry)*temp_supply)/q_in_arr(p)
+              end if
+            else
+              temp_inlet_new(p)=temp_supply
+            end if
+          end do
+          inlet_delta=sqrt(sum((temp_inlet_new-temp_inlet_pad)**2)/real(np,rk))
+          if(inlet_delta<0.5_rk/1.8_rk)then
+            temp_inlet_pad=temp_inlet_new
+          else
+            temp_inlet_pad=(1._rk-relax_t)*temp_inlet_pad+relax_t*temp_inlet_new
+            outer_done=it
+            cycle
+          end if
         end if
       end if
 
-      tout=tout/real(np,rk);mu=(1._rk-relax_t)*mu+relax_t*mu_new
-      if(deform_type/=RB_DEFORM_NONE)dh=(1._rk-relax_t)*dh+relax_t*dh_new
-      deform_max=maxval(abs(dh));outer_done=it
-      if((thermal_type==RB_THERMAL_ISOVISCOUS .or. &
-          (temp_delta<=field_tol .and. temp_j_delta<=0.1_rk/1.8_rk .and. inlet_delta<=0.5_rk/1.8_rk)) .and. &
-         (deform_type==RB_DEFORM_NONE .or. def_delta<=field_tol*max(cb,1e-9_rk)))exit
+      if(deform_type/=RB_DEFORM_NONE)then
+        dh=(1._rk-relax_t)*dh+relax_t*dh_new
+        deform_max=maxval(abs(dh));outer_done=it
+        if(def_delta/max(cb,tiny(1._rk))>=1.e-3_rk)cycle
+      else
+        deform_max=0._rk;outer_done=it
+      end if
+      exit
     end do
+
     ! Pinned ROSS returns the last finite coupled state when a thermal /
     ! deformation fixed-point loop reaches its iteration cap.  Convergence is
     ! audited by the B12 residual/output gates rather than converted here into
