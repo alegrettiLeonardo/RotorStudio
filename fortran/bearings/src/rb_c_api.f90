@@ -13,7 +13,7 @@ module rb_c_api
   use rb_dynamic_reduction, only: rb_dynamic_reduce_tilts
   use rb_plain_journal_physics, only: rb_plain_journal_isoviscous
   use rb_tilting_pad_physics, only: rb_tilting_pad_isoviscous
-  use rb_native_multiphysics, only: rb_plain_journal_multiphysics, rb_tilting_pad_multiphysics
+  use rb_native_multiphysics, only: rb_plain_journal_multiphysics, rb_tilting_pad_multiphysics, rb_plain_journal_fixed_state
   implicit none(type, external)
   private
 
@@ -27,6 +27,7 @@ module rb_c_api
   public :: rb_plain_journal_multiphysics_c, rb_tilting_pad_multiphysics_c
   public :: rb_plain_journal_multiphysics_pack_c, rb_tilting_pad_multiphysics_pack_c
   public :: rb_plain_journal_multiphysics_fields_pack_c, rb_tilting_pad_multiphysics_fields_pack_c
+  public :: rb_plain_journal_fixed_state_pack_c
 
 contains
 
@@ -717,5 +718,37 @@ contains
     end do
     rb_tilting_pad_multiphysics_fields_pack_c=int(st,c_int)
   end function rb_tilting_pad_multiphysics_fields_pack_c
+
+
+  integer(c_int) function rb_plain_journal_fixed_state_pack_c(n_pads,rcfg,icfg,pivot_angle,pad_arc,pad_axial_length, &
+      preload,offset,k_out,summary,pressure_out) bind(C,name="rb_plain_journal_fixed_state_pack_c")
+    integer(c_int),value::n_pads
+    real(c_double),intent(in)::rcfg(*),pivot_angle(*),pad_arc(*),pad_axial_length(*),preload(*),offset(*)
+    integer(c_int),intent(in)::icfg(*)
+    real(c_double),intent(out)::k_out(4),summary(3),pressure_out(*)
+    real(rk),allocatable::piv(:),arc(:),alen(:),pre(:),off(:),pf(:,:)
+    real(rk)::k(2,2),fx,fy,pm
+    integer(ik)::st
+    integer::n,nx,nz,nn,p,i,idx
+    n=int(n_pads);nx=int(icfg(1));nz=int(icfg(2));nn=(nx+1)*(nz+1)
+    if(n<1 .or. nx<2 .or. nz<2)then
+      rb_plain_journal_fixed_state_pack_c=int(RB_ERR_INPUT,c_int);summary=0._c_double;return
+    end if
+    allocate(piv(n),arc(n),alen(n),pre(n),off(n),pf(nn,n))
+    piv=real(pivot_angle(1:n),rk);arc=real(pad_arc(1:n),rk);alen=real(pad_axial_length(1:n),rk)
+    pre=real(preload(1:n),rk);off=real(offset(1:n),rk)
+    call rb_plain_journal_fixed_state(real(rcfg(1),rk),real(rcfg(2),rk),real(rcfg(3),rk),real(rcfg(4),rk), &
+      int(n_pads,ik),piv,arc,alen,pre,off,int(icfg(1),ik),int(icfg(2),ik),real(rcfg(5),rk),real(rcfg(6),rk), &
+      pf,fx,fy,pm,k,st)
+    k_out=[real(k(1,1),c_double),real(k(2,1),c_double),real(k(1,2),c_double),real(k(2,2),c_double)]
+    summary=[real(fx,c_double),real(fy,c_double),real(pm,c_double)]
+    idx=0
+    do p=1,n
+      do i=1,nn
+        idx=idx+1;pressure_out(idx)=real(pf(i,p),c_double)
+      end do
+    end do
+    rb_plain_journal_fixed_state_pack_c=int(st,c_int)
+  end function rb_plain_journal_fixed_state_pack_c
 
 end module rb_c_api
