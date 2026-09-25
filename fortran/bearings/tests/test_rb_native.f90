@@ -269,7 +269,7 @@ contains
     call rb_reynolds_mesh_smooth(1_ik,2_ik,pi_/2._rk,0.1_rk,0.06_rk, &
                                  x,xr,z,ni,nj,nk,nl,el,ew,dxm,dzm,bw,st)
     if (st /= RB_OK) error stop 401
-    if (bw /= 4_ik) error stop 402
+    if (bw /= 5_ik) error stop 402
 
     call assert_close(x(1),0._rk,1e-14_rk,1e-14_rk,403)
     call assert_close(x(4),0.1_rk,1e-14_rk,1e-14_rk,404)
