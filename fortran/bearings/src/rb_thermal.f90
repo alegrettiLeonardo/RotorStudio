@@ -358,17 +358,44 @@ contains
     integer,intent(in)::edge
     real(rk),intent(in)::hc,tamb,x(4),y(4)
     real(rk),intent(inout)::e(4,4),f(4)
-    integer::a,b
-    real(rk)::len,h
-    select case(edge)
-    case(1);a=1;b=4
-    case(2);a=2;b=3
-    case default;a=1;b=2
-    end select
-    len=sqrt((x(b)-x(a))**2+(y(b)-y(a))**2);h=-hc
-    e(a,a)=e(a,a)+h*len/3._rk;e(b,b)=e(b,b)+h*len/3._rk
-    e(a,b)=e(a,b)+h*len/6._rk;e(b,a)=e(b,a)+h*len/6._rk
-    f(a)=f(a)+h*tamb*len/2._rk;f(b)=f(b)+h*tamb*len/2._rk
+    real(rk),parameter::gg=.57735026918962576451_rk
+    real(rk)::r,s,nv(4),fr(4),fs(4),j00,j01,j10,j11,dl,h
+    integer::gp,i,j
+
+    ! Mirror ROSS 6320eab9 thermal._temp_line_gauss_jit exactly.  The
+    ! historical solver evaluates the boundary metric from the same Q4
+    ! Jacobian used by the Python authority; using a textbook edge length here
+    ! changes the thermal matrix enough to destabilize the THD fixed point.
+    h=-hc
+    do gp=1,2
+      select case(edge)
+      case(1) ! leading edge: r=-1, integrate over s
+        r=-1._rk; s=merge(-gg,gg,gp==1)
+      case(2) ! trailing edge: r=+1, integrate over s
+        r= 1._rk; s=merge(-gg,gg,gp==1)
+      case default ! pad back: s=-1, integrate over r
+        r=merge(-gg,gg,gp==1); s=-1._rk
+      end select
+
+      nv=[(1._rk-r)*(1._rk-s)/4._rk,(1._rk+r)*(1._rk-s)/4._rk, &
+          (1._rk+r)*(1._rk+s)/4._rk,(1._rk-r)*(1._rk+s)/4._rk]
+      fr=[-(1._rk-s)/4._rk,(1._rk-s)/4._rk,(1._rk+s)/4._rk,-(1._rk+s)/4._rk]
+      fs=[-(1._rk-r)/4._rk,-(1._rk+r)/4._rk,(1._rk+r)/4._rk,(1._rk-r)/4._rk]
+      j00=sum(fr*x); j01=sum(fr*y); j10=sum(fs*x); j11=sum(fs*y)
+      if(abs(r-1._rk)<1e-6_rk .or. abs(r+1._rk)<1e-6_rk)then
+        dl=sqrt(j00*j00+j11*j11)
+      else if(abs(s-1._rk)<1e-6_rk .or. abs(s+1._rk)<1e-6_rk)then
+        dl=sqrt(j10*j10+j11*j11)
+      else
+        dl=0._rk
+      end if
+      do i=1,4
+        do j=1,4
+          e(i,j)=e(i,j)+h*nv(i)*nv(j)*dl
+        end do
+        f(i)=f(i)+h*tamb*nv(i)*dl
+      end do
+    end do
   end subroutine rb_add_edge_convection
 
 end module rb_thermal
