@@ -6,12 +6,16 @@ module rb_c_api
   use rb_rolling, only: rb_ball_coefficients, rb_roller_coefficients
   use rb_cylindrical, only: rb_cylindrical_coefficients
   use rb_squeeze_film_damper, only: rb_sfd_coefficients
+  use rb_fixed_geometry, only: rb_elliptical_geometry, rb_offset_halves_geometry, rb_plain_journal_geometry
+  use rb_tilting_pad_config, only: rb_tilting_pad_prepare
   implicit none(type, external)
   private
 
   public :: rb_interp1_c, rb_interp2_c
   public :: rb_ball_coefficients_c, rb_roller_coefficients_c
   public :: rb_cylindrical_coefficients_c, rb_sfd_coefficients_c
+  public :: rb_elliptical_geometry_c, rb_offset_halves_geometry_c, rb_plain_journal_geometry_c
+  public :: rb_tilting_pad_prepare_c
 
 contains
 
@@ -154,5 +158,101 @@ contains
     p_max = real(p_r,c_double)
     rb_sfd_coefficients_c = int(st,c_int)
   end function rb_sfd_coefficients_c
+
+  integer(c_int) function rb_elliptical_geometry_c(pad_arc_in, preload_in, pivot_angle, pad_arc, preload, offset) &
+      bind(C, name="rb_elliptical_geometry_c")
+    real(c_double), value :: pad_arc_in, preload_in
+    real(c_double), intent(out) :: pivot_angle(2), pad_arc(2), preload(2), offset(2)
+    real(rk) :: pivot_r(2), arc_r(2), pre_r(2), off_r(2)
+    integer(ik) :: np, st
+
+    call rb_elliptical_geometry(real(pad_arc_in,rk), real(preload_in,rk), np, pivot_r, arc_r, pre_r, off_r, st)
+    pivot_angle = real(pivot_r,c_double)
+    pad_arc = real(arc_r,c_double)
+    preload = real(pre_r,c_double)
+    offset = real(off_r,c_double)
+    rb_elliptical_geometry_c = int(st,c_int)
+  end function rb_elliptical_geometry_c
+
+  integer(c_int) function rb_offset_halves_geometry_c(pad_arc_in, preload_in, offset_in, &
+      pivot_angle, pad_arc, preload, offset) bind(C, name="rb_offset_halves_geometry_c")
+    real(c_double), value :: pad_arc_in, preload_in, offset_in
+    real(c_double), intent(out) :: pivot_angle(2), pad_arc(2), preload(2), offset(2)
+    real(rk) :: pivot_r(2), arc_r(2), pre_r(2), off_r(2)
+    integer(ik) :: np, st
+
+    call rb_offset_halves_geometry(real(pad_arc_in,rk), real(preload_in,rk), real(offset_in,rk), &
+                                   np, pivot_r, arc_r, pre_r, off_r, st)
+    pivot_angle = real(pivot_r,c_double)
+    pad_arc = real(arc_r,c_double)
+    preload = real(pre_r,c_double)
+    offset = real(off_r,c_double)
+    rb_offset_halves_geometry_c = int(st,c_int)
+  end function rb_offset_halves_geometry_c
+
+  integer(c_int) function rb_plain_journal_geometry_c(n_pads, pad_arc_in, preload_in, pad_axial_length_in, &
+      journal_diameter, pad_thickness_in, use_pad_thickness, pivot_angle, pad_arc, preload, offset, &
+      pad_axial_length, pad_thickness) bind(C, name="rb_plain_journal_geometry_c")
+    integer(c_int), value :: n_pads, use_pad_thickness
+    real(c_double), value :: pad_arc_in, preload_in, pad_axial_length_in, journal_diameter, pad_thickness_in
+    real(c_double), intent(out) :: pivot_angle(*), pad_arc(*), preload(*), offset(*), pad_axial_length(*)
+    real(c_double), intent(out) :: pad_thickness
+    real(rk), allocatable :: pivot_r(:), arc_r(:), pre_r(:), off_r(:), len_r(:)
+    real(rk) :: thick_r
+    integer(ik) :: st
+
+    if (n_pads < 1_c_int) then
+      rb_plain_journal_geometry_c = int(RB_ERR_INPUT,c_int)
+      pad_thickness = 0.0_c_double
+      return
+    end if
+    allocate(pivot_r(n_pads), arc_r(n_pads), pre_r(n_pads), off_r(n_pads), len_r(n_pads))
+    call rb_plain_journal_geometry(int(n_pads,ik), real(pad_arc_in,rk), real(preload_in,rk), &
+                                   real(pad_axial_length_in,rk), real(journal_diameter,rk), &
+                                   real(pad_thickness_in,rk), use_pad_thickness /= 0_c_int, &
+                                   pivot_r, arc_r, pre_r, off_r, len_r, thick_r, st)
+    pivot_angle(1:n_pads) = real(pivot_r,c_double)
+    pad_arc(1:n_pads) = real(arc_r,c_double)
+    preload(1:n_pads) = real(pre_r,c_double)
+    offset(1:n_pads) = real(off_r,c_double)
+    pad_axial_length(1:n_pads) = real(len_r,c_double)
+    pad_thickness = real(thick_r,c_double)
+    rb_plain_journal_geometry_c = int(st,c_int)
+  end function rb_plain_journal_geometry_c
+
+  integer(c_int) function rb_tilting_pad_prepare_c(n_pads, journal_diameter, radial_clearance, pad_thickness, &
+      pivot_angle, pad_arc, pad_axial_length, preload, offset, bearing_type, equilibrium_type, eccentricity, &
+      attitude_angle, use_xy, xj, yj, total_ex_film, total_ez_film, total_ey_pad, initial_position) &
+      bind(C, name="rb_tilting_pad_prepare_c")
+    integer(c_int), value :: n_pads, bearing_type, equilibrium_type, use_xy
+    integer(c_int), value :: total_ex_film, total_ez_film, total_ey_pad
+    real(c_double), value :: journal_diameter, radial_clearance, pad_thickness
+    real(c_double), intent(in) :: pivot_angle(*), pad_arc(*), pad_axial_length(*), preload(*), offset(*)
+    real(c_double), value :: eccentricity, attitude_angle, xj, yj
+    real(c_double), intent(out) :: initial_position(2)
+    real(rk), allocatable :: pivot_r(:), arc_r(:), len_r(:), pre_r(:), off_r(:)
+    real(rk) :: pos_r(2)
+    integer(ik) :: st
+
+    if (n_pads < 1_c_int) then
+      rb_tilting_pad_prepare_c = int(RB_ERR_INPUT,c_int)
+      initial_position = 0.0_c_double
+      return
+    end if
+    allocate(pivot_r(n_pads), arc_r(n_pads), len_r(n_pads), pre_r(n_pads), off_r(n_pads))
+    pivot_r = real(pivot_angle(1:n_pads),rk)
+    arc_r = real(pad_arc(1:n_pads),rk)
+    len_r = real(pad_axial_length(1:n_pads),rk)
+    pre_r = real(preload(1:n_pads),rk)
+    off_r = real(offset(1:n_pads),rk)
+
+    call rb_tilting_pad_prepare(int(n_pads,ik), real(journal_diameter,rk), real(radial_clearance,rk), &
+                                real(pad_thickness,rk), pivot_r, arc_r, len_r, pre_r, off_r, &
+                                int(bearing_type,ik), int(equilibrium_type,ik), real(eccentricity,rk), &
+                                real(attitude_angle,rk), use_xy /= 0_c_int, real(xj,rk), real(yj,rk), &
+                                int(total_ex_film,ik), int(total_ez_film,ik), int(total_ey_pad,ik), pos_r, st)
+    initial_position = real(pos_r,c_double)
+    rb_tilting_pad_prepare_c = int(st,c_int)
+  end function rb_tilting_pad_prepare_c
 
 end module rb_c_api
