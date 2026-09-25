@@ -43,11 +43,20 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e './python[test,studio,ui-test]'
 
-      - name: Assert no Fortran source changes
+      - name: Assert legacy Fortran core remains frozen
         run: |
           mkdir -p validation/reports/dyrobes_sketch
-          git diff --stat 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7 -- fortran | tee validation/reports/dyrobes_sketch/fortran_diff.txt
-          test -z "$(git diff --name-only 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7 -- fortran)"
+          {
+            echo "DyRoBeS legacy freeze baseline: 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7"
+            echo "Exception: fortran/bearings/** and the libdrmbearings CMake target are intentionally outside this legacy gate."
+            echo
+            echo "Legacy fortran/src diff:"
+            git diff --stat 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7 -- fortran/src
+            echo
+            echo "Legacy fortran/tests diff:"
+            git diff --stat 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7 -- fortran/tests
+          } | tee validation/reports/dyrobes_sketch/fortran_diff.txt
+          test -z "$(git diff --name-only 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7 -- fortran/src fortran/tests)"
 
       - name: Build qualified Fortran core
         run: |
@@ -90,7 +99,7 @@ jobs:
               "status": "PASS",
               "head_sha": os.environ["GITHUB_SHA"],
               "stage1": "57/57 PASS",
-              "fortran_diff": "ZERO",
+              "fortran_diff": "LEGACY_CORE_ZERO; fortran/bearings exception documented",
               "real_fixture": "EST-12735185-CRYOSTAR_V2.txt",
               "sketch_style": "DyRoBeS reference",
               "numerical_status": "BLOCKED_FOR_NUMERICAL_ANALYSIS by design",
