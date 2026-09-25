@@ -23,12 +23,23 @@ def _configure_frozen_solver():
     if not getattr(sys, "frozen", False):
         return
     root = Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
-    for name in ("libdrmrotor.so", "drmrotor.dll", "libdrmrotor.dll", "libdrmrotor.dylib"):
-        candidate = root / name
-        if candidate.is_file():
-            os.environ.setdefault("DRMROTOR_LIB", str(candidate))
-            os.environ.setdefault("DRMROTOR_DLL_DIRS", str(root))
-            break
+    libraries = {
+        "DRMROTOR_LIB": (
+            "libdrmrotor.so", "drmrotor.dll", "libdrmrotor.dll", "libdrmrotor.dylib"
+        ),
+        "DRMBEARINGS_LIB": (
+            "libdrmbearings.so", "drmbearings.dll", "libdrmbearings.dll", "libdrmbearings.dylib"
+        ),
+    }
+    for variable, names in libraries.items():
+        for name in names:
+            candidate = root / name
+            if candidate.is_file():
+                os.environ.setdefault(variable, str(candidate))
+                break
+    os.environ.setdefault("DRMROTOR_DLL_DIRS", str(root))
+    if os.environ.get("DRMBEARINGS_LIB"):
+        os.environ.setdefault("DRMBEARINGS_DLL_DIRS", str(root))
 
 
 def _bundled_smoke_project():
