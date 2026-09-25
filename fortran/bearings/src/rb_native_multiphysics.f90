@@ -36,12 +36,13 @@ contains
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
     real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,k_last(2,2)
+    real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:)
     real(rk),allocatable::px(:),tpad(:),def(:)
     real(rk)::fxext,fyext,fx_groove,fy_groove,ambient_press1,ambient_press2
 
-    temp_reference=temp_supply
+    temp_reference=temp_supply;temp_j_work=temp_journal;temp_j_delta=0._rk
     if(present(temp_reference_in))temp_reference=temp_reference_in
     ambient_press1=0._rk;ambient_press2=0._rk
     if(present(ambient_press1_in))ambient_press1=ambient_press1_in
@@ -110,7 +111,7 @@ contains
           tad(:,p)=tad_new;mu_new(:,p)=muc
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),pad_thickness,speed*0.5_rk*d, &
-               h(:,p),press(:,p),mu(:,p),rho,cp,klube,kpad,temp_supply,temp_journal,temp_ambient,convec_edges, &
+               h(:,p),press(:,p),mu(:,p),rho,cp,klube,kpad,temp_supply,temp_j_work,temp_ambient,convec_edges, &
                convec_back,relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,rms,st)
           if(st/=RB_OK)then;status=st;return;end if
           temp_delta=max(temp_delta,maxval(abs(tfull_new-tfull(:,p))))
@@ -148,11 +149,43 @@ contains
           def_delta=max(def_delta,maxval(abs(dh_new(:,p)-dh(:,p))))
         end if
       end do
+
+      ! ROSS averaged_film_temperature journal boundary: area-weighted mean of
+      ! the radially averaged film temperature over every pad.  The provider's
+      ! journal-temperature input is the initial iterate; full THD advances it
+      ! with the pinned 10 degF step limiter and RelaxT.
+      temp_j_delta=0._rk
+      if(thermal_type==RB_THERMAL_FULL)then
+        temp_sum=0._rk;temp_area=0._rk
+        stride=int(ny_pad)+int(ny_film)+1
+        do p=1,int(np)
+          do ix=0,int(nx)
+            delta=.5_rk*tfull(ix*stride+int(ny_pad)+1,p)+ &
+                  .5_rk*tfull(ix*stride+stride,p)
+            do iy=1,int(ny_film)-1
+              delta=delta+tfull(ix*stride+int(ny_pad)+iy+1,p)
+            end do
+            delta=delta/real(ny_film,rk)
+            wx=1._rk;if(ix==0 .or. ix==int(nx))wx=.5_rk
+            temp_sum=temp_sum+wx*delta*(0.5_rk*d*arc(p)/real(nx,rk))*alen(p)
+          end do
+          temp_area=temp_area+(0.5_rk*d*arc(p))*alen(p)
+        end do
+        if(temp_area>0._rk)then
+          temp_j_target=temp_sum/temp_area
+          temp_j_delta=abs(temp_j_target-temp_j_work)
+          tj_relax=relax_t
+          if(temp_j_delta>10._rk/1.8_rk) tj_relax=min(tj_relax,(10._rk/1.8_rk)/temp_j_delta)
+          temp_j_work=tj_relax*temp_j_target+(1._rk-tj_relax)*temp_j_work
+        end if
+      end if
+
       tout=tout/real(np,rk)
       mu=(1._rk-relax_t)*mu+relax_t*mu_new
       if(deform_type/=RB_DEFORM_NONE)dh=(1._rk-relax_t)*dh+relax_t*dh_new
       deform_max=maxval(abs(dh));outer_done=it
-      if((thermal_type==RB_THERMAL_ISOVISCOUS .or. temp_delta<=field_tol) .and. &
+      if((thermal_type==RB_THERMAL_ISOVISCOUS .or. &
+          (temp_delta<=field_tol .and. temp_j_delta<=0.1_rk/1.8_rk)) .and. &
          (deform_type==RB_DEFORM_NONE .or. def_delta<=field_tol*max(cb,1e-9_rk)))exit
     end do
 
@@ -224,6 +257,7 @@ contains
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
     real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference
+    real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:),mom(:)
     real(rk),allocatable::px(:),tpad(:),def(:)
@@ -231,7 +265,7 @@ contains
     real(rk)::kj_last(2,2)
     real(rk)::fxext,fyext,fx_groove,fy_groove,ambient_press1,ambient_press2
 
-    temp_reference=temp_supply
+    temp_reference=temp_supply;temp_j_work=temp_journal;temp_j_delta=0._rk
     if(present(temp_reference_in))temp_reference=temp_reference_in
     ambient_press1=0._rk;ambient_press2=0._rk
     if(present(ambient_press1_in))ambient_press1=ambient_press1_in
@@ -342,10 +376,38 @@ contains
           dh_new(:,p)=-def;def_delta=max(def_delta,maxval(abs(dh_new(:,p)-dh(:,p))))
         end if
       end do
+
+      temp_j_delta=0._rk
+      if(thermal_type==RB_THERMAL_FULL)then
+        temp_sum=0._rk;temp_area=0._rk
+        stride=int(ny_pad)+int(ny_film)+1
+        do p=1,int(np)
+          do ix=0,int(nx)
+            delta=.5_rk*tfull(ix*stride+int(ny_pad)+1,p)+ &
+                  .5_rk*tfull(ix*stride+stride,p)
+            do iy=1,int(ny_film)-1
+              delta=delta+tfull(ix*stride+int(ny_pad)+iy+1,p)
+            end do
+            delta=delta/real(ny_film,rk)
+            wx=1._rk;if(ix==0 .or. ix==int(nx))wx=.5_rk
+            temp_sum=temp_sum+wx*delta*(0.5_rk*d*arc(p)/real(nx,rk))*alen(p)
+          end do
+          temp_area=temp_area+(0.5_rk*d*arc(p))*alen(p)
+        end do
+        if(temp_area>0._rk)then
+          temp_j_target=temp_sum/temp_area
+          temp_j_delta=abs(temp_j_target-temp_j_work)
+          tj_relax=relax_t
+          if(temp_j_delta>10._rk/1.8_rk) tj_relax=min(tj_relax,(10._rk/1.8_rk)/temp_j_delta)
+          temp_j_work=tj_relax*temp_j_target+(1._rk-tj_relax)*temp_j_work
+        end if
+      end if
+
       tout=tout/real(np,rk);mu=(1._rk-relax_t)*mu+relax_t*mu_new
       if(deform_type/=RB_DEFORM_NONE)dh=(1._rk-relax_t)*dh+relax_t*dh_new
       deform_max=maxval(abs(dh));outer_done=it
-      if((thermal_type==RB_THERMAL_ISOVISCOUS .or. temp_delta<=field_tol) .and. &
+      if((thermal_type==RB_THERMAL_ISOVISCOUS .or. &
+          (temp_delta<=field_tol .and. temp_j_delta<=0.1_rk/1.8_rk)) .and. &
          (deform_type==RB_DEFORM_NONE .or. def_delta<=field_tol*max(cb,1e-9_rk)))exit
     end do
     ! Pinned ROSS returns the last finite coupled state when a thermal /
