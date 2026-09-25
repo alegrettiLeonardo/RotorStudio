@@ -1,6 +1,6 @@
 # ROSS Bearings in Fortran → RotorStudio Integration Plan
 
-Status: **NATIVE IMPLEMENTATION IN PROGRESS; ROTORSTUDIO NUMERICAL INTEGRATION NOT STARTED**
+Status: **ROTORSTUDIO COEFFICIENT-PROVIDER INTEGRATION IN PROGRESS; FULL NATIVE THD/TEHD NOT YET CLOSED**
 
 RotorStudio base at plan freeze:
 
@@ -16,7 +16,11 @@ AMB / magnetic bearings are explicitly **out of scope**.
 
 ## 0. Execution status at native implementation start
 
-Current native branch: `feature/ross-bearings-fortran-integration`.
+Native implementation branch: `feature/ross-bearings-fortran-integration`.
+
+Current integration branch: `feature/ross-bearings-rotorstudio-20260925`.
+See `docs/ROSS_BEARINGS_ROTORSTUDIO_INTEGRATION.md` for the implemented
+runtime boundary and explicit remaining blocks.
 
 The first additive standalone target is `libdrmbearings`. It is built beside
 `libdrmrotor` but is **not linked into RotorStudio runtime yet**.
