@@ -159,4 +159,67 @@ def configure_bearing_library(lib):
         dptr,
     ]
     lib.rb_sfd_coefficients_c.restype = ct.c_int
+
+    lib.rb_elliptical_geometry_c.argtypes = [
+        ct.c_double,
+        ct.c_double,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+    ]
+    lib.rb_elliptical_geometry_c.restype = ct.c_int
+
+    lib.rb_offset_halves_geometry_c.argtypes = [
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+    ]
+    lib.rb_offset_halves_geometry_c.restype = ct.c_int
+
+    lib.rb_plain_journal_geometry_c.argtypes = [
+        ct.c_int,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_int,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+    ]
+    lib.rb_plain_journal_geometry_c.restype = ct.c_int
+
+    lib.rb_tilting_pad_prepare_c.argtypes = [
+        ct.c_int,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        ct.c_int,
+        ct.c_int,
+        ct.c_double,
+        ct.c_double,
+        ct.c_int,
+        ct.c_double,
+        ct.c_double,
+        ct.c_int,
+        ct.c_int,
+        ct.c_int,
+        dptr,
+    ]
+    lib.rb_tilting_pad_prepare_c.restype = ct.c_int
+
     return lib
