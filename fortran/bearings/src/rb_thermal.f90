@@ -200,7 +200,7 @@ contains
     real(rk)::dx,dz,eta,yrel,hx,mu,u,v,dudy,dwdy,avg_u,avg_v,avg_diss,dhdx
     real(rk)::kx,ky,mx,my,pe,q,rt,avg_old,avg_raw,xi1h,xi2h,ratio,deta,gamma_eq,g_eq
     real(rk)::qrad,qax,turad,tuax,wz,hmin_local
-    real(rk),allocatable::x(:),y(:),kx_n(:),ky_n(:),mx_n(:),my_n(:),p_n(:),q_n(:)
+    real(rk),allocatable::x(:),y(:),kx_n(:),ky_n(:),mx_n(:),my_n(:),p_n(:),q_n(:),u_inlet(:)
     real(rk),allocatable::mur(:),invr(:),cum1(:),cum2(:),igam(:)
     real(rk),allocatable::dpdx(:),dpdz(:),a(:,:),rhs(:),alow(:,:),pres(:),raw(:)
     integer(ik),allocatable::ipiv(:),bcidx(:),nodes0(:)
@@ -225,7 +225,7 @@ contains
     call rb_pressure_gradients_smooth(nx,nz,pad_length,axial_length,pressure,dpdx,dpdz,st)
     if(st/=RB_OK)then;status=st;return;end if
 
-    allocate(x(nne),y(nne),kx_n(nne),ky_n(nne),mx_n(nne),my_n(nne),p_n(nne),q_n(nne))
+    allocate(x(nne),y(nne),kx_n(nne),ky_n(nne),mx_n(nne),my_n(nne),p_n(nne),q_n(nne),u_inlet(ny));u_inlet=0._rk
     allocate(mur(int(ny_film)+1),invr(int(ny_film)+1),cum1(int(ny_film)+1), &
              cum2(int(ny_film)+1),igam(int(ny_film)+1))
     do ix=0,int(nx)
@@ -274,6 +274,11 @@ contains
           eta=max(0._rk,min(1._rk,(y(n)-pad_thickness)/hx));yrel=eta*hx
           jf=max(0,min(int(ny_film),iy-int(ny_pad)))
           mu=mur(jf+1)
+          if(ix==0)then
+            nr=center+1
+            u_inlet(iy+1)=dpdx(nr)*cum2(jf+1)+ &
+                 (speed_surface/xi1h-dpdx(nr)*ratio)*cum1(jf+1)
+          end if
           avg_u=0._rk;avg_v=0._rk;avg_diss=0._rk
           do iz=0,int(nz)
             nr=ix*(int(nz)+1)+iz+1
@@ -331,7 +336,12 @@ contains
 
     nbc=0
     do iy=int(ny_pad)+1,ny-2
-      n=iy+1;nbc=nbc+1;bcidx(nbc)=int(n-1,ik);pres(nbc)=temp_inlet
+      ! ROSS temp_bc applies the leading-edge film temperature only where
+      ! the local center-plane circumferential velocity is into the pad.
+      ! Reverse-flow layers remain natural boundaries.
+      if(u_inlet(iy+1)>0._rk)then
+        n=iy+1;nbc=nbc+1;bcidx(nbc)=int(n-1,ik);pres(nbc)=temp_inlet
+      end if
     end do
     do ix=0,int(nx)
       n=ix*ny+ny;nbc=nbc+1;bcidx(nbc)=int(n-1,ik);pres(nbc)=temp_journal
@@ -349,13 +359,16 @@ contains
     ! (temp_full1) with the old temperature.  Measuring the relaxed field
     ! declares the THD inner fixed point too early.
     rms_temp=sqrt(sum((raw(1:nne)-temp_old(1:nne))**2)/real(nne,rk))
-    ! ROSS temp_maximum is the maximum Babbitt/pad-surface temperature,
-    ! i.e. the film/pad interface for the smooth regular-flooded geometry.
-    ! It is not the maximum anywhere across the lubricant film.
+    ! B12 defines T_max from the exported film-temperature field
+    ! (the radial-average film temperature used by the frozen ROSS golden
+    ! generator), not from the pad-surface/Babbitt temperature.
     temp_max=temp_inlet
     do ix=0,int(nx)
-      n=ix*ny+int(ny_pad)+1
-      temp_max=max(temp_max,temp_new(n))
+      avg_raw=.5_rk*temp_new(ix*ny+int(ny_pad)+1)+ &
+              .5_rk*temp_new(ix*ny+ny)
+      if(int(ny_film)>1)avg_raw=avg_raw+sum(temp_new(ix*ny+int(ny_pad)+2:ix*ny+ny-1))
+      avg_raw=avg_raw/real(ny_film,rk)
+      temp_max=max(temp_max,avg_raw)
     end do
     ! Collapse the relaxed radial viscosity profile to the exact discrete
     ! generalized-Reynolds Gamma used by ROSS.  pad_static/pad_*_pert consume
