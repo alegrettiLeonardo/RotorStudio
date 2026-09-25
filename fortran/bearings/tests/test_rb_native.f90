@@ -9,6 +9,7 @@ program test_ross_bearings_native
                                rb_multi_lobe_geometry, rb_pressure_dam_geometry, rb_plain_journal_geometry
   use rb_tilting_pad_config, only: rb_tilting_pad_prepare, RB_TP_CONVENTIONAL, RB_TP_MATCH_LOAD
   use rb_reynolds_element, only: rb_reynolds_q4_element
+  use rb_reynolds_banded, only: rb_lu_factor_band, rb_lu_solve_band_cavitating
   implicit none(type, external)
 
   integer(ik) :: st
@@ -23,9 +24,10 @@ program test_ross_bearings_native
   call test_fixed_geometry()
   call test_tilting_pad_config()
   call test_reynolds_element()
+  call test_reynolds_banded()
   call test_sfd()
 
-  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5cfg/BF7'
+  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5cfg/BF7'
 
 contains
 
@@ -227,6 +229,27 @@ contains
     call rb_reynolds_q4_element(2._rk,3._rk,5._rk,0._rk,0.2_rk,em,ec,st)
     if (st /= RB_ERR_INPUT) error stop 390
   end subroutine test_reynolds_element
+
+  subroutine test_reynolds_banded()
+    real(rk) :: a(3,3), al(3,1), bvec(3)
+    integer(ik) :: piv(3)
+
+    ! Symmetric tridiagonal system in ROSS band storage, diagonal at column 2:
+    ! [4 1 0; 1 4 1; 0 1 3] * x = [6 6 4].
+    a = 0._rk
+    a(1,2) = 4._rk; a(1,3) = 1._rk
+    a(2,1) = 1._rk; a(2,2) = 4._rk; a(2,3) = 1._rk
+    a(3,1) = 1._rk; a(3,2) = 3._rk
+    bvec = [6._rk,6._rk,4._rk]
+
+    call rb_lu_factor_band(a,3_ik,2_ik,al,piv,st)
+    if (st /= RB_OK) error stop 391
+    call rb_lu_solve_band_cavitating(a,3_ik,2_ik,al,piv,bvec,0._rk,st)
+    if (st /= RB_OK) error stop 392
+    call assert_close(bvec(1),52._rk/41._rk,1e-13_rk,1e-13_rk,393)
+    call assert_close(bvec(2),38._rk/41._rk,1e-13_rk,1e-13_rk,394)
+    call assert_close(bvec(3),42._rk/41._rk,1e-13_rk,1e-13_rk,395)
+  end subroutine test_reynolds_banded
 
   subroutine test_sfd()
     real(rk), parameter :: reyn_to_pas = 6894.757293168_rk
