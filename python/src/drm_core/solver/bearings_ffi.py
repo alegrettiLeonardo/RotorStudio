@@ -378,4 +378,11 @@ def configure_bearing_library(lib):
     ]
     lib.rb_tilting_pad_multiphysics_fields_pack_c.restype = ct.c_int
 
+    lib.rb_plain_journal_fixed_state_pack_c.argtypes = [
+        ct.c_int, dptr, ct.POINTER(ct.c_int),
+        dptr, dptr, dptr, dptr, dptr,
+        dptr, dptr, dptr,
+    ]
+    lib.rb_plain_journal_fixed_state_pack_c.restype = ct.c_int
+
     return lib
