@@ -10,6 +10,7 @@ module rb_c_api
   use rb_tilting_pad_config, only: rb_tilting_pad_prepare
   use rb_reynolds_element, only: rb_reynolds_q4_element
   use rb_pressure_isoviscous, only: rb_pressure_smooth_isoviscous
+  use rb_dynamic_reduction, only: rb_dynamic_reduce_tilts
   implicit none(type, external)
   private
 
@@ -18,7 +19,7 @@ module rb_c_api
   public :: rb_cylindrical_coefficients_c, rb_sfd_coefficients_c
   public :: rb_elliptical_geometry_c, rb_offset_halves_geometry_c, rb_plain_journal_geometry_c
   public :: rb_tilting_pad_prepare_c, rb_reynolds_q4_element_c
-  public :: rb_pressure_smooth_isoviscous_c
+  public :: rb_pressure_smooth_isoviscous_c, rb_dynamic_reduce_tilts_c
 
 contains
 
@@ -303,5 +304,53 @@ contains
     pressure(1:nn) = real(pr,c_double)
     rb_pressure_smooth_isoviscous_c = int(st,c_int)
   end function rb_pressure_smooth_isoviscous_c
+
+  integer(c_int) function rb_dynamic_reduce_tilts_c(n_pads, k_journal, c_journal, &
+      k_deltax, k_deltay, k_xdelta, k_ydelta, k_deltadelta, &
+      c_deltax, c_deltay, c_xdelta, c_ydelta, c_deltadelta, &
+      pad_length, pad_thickness, axial_length, pad_density, excit_rad, k_rotate, &
+      k_reduced, c_reduced, ip) bind(C, name="rb_dynamic_reduce_tilts_c")
+    integer(c_int), value :: n_pads
+    real(c_double), intent(in) :: k_journal(4), c_journal(4)
+    real(c_double), intent(in) :: k_deltax(*), k_deltay(*), k_xdelta(*), k_ydelta(*), k_deltadelta(*)
+    real(c_double), intent(in) :: c_deltax(*), c_deltay(*), c_xdelta(*), c_ydelta(*), c_deltadelta(*)
+    real(c_double), intent(in) :: pad_length(*), axial_length(*), k_rotate(*)
+    real(c_double), value :: pad_thickness, pad_density, excit_rad
+    real(c_double), intent(out) :: k_reduced(4), c_reduced(4), ip(*)
+    real(rk) :: kj(2,2), cj(2,2), kr(2,2), cr(2,2)
+    real(rk), allocatable :: kdx(:), kdy(:), kxd(:), kyd(:), kdd(:)
+    real(rk), allocatable :: cdx(:), cdy(:), cxd(:), cyd(:), cdd(:)
+    real(rk), allocatable :: plen(:), alen(:), krot(:), ipr(:)
+    integer(ik) :: st
+    integer :: n
+
+    n = int(n_pads)
+    if (n < 1) then
+      rb_dynamic_reduce_tilts_c = int(RB_ERR_INPUT,c_int)
+      return
+    end if
+
+    ! Matrix payload is Fortran column-major: [xx,yx,xy,yy], matching
+    ! the native 2x2 storage used throughout this library.
+    kj = reshape(real(k_journal,rk),[2,2])
+    cj = reshape(real(c_journal,rk),[2,2])
+    allocate(kdx(n),kdy(n),kxd(n),kyd(n),kdd(n),cdx(n),cdy(n),cxd(n),cyd(n),cdd(n))
+    allocate(plen(n),alen(n),krot(n),ipr(n))
+    kdx=real(k_deltax(1:n),rk); kdy=real(k_deltay(1:n),rk)
+    kxd=real(k_xdelta(1:n),rk); kyd=real(k_ydelta(1:n),rk); kdd=real(k_deltadelta(1:n),rk)
+    cdx=real(c_deltax(1:n),rk); cdy=real(c_deltay(1:n),rk)
+    cxd=real(c_xdelta(1:n),rk); cyd=real(c_ydelta(1:n),rk); cdd=real(c_deltadelta(1:n),rk)
+    plen=real(pad_length(1:n),rk); alen=real(axial_length(1:n),rk); krot=real(k_rotate(1:n),rk)
+
+    call rb_dynamic_reduce_tilts(int(n,ik),kj,cj,kdx,kdy,kxd,kyd,kdd,cdx,cdy,cxd,cyd,cdd, &
+                                 plen,real(pad_thickness,rk),alen,real(pad_density,rk), &
+                                 real(excit_rad,rk),krot,kr,cr,ipr,st)
+    k_reduced = [real(kr(1,1),c_double),real(kr(2,1),c_double), &
+                 real(kr(1,2),c_double),real(kr(2,2),c_double)]
+    c_reduced = [real(cr(1,1),c_double),real(cr(2,1),c_double), &
+                 real(cr(1,2),c_double),real(cr(2,2),c_double)]
+    ip(1:n)=real(ipr,c_double)
+    rb_dynamic_reduce_tilts_c = int(st,c_int)
+  end function rb_dynamic_reduce_tilts_c
 
 end module rb_c_api
