@@ -828,6 +828,7 @@ contains
         cycle
       end if
       k11=0._rk;k21=0._rk;k12=0._rk;k22=0._rk
+      k11j=0._rk;k21j=0._rk;k12j=0._rk;k22j=0._rk
       do p=1,int(np)
         call pad_stiff_pert(1_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk, &
                             mu(:,p),dh(:,p),press(:,p),fp,gp,mi,st)
@@ -930,7 +931,7 @@ contains
     integer(ik),intent(out)::iterations,status
     real(rk),intent(inout),optional::kj_last(2,2),kdx_last(np),kdy_last(np),kxd_last(np),kyd_last(np),kdd_last(np)
     integer::it,p,unconverge_number
-    real(rk)::fxn,fyn,scale,fp,gp,mp,k11,k21,k12,k22,det,dx,dy,fobj,f_old,xj_old,yj_old
+    real(rk)::fxn,fyn,scale,fp,gp,mp,k11,k21,k12,k22,k11j,k21j,k12j,k22j,det,dx,dy,fobj,f_old,xj_old,yj_old
     real(rk)::kdx,kdy,kxd,kyd,kdd,den
     integer(ik)::st
     scale=sqrt(fxext**2+fyext**2);status=RB_OK
@@ -953,11 +954,11 @@ contains
       do p=1,int(np)
         call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
              mu(:,p),dh(:,p),press(:,p),fp,gp,kdx,st);if(st/=RB_OK)goto 900
-        k11=k11+fp;k21=k21+gp
+        k11=k11+fp;k21=k21+gp;k11j=k11j+fp;k21j=k21j+gp
         if(present(kdx_last)) kdx_last(p)=kdx
         call pad_stiff_pert(2_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
              mu(:,p),dh(:,p),press(:,p),fp,gp,kdy,st);if(st/=RB_OK)goto 900
-        k12=k12+fp;k22=k22+gp
+        k12=k12+fp;k22=k22+gp;k12j=k12j+fp;k22j=k22j+gp
         if(present(kdy_last)) kdy_last(p)=kdy
         call pad_stiff_pert(3_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
              mu(:,p),dh(:,p),press(:,p),kxd,kyd,kdd,st);if(st/=RB_OK)goto 900
@@ -970,7 +971,7 @@ contains
           k12=k12-kxd*kdy/den;k22=k22-kyd*kdy/den
         end if
       end do
-      if(present(kj_last)) kj_last=reshape([k11,k21,k12,k22],[2,2])
+      if(present(kj_last)) kj_last=reshape([k11j,k21j,k12j,k22j],[2,2])
       call rb_newton_step(k11,k12,k21,k22,fxn,fyn,cb,dx,dy,st)
       if(st/=RB_OK)then;status=st;return;end if
       if(dx==huge(1._rk))then
@@ -1020,10 +1021,16 @@ contains
     nn=(int(nx)+1)*(int(nz)+1);status=RB_OK
     allocate(kdx(np),kdy(np),kxd(np),kyd(np),kdd(np))
     allocate(cdx(np),cdy(np),cxd(np),cyd(np),cdd(np),plen(np),ip(np));plen=.5_rk*d*arc
-    use_stiff_override=present(kj_in).and.present(kdx_in).and.present(kdy_in).and.present(kxd_in).and.present(kyd_in).and.present(kdd_in)
-    if(use_stiff_override .and. maxval(abs(kj_in))>0._rk)then
-      kj=kj_in;kdx=kdx_in;kdy=kdy_in;kxd=kxd_in;kyd=kyd_in;kdd=kdd_in
-    else
+    use_stiff_override=present(kj_in).and.present(kdx_in).and.present(kdy_in).and. &
+                       present(kxd_in).and.present(kyd_in).and.present(kdd_in)
+    if(use_stiff_override)then
+      if(maxval(abs(kj_in))>0._rk)then
+        kj=kj_in;kdx=kdx_in;kdy=kdy_in;kxd=kxd_in;kyd=kyd_in;kdd=kdd_in
+      else
+        use_stiff_override=.false.
+      end if
+    end if
+    if(.not.use_stiff_override)then
       kj=0._rk
       do p=1,int(np)
       call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p), &
