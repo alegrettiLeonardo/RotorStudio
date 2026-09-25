@@ -456,6 +456,77 @@ class AdvancedBearingBackend:
         self._status(status, "smooth-pad isoviscous Reynolds pressure")
         return pressure
 
+
+    def reduce_tilting_pad_dynamics(
+        self,
+        *,
+        K_journal,
+        C_journal,
+        k_deltax,
+        k_deltay,
+        k_xdelta,
+        k_ydelta,
+        k_deltadelta,
+        c_deltax,
+        c_deltay,
+        c_xdelta,
+        c_ydelta,
+        c_deltadelta,
+        pad_length_m,
+        pad_thickness_m: float,
+        axial_length_m,
+        pad_density_kg_m3: float,
+        excitation_frequency_rad_s: float,
+        k_rotate,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        kj = np.asfortranarray(np.asarray(K_journal, dtype=np.float64).reshape(2, 2))
+        cj = np.asfortranarray(np.asarray(C_journal, dtype=np.float64).reshape(2, 2))
+        arrays = [
+            np.ascontiguousarray(v, dtype=np.float64)
+            for v in (
+                k_deltax,
+                k_deltay,
+                k_xdelta,
+                k_ydelta,
+                k_deltadelta,
+                c_deltax,
+                c_deltay,
+                c_xdelta,
+                c_ydelta,
+                c_deltadelta,
+                pad_length_m,
+                axial_length_m,
+                k_rotate,
+            )
+        ]
+        n = len(arrays[0])
+        if n < 1 or any(len(a) != n for a in arrays):
+            raise ValueError("tilting-pad dynamic blocks must be non-empty and have equal lengths")
+        kr = np.empty(4, dtype=np.float64)
+        cr = np.empty(4, dtype=np.float64)
+        ip = np.empty(n, dtype=np.float64)
+        status = self.lib.rb_dynamic_reduce_tilts_c(
+            n,
+            self._ptr(np.ascontiguousarray(kj.ravel(order="F"))),
+            self._ptr(np.ascontiguousarray(cj.ravel(order="F"))),
+            *(self._ptr(a) for a in arrays[:10]),
+            self._ptr(arrays[10]),
+            float(pad_thickness_m),
+            self._ptr(arrays[11]),
+            float(pad_density_kg_m3),
+            float(excitation_frequency_rad_s),
+            self._ptr(arrays[12]),
+            self._ptr(kr),
+            self._ptr(cr),
+            self._ptr(ip),
+        )
+        self._status(status, "TiltingPad dynamic reduction")
+        return (
+            np.asarray(kr).reshape((2, 2), order="F"),
+            np.asarray(cr).reshape((2, 2), order="F"),
+            ip.copy(),
+        )
+
     def evaluate(
         self,
         bearing: AdvancedBearing,
