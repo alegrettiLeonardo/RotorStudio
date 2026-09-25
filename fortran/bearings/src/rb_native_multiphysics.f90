@@ -21,7 +21,7 @@ contains
       thermal_type,deform_type,pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
       convec_edges,convec_back,np,piv,arc,alen,pre,off,nx,nz,ny_pad,ny_film,xj0,yj0,relax_p,relax_t, &
       max_iterations,outer_iterations,force_tol,field_tol,xj_ratio,yj_ratio,k_out,c_out,fx,fy,pmax,tmax,tout, &
-      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in)
+      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in,ambient_press1_in,ambient_press2_in)
     real(rk),intent(in)::speed,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
     integer(ik),intent(in)::thermal_type,deform_type,np,nx,nz,ny_pad,ny_film,max_iterations,outer_iterations
     real(rk),intent(in)::pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
@@ -30,7 +30,7 @@ contains
     real(rk),intent(out)::xj_ratio,yj_ratio,k_out(2,2),c_out(2,2),fx,fy,pmax,tmax,tout,deform_max
     integer(ik),intent(out)::iterations,status
     real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:)
-    real(rk),intent(in),optional::temp_reference_in
+    real(rk),intent(in),optional::temp_reference_in,ambient_press1_in,ambient_press2_in
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
@@ -38,10 +38,13 @@ contains
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:)
     real(rk),allocatable::px(:),tpad(:),def(:)
-    real(rk)::fxext,fyext
+    real(rk)::fxext,fyext,fx_groove,fy_groove,ambient_press1,ambient_press2
 
     temp_reference=temp_supply
     if(present(temp_reference_in))temp_reference=temp_reference_in
+    ambient_press1=0._rk;ambient_press2=0._rk
+    if(present(ambient_press1_in))ambient_press1=ambient_press1_in
+    if(present(ambient_press2_in))ambient_press2=ambient_press2_in
     status=RB_OK;xj_ratio=0._rk;yj_ratio=0._rk;k_out=0._rk;c_out=0._rk
     fx=0._rk;fy=0._rk;pmax=0._rk;tmax=temp_supply;tout=temp_supply;deform_max=0._rk;iterations=0_ik
     if(.not.rb_check_common(speed,d,cb,mu1,np,arc,alen,pre,off,nx,nz,relax_p,max_iterations,force_tol))then
@@ -67,7 +70,9 @@ contains
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1))
     mu=mu1;mu_new=mu1;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
-    xj=xj0*cb;yj=yj0*cb;fxext=fxs_load;fyext=fys_load-weight;outer_done=0
+    xj=xj0*cb;yj=yj0*cb
+    call rb_groove_forces(np,d,piv,arc,alen,ambient_press1,ambient_press2,fx_groove,fy_groove)
+    fxext=fxs_load+fx_groove;fyext=fys_load-weight+fy_groove;outer_done=0
 
     do it=1,int(outer_iterations)
       call plain_equilibrium(speed,fxext,fyext,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
@@ -144,6 +149,7 @@ contains
     if(st/=RB_OK)then;status=st;return;end if
     call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
+    fx=fx+fx_groove;fy=fy+fy_groove
     xj_ratio=xj/cb;yj_ratio=yj/cb
 
     if(present(pressure_field))then
@@ -225,7 +231,9 @@ contains
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1))
     mu=mu1;mu_new=mu1;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
-    xj=xj0*cb;yj=yj0*cb;fxext=fxs_load;fyext=fys_load-weight;outer_done=0
+    xj=xj0*cb;yj=yj0*cb
+    call rb_groove_forces(np,d,piv,arc,alen,ambient_press1,ambient_press2,fx_groove,fy_groove)
+    fxext=fxs_load+fx_groove;fyext=fys_load-weight+fy_groove;outer_done=0
 
     do it=1,int(outer_iterations)
       call tp_journal_equilibrium(speed,fxext,fyext,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
@@ -306,6 +314,7 @@ contains
     call tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt, &
                          press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
+    fx=fx+fx_groove;fy=fy+fy_groove
     xj_ratio=xj/cb;yj_ratio=yj/cb
 
     if(present(pressure_field))then
@@ -339,6 +348,36 @@ contains
       deformation_field(1:int(nx)+1,1:int(np))=dh(1:int(nx)+1,1:int(np))
     end if
   end subroutine rb_tilting_pad_multiphysics
+
+
+  subroutine rb_groove_forces(np,d,piv,arc,alen,ambient1,ambient2,fxg,fyg)
+    integer(ik),intent(in)::np
+    real(rk),intent(in)::d,piv(np),arc(np),alen(np),ambient1,ambient2
+    real(rk),intent(out)::fxg,fyg
+    integer::p
+    real(rk)::press_groove,leading_angle,trailing_angle,arc_groove,alpha,groove_angle,fr,pi_
+    fxg=0._rk;fyg=0._rk
+    if(np<1)return
+    pi_=acos(-1._rk);press_groove=.5_rk*(ambient1+ambient2)
+    do p=1,int(np)
+      if(p==1)then
+        leading_angle=piv(np)-.5_rk*arc(np)+arc(np)
+        trailing_angle=piv(1)-.5_rk*arc(1)
+        arc_groove=trailing_angle-leading_angle
+        if(arc_groove<0._rk)arc_groove=2._rk*pi_+arc_groove
+      else
+        leading_angle=piv(p-1)-.5_rk*arc(p-1)+arc(p-1)
+        trailing_angle=piv(p)-.5_rk*arc(p)
+        arc_groove=trailing_angle-leading_angle
+        ! Preserve pinned ROSS 6320eab9 behaviour literally: the non-first-pad
+        ! wrap branch adds 360.0 even though all angles are radians.
+        if(arc_groove<0._rk)arc_groove=360._rk+arc_groove
+      end if
+      alpha=.5_rk*arc_groove;groove_angle=trailing_angle-alpha
+      fr=2._rk*alen(p)*(.5_rk*d)*press_groove*sin(alpha)
+      fxg=fxg-fr*cos(groove_angle);fyg=fyg-fr*sin(groove_angle)
+    end do
+  end subroutine rb_groove_forces
 
 
   logical function rb_check_common(speed,d,cb,mu,np,arc,alen,pre,off,nx,nz,relax_p,maxit,ftol)
