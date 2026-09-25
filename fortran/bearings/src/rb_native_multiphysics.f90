@@ -35,7 +35,7 @@ contains
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
-    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,k_last(2,2)
+    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,k_last(2,2),q_in_pad,q_out_pad
     real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:)
@@ -112,7 +112,7 @@ contains
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),pad_thickness,speed*0.5_rk*d, &
                h(:,p),press(:,p),mu(:,p),rho,cp,klube,kpad,temp_supply,temp_j_work,temp_ambient,convec_edges, &
-               convec_back,relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,rms,st)
+               convec_back,relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st)
           if(st/=RB_OK)then;status=st;return;end if
           temp_delta=max(temp_delta,maxval(abs(tfull_new-tfull(:,p))))
           tfull(:,p)=tfull_new;mu_new(:,p)=muc
@@ -256,7 +256,7 @@ contains
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
-    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference
+    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,q_in_pad,q_out_pad
     real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:),mom(:)
@@ -332,7 +332,7 @@ contains
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),tp,speed*0.5_rk*d,h(:,p), &
                press(:,p),mu(:,p),rho,cp,klube,kpad,temp_supply,temp_journal,temp_ambient,convec_edges,convec_back, &
-               relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,rms,st)
+               relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st)
           if(st/=RB_OK)then;status=st;return;end if
           temp_delta=max(temp_delta,maxval(abs(tfull_new-tfull(:,p))));tfull(:,p)=tfull_new;mu_new(:,p)=muc
         end select
