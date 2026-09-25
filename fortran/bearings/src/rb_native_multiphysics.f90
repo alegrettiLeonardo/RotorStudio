@@ -69,7 +69,16 @@ contains
     allocate(mu(nn,np),mu_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np))
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1))
-    mu=mu1;mu_new=mu1;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
+    ! ROSS initializes the film with lubricant viscosity evaluated at the
+    ! supply temperature, not blindly with viscosity1 (which is tabulated at
+    ! temp1).  This matters even for thermal_type=None and is part of the
+    ! frozen 6320eab9 operating-point definition.
+    if(mu2>0._rk .and. abs(t2-t1)>tiny(1._rk))then
+      delta=mu1*exp(log(mu2/mu1)*(temp_supply-t1)/(t2-t1))
+    else
+      delta=mu1
+    end if
+    mu=delta;mu_new=delta;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     xj=xj0*cb;yj=yj0*cb;k_last=0._rk
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
@@ -236,7 +245,16 @@ contains
     allocate(mu(nn,np),mu_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np),mom(np))
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1))
-    mu=mu1;mu_new=mu1;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
+    ! ROSS initializes the film with lubricant viscosity evaluated at the
+    ! supply temperature, not blindly with viscosity1 (which is tabulated at
+    ! temp1).  This matters even for thermal_type=None and is part of the
+    ! frozen 6320eab9 operating-point definition.
+    if(mu2>0._rk .and. abs(t2-t1)>tiny(1._rk))then
+      delta=mu1*exp(log(mu2/mu1)*(temp_supply-t1)/(t2-t1))
+    else
+      delta=mu1
+    end if
+    mu=delta;mu_new=delta;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     xj=xj0*cb;yj=yj0*cb
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
