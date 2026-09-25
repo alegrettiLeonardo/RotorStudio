@@ -166,6 +166,23 @@ def test_native_fixed_geometry_and_tilting_config():
     np.testing.assert_allclose(tp["initial_position"], [0.0, -0.3], atol=1e-14)
     assert tp["native_stage"] == "geometry_config_only"
 
+def test_native_reynolds_q4_element_oracle():
+    backend = AdvancedBearingBackend()
+    matrix, column = backend.reynolds_q4_element(
+        k_x=2.0, k_z=3.0, q=5.0, l_e=0.4, w_e=0.2
+    )
+    expected = np.array(
+        [
+            [7.0 / 3.0, 2.0 / 3.0, -7.0 / 6.0, -11.0 / 6.0],
+            [2.0 / 3.0, 7.0 / 3.0, -11.0 / 6.0, -7.0 / 6.0],
+            [-7.0 / 6.0, -11.0 / 6.0, 7.0 / 3.0, 2.0 / 3.0],
+            [-11.0 / 6.0, -7.0 / 6.0, 2.0 / 3.0, 7.0 / 3.0],
+        ]
+    )
+    np.testing.assert_allclose(matrix, expected, rtol=0, atol=1e-14)
+    np.testing.assert_allclose(column, [0.1] * 4, rtol=0, atol=1e-14)
+
+
 def test_tilting_pad_table_preserves_spin_and_whirl_axes():
     # Linear surface kxx = 10*Omega + omega.  A synchronous-only
     # implementation would return 1650 at (Omega,omega)=(150,20), so this
