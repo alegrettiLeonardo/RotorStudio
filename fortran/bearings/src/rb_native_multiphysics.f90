@@ -189,7 +189,7 @@ contains
       thermal_type,deform_type,tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
       convec_edges,convec_back,np,piv,arc,alen,pre,off,krot,nx,nz,ny_pad,ny_film,xj0,yj0,relax_p,relax_t, &
       max_iterations,outer_iterations,force_tol,field_tol,xj_ratio,yj_ratio,tilt,k_out,c_out,fx,fy,pmax,tmax,tout, &
-      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in)
+      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in,ambient_press1_in,ambient_press2_in)
     real(rk),intent(in)::speed,omega,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
     integer(ik),intent(in)::thermal_type,deform_type,np,nx,nz,ny_pad,ny_film,max_iterations,outer_iterations
     real(rk),intent(in)::tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
@@ -198,7 +198,7 @@ contains
     real(rk),intent(out)::xj_ratio,yj_ratio,tilt(np),k_out(2,2),c_out(2,2),fx,fy,pmax,tmax,tout,deform_max
     integer(ik),intent(out)::iterations,status
     real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:)
-    real(rk),intent(in),optional::temp_reference_in
+    real(rk),intent(in),optional::temp_reference_in,ambient_press1_in,ambient_press2_in
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
@@ -206,10 +206,13 @@ contains
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:),mom(:)
     real(rk),allocatable::px(:),tpad(:),def(:)
-    real(rk)::fxext,fyext
+    real(rk)::fxext,fyext,fx_groove,fy_groove,ambient_press1,ambient_press2
 
     temp_reference=temp_supply
     if(present(temp_reference_in))temp_reference=temp_reference_in
+    ambient_press1=0._rk;ambient_press2=0._rk
+    if(present(ambient_press1_in))ambient_press1=ambient_press1_in
+    if(present(ambient_press2_in))ambient_press2=ambient_press2_in
     status=RB_OK;xj_ratio=0._rk;yj_ratio=0._rk;tilt=0._rk;k_out=0._rk;c_out=0._rk
     fx=0._rk;fy=0._rk;pmax=0._rk;tmax=temp_supply;tout=temp_supply;deform_max=0._rk;iterations=0_ik
     if(.not.rb_check_common(speed,d,cb,mu1,np,arc,alen,pre,off,nx,nz,relax_p,max_iterations,force_tol) .or. &
