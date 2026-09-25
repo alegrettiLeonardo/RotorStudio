@@ -260,6 +260,7 @@ def _tilting_native(inp: dict, whirl_rad_s: float):
             float(inp.get("reference_temperature", supply)),
             float(inp.get("ambient_pressure_1", 0.0)),
             float(inp.get("ambient_pressure_2", 0.0)),
+            float(inp.get("hot_oil_lambda", 0.0)),
         ],
         dtype=np.float64,
     )
