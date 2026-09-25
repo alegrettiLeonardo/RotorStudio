@@ -95,6 +95,7 @@ jobs:
             | tee validation/reports/ross_bearings_native/linux/b12_parity_pytest.txt
 
       - name: Record Linux evidence
+        if: always()
         run: |
           mkdir -p validation/reports/ross_bearings_native/linux
           sha256sum build-bearings-release/libdrmbearings.so > validation/reports/ross_bearings_native/linux/libdrmbearings.sha256
@@ -109,6 +110,7 @@ jobs:
           } > validation/reports/ross_bearings_native/linux/status.txt
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ross-bearings-native-linux-${{ github.sha }}
           path: validation/reports/ross_bearings_native/linux/
@@ -184,12 +186,6 @@ jobs:
           python -m pytest python/tests_bearings/test_advanced_bearings.py -q | Tee-Object -FilePath advanced_bearings_windows.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: B12 frozen ROSS numerical parity
-        shell: pwsh
-        run: |
-          python -m pytest python/tests_bearings/test_advanced_bearings_parity.py -q | Tee-Object -FilePath b12_parity_windows.txt
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
       - name: Build Debug/FPE and run standalone bearing gate
         shell: msys2 {0}
         run: |
@@ -208,7 +204,14 @@ jobs:
           python -m pytest python/tests_bearings/test_advanced_bearings.py -q | Tee-Object -FilePath packed_abi_debug_windows.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
+      - name: B12 frozen ROSS numerical parity
+        shell: pwsh
+        run: |
+          python -m pytest python/tests_bearings/test_advanced_bearings_parity.py -q | Tee-Object -FilePath b12_parity_windows.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Record Windows evidence
+        if: always()
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force validation\reports\ross_bearings_native\windows | Out-Null
@@ -228,6 +231,7 @@ jobs:
           "@ | Set-Content validation\reports\ross_bearings_native\windows\status.txt
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ross-bearings-native-windows-${{ github.sha }}
           path: validation/reports/ross_bearings_native/windows/
