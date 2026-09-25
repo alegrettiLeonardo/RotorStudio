@@ -4,7 +4,7 @@ module rb_reynolds_banded
   implicit none(type, external)
   private
 
-  public :: rb_lu_factor_band, rb_lu_solve_band_cavitating
+  public :: rb_lu_factor_band, rb_lu_solve_band_cavitating, rb_lu_solve_band_signed
   public :: rb_assemble_q4_banded, rb_include_pressure_bc
 
 contains
@@ -72,8 +72,6 @@ contains
       end if
 
       do j = 2, twb
-        ! ROSS jrow is 0-based: irow0 - bandwidth + j - 1.
-        ! Converted to Fortran row index by adding one.
         jrow = irow - int(bandwidth) + j - 1
         jcol = twb - j + 1
         if (jrow >= 1 .and. jrow <= total_n) then
@@ -159,11 +157,10 @@ contains
     end do
   end subroutine rb_lu_factor_band
 
-  subroutine rb_lu_solve_band_cavitating(a, total_n, bandwidth, a_lower, index1, b, press_cavitate, status)
+  subroutine rb_lu_solve_band_signed(a, total_n, bandwidth, a_lower, index1, b, status)
     real(rk), intent(in) :: a(:,:), a_lower(:,:)
     integer(ik), intent(in) :: total_n, bandwidth, index1(:)
     real(rk), intent(inout) :: b(:)
-    real(rk), intent(in) :: press_cavitate
     integer(ik), intent(out) :: status
     integer :: total_column, ll, k, i, ip
     real(rk) :: tmp, dum
@@ -185,9 +182,7 @@ contains
         return
       end if
       if (ip /= k) then
-        tmp = b(k)
-        b(k) = b(ip)
-        b(ip) = tmp
+        tmp = b(k); b(k) = b(ip); b(ip) = tmp
       end if
       if (ll < total_n) ll = ll + 1
       do i = k+1, ll
@@ -207,7 +202,20 @@ contains
       end if
       b(i) = dum/a(i,1)
       if (ll < total_column) ll = ll + 1
-      b(i) = max(b(i),press_cavitate)
+    end do
+  end subroutine rb_lu_solve_band_signed
+
+  subroutine rb_lu_solve_band_cavitating(a, total_n, bandwidth, a_lower, index1, b, press_cavitate, status)
+    real(rk), intent(in) :: a(:,:), a_lower(:,:)
+    integer(ik), intent(in) :: total_n, bandwidth, index1(:)
+    real(rk), intent(inout) :: b(:)
+    real(rk), intent(in) :: press_cavitate
+    integer(ik), intent(out) :: status
+    integer :: i
+    call rb_lu_solve_band_signed(a,total_n,bandwidth,a_lower,index1,b,status)
+    if (status /= RB_OK) return
+    do i=1,int(total_n)
+      b(i)=max(b(i),press_cavitate)
     end do
   end subroutine rb_lu_solve_band_cavitating
 

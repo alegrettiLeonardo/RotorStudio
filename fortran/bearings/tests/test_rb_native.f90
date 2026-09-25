@@ -15,6 +15,8 @@ program test_ross_bearings_native
   use rb_dynamic_reduction, only: rb_dynamic_reduce_tilts
   use rb_pressure_isoviscous, only: rb_pressure_smooth_isoviscous
   use rb_plain_journal_physics, only: rb_plain_journal_isoviscous
+  use rb_thermal, only: rb_viscosity_temperature, rb_thermal_adiabatic_pad, rb_thermal_full_pad
+  use rb_pad_deformation, only: rb_pad_surface_deformation
   use rb_tilting_pad_physics, only: rb_tilting_pad_isoviscous
   implicit none(type, external)
 
