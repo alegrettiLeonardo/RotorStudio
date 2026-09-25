@@ -35,7 +35,7 @@ contains
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
-    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,k_last(2,2),q_in_pad,q_out_pad
+    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,touti_bulk,rms,pex,temp_reference,k_last(2,2),q_in_pad,q_out_pad
     real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx,hotoil_lamda,inlet_delta,qcarry
     real(rk),allocatable::mu(:,:),mu_new(:,:),gfun(:,:),gfun_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:)
@@ -104,23 +104,23 @@ contains
       do p=1,int(np)
         select case(thermal_type)
         case(RB_THERMAL_ISOVISCOUS)
-          tad_new=tad(:,p);muc=mu(:,p);tmi=maxval(tad_new);touti=temp_supply
+          tad_new=tad(:,p);muc=mu(:,p);tmi=maxval(tad_new);touti=temp_supply;touti_bulk=temp_supply
         case(RB_THERMAL_ADIABATIC)
           call rb_thermal_adiabatic_pad(nx,nz,0.5_rk*d*arc(p),alen(p),speed*0.5_rk*d,h(:,p),press(:,p),mu(:,p), &
                rho,cp,klube,temp_inlet_pad(p),relax_t,tad(:,p),mu1,mu2,t1,t2,tad_new,muc,tmi,touti,rms,st)
           if(st/=RB_OK)then;status=st;return;end if
           temp_delta=temp_delta+rms*rms
-          tad(:,p)=tad_new;mu_new(:,p)=muc
+          tad(:,p)=tad_new;mu_new(:,p)=muc;touti_bulk=touti
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),pad_thickness,speed*0.5_rk*d, &
                h(:,p),press(:,p),mu(:,p),rho,cp,klube,kpad,temp_inlet_pad(p),temp_j_work,temp_ambient,convec_edges, &
-               convec_back,relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st,gfun_new(:,p))
+               convec_back,relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,touti_bulk,q_in_pad,q_out_pad,rms,st,gfun_new(:,p))
           q_in_arr(p)=q_in_pad;q_out_arr(p)=q_out_pad;temp_outlet_pad(p)=touti
           if(st/=RB_OK)then;status=st;return;end if
           temp_delta=temp_delta+rms*rms
           tfull(:,p)=tfull_new;mu_new(:,p)=muc
         end select
-        tmax=max(tmax,tmi);tout=tout+touti
+        tmax=max(tmax,tmi);tout=tout+touti_bulk
 
         if(deform_type/=RB_DEFORM_NONE)then
           do ix=0,int(nx)
@@ -313,7 +313,7 @@ contains
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
-    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,q_in_pad,q_out_pad
+    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,touti_bulk,rms,pex,temp_reference,q_in_pad,q_out_pad
     real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx,hotoil_lamda,inlet_delta,qcarry
     real(rk),allocatable::mu(:,:),mu_new(:,:),gfun(:,:),gfun_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:),mom(:)
@@ -382,21 +382,21 @@ contains
       do p=1,int(np)
         select case(thermal_type)
         case(RB_THERMAL_ISOVISCOUS)
-          tad_new=tad(:,p);muc=mu(:,p);tmi=maxval(tad_new);touti=temp_supply
+          tad_new=tad(:,p);muc=mu(:,p);tmi=maxval(tad_new);touti=temp_supply;touti_bulk=temp_supply
         case(RB_THERMAL_ADIABATIC)
           call rb_thermal_adiabatic_pad(nx,nz,0.5_rk*d*arc(p),alen(p),speed*0.5_rk*d,h(:,p),press(:,p),mu(:,p), &
                rho,cp,klube,temp_inlet_pad(p),relax_t,tad(:,p),mu1,mu2,t1,t2,tad_new,muc,tmi,touti,rms,st)
           if(st/=RB_OK)then;status=st;return;end if
-          temp_delta=temp_delta+rms*rms;tad(:,p)=tad_new;mu_new(:,p)=muc
+          temp_delta=temp_delta+rms*rms;tad(:,p)=tad_new;mu_new(:,p)=muc;touti_bulk=touti
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),tp,speed*0.5_rk*d,h(:,p), &
                press(:,p),mu(:,p),rho,cp,klube,kpad,temp_inlet_pad(p),temp_j_work,temp_ambient,convec_edges,convec_back, &
-               relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st,gfun_new(:,p))
+               relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,touti_bulk,q_in_pad,q_out_pad,rms,st,gfun_new(:,p))
           q_in_arr(p)=q_in_pad;q_out_arr(p)=q_out_pad;temp_outlet_pad(p)=touti
           if(st/=RB_OK)then;status=st;return;end if
           temp_delta=temp_delta+rms*rms;tfull(:,p)=tfull_new;mu_new(:,p)=muc
         end select
-        tmax=max(tmax,tmi);tout=tout+touti
+        tmax=max(tmax,tmi);tout=tout+touti_bulk
 
         if(deform_type/=RB_DEFORM_NONE)then
           do ix=0,int(nx)
