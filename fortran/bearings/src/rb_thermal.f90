@@ -188,18 +188,18 @@ contains
   subroutine rb_thermal_full_pad(nx,nz,ny_pad,ny_film,pad_length,axial_length,pad_thickness,speed_surface,h,pressure, &
                                  mu_nodes,density,cp,lube_conduct,pad_conduct,temp_inlet,temp_journal,temp_ambient, &
                                  convec_edges,convec_back,relax_t,temp_old,mu1,mu2,t1,t2,temp_new,mu_center, &
-                                 temp_max,temp_outlet,q_in,q_out,rms_temp,status,g_reynolds)
+                                 temp_max,temp_outlet,temp_outlet_bulk,q_in,q_out,rms_temp,status,g_reynolds)
     integer(ik),intent(in)::nx,nz,ny_pad,ny_film
     real(rk),intent(in)::pad_length,axial_length,pad_thickness,speed_surface,h(:),pressure(:),mu_nodes(:)
     real(rk),intent(in)::density,cp,lube_conduct,pad_conduct,temp_inlet,temp_journal,temp_ambient
     real(rk),intent(in)::convec_edges,convec_back,relax_t,temp_old(:),mu1,mu2,t1,t2
-    real(rk),intent(out)::temp_new(:),mu_center(:),temp_max,temp_outlet,q_in,q_out,rms_temp
+    real(rk),intent(out)::temp_new(:),mu_center(:),temp_max,temp_outlet,temp_outlet_bulk,q_in,q_out,rms_temp
     integer(ik),intent(out)::status
     real(rk),intent(out),optional::g_reynolds(:)
     integer::nr,ny,nne,ix,iy,iz,n,n1,n2,n3,n4,bw,ncol,nbc,nnr,center,jf,ix_min
     real(rk)::dx,dz,eta,yrel,hx,mu,u,v,dudy,dwdy,avg_u,avg_v,avg_diss,dhdx
     real(rk)::kx,ky,mx,my,pe,q,rt,avg_old,avg_raw,xi1h,xi2h,ratio,deta,gamma_eq,g_eq
-    real(rk)::qrad,qax,turad,tuax,wz,hmin_local
+    real(rk)::qrad,qax,turad,tuax,wz,hmin_local,tarea
     real(rk),allocatable::x(:),y(:),kx_n(:),ky_n(:),mx_n(:),my_n(:),p_n(:),q_n(:),u_inlet(:)
     real(rk),allocatable::mur(:),invr(:),cum1(:),cum2(:),igam(:)
     real(rk),allocatable::dpdx(:),dpdz(:),a(:,:),rhs(:),alow(:,:),pres(:),raw(:)
@@ -207,7 +207,7 @@ contains
     real(rk)::em(4,4),ec(4)
     integer(ik)::st
 
-    status=RB_OK;temp_max=0._rk;temp_outlet=0._rk;q_in=0._rk;q_out=0._rk;rms_temp=0._rk
+    status=RB_OK;temp_max=0._rk;temp_outlet=0._rk;temp_outlet_bulk=0._rk;q_in=0._rk;q_out=0._rk;rms_temp=0._rk
     nnr=(int(nx)+1)*(int(nz)+1); ny=int(ny_pad)+int(ny_film)+1; nne=(int(nx)+1)*ny
     if(nx<2 .or. nz<2 .or. ny_pad<1 .or. ny_film<2 .or. pad_length<=0._rk .or. axial_length<=0._rk .or. &
        pad_thickness<=0._rk .or. speed_surface<=0._rk .or. density<=0._rk .or. cp<=0._rk .or. &
@@ -442,7 +442,7 @@ contains
       end do
       xi1h=max(cum1(int(ny_film)+1),tiny(1._rk))
       xi2h=cum2(int(ny_film)+1);ratio=xi2h/xi1h
-      qax=0._rk;tuax=0._rk
+      qax=0._rk;tuax=0._rk;tarea=0._rk
       do iz=0,int(nz)
         nr=ix*(int(nz)+1)+iz+1
         qrad=0._rk;turad=0._rk
@@ -457,11 +457,22 @@ contains
         end do
         wz=1._rk;if(iz==0 .or. iz==int(nz))wz=.5_rk
         qax=qax+wz*qrad*dz
-        if(ix==int(nx))tuax=tuax+wz*turad*dz
+        if(ix==int(nx))then
+          tuax=tuax+wz*turad*dz
+          ! ROSS temp_outlet is the area/radial average at the trailing
+          ! edge; it is the quantity used by the hot-oil carryover mixer.
+          tarea=tarea+wz*dz*( &
+               .5_rk*temp_new(ix*ny+int(ny_pad)+1)+ &
+               sum(temp_new(ix*ny+int(ny_pad)+2:ix*ny+ny-1))+ &
+               .5_rk*temp_new(ix*ny+ny))/real(ny_film,rk)
+        end if
       end do
       if(ix==0)q_in=qax
       if(ix==ix_min)q_out=qax
-      if(ix==int(nx) .and. abs(qax)>tiny(1._rk))temp_outlet=tuax/qax
+      if(ix==int(nx))then
+        if(axial_length>tiny(1._rk))temp_outlet=tarea/axial_length
+        if(abs(qax)>tiny(1._rk))temp_outlet_bulk=tuax/qax
+      end if
     end do
     if(q_out>q_in)q_out=q_in
   end subroutine rb_thermal_full_pad
