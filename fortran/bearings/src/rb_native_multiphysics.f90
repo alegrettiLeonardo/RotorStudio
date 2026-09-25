@@ -248,7 +248,7 @@ contains
     ! Do not re-run journal equilibrium after the coupled loop.  Pinned ROSS
     ! emits the last hydrodynamic state produced inside that loop; an extra
     ! equilibrium pass over-converges xj/yj and changes p/K/C.
-    call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,k_out,c_out,st)
+    call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
     ! ROSS 6320eab9 consumes the last in-loop Jacobian produced by the
     ! hydrodynamic equilibrium search.  Do not silently replace it with a
@@ -527,7 +527,7 @@ contains
 
     ! Same authority rule as PlainJournal: the last THD/hydrodynamic state is
     ! the output state.  Do not execute an additional post-loop equilibrium.
-    call tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt, &
+    call tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj,tilt, &
                          press,k_out,c_out,st,kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
     if(st/=RB_OK)then;status=st;return;end if
     fx=fx+fx_groove;fy=fy+fy_groove
