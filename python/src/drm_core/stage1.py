@@ -141,16 +141,19 @@ class AnalysisService:
         return AnalysisExecution(case,result,ah,meta)
 
 def _legacy_payload(m:RotorModel):
-    return {"node":[[n.number,n.z_m] for n in m.nodes],"shaft":[s.legacy_row() for s in m.shafts],
-            "disc":[[d.disk_type,d.node,d.p3,d.p4,d.p5,d.p6] for d in m.disks],
-            "bearing":[[b.bearing_type,b.node,*b.properties] for b in m.bearings],
-            "force":[f.legacy_row() for f in m.forces],"bend":[[b.node,b.x_m,b.y_m] for b in m.bend],
-            "rotors":[r.legacy_row() for r in m.rotors],
-            "advanced_bearings":[advanced_bearing_to_dict(b) for b in m.advanced_bearings]}
+    payload={"node":[[n.number,n.z_m] for n in m.nodes],"shaft":[s.legacy_row() for s in m.shafts],
+             "disc":[[d.disk_type,d.node,d.p3,d.p4,d.p5,d.p6] for d in m.disks],
+             "bearing":[[b.bearing_type,b.node,*b.properties] for b in m.bearings],
+             "force":[f.legacy_row() for f in m.forces],"bend":[[b.node,b.x_m,b.y_m] for b in m.bend],
+             "rotors":[r.legacy_row() for r in m.rotors]}
+    if m.advanced_bearings:
+        payload["advanced_bearings"]=[advanced_bearing_to_dict(b) for b in m.advanced_bearings]
+    return payload
 
 def save_project(project:RotorProject,path):
     p=Path(path);p.parent.mkdir(parents=True,exist_ok=True)
-    p.write_text(json.dumps({"schema_version":2,"name":project.name,"created_utc":project.created_utc,"metadata":project.metadata,
+    schema_version=2 if project.model.advanced_bearings else 1
+    p.write_text(json.dumps({"schema_version":schema_version,"name":project.name,"created_utc":project.created_utc,"metadata":project.metadata,
                              "model":_legacy_payload(project.model),"analyses":[a.canonical_dict() for a in project.analyses]},indent=2,sort_keys=True))
     return p
 
