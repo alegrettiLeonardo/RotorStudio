@@ -1,0 +1,54 @@
+name: ROSS Bearing Golden Reference Generator
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/generate_ross_golden_cases.py"
+      - ".github/workflows/ross-bearing-golden-reference.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-ross-6320eab9:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout pinned ROSS authority
+        uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross_ref
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned ROSS
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ./_ross_ref
+
+      - name: Generate B12 golden cases
+        run: |
+          python scripts/generate_ross_golden_cases.py \
+            --ross-root ./_ross_ref \
+            --out tests/reference/ross_6320eab9
+
+      - name: Record authority
+        run: |
+          test "$(git -C _ross_ref rev-parse HEAD)" = "6320eab9f890f1b3cc1710d508b446fe063ca68d"
+          cat tests/reference/ross_6320eab9/manifest.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ross-6320eab9-bearing-golden-cases
+          path: tests/reference/ross_6320eab9/
+          if-no-files-found: error
+          retention-days: 90
