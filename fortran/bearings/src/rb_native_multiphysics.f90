@@ -867,15 +867,16 @@ contains
   ! intentionally separate from pad_pert (velocity perturbation / damping):
   ! the stiffness RHS contains the pressure-gradient terms and the Couette
   ! derivative term from stiffness_source_all_jit.
-  subroutine pad_stiff_pert(mode,speed,d,cb,tp,piv,arc,alen,pre,off,nx,nz,xj,yj,tilt,mu,dh,pstatic,fx,fy,moment,status)
+  subroutine pad_stiff_pert(mode,speed,d,cb,tp,piv,arc,alen,pre,off,nx,nz,xj,yj,tilt,mu,dh,pstatic,fx,fy,moment,status,gfun)
     integer(ik),intent(in)::mode,nx,nz
     real(rk),intent(in)::speed,d,cb,tp,piv,arc,alen,pre,off,xj,yj,tilt,mu(:),dh(:),pstatic(:)
     real(rk),intent(out)::fx,fy,moment
     integer(ik),intent(out)::status
+    real(rk),intent(in),optional::gfun(:)
     integer::nn,ix,iz,node,n1,n2,n3,n4,bw,ncol,nbc,k
     integer::nodes(4)
     real(rk)::r,cpv,lead,xp,dx,dz,theta,theta2,hv,he,gammae,kcoef,q,area
-    real(rk)::ang,scale,term_i,term_ii,term_iii,ddx(4),ddz(4),gammak
+    real(rk)::ang,scale,term_i,term_ii,term_iii,ddx(4),ddz(4),gammak,ge
     real(rk),allocatable::h(:),dpdx(:),dpdz(:),a(:,:),rhs(:),alow(:,:),pres(:)
     integer(ik),allocatable::ipiv(:),bcidx(:),nodes0(:)
     real(rk)::em(4,4),ec(4)
@@ -924,7 +925,9 @@ contains
           term_ii=term_ii+ddz(k)*ang*h(nodes(k))**2*gammak*dpdz(nodes(k))
           term_iii=term_iii+ddx(k)*ang
         end do
-        q=-3._rk*scale*term_i-3._rk*scale*term_ii-(speed*r)*.5_rk*scale*term_iii
+        ge=.5_rk
+        if(present(gfun))ge=.25_rk*(gfun(n1)+gfun(n2)+gfun(n3)+gfun(n4))
+        q=-3._rk*scale*term_i-3._rk*scale*term_ii-(speed*r)*ge*scale*term_iii
         call rb_reynolds_q4_element(kcoef,kcoef,q,dx,dz,em,ec,st)
         if(st/=RB_OK)then;status=st;return;end if
         nodes0=[int(n1-1,ik),int(n2-1,ik),int(n3-1,ik),int(n4-1,ik)]
@@ -1008,11 +1011,11 @@ contains
       k11=0._rk;k21=0._rk;k12=0._rk;k22=0._rk
       do p=1,int(np)
         call pad_stiff_pert(1_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk, &
-                            mu(:,p),dh(:,p),press(:,p),fp,gp,mi,st)
+                            mu(:,p),dh(:,p),press(:,p),fp,gp,mi,st,gfun(:,p))
         if(st/=RB_OK)then;status=st;return;end if
         k11=k11+fp;k21=k21+gp
         call pad_stiff_pert(2_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk, &
-                            mu(:,p),dh(:,p),press(:,p),fp,gp,mi,st)
+                            mu(:,p),dh(:,p),press(:,p),fp,gp,mi,st,gfun(:,p))
         if(st/=RB_OK)then;status=st;return;end if
         k12=k12+fp;k22=k22+gp
       end do
@@ -1028,8 +1031,8 @@ contains
   end subroutine plain_equilibrium
 
 
-  subroutine plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,pstatic,k,c,status)
-    real(rk),intent(in)::speed,d,cb,piv(np),arc(np),alen(np),pre(np),off(np),mu(:,:),dh(:,:),xj,yj,pstatic(:,:)
+  subroutine plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,pstatic,k,c,status)
+    real(rk),intent(in)::speed,d,cb,piv(np),arc(np),alen(np),pre(np),off(np),mu(:,:),gfun(:,:),dh(:,:),xj,yj,pstatic(:,:)
     integer(ik),intent(in)::np,nx,nz
     real(rk),intent(out)::k(2,2),c(2,2)
     integer(ik),intent(out)::status
@@ -1039,9 +1042,9 @@ contains
     status=RB_OK;k=0._rk;c=0._rk
     do p=1,int(np)
       call pad_stiff_pert(1_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk,mu(:,p),dh(:,p), &
-                          pstatic(:,p),fp,gp,mi,st);if(st/=RB_OK)goto 900;k(1,1)=k(1,1)+fp;k(2,1)=k(2,1)+gp
+                          pstatic(:,p),fp,gp,mi,st,gfun(:,p));if(st/=RB_OK)goto 900;k(1,1)=k(1,1)+fp;k(2,1)=k(2,1)+gp
       call pad_stiff_pert(2_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk,mu(:,p),dh(:,p), &
-                          pstatic(:,p),fp,gp,mi,st);if(st/=RB_OK)goto 900;k(1,2)=k(1,2)+fp;k(2,2)=k(2,2)+gp
+                          pstatic(:,p),fp,gp,mi,st,gfun(:,p));if(st/=RB_OK)goto 900;k(1,2)=k(1,2)+fp;k(2,2)=k(2,2)+gp
       call pad_pert(1_ik,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk,mu(:,p),dh(:,p), &
                     pstatic(:,p),fp,gp,mi,st);if(st/=RB_OK)goto 900;c(1,1)=c(1,1)+fp;c(2,1)=c(2,1)+gp
       call pad_pert(2_ik,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk,mu(:,p),dh(:,p), &
@@ -1146,15 +1149,15 @@ contains
       k11j=0._rk;k21j=0._rk;k12j=0._rk;k22j=0._rk
       do p=1,int(np)
         call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
-             mu(:,p),dh(:,p),press(:,p),fp,gp,kdx,st);if(st/=RB_OK)goto 900
+             mu(:,p),dh(:,p),press(:,p),fp,gp,kdx,st,gfun(:,p));if(st/=RB_OK)goto 900
         k11=k11+fp;k21=k21+gp;k11j=k11j+fp;k21j=k21j+gp
         if(present(kdx_last)) kdx_last(p)=kdx
         call pad_stiff_pert(2_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
-             mu(:,p),dh(:,p),press(:,p),fp,gp,kdy,st);if(st/=RB_OK)goto 900
+             mu(:,p),dh(:,p),press(:,p),fp,gp,kdy,st,gfun(:,p));if(st/=RB_OK)goto 900
         k12=k12+fp;k22=k22+gp;k12j=k12j+fp;k22j=k22j+gp
         if(present(kdy_last)) kdy_last(p)=kdy
         call pad_stiff_pert(3_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
-             mu(:,p),dh(:,p),press(:,p),kxd,kyd,kdd,st);if(st/=RB_OK)goto 900
+             mu(:,p),dh(:,p),press(:,p),kxd,kyd,kdd,st,gfun(:,p));if(st/=RB_OK)goto 900
         if(present(kxd_last)) kxd_last(p)=kxd
         if(present(kyd_last)) kyd_last(p)=kyd
         if(present(kdd_last)) kdd_last(p)=kdd
@@ -1196,10 +1199,10 @@ contains
   end subroutine tp_fixedtilt_fields
 
 
-  subroutine tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt,pstatic,kred,cred,status, &
+  subroutine tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj,tilt,pstatic,kred,cred,status, &
                              kj_in,kdx_in,kdy_in,kxd_in,kyd_in,kdd_in)
     real(rk),intent(in)::speed,omega,d,cb,tp,pad_density,piv(np),arc(np),alen(np),pre(np),off(np),krot(np)
-    real(rk),intent(in)::mu(:,:),dh(:,:),xj,yj,tilt(np),pstatic(:,:)
+    real(rk),intent(in)::mu(:,:),gfun(:,:),dh(:,:),xj,yj,tilt(np),pstatic(:,:)
     integer(ik),intent(in)::np,nx,nz
     real(rk),intent(out)::kred(2,2),cred(2,2)
     integer(ik),intent(out)::status
@@ -1227,13 +1230,13 @@ contains
       kj=0._rk
       do p=1,int(np)
       call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p), &
-                          pstatic(:,p),fp,gp,kdx(p),st);if(st/=RB_OK)goto 900
+                          pstatic(:,p),fp,gp,kdx(p),st,gfun(:,p));if(st/=RB_OK)goto 900
       kj(1,1)=kj(1,1)+fp;kj(2,1)=kj(2,1)+gp
       call pad_stiff_pert(2_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p), &
-                          pstatic(:,p),fp,gp,kdy(p),st);if(st/=RB_OK)goto 900
+                          pstatic(:,p),fp,gp,kdy(p),st,gfun(:,p));if(st/=RB_OK)goto 900
       kj(1,2)=kj(1,2)+fp;kj(2,2)=kj(2,2)+gp
       call pad_stiff_pert(3_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p), &
-                          pstatic(:,p),kxd(p),kyd(p),kdd(p),st);if(st/=RB_OK)goto 900
+                          pstatic(:,p),kxd(p),kyd(p),kdd(p),st,gfun(:,p));if(st/=RB_OK)goto 900
       end do
     end if
     cj=0._rk;cdx=0._rk;cdy=0._rk;cxd=0._rk;cyd=0._rk;cdd=0._rk
