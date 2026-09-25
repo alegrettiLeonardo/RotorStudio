@@ -21,6 +21,12 @@ from .ffi import SolverLibraryError
 
 _INTERP = {"pchip": 1, "linear": 2}
 _SFD_GEOMETRY = {"groove": 1, "end_seals": 2, "groove-end_seals": 3}
+_TP_BEARING_TYPE = {
+    "conventional_tilting_pad": 1,
+    "inlet_groove_tilting_pad": 2,
+    "spray_bar_tilting_pad": 3,
+}
+_TP_EQUILIBRIUM = {"match_eccentricity": 1, "match_load": 2}
 
 
 @dataclass(frozen=True)
@@ -246,6 +252,151 @@ class AdvancedBearingBackend:
                 "excitation_frequency_rad_s": float(frequency),
             },
         )
+
+
+    def prepare_elliptical_geometry(self, pad_arc_rad: float, preload: float) -> dict:
+        arrays = [np.empty(2, dtype=np.float64) for _ in range(4)]
+        status = self.lib.rb_elliptical_geometry_c(
+            float(pad_arc_rad),
+            float(preload),
+            *(self._ptr(a) for a in arrays),
+        )
+        self._status(status, "EllipticalBearing geometry")
+        pivot, arc, pre, off = arrays
+        return {
+            "pivot_angle_rad": pivot.copy(),
+            "pad_arc_rad": arc.copy(),
+            "preload": pre.copy(),
+            "offset": off.copy(),
+        }
+
+    def prepare_offset_halves_geometry(
+        self, pad_arc_rad: float, preload: float, offset: float
+    ) -> dict:
+        arrays = [np.empty(2, dtype=np.float64) for _ in range(4)]
+        status = self.lib.rb_offset_halves_geometry_c(
+            float(pad_arc_rad),
+            float(preload),
+            float(offset),
+            *(self._ptr(a) for a in arrays),
+        )
+        self._status(status, "OffsetHalvesBearing geometry")
+        pivot, arc, pre, off = arrays
+        return {
+            "pivot_angle_rad": pivot.copy(),
+            "pad_arc_rad": arc.copy(),
+            "preload": pre.copy(),
+            "offset": off.copy(),
+        }
+
+    def prepare_plain_journal_geometry(
+        self,
+        n_pads: int,
+        pad_arc_rad: float,
+        preload: float,
+        pad_axial_length_m: float,
+        journal_diameter_m: float,
+        pad_thickness_m: float | None = None,
+    ) -> dict:
+        n = int(n_pads)
+        if n < 1:
+            raise ValueError("n_pads must be >= 1")
+        arrays = [np.empty(n, dtype=np.float64) for _ in range(5)]
+        thickness = ct.c_double()
+        status = self.lib.rb_plain_journal_geometry_c(
+            n,
+            float(pad_arc_rad),
+            float(preload),
+            float(pad_axial_length_m),
+            float(journal_diameter_m),
+            float(pad_thickness_m or 0.0),
+            int(pad_thickness_m is not None),
+            *(self._ptr(a) for a in arrays),
+            ct.byref(thickness),
+        )
+        self._status(status, "PlainJournal geometry")
+        pivot, arc, pre, off, axial = arrays
+        return {
+            "pivot_angle_rad": pivot.copy(),
+            "pad_arc_rad": arc.copy(),
+            "preload": pre.copy(),
+            "offset": off.copy(),
+            "pad_axial_length_m": axial.copy(),
+            "pad_thickness_m": float(thickness.value),
+        }
+
+    def prepare_tilting_pad(
+        self,
+        *,
+        journal_diameter_m: float,
+        radial_clearance_m: float,
+        pad_thickness_m: float,
+        pivot_angle_rad,
+        pad_arc_rad,
+        pad_axial_length_m,
+        preload,
+        offset,
+        bearing_type: str = "conventional_tilting_pad",
+        equilibrium_type: str = "match_eccentricity",
+        eccentricity: float = 0.3,
+        attitude_angle_rad: float = 3.0 * np.pi / 2.0,
+        xj: float | None = None,
+        yj: float | None = None,
+        total_ex_film: int = 30,
+        total_ez_film: int = 30,
+        total_ey_pad: int = 16,
+    ) -> dict:
+        arrays = [
+            np.ascontiguousarray(v, dtype=np.float64)
+            for v in (pivot_angle_rad, pad_arc_rad, pad_axial_length_m, preload, offset)
+        ]
+        n = len(arrays[0])
+        if any(len(a) != n for a in arrays):
+            raise ValueError("tilting-pad per-pad arrays must have the same length")
+        if bearing_type not in _TP_BEARING_TYPE:
+            raise ValueError(f"unsupported tilting-pad bearing_type={bearing_type!r}")
+        if equilibrium_type not in _TP_EQUILIBRIUM:
+            raise ValueError(f"unsupported equilibrium_type={equilibrium_type!r}")
+        use_xy = xj is not None or yj is not None
+        if use_xy and (xj is None or yj is None):
+            raise ValueError("xj and yj must either both be supplied or both omitted")
+        initial = np.empty(2, dtype=np.float64)
+        status = self.lib.rb_tilting_pad_prepare_c(
+            n,
+            float(journal_diameter_m),
+            float(radial_clearance_m),
+            float(pad_thickness_m),
+            *(self._ptr(a) for a in arrays),
+            _TP_BEARING_TYPE[bearing_type],
+            _TP_EQUILIBRIUM[equilibrium_type],
+            float(eccentricity),
+            float(attitude_angle_rad),
+            int(use_xy),
+            float(xj or 0.0),
+            float(yj or 0.0),
+            int(total_ex_film),
+            int(total_ez_film),
+            int(total_ey_pad),
+            self._ptr(initial),
+        )
+        self._status(status, "TiltingPad configuration")
+        return {
+            "n_pads": n,
+            "pivot_angle_rad": arrays[0].copy(),
+            "pad_arc_rad": arrays[1].copy(),
+            "pad_axial_length_m": arrays[2].copy(),
+            "preload": arrays[3].copy(),
+            "offset": arrays[4].copy(),
+            "initial_position": initial.copy(),
+            "bearing_type": bearing_type,
+            "equilibrium_type": equilibrium_type,
+            "mesh": {
+                "total_ex_film": int(total_ex_film),
+                "total_ez_film": int(total_ez_film),
+                "total_ey_pad": int(total_ey_pad),
+            },
+            "native_stage": "geometry_config_only",
+        }
 
     def evaluate(
         self,
