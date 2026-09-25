@@ -23,6 +23,8 @@ add_library(drmbearings SHARED
  bearings/src/rb_reynolds_mesh.f90
  bearings/src/rb_film_thickness.f90
  bearings/src/rb_pressure_isoviscous.f90
+ bearings/src/rb_thermal.f90
+ bearings/src/rb_pad_deformation.f90
  bearings/src/rb_plain_journal_physics.f90
  bearings/src/rb_tilting_pad_physics.f90
  bearings/src/rb_c_api.f90)
