@@ -81,18 +81,20 @@ contains
     call rb_ball_coefficients(8._rk, 0.03_rk, 500._rk, pi_/6._rk, &
                               .false., 0._rk, .false., 0._rk, kxx, kyy, cxx, cyy, st)
     if (st /= RB_OK) error stop 201
-    call assert_close(kxx, 4.64168838e7_rk, 2e-9_rk, 1e-2_rk, 202)
-    call assert_close(kyy, 1.00906269e8_rk, 2e-9_rk, 1e-2_rk, 203)
-    call assert_close(cxx, 580.2110481_rk, 2e-9_rk, 1e-6_rk, 204)
-    call assert_close(cyy, 1261.32836543_rk, 2e-9_rk, 1e-6_rk, 205)
+    ! ROSS upstream tests use numpy.assert_allclose defaults (rtol=1e-7).
+    ! Their published fixture values are rounded, so match the same oracle tolerance.
+    call assert_close(kxx, 4.64168838e7_rk, 1e-7_rk, 1e-2_rk, 202)
+    call assert_close(kyy, 1.00906269e8_rk, 1e-7_rk, 1e-2_rk, 203)
+    call assert_close(cxx, 580.2110481_rk, 1e-7_rk, 1e-6_rk, 204)
+    call assert_close(cyy, 1261.32836543_rk, 1e-7_rk, 1e-6_rk, 205)
 
     call rb_roller_coefficients(8._rk, 0.03_rk, 500._rk, pi_/6._rk, &
                                 .false., 0._rk, .false., 0._rk, kxx, kyy, cxx, cyy, st)
     if (st /= RB_OK) error stop 206
-    call assert_close(kxx, 2.72821927e8_rk, 2e-9_rk, 1e-1_rk, 207)
-    call assert_close(kyy, 5.56779444e8_rk, 2e-9_rk, 1e-1_rk, 208)
-    call assert_close(cxx, 3410.27409251_rk, 2e-9_rk, 1e-5_rk, 209)
-    call assert_close(cyy, 6959.74304593_rk, 2e-9_rk, 1e-5_rk, 210)
+    call assert_close(kxx, 2.72821927e8_rk, 1e-7_rk, 1e-1_rk, 207)
+    call assert_close(kyy, 5.56779444e8_rk, 1e-7_rk, 1e-1_rk, 208)
+    call assert_close(cxx, 3410.27409251_rk, 1e-7_rk, 1e-5_rk, 209)
+    call assert_close(cyy, 6959.74304593_rk, 1e-7_rk, 1e-5_rk, 210)
   end subroutine test_rolling
 
   subroutine test_cylindrical()
