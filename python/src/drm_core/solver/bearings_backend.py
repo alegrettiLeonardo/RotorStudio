@@ -417,6 +417,45 @@ class AdvancedBearingBackend:
         matrix = np.asarray(matrix_flat).reshape((4, 4), order="F")
         return matrix, column.copy()
 
+
+    def pressure_smooth_isoviscous(
+        self,
+        *,
+        total_e_x: int,
+        total_e_z: int,
+        arc_length_rad: float,
+        pad_length_m: float,
+        axial_length_m: float,
+        film_thickness_m,
+        viscosity_pa_s: float,
+        speed_surface_m_s: float,
+        cavitation_pressure_pa: float = 0.0,
+    ) -> np.ndarray:
+        nx = int(total_e_x)
+        nz = int(total_e_z)
+        h = np.ascontiguousarray(film_thickness_m, dtype=np.float64)
+        expected = (nx + 1) * (nz + 1)
+        if h.size != expected:
+            raise ValueError(
+                f"film_thickness_m has {h.size} values; expected {expected} for "
+                f"{nx}x{nz} Reynolds elements"
+            )
+        pressure = np.empty(expected, dtype=np.float64)
+        status = self.lib.rb_pressure_smooth_isoviscous_c(
+            nx,
+            nz,
+            float(arc_length_rad),
+            float(pad_length_m),
+            float(axial_length_m),
+            self._ptr(h),
+            float(viscosity_pa_s),
+            float(speed_surface_m_s),
+            float(cavitation_pressure_pa),
+            self._ptr(pressure),
+        )
+        self._status(status, "smooth-pad isoviscous Reynolds pressure")
+        return pressure
+
     def evaluate(
         self,
         bearing: AdvancedBearing,
