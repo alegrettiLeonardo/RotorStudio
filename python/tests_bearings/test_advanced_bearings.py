@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 
 from drm_core import (
