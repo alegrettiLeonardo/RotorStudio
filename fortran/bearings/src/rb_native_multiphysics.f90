@@ -109,7 +109,7 @@ contains
           call rb_thermal_adiabatic_pad(nx,nz,0.5_rk*d*arc(p),alen(p),speed*0.5_rk*d,h(:,p),press(:,p),mu(:,p), &
                rho,cp,klube,temp_inlet_pad(p),relax_t,tad(:,p),mu1,mu2,t1,t2,tad_new,muc,tmi,touti,rms,st)
           if(st/=RB_OK)then;status=st;return;end if
-          temp_delta=max(temp_delta,rms)
+          temp_delta=temp_delta+rms*rms
           tad(:,p)=tad_new;mu_new(:,p)=muc
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),pad_thickness,speed*0.5_rk*d, &
@@ -117,7 +117,7 @@ contains
                convec_back,relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st)
           q_in_arr(p)=q_in_pad;q_out_arr(p)=q_out_pad;temp_outlet_pad(p)=touti
           if(st/=RB_OK)then;status=st;return;end if
-          temp_delta=max(temp_delta,rms)
+          temp_delta=temp_delta+rms*rms
           tfull(:,p)=tfull_new;mu_new(:,p)=muc
         end select
         tmax=max(tmax,tmi);tout=tout+touti
@@ -152,6 +152,10 @@ contains
           def_delta=max(def_delta,sqrt(sum((dh_new(:,p)-dh(:,p))**2)/real(int(nx)+1,rk)))
         end if
       end do
+
+      if(thermal_type/=RB_THERMAL_ISOVISCOUS)then
+        temp_delta=sqrt(temp_delta/real(np,rk))
+      end if
 
       ! Match the pinned ROSS three-level THD convergence ordering with a
       ! bounded state machine: thermal/viscosity -> journal temperature ->
@@ -376,14 +380,14 @@ contains
           call rb_thermal_adiabatic_pad(nx,nz,0.5_rk*d*arc(p),alen(p),speed*0.5_rk*d,h(:,p),press(:,p),mu(:,p), &
                rho,cp,klube,temp_inlet_pad(p),relax_t,tad(:,p),mu1,mu2,t1,t2,tad_new,muc,tmi,touti,rms,st)
           if(st/=RB_OK)then;status=st;return;end if
-          temp_delta=max(temp_delta,rms);tad(:,p)=tad_new;mu_new(:,p)=muc
+          temp_delta=temp_delta+rms*rms;tad(:,p)=tad_new;mu_new(:,p)=muc
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),tp,speed*0.5_rk*d,h(:,p), &
                press(:,p),mu(:,p),rho,cp,klube,kpad,temp_inlet_pad(p),temp_j_work,temp_ambient,convec_edges,convec_back, &
                relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st)
           q_in_arr(p)=q_in_pad;q_out_arr(p)=q_out_pad;temp_outlet_pad(p)=touti
           if(st/=RB_OK)then;status=st;return;end if
-          temp_delta=max(temp_delta,rms);tfull(:,p)=tfull_new;mu_new(:,p)=muc
+          temp_delta=temp_delta+rms*rms;tfull(:,p)=tfull_new;mu_new(:,p)=muc
         end select
         tmax=max(tmax,tmi);tout=tout+touti
 
@@ -425,6 +429,10 @@ contains
           dh_new(:,p)=-def;def_delta=max(def_delta,sqrt(sum((dh_new(:,p)-dh(:,p))**2)/real(int(nx)+1,rk)))
         end if
       end do
+
+      if(thermal_type/=RB_THERMAL_ISOVISCOUS)then
+        temp_delta=sqrt(temp_delta/real(np,rk))
+      end if
 
       ! Match the pinned ROSS three-level THD convergence ordering with a
       ! bounded state machine: thermal/viscosity -> journal temperature ->
