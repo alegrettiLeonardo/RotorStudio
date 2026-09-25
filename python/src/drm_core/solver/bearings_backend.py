@@ -398,6 +398,25 @@ class AdvancedBearingBackend:
             "native_stage": "geometry_config_only",
         }
 
+
+    def reynolds_q4_element(
+        self, k_x: float, k_z: float, q: float, l_e: float, w_e: float
+    ) -> tuple[np.ndarray, np.ndarray]:
+        matrix_flat = np.empty(16, dtype=np.float64)
+        column = np.empty(4, dtype=np.float64)
+        status = self.lib.rb_reynolds_q4_element_c(
+            float(k_x),
+            float(k_z),
+            float(q),
+            float(l_e),
+            float(w_e),
+            self._ptr(matrix_flat),
+            self._ptr(column),
+        )
+        self._status(status, "Reynolds Q4 element")
+        matrix = np.asarray(matrix_flat).reshape((4, 4), order="F")
+        return matrix, column.copy()
+
     def evaluate(
         self,
         bearing: AdvancedBearing,
