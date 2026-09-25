@@ -12,6 +12,7 @@ program test_ross_bearings_native
   use rb_reynolds_banded, only: rb_lu_factor_band, rb_lu_solve_band_cavitating
   use rb_reynolds_mesh, only: rb_reynolds_mesh_smooth
   use rb_film_thickness, only: rb_film_thickness_baseline
+  use rb_dynamic_reduction, only: rb_dynamic_reduce_tilts
   use rb_pressure_isoviscous, only: rb_pressure_smooth_isoviscous
   implicit none(type, external)
 
@@ -317,6 +318,47 @@ contains
     call assert_close(p(9),0._rk,1e-14_rk,1e-14_rk,419)
     if (minval(p) < -1e-14_rk) error stop 420
   end subroutine test_pressure_isoviscous
+
+  subroutine test_dynamic_reduction()
+    integer(ik), parameter :: n=1_ik
+    real(rk) :: kj(2,2), cj(2,2), kr(2,2), cr(2,2), ip1(1)
+    real(rk) :: z(1), plen(1), alen(1), krot(1)
+    real(rk) :: kdx(1), kdy(1), kxd(1), kyd(1), kdd(1)
+    real(rk) :: cdx(1), cdy(1), cxd(1), cyd(1), cdd(1)
+    complex(rk) :: d00, den, a10, a40
+    real(rk) :: omega, expected_k, expected_c
+
+    kj = reshape([10._rk,1._rk,2._rk,20._rk],[2,2])
+    cj = reshape([3._rk,0.5_rk,0.5_rk,6._rk],[2,2])
+    z = 0._rk
+    plen = 1._rk; alen = 1._rk; krot = 0._rk
+    omega = 377._rk
+
+    call rb_dynamic_reduce_tilts(n,kj,cj,z,z,z,z,z,z,z,z,z,z,plen,0.1_rk,alen,0.3_rk, &
+                                 omega,krot,kr,cr,ip1,st)
+    if (st /= RB_OK) error stop 408
+    call assert_close(kr(1,1),10._rk,1e-14_rk,1e-14_rk,409)
+    call assert_close(kr(2,2),20._rk,1e-14_rk,1e-14_rk,410)
+    call assert_close(cr(1,1),3._rk,1e-14_rk,1e-14_rk,411)
+    call assert_close(cr(2,2),6._rk,1e-14_rk,1e-14_rk,412)
+
+    ! Non-zero single-pad coupling: compare to the literal complex
+    ! Schur-complement expression used by current ROSS.
+    kdx=[4._rk]; kdy=[5._rk]; kxd=[6._rk]; kyd=[7._rk]; kdd=[1000._rk]
+    cdx=[0.4_rk]; cdy=[0.5_rk]; cxd=[0.6_rk]; cyd=[0.7_rk]; cdd=[2._rk]
+    krot=[50._rk]
+    call rb_dynamic_reduce_tilts(n,kj,cj,kdx,kdy,kxd,kyd,kdd,cdx,cdy,cxd,cyd,cdd, &
+                                 plen,0.1_rk,alen,0.3_rk,omega,krot,kr,cr,ip1,st)
+    if (st /= RB_OK) error stop 413
+    den = cmplx(1000._rk+50._rk-omega**2*ip1(1),omega*2._rk,kind=rk)
+    a10 = cmplx(6._rk,omega*0.6_rk,kind=rk)
+    a40 = cmplx(4._rk,omega*0.4_rk,kind=rk)
+    d00 = cmplx(10._rk,omega*3._rk,kind=rk) - a10*a40/den
+    expected_k = real(d00,kind=rk)
+    expected_c = aimag(d00)/omega
+    call assert_close(kr(1,1),expected_k,1e-13_rk,1e-13_rk,414)
+    call assert_close(cr(1,1),expected_c,1e-13_rk,1e-13_rk,415)
+  end subroutine test_dynamic_reduction
 
   subroutine test_sfd()
     real(rk), parameter :: reyn_to_pas = 6894.757293168_rk
