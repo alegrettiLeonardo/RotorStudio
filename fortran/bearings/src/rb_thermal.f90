@@ -237,7 +237,7 @@ contains
       ! the next energy iterate.
       do jf=0,int(ny_film)
         mur(jf+1)=max(rb_mu_of_t(mu1,mu2,t1,t2, &
-             temp_old(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
+             temp_new(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
         invr(jf+1)=1._rk/mur(jf+1)
       end do
       cum1=0._rk;cum2=0._rk
@@ -337,7 +337,14 @@ contains
     raw=rhs;avg_old=sum(temp_old(1:nne))/real(nne,rk);avg_raw=sum(raw)/real(nne,rk)
     if(abs(avg_raw-avg_old)>10._rk)then;rt=min(relax_t,10._rk/abs(avg_raw-avg_old));else;rt=relax_t;end if
     temp_new(1:nne)=rt*raw+(1._rk-rt)*temp_old(1:nne)
-    rms_temp=sqrt(sum((temp_new(1:nne)-temp_old(1:nne))**2)/real(nne,rk));temp_max=maxval(temp_new(1:nne))
+    rms_temp=sqrt(sum((temp_new(1:nne)-temp_old(1:nne))**2)/real(nne,rk))
+    ! ROSS tpad_max is the maximum temperature at the pad/film interface,
+    ! not the global maximum over the combined pad+film energy mesh.
+    temp_max=temp_inlet
+    do ix=0,int(nx)
+      n=ix*ny+int(ny_pad)+1
+      temp_max=max(temp_max,temp_new(n))
+    end do
     ! Collapse the relaxed radial viscosity profile to the exact discrete
     ! generalized-Reynolds Gamma used by ROSS.  pad_static/pad_*_pert consume
     ! mu_center through -1/(12*mu_center), so this preserves the full radial
@@ -391,7 +398,7 @@ contains
       nr=ix*(int(nz)+1)+center+1;hx=h(nr)
       do jf=0,int(ny_film)
         mur(jf+1)=max(rb_mu_of_t(mu1,mu2,t1,t2, &
-             temp_old(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
+             temp_new(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
         invr(jf+1)=1._rk/mur(jf+1)
       end do
       cum1=0._rk;cum2=0._rk
