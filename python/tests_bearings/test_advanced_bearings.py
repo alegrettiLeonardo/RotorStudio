@@ -203,6 +203,49 @@ def test_native_isoviscous_pressure_solver():
     assert np.all(pressure >= -1e-14)
 
 
+def test_native_tilting_pad_dynamic_condensation_depends_on_whirl():
+    backend = AdvancedBearingBackend()
+    kwargs = dict(
+        K_journal=[[10.0, 2.0], [1.0, 20.0]],
+        C_journal=[[3.0, 0.5], [0.5, 6.0]],
+        k_deltax=[4.0],
+        k_deltay=[5.0],
+        k_xdelta=[6.0],
+        k_ydelta=[7.0],
+        k_deltadelta=[1000.0],
+        c_deltax=[0.4],
+        c_deltay=[0.5],
+        c_xdelta=[0.6],
+        c_ydelta=[0.7],
+        c_deltadelta=[2.0],
+        pad_length_m=[1.0],
+        pad_thickness_m=0.1,
+        axial_length_m=[1.0],
+        pad_density_kg_m3=0.3,
+        k_rotate=[50.0],
+    )
+    k1, c1, ip1 = backend.reduce_tilting_pad_dynamics(
+        excitation_frequency_rad_s=100.0, **kwargs
+    )
+    k2, c2, ip2 = backend.reduce_tilting_pad_dynamics(
+        excitation_frequency_rad_s=377.0, **kwargs
+    )
+
+    expected_ip = 0.3 * 1.0 * 0.1 * (0.1**2 + 1.0**2) / 12.0
+    np.testing.assert_allclose(ip1, [expected_ip], rtol=0, atol=1e-15)
+    np.testing.assert_allclose(ip2, ip1, rtol=0, atol=1e-15)
+
+    omega = 377.0
+    denom = (1000.0 + 50.0 - omega**2 * expected_ip) + 1j * omega * 2.0
+    expected = (10.0 + 1j * omega * 3.0) - (
+        (6.0 + 1j * omega * 0.6) * (4.0 + 1j * omega * 0.4) / denom
+    )
+    np.testing.assert_allclose(k2[0, 0], expected.real, rtol=1e-13, atol=1e-13)
+    np.testing.assert_allclose(c2[0, 0], expected.imag / omega, rtol=1e-13, atol=1e-13)
+    assert not np.allclose(k1, k2)
+    assert not np.allclose(c1, c2)
+
+
 def test_tilting_pad_table_preserves_spin_and_whirl_axes():
     # Linear surface kxx = 10*Omega + omega.  A synchronous-only
     # implementation would return 1650 at (Omega,omega)=(150,20), so this
