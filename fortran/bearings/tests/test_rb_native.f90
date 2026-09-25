@@ -14,6 +14,7 @@ program test_ross_bearings_native
   use rb_film_thickness, only: rb_film_thickness_baseline
   use rb_dynamic_reduction, only: rb_dynamic_reduce_tilts
   use rb_pressure_isoviscous, only: rb_pressure_smooth_isoviscous
+  use rb_plain_journal_physics, only: rb_plain_journal_isoviscous
   implicit none(type, external)
 
   integer(ik) :: st
@@ -33,9 +34,10 @@ program test_ross_bearings_native
   call test_film_thickness()
   call test_pressure_isoviscous()
   call test_dynamic_reduction()
+  call test_plain_journal_physics()
   call test_sfd()
 
-  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5mesh/BF5film/BF5press/BF5cond/BF5cfg/BF7'
+  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5mesh/BF5film/BF5press/BF5cond/BF5cfg/BF5plain/BF7'
 
 contains
 
@@ -360,6 +362,43 @@ contains
     call assert_close(kr(1,1),expected_k,1e-13_rk,1e-13_rk,414)
     call assert_close(cr(1,1),expected_c,1e-13_rk,1e-13_rk,415)
   end subroutine test_dynamic_reduction
+
+  subroutine test_plain_journal_physics()
+    real(rk) :: piv(2), arcs(2), lens(2), pre(2), off(2)
+    real(rk) :: xr, yr, kp(2,2), cp(2,2), fx, fy, pm
+    integer(ik) :: nit
+
+    ! Current ROSS fixed_isoviscous reference case (900 rpm, two 176-deg
+    ! fixed pads).  This exercises native Reynolds + cavitation + load
+    ! equilibrium + static tangent + damping perturbation end-to-end.
+    piv = [pi_/2._rk, 3._rk*pi_/2._rk]
+    arcs = 3.07177948351002_rk
+    lens = 0.263144_rk
+    pre = 0._rk
+    off = 0.5_rk
+
+    call rb_plain_journal_isoviscous(94.24777960769379_rk,112814.90696191376_rk,0._rk,0._rk, &
+                                     0.3999992_rk,0.000194564_rk,0.01901574061455835_rk,2_ik, &
+                                     piv,arcs,lens,pre,off,20_ik,10_ik,0.15_rk,-0.2_rk,0.5_rk, &
+                                     80_ik,5e-3_rk,xr,yr,kp,cp,fx,fy,pm,nit,st)
+    if (st /= RB_OK) then
+      print *, 'PlainJournal status/iterations', st, nit
+      error stop 421
+    end if
+
+    print *, 'PlainJournal oracle diagnostic xj,yj=',xr,yr
+    print *, 'PlainJournal K=',kp
+    print *, 'PlainJournal C=',cp
+    print *, 'PlainJournal F/Pmax=',fx,fy,pm
+
+    ! Equilibrium must be close to the pinned ROSS case before tighter
+    ! coefficient parity is admitted as a gate.
+    call assert_close(xr,0.40412769773157853_rk,8e-2_rk,2e-2_rk,422)
+    call assert_close(yr,-0.35964988360804134_rk,8e-2_rk,2e-2_rk,423)
+    if (kp(1,1) <= 0._rk .or. kp(2,2) <= 0._rk) error stop 424
+    if (cp(1,1) <= 0._rk .or. cp(2,2) <= 0._rk) error stop 425
+    if (pm <= 0._rk) error stop 426
+  end subroutine test_plain_journal_physics
 
   subroutine test_sfd()
     real(rk), parameter :: reyn_to_pas = 6894.757293168_rk
