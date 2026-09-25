@@ -52,6 +52,16 @@ jobs:
           cmake --build build-bearings-debug -j2
           ctest --test-dir build-bearings-debug -R ross_bearings_native_bf1_bf2_bf3_bf4_bf5a_bf5band_bf5mesh_bf5film_bf5press_bf5cond_bf5cfg_bf5plain_bf7 --output-on-failure
 
+      - name: B10/B11 Debug-FPE packed ABI Python smoke
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-bearings-debug/libdrmrotor.so
+          DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-debug/libdrmbearings.so
+        run: |
+          set -o pipefail
+          python -m pytest python/tests_bearings/test_advanced_bearings.py -q \
+            | tee validation/reports/ross_bearings_native/linux/packed_abi_debug_pytest.txt
+
       - name: Frozen Stage 1 regression remains exactly 57
         env:
           PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
@@ -63,14 +73,25 @@ jobs:
           grep -Eq '57 tests collected|57 collected' validation/reports/ross_bearings_native/linux/stage1_collection.txt
           python -m pytest python/tests -q | tee validation/reports/ross_bearings_native/linux/stage1_pytest.txt
 
-      - name: Qualify RotorStudio advanced-bearing integration
+      - name: B10/B11 qualify packed ABI and advanced-bearing integration
         env:
           PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
           DRMROTOR_LIB: ${{ github.workspace }}/build-bearings-release/libdrmrotor.so
           DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-release/libdrmbearings.so
         run: |
           set -o pipefail
-          python -m pytest python/tests_bearings -q | tee validation/reports/ross_bearings_native/linux/advanced_bearings_pytest.txt
+          python -m pytest python/tests_bearings/test_advanced_bearings.py -q \
+            | tee validation/reports/ross_bearings_native/linux/advanced_bearings_pytest.txt
+
+      - name: B12 frozen ROSS numerical parity
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-bearings-release/libdrmrotor.so
+          DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-release/libdrmbearings.so
+        run: |
+          set -o pipefail
+          python -m pytest python/tests_bearings/test_advanced_bearings_parity.py -q \
+            | tee validation/reports/ross_bearings_native/linux/b12_parity_pytest.txt
 
       - name: Record Linux evidence
         run: |
@@ -147,7 +168,7 @@ jobs:
           $repoRoot = (Get-Location).Path
           "PYTHONPATH=$repoRoot\python\src;$repoRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Frozen Stage 1 and advanced-bearing Python qualification
+      - name: Frozen Stage 1 regression remains exactly 57
         shell: pwsh
         run: |
           python -m pytest python/tests --collect-only -q | Tee-Object -FilePath stage1_collection_windows.txt
@@ -155,7 +176,17 @@ jobs:
           if (-not (Select-String -Path stage1_collection_windows.txt -Pattern "57 tests collected|57 collected")) { throw "Frozen Stage 1 collection is not 57" }
           python -m pytest python/tests -q
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python -m pytest python/tests_bearings -q
+
+      - name: B10/B11 qualify packed ABI and advanced-bearing integration
+        shell: pwsh
+        run: |
+          python -m pytest python/tests_bearings/test_advanced_bearings.py -q | Tee-Object -FilePath advanced_bearings_windows.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: B12 frozen ROSS numerical parity
+        shell: pwsh
+        run: |
+          python -m pytest python/tests_bearings/test_advanced_bearings_parity.py -q | Tee-Object -FilePath b12_parity_windows.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Build Debug/FPE and run standalone bearing gate
@@ -164,6 +195,17 @@ jobs:
           cmake -S fortran -B build-bearings-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
           cmake --build build-bearings-debug --parallel
           ctest --test-dir build-bearings-debug -R ross_bearings_native_bf1_bf2_bf3_bf4_bf5a_bf5band_bf5mesh_bf5film_bf5press_bf5cond_bf5cfg_bf5plain_bf7 --output-on-failure
+
+      - name: B10/B11 Debug-FPE packed ABI Python smoke
+        shell: pwsh
+        run: |
+          $rotor = Get-ChildItem .\build-bearings-debug -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear = Get-ChildItem .\build-bearings-debug -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          if (-not $rotor -or -not $bear) { throw "Debug bearing/rotor DLL not found" }
+          $env:DRMROTOR_LIB = $rotor.FullName
+          $env:DRMBEARINGS_LIB = $bear.FullName
+          python -m pytest python/tests_bearings/test_advanced_bearings.py -q | Tee-Object -FilePath packed_abi_debug_windows.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Record Windows evidence
         shell: pwsh
