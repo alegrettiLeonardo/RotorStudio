@@ -37,7 +37,7 @@ contains
     integer(ik)::st
     real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,k_last(2,2),q_in_pad,q_out_pad
     real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx,hotoil_lamda,inlet_delta,qcarry
-    real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
+    real(rk),allocatable::mu(:,:),mu_new(:,:),gfun(:,:),gfun_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:)
     real(rk),allocatable::px(:),tpad(:),def(:),temp_inlet_pad(:),temp_outlet_pad(:),q_in_arr(:),q_out_arr(:),temp_inlet_new(:)
     real(rk)::fxext,fyext,fx_groove,fy_groove,ambient_press1,ambient_press2
@@ -69,7 +69,7 @@ contains
 
     nn=(int(nx)+1)*(int(nz)+1);nfull=(int(nx)+1)*(int(ny_pad)+int(ny_film)+1)
     npp=(int(nx)+1)*(int(ny_pad)+1)
-    allocate(mu(nn,np),mu_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np))
+    allocate(mu(nn,np),mu_new(nn,np),gfun(nn,np),gfun_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np))
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1),temp_inlet_pad(np),temp_outlet_pad(np),q_in_arr(np),q_out_arr(np),temp_inlet_new(np))
     ! ROSS initializes the film with lubricant viscosity evaluated at the
@@ -89,7 +89,7 @@ contains
     if(ny_film>1)then
       delta=delta/(1._rk-1._rk/real(ny_film*ny_film,rk))
     end if
-    mu=delta;mu_new=delta;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
+    mu=delta;mu_new=delta;gfun=.5_rk;gfun_new=.5_rk;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     temp_inlet_pad=temp_supply;temp_outlet_pad=temp_supply;q_in_arr=0._rk;q_out_arr=0._rk;temp_inlet_new=temp_supply
     xj=xj0*cb;yj=yj0*cb;k_last=0._rk
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
@@ -100,7 +100,7 @@ contains
                              max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st,k_last)
       if(st/=RB_OK)then;status=st;return;end if
 
-      mu_new=mu;dh_new=dh;temp_delta=0._rk;def_delta=0._rk;tmax=temp_supply;tout=0._rk
+      mu_new=mu;gfun_new=gfun;dh_new=dh;temp_delta=0._rk;def_delta=0._rk;tmax=temp_supply;tout=0._rk
       do p=1,int(np)
         select case(thermal_type)
         case(RB_THERMAL_ISOVISCOUS)
@@ -163,6 +163,7 @@ contains
       ! while an upstream fixed point remains unconverged.
       tout=tout/real(np,rk)
       mu=(1._rk-relax_t)*mu+relax_t*mu_new
+      gfun=(1._rk-relax_t)*gfun+relax_t*gfun_new
 
       if(thermal_type/=RB_THERMAL_ISOVISCOUS)then
         ! TEMP_ERROR = 0.01 degF in ROSS.
@@ -310,7 +311,7 @@ contains
     integer(ik)::st
     real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,q_in_pad,q_out_pad
     real(rk)::temp_j_work,temp_j_target,temp_j_delta,tj_relax,temp_area,temp_sum,wx,hotoil_lamda,inlet_delta,qcarry
-    real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
+    real(rk),allocatable::mu(:,:),mu_new(:,:),gfun(:,:),gfun_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:),mom(:)
     real(rk),allocatable::px(:),tpad(:),def(:),temp_inlet_pad(:),temp_outlet_pad(:),q_in_arr(:),q_out_arr(:),temp_inlet_new(:)
     real(rk),allocatable::kdx_last(:),kdy_last(:),kxd_last(:),kyd_last(:),kdd_last(:)
@@ -340,7 +341,7 @@ contains
     end if
 
     nn=(int(nx)+1)*(int(nz)+1);nfull=(int(nx)+1)*(int(ny_pad)+int(ny_film)+1);npp=(int(nx)+1)*(int(ny_pad)+1)
-    allocate(mu(nn,np),mu_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np),mom(np))
+    allocate(mu(nn,np),mu_new(nn,np),gfun(nn,np),gfun_new(nn,np),dh(int(nx)+1,np),dh_new(int(nx)+1,np),press(nn,np),h(nn,np),mom(np))
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1),temp_inlet_pad(np),temp_outlet_pad(np),q_in_arr(np),q_out_arr(np),temp_inlet_new(np))
     allocate(kdx_last(np),kdy_last(np),kxd_last(np),kyd_last(np),kdd_last(np))
@@ -362,18 +363,18 @@ contains
     if(ny_film>1)then
       delta=delta/(1._rk-1._rk/real(ny_film*ny_film,rk))
     end if
-    mu=delta;mu_new=delta;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
+    mu=delta;mu_new=delta;gfun=.5_rk;gfun_new=.5_rk;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
     temp_inlet_pad=temp_supply;temp_outlet_pad=temp_supply;q_in_arr=0._rk;q_out_arr=0._rk;temp_inlet_new=temp_supply
     xj=xj0*cb;yj=yj0*cb
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
 
     do it=1,int(outer_iterations)
-      call tp_journal_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
+      call tp_journal_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj, &
                                   relax_p,max_iterations,force_tol,tilt,press,h,mom,fx,fy,pmax,iterations,st, &
                                   kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
       if(st/=RB_OK)then;status=st;return;end if
-      mu_new=mu;dh_new=dh;temp_delta=0._rk;def_delta=0._rk;tmax=temp_supply;tout=0._rk
+      mu_new=mu;gfun_new=gfun;dh_new=dh;temp_delta=0._rk;def_delta=0._rk;tmax=temp_supply;tout=0._rk
       do p=1,int(np)
         select case(thermal_type)
         case(RB_THERMAL_ISOVISCOUS)
@@ -386,7 +387,7 @@ contains
         case(RB_THERMAL_FULL)
           call rb_thermal_full_pad(nx,nz,ny_pad,ny_film,0.5_rk*d*arc(p),alen(p),tp,speed*0.5_rk*d,h(:,p), &
                press(:,p),mu(:,p),rho,cp,klube,kpad,temp_inlet_pad(p),temp_j_work,temp_ambient,convec_edges,convec_back, &
-               relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st)
+               relax_t,tfull(:,p),mu1,mu2,t1,t2,tfull_new,muc,tmi,touti,q_in_pad,q_out_pad,rms,st,gfun_new(:,p))
           q_in_arr(p)=q_in_pad;q_out_arr(p)=q_out_pad;temp_outlet_pad(p)=touti
           if(st/=RB_OK)then;status=st;return;end if
           temp_delta=temp_delta+rms*rms;tfull(:,p)=tfull_new;mu_new(:,p)=muc
@@ -442,6 +443,7 @@ contains
       ! while an upstream fixed point remains unconverged.
       tout=tout/real(np,rk)
       mu=(1._rk-relax_t)*mu+relax_t*mu_new
+      gfun=(1._rk-relax_t)*gfun+relax_t*gfun_new
 
       if(thermal_type/=RB_THERMAL_ISOVISCOUS)then
         ! TEMP_ERROR = 0.01 degF in ROSS.
@@ -670,13 +672,14 @@ contains
   end function rb_check_common
 
 
-  subroutine pad_static(speed,d,cb,tp,piv,arc,alen,pre,off,krot,nx,nz,xj,yj,tilt,mu,dh,pressure,h,fx,fy,moment,pmax,status)
+  subroutine pad_static(speed,d,cb,tp,piv,arc,alen,pre,off,krot,nx,nz,xj,yj,tilt,mu,dh,pressure,h,fx,fy,moment,pmax,status,gfun)
     real(rk),intent(in)::speed,d,cb,tp,piv,arc,alen,pre,off,krot,xj,yj,tilt,mu(:),dh(:)
     integer(ik),intent(in)::nx,nz
     real(rk),intent(out)::pressure(:),h(:),fx,fy,moment,pmax
     integer(ik),intent(out)::status
+    real(rk),intent(in),optional::gfun(:)
     integer::nn,ix,iz,node,n1,n2,n3,n4,bw,ncol,nbc,ix_min,step
-    real(rk)::r,cpv,lead,xp,dx,dz,theta,theta2,hv,he,gamma,kcoef,q,u,area,ang,pavg,dhdx,hmin_local,xhmin_local
+    real(rk)::r,cpv,lead,xp,dx,dz,theta,theta2,hv,he,gamma,kcoef,q,u,area,ang,pavg,dhdx,hmin_local,xhmin_local,ge
     real(rk),allocatable::a(:,:),rhs(:),alow(:,:),pres(:)
     integer(ik),allocatable::ipiv(:),bcidx(:),nodes0(:)
     real(rk)::em(4,4),ec(4)
@@ -706,7 +709,10 @@ contains
         n1=ix*(int(nz)+1)+iz+1;n2=(ix+1)*(int(nz)+1)+iz+1;n3=n2+1;n4=n1+1
         he=.25_rk*(h(n1)+h(n2)+h(n3)+h(n4))
         gamma=-(1._rk/mu(n1)+1._rk/mu(n2)+1._rk/mu(n3)+1._rk/mu(n4))/48._rk
-        kcoef=he**3*gamma;dhdx=(-h(n1)+h(n2)+h(n3)-h(n4))/(2._rk*dx);q=.5_rk*u*dhdx
+        kcoef=he**3*gamma;dhdx=(-h(n1)+h(n2)+h(n3)-h(n4))/(2._rk*dx)
+        ge=.5_rk
+        if(present(gfun))ge=.25_rk*(gfun(n1)+gfun(n2)+gfun(n3)+gfun(n4))
+        q=ge*u*dhdx
         call rb_reynolds_q4_element(kcoef,kcoef,q,dx,dz,em,ec,st)
         if(st/=RB_OK)then;status=st;return;end if
         nodes0=[int(n1-1,ik),int(n2-1,ik),int(n3-1,ik),int(n4-1,ik)]
@@ -954,8 +960,8 @@ contains
   end subroutine pad_stiff_pert
 
 
-  subroutine plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,h,fx,fy,pmax,status)
-    real(rk),intent(in)::speed,d,cb,piv(np),arc(np),alen(np),pre(np),off(np),mu(:,:),dh(:,:),xj,yj
+  subroutine plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,press,h,fx,fy,pmax,status)
+    real(rk),intent(in)::speed,d,cb,piv(np),arc(np),alen(np),pre(np),off(np),mu(:,:),gfun(:,:),dh(:,:),xj,yj
     integer(ik),intent(in)::np,nx,nz
     real(rk),intent(out)::press(:,:),h(:,:),fx,fy,pmax
     integer(ik),intent(out)::status
@@ -972,9 +978,9 @@ contains
   end subroutine plain_force
 
 
-  subroutine plain_equilibrium(speed,fxext,fyext,fxgroove,fygroove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax,maxit,tol, &
+  subroutine plain_equilibrium(speed,fxext,fyext,fxgroove,fygroove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,relax,maxit,tol, &
                                press,h,fx,fy,pmax,iterations,status,k_last)
-    real(rk),intent(in)::speed,fxext,fyext,fxgroove,fygroove,d,cb,piv(np),arc(np),alen(np),pre(np),off(np),mu(:,:),dh(:,:),relax,tol
+    real(rk),intent(in)::speed,fxext,fyext,fxgroove,fygroove,d,cb,piv(np),arc(np),alen(np),pre(np),off(np),mu(:,:),gfun(:,:),dh(:,:),relax,tol
     integer(ik),intent(in)::np,nx,nz,maxit
     real(rk),intent(inout)::xj,yj
     real(rk),intent(out)::press(:,:),h(:,:),fx,fy,pmax
@@ -986,7 +992,7 @@ contains
     scale=sqrt(fxext*fxext+fyext*fyext);status=RB_OK;iterations=0_ik
     fobj=0._rk;f_old=0._rk;xj_old=xj;yj_old=yj;unconverge_number=0
     do it=1,int(maxit)
-      call plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,h,fx,fy,pmax,st)
+      call plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,press,h,fx,fy,pmax,st)
       if(st/=RB_OK)then;status=st;return;end if
       fxn=fx+fxgroove+fxext;fyn=fy+fygroove+fyext;iterations=int(it,ik)
       f_old=fobj;fobj=.5_rk*(fxn*fxn+fyn*fyn)
@@ -1046,8 +1052,8 @@ contains
   end subroutine plain_coefficients
 
 
-  subroutine tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt,press,h,mom,fx,fy,pmax,status)
-    real(rk),intent(in)::speed,d,cb,tp,piv(np),arc(np),alen(np),pre(np),off(np),krot(np),mu(:,:),dh(:,:),xj,yj
+  subroutine tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj,tilt,press,h,mom,fx,fy,pmax,status)
+    real(rk),intent(in)::speed,d,cb,tp,piv(np),arc(np),alen(np),pre(np),off(np),krot(np),mu(:,:),gfun(:,:),dh(:,:),xj,yj
     integer(ik),intent(in)::np,nx,nz
     real(rk),intent(out)::tilt(np),press(:,:),h(:,:),mom(np),fx,fy,pmax
     integer(ik),intent(out)::status
@@ -1076,7 +1082,7 @@ contains
         end if
 
         call pad_static(speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),krot(p),nx,nz,xj,yj,t,mu(:,p),dh(:,p), &
-                        press(1:nn,p),h(1:nn,p),fi,gi,mi,pm,st)
+                        press(1:nn,p),h(1:nn,p),fi,gi,mi,pm,st,gfun(:,p))
         if(st/=RB_OK)then
           if(t>0._rk)then;hi=t;else;lo=t;end if
           cycle
@@ -1103,14 +1109,14 @@ contains
     integer::nn
     real(rk),allocatable::p(:,:),h(:,:),m(:)
     nn=(int(nx)+1)*(int(nz)+1);allocate(p(nn,np),h(nn,np),m(np))
-    call tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt,p,h,m,fx,fy,pmax,status)
+    call tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,spread(0.5_rk,2,size(mu,2)),dh,xj,yj,tilt,p,h,m,fx,fy,pmax,status)
   end subroutine tp_force_eq
 
 
-  subroutine tp_journal_equilibrium(speed,fxext,fyext,fxgroove,fygroove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
+  subroutine tp_journal_equilibrium(speed,fxext,fyext,fxgroove,fygroove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj, &
                                     relax,maxit,tol,tilt,press,h,mom,fx,fy,pmax,iterations,status, &
                                     kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
-    real(rk),intent(in)::speed,fxext,fyext,fxgroove,fygroove,d,cb,tp,piv(np),arc(np),alen(np),pre(np),off(np),krot(np),mu(:,:),dh(:,:),relax,tol
+    real(rk),intent(in)::speed,fxext,fyext,fxgroove,fygroove,d,cb,tp,piv(np),arc(np),alen(np),pre(np),off(np),krot(np),mu(:,:),gfun(:,:),dh(:,:),relax,tol
     integer(ik),intent(in)::np,nx,nz,maxit
     real(rk),intent(inout)::xj,yj
     real(rk),intent(out)::tilt(np),press(:,:),h(:,:),mom(np),fx,fy,pmax
@@ -1123,7 +1129,7 @@ contains
     scale=sqrt(fxext**2+fyext**2);status=RB_OK
     fobj=0._rk;f_old=0._rk;xj_old=xj;yj_old=yj;unconverge_number=0
     do it=1,int(maxit)
-      call tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt,press,h,mom,fx,fy,pmax,st)
+      call tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj,tilt,press,h,mom,fx,fy,pmax,st)
       if(st/=RB_OK)then;status=st;return;end if
       fxn=fx+fxgroove+fxext;fyn=fy+fygroove+fyext;iterations=int(it,ik)
       f_old=fobj;fobj=.5_rk*(fxn*fxn+fyn*fyn)
