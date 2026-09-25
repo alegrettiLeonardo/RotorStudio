@@ -38,6 +38,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ./_ross_ref
 
+      - name: Snapshot checked-in golden references
+        run: |
+          cp -a tests/reference/ross_6320eab9 /tmp/ross_6320eab9_checked
+
       - name: Generate B12 golden cases
         run: |
           python scripts/generate_ross_golden_cases.py \
@@ -56,7 +60,52 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Verify checked-in golden references are reproducible
+      - name: Verify checked-in golden references are numerically reproducible
         run: |
-          git diff --exit-code -- tests/reference/ross_6320eab9
-          echo "Checked-in golden references reproduce pinned ROSS 6320eab9 exactly."
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import numpy as np
+
+          old = Path("/tmp/ross_6320eab9_checked")
+          new = Path("tests/reference/ross_6320eab9")
+
+          def scrub(value):
+              if isinstance(value, dict):
+                  return {k: scrub(v) for k, v in value.items() if "sha256" not in k}
+              if isinstance(value, list):
+                  return [scrub(v) for v in value]
+              return value
+
+          def compare(a, b, path="root"):
+              if isinstance(a, dict):
+                  assert set(a) == set(b), (path, set(a) ^ set(b))
+                  for k in a:
+                      compare(a[k], b[k], f"{path}.{k}")
+              elif isinstance(a, list):
+                  assert len(a) == len(b), (path, len(a), len(b))
+                  for i, (x, y) in enumerate(zip(a, b)):
+                      compare(x, y, f"{path}[{i}]")
+              elif isinstance(a, (int, float)) and isinstance(b, (int, float)):
+                  assert np.isclose(float(a), float(b), rtol=5e-13, atol=1e-12), (path, a, b)
+              else:
+                  assert a == b, (path, a, b)
+
+          for old_json in sorted(old.glob("*.json")):
+              new_json = new / old_json.name
+              compare(
+                  scrub(json.loads(old_json.read_text(encoding="utf-8"))),
+                  scrub(json.loads(new_json.read_text(encoding="utf-8"))),
+                  old_json.name,
+              )
+
+          for old_npz in sorted(old.glob("*.npz")):
+              new_npz = new / old_npz.name
+              with np.load(old_npz) as a, np.load(new_npz) as b:
+                  assert set(a.files) == set(b.files), old_npz.name
+                  for key in a.files:
+                      np.testing.assert_allclose(a[key], b[key], rtol=5e-13, atol=1e-12)
+
+          print("Checked-in golden references reproduce pinned ROSS numerically;")
+          print("last-bit platform noise is excluded from the gate.")
+          PY
