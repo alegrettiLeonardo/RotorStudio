@@ -78,6 +78,9 @@ def _plain_native(inp: dict):
             float(inp["relax_t"]),
             2.0e-3,
             1.0e-3,
+            float(inp.get("temperature_reference", supply)),
+            float(inp.get("ambient_pressure_1", 0.0)),
+            float(inp.get("ambient_pressure_2", 0.0)),
         ],
         dtype=np.float64,
     )
@@ -173,6 +176,9 @@ def _tilting_native(inp: dict, whirl_rad_s: float):
             float(inp["relax_t"]),
             2.0e-3,
             1.0e-3,
+            float(inp.get("temperature_reference", supply)),
+            float(inp.get("ambient_pressure_1", 0.0)),
+            float(inp.get("ambient_pressure_2", 0.0)),
         ],
         dtype=np.float64,
     )
