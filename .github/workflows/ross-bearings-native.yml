@@ -143,14 +143,19 @@ jobs:
           if (-not (Test-Path $ucrtBin)) { throw "MSYS2 UCRT64 runtime directory not found at $ucrtBin" }
           "DRMROTOR_DLL_DIRS=$ucrtBin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "DRMBEARINGS_DLL_DIRS=$ucrtBin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $repoRoot = (Get-Location).Path
+          "PYTHONPATH=$repoRoot\python\src;$repoRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Frozen Stage 1 and advanced-bearing Python qualification
         shell: pwsh
         run: |
           python -m pytest python/tests --collect-only -q | Tee-Object -FilePath stage1_collection_windows.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (-not (Select-String -Path stage1_collection_windows.txt -Pattern "57 tests collected|57 collected")) { throw "Frozen Stage 1 collection is not 57" }
           python -m pytest python/tests -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m pytest python/tests_bearings -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Build Debug/FPE and run standalone bearing gate
         shell: msys2 {0}
