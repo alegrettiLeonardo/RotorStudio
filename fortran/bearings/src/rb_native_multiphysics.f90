@@ -982,7 +982,7 @@ contains
     status=RB_OK;fx=0._rk;fy=0._rk;pmax=0._rk;nn=(int(nx)+1)*(int(nz)+1)
     do p=1,int(np)
       call pad_static(speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),0._rk,nx,nz,xj,yj,0._rk, &
-                      mu(1:nn,p),dh(:,p),press(1:nn,p),h(1:nn,p),fi,gi,mi,pm,st)
+                      mu(1:nn,p),dh(:,p),press(1:nn,p),h(1:nn,p),fi,gi,mi,pm,st,gfun(1:nn,p))
       if(st/=RB_OK)then;status=st;return;end if
       fx=fx+fi;fy=fy+gi;pmax=max(pmax,pm)
     end do
