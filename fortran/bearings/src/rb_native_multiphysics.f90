@@ -344,8 +344,8 @@ contains
     integer(ik),intent(in)::nx,nz
     real(rk),intent(out)::pressure(:),h(:),fx,fy,moment,pmax
     integer(ik),intent(out)::status
-    integer::nn,ix,iz,node,n1,n2,n3,n4,bw,ncol,nbc
-    real(rk)::r,cpv,lead,xp,dx,dz,theta,theta2,hv,he,gamma,kcoef,q,u,area,ang,pavg,dhdx
+    integer::nn,ix,iz,node,n1,n2,n3,n4,bw,ncol,nbc,ix_min,step
+    real(rk)::r,cpv,lead,xp,dx,dz,theta,theta2,hv,he,gamma,kcoef,q,u,area,ang,pavg,dhdx,hmin_local,xhmin_local
     real(rk),allocatable::a(:,:),rhs(:),alow(:,:),pres(:)
     integer(ik),allocatable::ipiv(:),bcidx(:),nodes0(:)
     real(rk)::em(4,4),ec(4)
@@ -398,7 +398,33 @@ contains
     if(st/=RB_OK)then;status=st;return;end if
     call rb_lu_solve_band_cavitating(a,int(nn,ik),int(bw,ik),alow,ipiv,rhs,0._rk,st)
     if(st/=RB_OK)then;status=st;return;end if
-    pressure(1:nn)=rhs(1:nn);pmax=maxval(pressure(1:nn))
+    pressure(1:nn)=rhs(1:nn)
+
+    ! ROSS regular-flooded post-solve cavitation rule.  The LU back-substitution
+    ! clamp alone is not the complete authority model: pressure nodes in the
+    ! divergent region downstream of h_min are explicitly zeroed when the local
+    ! clearance is closing toward the next circumferential station.
+    hmin_local=huge(1._rk);ix_min=0;step=int(nz)+1
+    do ix=0,int(nx)
+      node=ix*step+1
+      if(h(node)<hmin_local)then
+        hmin_local=h(node);ix_min=ix
+      end if
+    end do
+    xhmin_local=real(ix_min,rk)*dx
+    if(ix_min==0)then
+      pressure(1:nn)=0._rk
+    else
+      do ix=0,int(nx)-1
+        do iz=0,int(nz)
+          node=ix*step+iz+1
+          if(h(node)>h(node+step) .and. h(node)>hmin_local .and. real(ix,rk)*dx>xhmin_local)then
+            pressure(node)=0._rk
+          end if
+        end do
+      end do
+    end if
+    pmax=maxval(pressure(1:nn))
     do ix=0,int(nx)-1
       do iz=0,int(nz)-1
         n1=ix*(int(nz)+1)+iz+1;n2=(ix+1)*(int(nz)+1)+iz+1;n3=n2+1;n4=n1+1
