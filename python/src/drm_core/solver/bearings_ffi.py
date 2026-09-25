@@ -269,6 +269,7 @@ def configure_bearing_library(lib):
         dptr,
         dptr,
         dptr,
+        dptr,
     ]
     lib.rb_dynamic_reduce_tilts_c.restype = ct.c_int
 
