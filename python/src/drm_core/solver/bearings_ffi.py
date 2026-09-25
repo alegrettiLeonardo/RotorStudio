@@ -320,4 +320,39 @@ def configure_bearing_library(lib):
     ]
     lib.rb_tilting_pad_isoviscous_c.restype = ct.c_int
 
+
+    # Native regular-flooded PlainJournal multiphysics provider:
+    # Reynolds + equilibrium + THD + pad deformation/TEHD.
+    lib.rb_plain_journal_multiphysics_c.argtypes = (
+        [ct.c_double] * 13
+        + [ct.c_int, ct.c_int]
+        + [ct.c_double] * 10
+        + [ct.c_int]
+        + [dptr] * 5
+        + [ct.c_int] * 4
+        + [ct.c_double] * 4
+        + [ct.c_int] * 2
+        + [ct.c_double] * 2
+        + [dptr] * 10
+        + [ct.POINTER(ct.c_int)]
+    )
+    lib.rb_plain_journal_multiphysics_c.restype = ct.c_int
+
+    # Native regular-flooded TiltingPad multiphysics provider.  Rotor spin
+    # and whirl/excitation frequency remain independent arguments.
+    lib.rb_tilting_pad_multiphysics_c.argtypes = (
+        [ct.c_double] * 14
+        + [ct.c_int, ct.c_int]
+        + [ct.c_double] * 11
+        + [ct.c_int]
+        + [dptr] * 6
+        + [ct.c_int] * 4
+        + [ct.c_double] * 4
+        + [ct.c_int] * 2
+        + [ct.c_double] * 2
+        + [dptr] * 11
+        + [ct.POINTER(ct.c_int)]
+    )
+    lib.rb_tilting_pad_multiphysics_c.restype = ct.c_int
+
     return lib

@@ -23,6 +23,10 @@ from .ffi import SolverLibraryError
 
 _INTERP = {"pchip": 1, "linear": 2}
 _SFD_GEOMETRY = {"groove": 1, "end_seals": 2, "groove-end_seals": 3}
+
+_THERMAL_TYPE = {None: 0, "adiabatic": 1, "full": 2}
+_DEFORM_TYPE = {None: 0, "pad_mechanical": 1, "pad_mechanical_thermal": 2}
+
 _TP_BEARING_TYPE = {
     "conventional_tilting_pad": 1,
     "inlet_groove_tilting_pad": 2,
@@ -228,11 +232,6 @@ class AdvancedBearingBackend:
         )
 
     def _plain_journal_physics(self, bearing: PlainJournalPhysicsBearing, speed):
-        if bearing.thermal_type is not None:
-            raise SolverLibraryError(
-                "native PlainJournal THD/TEHD is not qualified yet; "
-                "thermal_type must be None for the current physics provider"
-            )
         arrays = [
             np.ascontiguousarray(v, dtype=np.float64)
             for v in (
@@ -243,41 +242,48 @@ class AdvancedBearingBackend:
                 bearing.offset,
             )
         ]
-        xj = ct.c_double()
-        yj = ct.c_double()
-        K = np.empty(4, dtype=np.float64)
-        C = np.empty(4, dtype=np.float64)
-        fx = ct.c_double()
-        fy = ct.c_double()
-        pmax = ct.c_double()
-        iterations = ct.c_int()
-        status = self.lib.rb_plain_journal_isoviscous_c(
-            float(speed),
-            float(bearing.weight_n),
-            float(bearing.fxs_load_n),
-            float(bearing.fys_load_n),
-            float(bearing.journal_diameter_m),
-            float(bearing.radial_clearance_m),
-            float(bearing.oil_viscosity_pa_s),
-            len(arrays[0]),
-            *(self._ptr(a) for a in arrays),
-            int(bearing.total_e_x_film),
-            int(bearing.total_e_z_film),
-            float(bearing.xj_ratio_initial),
-            float(bearing.yj_ratio_initial),
-            float(bearing.relax_p),
-            int(bearing.max_iterations),
-            float(bearing.force_tolerance),
-            ct.byref(xj),
-            ct.byref(yj),
-            self._ptr(K),
-            self._ptr(C),
-            ct.byref(fx),
-            ct.byref(fy),
-            ct.byref(pmax),
-            ct.byref(iterations),
+        pad_thickness = float(
+            bearing.pad_thickness_m
+            if bearing.pad_thickness_m is not None
+            else bearing.journal_diameter_m / 4.0
         )
-        self._status(status, "PlainJournal native isoviscous physics")
+        supply = float(bearing.oil_supply_temperature_k or 300.0)
+        mu2 = float(bearing.viscosity2_pa_s or bearing.oil_viscosity_pa_s)
+        t1 = float(bearing.temperature1_k or 300.0)
+        t2 = float(bearing.temperature2_k or 301.0)
+        rho = float(bearing.lubricant_density_kg_m3 or 1.0)
+        cp = float(bearing.lubricant_cp_j_kgk or 1.0)
+        klube = float(bearing.lubricant_conductivity_w_mk or 1.0)
+        kpad = float(bearing.pad_conductivity_w_mk or 1.0)
+        epad = float(bearing.pad_young_pa or 1.0)
+        nupad = float(bearing.pad_poisson or 0.3)
+        alphapad = float(bearing.pad_expansion_1_k or 0.0)
+        tj = float(bearing.temperature_journal_k or supply)
+        ta = float(bearing.temperature_ambient_k or supply)
+        xj = ct.c_double(); yj = ct.c_double()
+        K = np.empty(4, dtype=np.float64); C = np.empty(4, dtype=np.float64)
+        fx = ct.c_double(); fy = ct.c_double(); pmax = ct.c_double()
+        tmax = ct.c_double(); tout = ct.c_double(); deform = ct.c_double()
+        iterations = ct.c_int()
+        status = self.lib.rb_plain_journal_multiphysics_c(
+            float(speed), float(bearing.weight_n), float(bearing.fxs_load_n), float(bearing.fys_load_n),
+            float(bearing.journal_diameter_m), float(bearing.radial_clearance_m),
+            float(bearing.oil_viscosity_pa_s), mu2, t1, t2, rho, cp, klube,
+            _THERMAL_TYPE[bearing.thermal_type], _DEFORM_TYPE[bearing.deform_type],
+            pad_thickness, kpad, epad, nupad, alphapad, supply, tj, ta,
+            float(bearing.convection_edges_w_m2k), float(bearing.convection_back_w_m2k),
+            len(arrays[0]), *(self._ptr(a) for a in arrays),
+            int(bearing.total_e_x_film), int(bearing.total_e_z_film),
+            int(bearing.total_e_y_pad), int(bearing.total_e_y_film),
+            float(bearing.xj_ratio_initial), float(bearing.yj_ratio_initial),
+            float(bearing.relax_p), float(bearing.relax_temperature),
+            int(bearing.max_iterations), int(bearing.outer_iterations),
+            float(bearing.force_tolerance), float(bearing.field_tolerance),
+            ct.byref(xj), ct.byref(yj), self._ptr(K), self._ptr(C),
+            ct.byref(fx), ct.byref(fy), ct.byref(pmax), ct.byref(tmax), ct.byref(tout),
+            ct.byref(deform), ct.byref(iterations),
+        )
+        self._status(status, "PlainJournal native multiphysics")
         return BearingEvaluation(
             np.asarray(K).reshape((2, 2), order="F"),
             np.asarray(C).reshape((2, 2), order="F"),
@@ -285,82 +291,61 @@ class AdvancedBearingBackend:
             bearing.model_family,
             {
                 "native": True,
-                "physics_provider": "Fortran Reynolds/isoviscous",
-                "xj_ratio": float(xj.value),
-                "yj_ratio": float(yj.value),
+                "physics_provider": "Fortran Reynolds + equilibrium + THD/TEHD",
+                "xj_ratio": float(xj.value), "yj_ratio": float(yj.value),
                 "eccentricity_ratio": float(np.hypot(xj.value, yj.value)),
                 "attitude_angle_rad": float(np.arctan2(-xj.value, -yj.value)),
-                "fx_hydro_n": float(fx.value),
-                "fy_hydro_n": float(fy.value),
-                "p_max_pa": float(pmax.value),
+                "fx_hydro_n": float(fx.value), "fy_hydro_n": float(fy.value),
+                "p_max_pa": float(pmax.value), "t_max_k": float(tmax.value),
+                "t_out_k": float(tout.value), "deformation_max_m": float(deform.value),
                 "iterations": int(iterations.value),
-                "thermal_type": None,
+                "thermal_type": bearing.thermal_type, "deform_type": bearing.deform_type,
             },
         )
 
     def _tilting_pad_physics(
-        self,
-        bearing: TiltingPadPhysicsBearing,
-        speed: float,
-        frequency: float,
+        self, bearing: TiltingPadPhysicsBearing, speed: float, frequency: float
     ) -> BearingEvaluation:
-        if bearing.thermal_type is not None:
-            raise SolverLibraryError(
-                "native TiltingPad THD/TEHD is not qualified yet; "
-                "thermal_type must be None for the current physics provider"
-            )
         arrays = [
             np.ascontiguousarray(v, dtype=np.float64)
             for v in (
-                bearing.pivot_angle_rad,
-                bearing.pad_arc_rad,
-                bearing.pad_axial_length_m,
-                bearing.preload,
-                bearing.offset,
-                bearing.k_rotate_nm_rad,
+                bearing.pivot_angle_rad, bearing.pad_arc_rad, bearing.pad_axial_length_m,
+                bearing.preload, bearing.offset, bearing.k_rotate_nm_rad,
             )
         ]
-        n = len(arrays[0])
-        xj = ct.c_double()
-        yj = ct.c_double()
-        tilt = np.empty(n, dtype=np.float64)
-        K = np.empty(4, dtype=np.float64)
-        C = np.empty(4, dtype=np.float64)
-        fx = ct.c_double()
-        fy = ct.c_double()
-        pmax = ct.c_double()
-        iterations = ct.c_int()
-        status = self.lib.rb_tilting_pad_isoviscous_c(
-            float(speed),
-            float(frequency),
-            float(bearing.weight_n),
-            float(bearing.fxs_load_n),
-            float(bearing.fys_load_n),
-            float(bearing.journal_diameter_m),
-            float(bearing.radial_clearance_m),
-            float(bearing.oil_viscosity_pa_s),
-            float(bearing.pad_thickness_m),
-            float(bearing.pad_density_kg_m3),
-            n,
-            *(self._ptr(a) for a in arrays),
-            int(bearing.total_e_x_film),
-            int(bearing.total_e_z_film),
-            float(bearing.xj_ratio_initial),
-            float(bearing.yj_ratio_initial),
-            float(bearing.relax_p),
-            int(bearing.max_iterations),
-            float(bearing.force_tolerance),
-            ct.byref(xj),
-            ct.byref(yj),
-            self._ptr(tilt),
-            self._ptr(K),
-            self._ptr(C),
-            ct.byref(fx),
-            ct.byref(fy),
-            ct.byref(pmax),
-            ct.byref(iterations),
+        n = len(arrays[0]); supply = float(bearing.oil_supply_temperature_k or 300.0)
+        mu2 = float(bearing.viscosity2_pa_s or bearing.oil_viscosity_pa_s)
+        t1 = float(bearing.temperature1_k or 300.0); t2 = float(bearing.temperature2_k or 301.0)
+        rho = float(bearing.lubricant_density_kg_m3 or 1.0); cp = float(bearing.lubricant_cp_j_kgk or 1.0)
+        klube = float(bearing.lubricant_conductivity_w_mk or 1.0)
+        kpad = float(bearing.pad_conductivity_w_mk or 1.0); epad = float(bearing.pad_young_pa or 1.0)
+        nupad = float(bearing.pad_poisson or 0.3); alphapad = float(bearing.pad_expansion_1_k or 0.0)
+        tj = float(bearing.temperature_journal_k or supply); ta = float(bearing.temperature_ambient_k or supply)
+        xj = ct.c_double(); yj = ct.c_double(); tilt = np.empty(n, dtype=np.float64)
+        K = np.empty(4, dtype=np.float64); C = np.empty(4, dtype=np.float64)
+        fx = ct.c_double(); fy = ct.c_double(); pmax = ct.c_double()
+        tmax = ct.c_double(); tout = ct.c_double(); deform = ct.c_double(); iterations = ct.c_int()
+        status = self.lib.rb_tilting_pad_multiphysics_c(
+            float(speed), float(frequency), float(bearing.weight_n),
+            float(bearing.fxs_load_n), float(bearing.fys_load_n),
+            float(bearing.journal_diameter_m), float(bearing.radial_clearance_m),
+            float(bearing.oil_viscosity_pa_s), mu2, t1, t2, rho, cp, klube,
+            _THERMAL_TYPE[bearing.thermal_type], _DEFORM_TYPE[bearing.deform_type],
+            float(bearing.pad_thickness_m), float(bearing.pad_density_kg_m3),
+            kpad, epad, nupad, alphapad, supply, tj, ta,
+            float(bearing.convection_edges_w_m2k), float(bearing.convection_back_w_m2k),
+            n, *(self._ptr(a) for a in arrays),
+            int(bearing.total_e_x_film), int(bearing.total_e_z_film),
+            int(bearing.total_e_y_pad), int(bearing.total_e_y_film),
+            float(bearing.xj_ratio_initial), float(bearing.yj_ratio_initial),
+            float(bearing.relax_p), float(bearing.relax_temperature),
+            int(bearing.max_iterations), int(bearing.outer_iterations),
+            float(bearing.force_tolerance), float(bearing.field_tolerance),
+            ct.byref(xj), ct.byref(yj), self._ptr(tilt), self._ptr(K), self._ptr(C),
+            ct.byref(fx), ct.byref(fy), ct.byref(pmax), ct.byref(tmax), ct.byref(tout),
+            ct.byref(deform), ct.byref(iterations),
         )
-        self._status(status, "TiltingPad native isoviscous physics")
+        self._status(status, "TiltingPad native multiphysics")
         return BearingEvaluation(
             np.asarray(K).reshape((2, 2), order="F"),
             np.asarray(C).reshape((2, 2), order="F"),
@@ -368,18 +353,14 @@ class AdvancedBearingBackend:
             bearing.model_family,
             {
                 "native": True,
-                "physics_provider": "Fortran Reynolds/isoviscous + pad-DOF condensation",
-                "speed_rad_s": float(speed),
-                "excitation_frequency_rad_s": float(frequency),
-                "xj_ratio": float(xj.value),
-                "yj_ratio": float(yj.value),
+                "physics_provider": "Fortran Reynolds + equilibrium + THD/TEHD + pad-DOF condensation",
+                "speed_rad_s": float(speed), "excitation_frequency_rad_s": float(frequency),
+                "xj_ratio": float(xj.value), "yj_ratio": float(yj.value),
                 "eccentricity_ratio": float(np.hypot(xj.value, yj.value)),
-                "tilt_angle_rad": tilt.copy(),
-                "fx_hydro_n": float(fx.value),
-                "fy_hydro_n": float(fy.value),
-                "p_max_pa": float(pmax.value),
-                "iterations": int(iterations.value),
-                "thermal_type": None,
+                "tilt_angle_rad": tilt.copy(), "fx_hydro_n": float(fx.value), "fy_hydro_n": float(fy.value),
+                "p_max_pa": float(pmax.value), "t_max_k": float(tmax.value), "t_out_k": float(tout.value),
+                "deformation_max_m": float(deform.value), "iterations": int(iterations.value),
+                "thermal_type": bearing.thermal_type, "deform_type": bearing.deform_type,
             },
         )
 
@@ -723,11 +704,11 @@ class AdvancedBearingBackend:
         # for standalone qualification before rotor coupling.  Do not promote
         # it into the qualified legacy type-5 assembly until its ROSS oracle
         # coefficient/equilibrium gate is closed.
-        if isinstance(bearing, PlainJournalPhysicsBearing) and not bool(
+        if isinstance(bearing, (PlainJournalPhysicsBearing, TiltingPadPhysicsBearing)) and not bool(
             bearing.provenance.get("rotor_coupling_qualified", False)
         ):
             raise SolverLibraryError(
-                "PlainJournalPhysicsBearing native operating-point solver is still "
+                f"{type(bearing).__name__} native multiphysics solver is still "
                 "under ROSS parity qualification; rotor assembly is blocked. "
                 "Use PlainJournalBearing/CoefficientBearing with a qualified table, "
                 "or explicitly qualified provenance after the parity gate closes."

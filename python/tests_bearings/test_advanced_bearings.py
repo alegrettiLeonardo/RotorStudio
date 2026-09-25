@@ -270,7 +270,7 @@ def test_native_plain_journal_physics_provider():
         bearing, speed_rad_s=94.24777960769379
     )
     assert result.details["native"] is True
-    assert result.details["physics_provider"].startswith("Fortran Reynolds")
+    assert result.details["physics_provider"].startswith("Fortran Reynolds + equilibrium")
     np.testing.assert_allclose(
         [result.details["xj_ratio"], result.details["yj_ratio"]],
         [0.40412769773157853, -0.35964988360804134],
@@ -281,6 +281,32 @@ def test_native_plain_journal_physics_provider():
     assert np.all(np.isfinite(result.C))
     assert result.K[0, 0] > 0 and result.K[1, 1] > 0
     assert result.C[0, 0] > 0 and result.C[1, 1] > 0
+
+
+
+def test_native_plain_journal_thd_tehd_python_abi():
+    bearing = PlainJournalPhysicsBearing(
+        node=1, weight_n=112814.90696191376, journal_diameter_m=0.3999992,
+        radial_clearance_m=0.000194564, oil_viscosity_pa_s=0.01901574061455835,
+        pivot_angle_rad=(np.pi/2, 3*np.pi/2), pad_arc_rad=(3.07177948351002,)*2,
+        pad_axial_length_m=(0.263144,)*2, preload=(0.0,0.0), offset=(0.5,0.5),
+        total_e_x_film=8, total_e_z_film=4, total_e_y_pad=4, total_e_y_film=4,
+        thermal_type="adiabatic", deform_type="pad_mechanical",
+        pad_thickness_m=0.149614636, oil_supply_temperature_k=323.0,
+        lubricant_density_kg_m3=854.9516, lubricant_cp_j_kgk=1951.5015,
+        lubricant_conductivity_w_mk=0.15, viscosity2_pa_s=0.0077152334111,
+        temperature1_k=322.9833333333, temperature2_k=352.9833333333,
+        pad_conductivity_w_mk=50.0944, pad_young_pa=206.8427e9,
+        pad_poisson=0.3, pad_expansion_1_k=1.17e-5,
+        relax_temperature=0.35, outer_iterations=12, field_tolerance=2.0,
+        force_tolerance=3e-2,
+    )
+    result = AdvancedBearingBackend().evaluate(bearing, speed_rad_s=94.24777960769379)
+    assert result.details["thermal_type"] == "adiabatic"
+    assert result.details["deform_type"] == "pad_mechanical"
+    assert result.details["t_max_k"] > 323.0
+    assert result.details["deformation_max_m"] > 0.0
+    assert np.all(np.isfinite(result.K)) and np.all(np.isfinite(result.C))
 
 
 def test_native_tilting_pad_physics_provider_and_whirl_condensation():

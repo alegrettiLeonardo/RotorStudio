@@ -79,13 +79,12 @@ class TiltingPadBearing(CoefficientBearing):
 
 @dataclass(frozen=True)
 class PlainJournalPhysicsBearing:
-    """Native Fortran PlainJournal operating-point model.
+    """Native Fortran PlainJournal physics provider.
 
-    This is the physical-input path.  It is intentionally separate from the
-    historical table-backed PlainJournalBearing while native parity is being
-    closed; once the THD/TEHD gates are complete this becomes the preferred
-    PlainJournal model and the table-backed form remains as an import/cache
-    representation.
+    The production path supports regular-flooded isoviscous, THD
+    (adiabatic/full energy equation) and pad-deformation TEHD.  Thermal and
+    deformation inputs are explicit so unsupported physics is never silently
+    replaced by a constant-coefficient approximation.
     """
 
     node: int
@@ -102,12 +101,34 @@ class PlainJournalPhysicsBearing:
     fys_load_n: float = 0.0
     total_e_x_film: int = 20
     total_e_z_film: int = 10
+    total_e_y_pad: int = 10
+    total_e_y_film: int = 10
     xj_ratio_initial: float = 0.15
     yj_ratio_initial: float = -0.2
     relax_p: float = 0.5
+    relax_temperature: float = 0.5
     max_iterations: int = 80
+    outer_iterations: int = 30
     force_tolerance: float = 5e-3
+    field_tolerance: float = 1e-3
     thermal_type: str | None = None
+    deform_type: str | None = None
+    pad_thickness_m: float | None = None
+    oil_supply_temperature_k: float | None = None
+    lubricant_density_kg_m3: float | None = None
+    lubricant_cp_j_kgk: float | None = None
+    lubricant_conductivity_w_mk: float | None = None
+    viscosity2_pa_s: float | None = None
+    temperature1_k: float | None = None
+    temperature2_k: float | None = None
+    temperature_journal_k: float | None = None
+    temperature_ambient_k: float | None = None
+    pad_conductivity_w_mk: float | None = None
+    pad_young_pa: float | None = None
+    pad_poisson: float | None = None
+    pad_expansion_1_k: float | None = None
+    convection_edges_w_m2k: float = 0.0
+    convection_back_w_m2k: float = 0.0
     tag: str = ""
     provenance: dict[str, Any] = field(default_factory=dict)
     model_family: str = field(default="plain_journal_physics", init=False)
@@ -115,14 +136,11 @@ class PlainJournalPhysicsBearing:
 
 @dataclass(frozen=True)
 class TiltingPadPhysicsBearing:
-    """Native Fortran conventional tilting-pad operating-point model.
+    """Native Fortran conventional tilting-pad physics provider.
 
-    The current native physics scope is regular-flooded, rigid-pad,
-    isoviscous Reynolds flow with pad-tilt equilibrium, journal load
-    equilibrium, velocity-perturbation damping, and exact pad-DOF dynamic
-    condensation at the requested whirl frequency.  The thermal/deformation
-    fields are already part of the domain contract but remain gated until the
-    corresponding THD/TEHD native solvers pass ROSS parity.
+    The provider solves journal and pad equilibrium, Reynolds pressure,
+    dynamic perturbations, exact pad-DOF condensation at the requested whirl
+    frequency and the regular-flooded THD/TEHD loop.
     """
 
     node: int
@@ -143,13 +161,14 @@ class TiltingPadPhysicsBearing:
     total_e_x_film: int = 20
     total_e_z_film: int = 10
     total_e_y_pad: int = 10
+    total_e_y_film: int = 10
     xj_ratio_initial: float = 0.15
     yj_ratio_initial: float = -0.2
     relax_p: float = 0.5
     max_iterations: int = 80
-    force_tolerance: float = 5e-3
     bearing_type: str = "conventional_tilting_pad"
     thermal_type: str | None = None
+    deform_type: str | None = None
     oil_supply_temperature_k: float | None = None
     oil_flow_m3_s: float | None = None
     lubricant_density_kg_m3: float | None = None
@@ -158,11 +177,18 @@ class TiltingPadPhysicsBearing:
     viscosity2_pa_s: float | None = None
     temperature1_k: float | None = None
     temperature2_k: float | None = None
+    temperature_journal_k: float | None = None
+    temperature_ambient_k: float | None = None
     pad_conductivity_w_mk: float | None = None
     pad_young_pa: float | None = None
     pad_poisson: float | None = None
     pad_expansion_1_k: float | None = None
+    convection_edges_w_m2k: float = 0.0
+    convection_back_w_m2k: float = 0.0
     relax_temperature: float = 0.5
+    outer_iterations: int = 30
+    force_tolerance: float = 5e-3
+    field_tolerance: float = 1e-3
     tag: str = ""
     provenance: dict[str, Any] = field(default_factory=dict)
     model_family: str = field(default="tilting_pad_physics", init=False)
@@ -421,6 +447,12 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
             raise ValueError("native TiltingPad physics currently qualifies conventional_tilting_pad only")
         if bearing.thermal_type not in {None, "adiabatic", "full"}:
             raise ValueError("TiltingPad thermal_type must be None, 'adiabatic' or 'full'")
+        if bearing.deform_type not in {None, "pad_mechanical", "pad_mechanical_thermal"}:
+            raise ValueError("TiltingPad deform_type must be None, 'pad_mechanical' or 'pad_mechanical_thermal'")
+        if bearing.total_e_y_pad < 2 or bearing.total_e_y_pad % 2 or bearing.total_e_y_film < 2:
+            raise ValueError("TiltingPad transverse pad/film meshes must be >= 2; pad mesh must be even")
+        if bearing.outer_iterations < 1 or bearing.field_tolerance <= 0:
+            raise ValueError("TiltingPad outer_iterations must be >=1 and field_tolerance >0")
         thermal_values = (
             bearing.oil_supply_temperature_k,
             bearing.oil_flow_m3_s,
@@ -472,6 +504,12 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
             raise ValueError("PlainJournal Reynolds element counts must be even and >= 2")
         if bearing.thermal_type not in {None, "adiabatic", "full"}:
             raise ValueError("PlainJournal thermal_type must be None, 'adiabatic' or 'full'")
+        if bearing.deform_type not in {None, "pad_mechanical", "pad_mechanical_thermal"}:
+            raise ValueError("PlainJournal deform_type must be None, 'pad_mechanical' or 'pad_mechanical_thermal'")
+        if bearing.total_e_y_pad < 2 or bearing.total_e_y_pad % 2 or bearing.total_e_y_film < 2:
+            raise ValueError("PlainJournal transverse pad/film meshes must be >= 2; pad mesh must be even")
+        if bearing.outer_iterations < 1 or bearing.field_tolerance <= 0:
+            raise ValueError("PlainJournal outer_iterations must be >=1 and field_tolerance >0")
     elif isinstance(bearing, BallBearing):
         scalars = [bearing.n_balls, bearing.d_balls_m, bearing.static_load_n]
         if bearing.n_balls <= 0 or bearing.d_balls_m <= 0 or bearing.static_load_n < 0:
@@ -503,5 +541,33 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
             raise ValueError("SFD eccentricity_ratio must satisfy 0 <= e < 1")
         if bearing.geometry not in {"groove", "end_seals", "groove-end_seals"}:
             raise ValueError("SFD geometry must be groove, end_seals or groove-end_seals")
+
+    if isinstance(bearing, (PlainJournalPhysicsBearing, TiltingPadPhysicsBearing)):
+        if bearing.thermal_type is not None:
+            required = {
+                "oil_supply_temperature_k": bearing.oil_supply_temperature_k,
+                "lubricant_density_kg_m3": bearing.lubricant_density_kg_m3,
+                "lubricant_cp_j_kgk": bearing.lubricant_cp_j_kgk,
+                "lubricant_conductivity_w_mk": bearing.lubricant_conductivity_w_mk,
+                "viscosity2_pa_s": bearing.viscosity2_pa_s,
+                "temperature1_k": bearing.temperature1_k,
+                "temperature2_k": bearing.temperature2_k,
+            }
+            missing = [name for name, value in required.items() if value is None]
+            if missing:
+                raise ValueError(f"native THD requires explicit properties: {', '.join(missing)}")
+            if bearing.thermal_type == "full" and bearing.pad_conductivity_w_mk is None:
+                raise ValueError("full THD requires pad_conductivity_w_mk")
+        if bearing.deform_type is not None:
+            required = {
+                "pad_young_pa": bearing.pad_young_pa,
+                "pad_poisson": bearing.pad_poisson,
+                "pad_expansion_1_k": bearing.pad_expansion_1_k,
+            }
+            missing = [name for name, value in required.items() if value is None]
+            if missing:
+                raise ValueError(f"native TEHD requires explicit properties: {', '.join(missing)}")
+        if bearing.deform_type == "pad_mechanical_thermal" and bearing.thermal_type is None:
+            raise ValueError("pad_mechanical_thermal deformation requires thermal_type")
     if any(not isfinite(float(x)) for x in scalars):
         raise ValueError("advanced bearing physical inputs must be finite")
