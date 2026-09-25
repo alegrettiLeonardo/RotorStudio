@@ -193,10 +193,11 @@ contains
     real(rk),intent(in)::convec_edges,convec_back,relax_t,temp_old(:),mu1,mu2,t1,t2
     real(rk),intent(out)::temp_new(:),mu_center(:),temp_max,temp_outlet,rms_temp
     integer(ik),intent(out)::status
-    integer::nr,ny,nne,ix,iy,iz,n,n1,n2,n3,n4,bw,ncol,nbc,nnr,center
+    integer::nr,ny,nne,ix,iy,iz,n,n1,n2,n3,n4,bw,ncol,nbc,nnr,center,jf
     real(rk)::dx,dz,eta,yrel,hx,mu,u,v,dudy,dwdy,avg_u,avg_v,avg_diss,dhdx
-    real(rk)::kx,ky,mx,my,pe,q,rt,avg_old,avg_raw
+    real(rk)::kx,ky,mx,my,pe,q,rt,avg_old,avg_raw,xi1h,xi2h,ratio,deta,gamma_eq
     real(rk),allocatable::x(:),y(:),kx_n(:),ky_n(:),mx_n(:),my_n(:),p_n(:),q_n(:)
+    real(rk),allocatable::mur(:),invr(:),cum1(:),cum2(:),igam(:)
     real(rk),allocatable::dpdx(:),dpdz(:),a(:,:),rhs(:),alow(:,:),pres(:),raw(:)
     integer(ik),allocatable::ipiv(:),bcidx(:),nodes0(:)
     real(rk)::em(4,4),ec(4)
@@ -218,6 +219,8 @@ contains
     if(st/=RB_OK)then;status=st;return;end if
 
     allocate(x(nne),y(nne),kx_n(nne),ky_n(nne),mx_n(nne),my_n(nne),p_n(nne),q_n(nne))
+    allocate(mur(int(ny_film)+1),invr(int(ny_film)+1),cum1(int(ny_film)+1), &
+             cum2(int(ny_film)+1),igam(int(ny_film)+1))
     do ix=0,int(nx)
       n=ix*(int(nz)+1)+center+1;hx=h(n)
       if(ix==0)then
@@ -227,6 +230,26 @@ contains
       else
         dhdx=(h((ix+1)*(int(nz)+1)+center+1)-h((ix-1)*(int(nz)+1)+center+1))/(2._rk*dx)
       end if
+      ! ROSS full-THD uses the complete through-film viscosity profile in
+      ! velocity, shear and dissipation.  Build the dimensional Xi1/Xi2
+      ! integrals from the previous relaxed temperature field before solving
+      ! the next energy iterate.
+      do jf=0,int(ny_film)
+        mur(jf+1)=max(rb_mu_of_t(mu1,mu2,t1,t2, &
+             temp_old(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
+        invr(jf+1)=1._rk/mur(jf+1)
+      end do
+      cum1=0._rk;cum2=0._rk
+      do jf=1,int(ny_film)
+        yrel=hx*real(jf,rk)/real(ny_film,rk)
+        deta=hx/real(ny_film,rk)
+        cum1(jf+1)=cum1(jf)+.5_rk*deta*(invr(jf)+invr(jf+1))
+        cum2(jf+1)=cum2(jf)+.5_rk*deta*( &
+             hx*real(jf-1,rk)/real(ny_film,rk)*invr(jf)+yrel*invr(jf+1))
+      end do
+      xi1h=max(cum1(int(ny_film)+1),tiny(1._rk))
+      xi2h=cum2(int(ny_film)+1);ratio=xi2h/xi1h
+
       do iy=0,ny-1
         n=ix*ny+iy+1;x(n)=real(ix,rk)*dx
         if(iy<=int(ny_pad))then
@@ -240,13 +263,15 @@ contains
           kx_n(n)=-pad_conduct;ky_n(n)=-pad_conduct;mx_n(n)=0._rk;my_n(n)=0._rk;p_n(n)=0._rk;q_n(n)=0._rk
         else
           eta=max(0._rk,min(1._rk,(y(n)-pad_thickness)/hx));yrel=eta*hx
+          jf=max(0,min(int(ny_film),iy-int(ny_pad)))
+          mu=mur(jf+1)
           avg_u=0._rk;avg_v=0._rk;avg_diss=0._rk
           do iz=0,int(nz)
-            nr=ix*(int(nz)+1)+iz+1;mu=max(mu_nodes(nr),tiny(1._rk))
-            u=speed_surface*eta+dpdx(nr)*yrel*(yrel-hx)/(2._rk*mu)
+            nr=ix*(int(nz)+1)+iz+1
+            u=dpdx(nr)*cum2(jf+1)+(speed_surface/xi1h-dpdx(nr)*ratio)*cum1(jf+1)
             v=eta**2*speed_surface*dhdx
-            dudy=speed_surface/hx+dpdx(nr)*(2._rk*yrel-hx)/(2._rk*mu)
-            dwdy=dpdz(nr)*(2._rk*yrel-hx)/(2._rk*mu)
+            dudy=(dpdx(nr)*yrel+(speed_surface/xi1h-dpdx(nr)*ratio))/mu
+            dwdy=dpdz(nr)*(yrel-ratio)/mu
             if(iz==0 .or. iz==int(nz))then
               avg_u=avg_u+.5_rk*u;avg_v=avg_v+.5_rk*v;avg_diss=avg_diss+.5_rk*mu*(dudy*dudy+dwdy*dwdy)
             else
@@ -312,17 +337,41 @@ contains
     if(abs(avg_raw-avg_old)>10._rk)then;rt=min(relax_t,10._rk/abs(avg_raw-avg_old));else;rt=relax_t;end if
     temp_new(1:nne)=rt*raw+(1._rk-rt)*temp_old(1:nne)
     rms_temp=sqrt(sum((temp_new(1:nne)-temp_old(1:nne))**2)/real(nne,rk));temp_max=maxval(temp_new(1:nne))
+    ! Collapse the relaxed radial viscosity profile to the exact discrete
+    ! generalized-Reynolds Gamma used by ROSS.  pad_static/pad_*_pert consume
+    ! mu_center through -1/(12*mu_center), so this preserves the full radial
+    ! viscosity effect in the pressure matrix instead of sampling one layer.
     do ix=0,int(nx)
+      do jf=0,int(ny_film)
+        mur(jf+1)=max(rb_mu_of_t(mu1,mu2,t1,t2, &
+             temp_new(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
+        invr(jf+1)=1._rk/mur(jf+1)
+      end do
+      cum1=0._rk;cum2=0._rk
+      deta=1._rk/real(ny_film,rk)
+      do jf=1,int(ny_film)
+        cum1(jf+1)=cum1(jf)+.5_rk*deta*(invr(jf)+invr(jf+1))
+        cum2(jf+1)=cum2(jf)+.5_rk*deta*( &
+             real(jf-1,rk)/real(ny_film,rk)*invr(jf)+ &
+             real(jf,rk)/real(ny_film,rk)*invr(jf+1))
+      end do
+      xi1h=max(cum1(int(ny_film)+1),tiny(1._rk))
+      xi2h=cum2(int(ny_film)+1);ratio=xi2h/xi1h
+      do jf=0,int(ny_film)
+        eta=real(jf,rk)/real(ny_film,rk)
+        igam(jf+1)=cum2(jf+1)-ratio*cum1(jf+1)
+      end do
+      gamma_eq=0._rk
+      do jf=1,int(ny_film)
+        gamma_eq=gamma_eq+.5_rk*deta*(igam(jf)+igam(jf+1))
+      end do
+      if(gamma_eq>=-tiny(1._rk))then
+        status=RB_ERR_INPUT;return
+      end if
+      mu=-1._rk/(12._rk*gamma_eq)
       do iz=0,int(nz)
         nr=ix*(int(nz)+1)+iz+1
-        mu_center(nr)=rb_mu_of_t(mu1,mu2,t1,t2,temp_new(ix*ny+int(ny_pad)+int(ny_film)/2+1))
-        ! The Reynolds operator in ROSS integrates Gamma through the finite
-        ! cross-film mesh.  A scalar effective viscosity must therefore carry
-        ! the same (1-1/ny^2) discrete factor used by the uniform-temperature
-        ! limit; this keeps the native 2-D pressure operator on the same grid
-        ! authority while the full radial viscosity profile is still being
-        ! represented by one equivalent nodal value.
-        if(ny_film>1) mu_center(nr)=mu_center(nr)/(1._rk-1._rk/real(ny_film*ny_film,rk))
+        mu_center(nr)=mu
       end do
     end do
     do iy=int(ny_pad),ny-1
