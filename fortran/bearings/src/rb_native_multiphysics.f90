@@ -21,7 +21,7 @@ contains
       thermal_type,deform_type,pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
       convec_edges,convec_back,np,piv,arc,alen,pre,off,nx,nz,ny_pad,ny_film,xj0,yj0,relax_p,relax_t, &
       max_iterations,outer_iterations,force_tol,field_tol,xj_ratio,yj_ratio,k_out,c_out,fx,fy,pmax,tmax,tout, &
-      deform_max,iterations,status)
+      deform_max,iterations,status,pressure_field,temperature_field,deformation_field)
     real(rk),intent(in)::speed,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
     integer(ik),intent(in)::thermal_type,deform_type,np,nx,nz,ny_pad,ny_film,max_iterations,outer_iterations
     real(rk),intent(in)::pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
@@ -29,8 +29,9 @@ contains
     real(rk),intent(in)::xj0,yj0,relax_p,relax_t,force_tol,field_tol
     real(rk),intent(out)::xj_ratio,yj_ratio,k_out(2,2),c_out(2,2),fx,fy,pmax,tmax,tout,deform_max
     integer(ik),intent(out)::iterations,status
+    real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:)
 
-    integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done
+    integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
     real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
@@ -144,6 +145,37 @@ contains
     call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
     xj_ratio=xj/cb;yj_ratio=yj/cb
+
+    if(present(pressure_field))then
+      if(size(pressure_field,1)<nn .or. size(pressure_field,2)<int(np))then;status=RB_ERR_INPUT;return;end if
+      pressure_field(1:nn,1:int(np))=press(1:nn,1:int(np))
+    end if
+    if(present(temperature_field))then
+      if(size(temperature_field,1)<nn .or. size(temperature_field,2)<int(np))then;status=RB_ERR_INPUT;return;end if
+      select case(thermal_type)
+      case(RB_THERMAL_ISOVISCOUS)
+        temperature_field(1:nn,1:int(np))=temp_supply
+      case(RB_THERMAL_ADIABATIC)
+        temperature_field(1:nn,1:int(np))=tad(1:nn,1:int(np))
+      case(RB_THERMAL_FULL)
+        stride=int(ny_pad)+int(ny_film)+1
+        do p=1,int(np)
+          do ix=0,int(nx)
+            delta=sum(tfull(ix*stride+int(ny_pad)+1:ix*stride+stride,p))/real(int(ny_film)+1,rk)
+            do iz=0,int(nz)
+              n=ix*(int(nz)+1)+iz+1
+              temperature_field(n,p)=delta
+            end do
+          end do
+        end do
+      end select
+    end if
+    if(present(deformation_field))then
+      if(size(deformation_field,1)<int(nx)+1 .or. size(deformation_field,2)<int(np))then
+        status=RB_ERR_INPUT;return
+      end if
+      deformation_field(1:int(nx)+1,1:int(np))=dh(1:int(nx)+1,1:int(np))
+    end if
   end subroutine rb_plain_journal_multiphysics
 
 
@@ -151,7 +183,7 @@ contains
       thermal_type,deform_type,tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
       convec_edges,convec_back,np,piv,arc,alen,pre,off,krot,nx,nz,ny_pad,ny_film,xj0,yj0,relax_p,relax_t, &
       max_iterations,outer_iterations,force_tol,field_tol,xj_ratio,yj_ratio,tilt,k_out,c_out,fx,fy,pmax,tmax,tout, &
-      deform_max,iterations,status)
+      deform_max,iterations,status,pressure_field,temperature_field,deformation_field)
     real(rk),intent(in)::speed,omega,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
     integer(ik),intent(in)::thermal_type,deform_type,np,nx,nz,ny_pad,ny_film,max_iterations,outer_iterations
     real(rk),intent(in)::tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
@@ -159,8 +191,9 @@ contains
     real(rk),intent(in)::xj0,yj0,relax_p,relax_t,force_tol,field_tol
     real(rk),intent(out)::xj_ratio,yj_ratio,tilt(np),k_out(2,2),c_out(2,2),fx,fy,pmax,tmax,tout,deform_max
     integer(ik),intent(out)::iterations,status
+    real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:)
 
-    integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done
+    integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
     real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
@@ -262,6 +295,37 @@ contains
                          press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
     xj_ratio=xj/cb;yj_ratio=yj/cb
+
+    if(present(pressure_field))then
+      if(size(pressure_field,1)<nn .or. size(pressure_field,2)<int(np))then;status=RB_ERR_INPUT;return;end if
+      pressure_field(1:nn,1:int(np))=press(1:nn,1:int(np))
+    end if
+    if(present(temperature_field))then
+      if(size(temperature_field,1)<nn .or. size(temperature_field,2)<int(np))then;status=RB_ERR_INPUT;return;end if
+      select case(thermal_type)
+      case(RB_THERMAL_ISOVISCOUS)
+        temperature_field(1:nn,1:int(np))=temp_supply
+      case(RB_THERMAL_ADIABATIC)
+        temperature_field(1:nn,1:int(np))=tad(1:nn,1:int(np))
+      case(RB_THERMAL_FULL)
+        stride=int(ny_pad)+int(ny_film)+1
+        do p=1,int(np)
+          do ix=0,int(nx)
+            delta=sum(tfull(ix*stride+int(ny_pad)+1:ix*stride+stride,p))/real(int(ny_film)+1,rk)
+            do iz=0,int(nz)
+              n=ix*(int(nz)+1)+iz+1
+              temperature_field(n,p)=delta
+            end do
+          end do
+        end do
+      end select
+    end if
+    if(present(deformation_field))then
+      if(size(deformation_field,1)<int(nx)+1 .or. size(deformation_field,2)<int(np))then
+        status=RB_ERR_INPUT;return
+      end if
+      deformation_field(1:int(nx)+1,1:int(np))=dh(1:int(nx)+1,1:int(np))
+    end if
   end subroutine rb_tilting_pad_multiphysics
 
 
