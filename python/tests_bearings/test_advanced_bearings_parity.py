@@ -39,6 +39,23 @@ def _scalar(value, default=0.0):
     return float(value)
 
 
+def _ross_effective_thermal_boundaries(inp: dict):
+    """Map raw fixture flags to the boundary temperatures ROSS actually uses."""
+    supply = float(inp["oil_supply_temperature"])
+    ta_type = int(inp.get("ta_type", 0))
+    if ta_type in (0, 2):
+        ambient = supply
+    else:
+        ambient = float(inp.get("t_ambient", supply))
+
+    temp_j_type = inp.get("temp_j_type")
+    if temp_j_type in ("averaged_film_temperature", "no_heat_flux_into_journal"):
+        journal = supply
+    else:
+        journal = float(inp.get("journal_temperature", supply))
+    return supply, journal, ambient
+
+
 def _plain_native(inp: dict):
     backend = AdvancedBearingBackend()
     n = len(inp["pivot_angle"])
@@ -46,7 +63,7 @@ def _plain_native(inp: dict):
         np.ascontiguousarray(inp[key], dtype=np.float64)
         for key in ("pivot_angle", "pad_arc", "pad_axial_length", "preload", "offset")
     ]
-    supply = float(inp["oil_supply_temperature"])
+    supply, journal_temperature, ambient_temperature = _ross_effective_thermal_boundaries(inp)
     rcfg = np.ascontiguousarray(
         [
             _scalar(inp["frequency"]),
@@ -68,8 +85,8 @@ def _plain_native(inp: dict):
             float(inp["pad_poisson"]),
             float(inp["pad_expansion"]),
             supply,
-            float(inp["journal_temperature"]),
-            float(inp.get("t_ambient", supply)),
+            journal_temperature,
+            ambient_temperature,
             float(inp["edges_convection"]),
             _scalar(inp["pad_convection"]),
             float(inp["xj"]),
@@ -205,7 +222,7 @@ def _tilting_native(inp: dict, whirl_rad_s: float):
             "k_rotate",
         )
     ]
-    supply = float(inp["oil_supply_temperature"])
+    supply, journal_temperature, ambient_temperature = _ross_effective_thermal_boundaries(inp)
     rcfg = np.ascontiguousarray(
         [
             _scalar(inp["frequency"]),
@@ -229,8 +246,8 @@ def _tilting_native(inp: dict, whirl_rad_s: float):
             float(inp["pad_poisson"]),
             float(inp["pad_expansion"]),
             supply,
-            float(inp["journal_temperature"]),
-            float(inp.get("t_ambient", supply)),
+            journal_temperature,
+            ambient_temperature,
             float(inp["edges_convection"]),
             _scalar(inp["pad_convection"]),
             float(inp["xj"]),
