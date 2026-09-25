@@ -8,6 +8,7 @@ module rb_c_api
   use rb_squeeze_film_damper, only: rb_sfd_coefficients
   use rb_fixed_geometry, only: rb_elliptical_geometry, rb_offset_halves_geometry, rb_plain_journal_geometry
   use rb_tilting_pad_config, only: rb_tilting_pad_prepare
+  use rb_reynolds_element, only: rb_reynolds_q4_element
   implicit none(type, external)
   private
 
@@ -15,7 +16,7 @@ module rb_c_api
   public :: rb_ball_coefficients_c, rb_roller_coefficients_c
   public :: rb_cylindrical_coefficients_c, rb_sfd_coefficients_c
   public :: rb_elliptical_geometry_c, rb_offset_halves_geometry_c, rb_plain_journal_geometry_c
-  public :: rb_tilting_pad_prepare_c
+  public :: rb_tilting_pad_prepare_c, rb_reynolds_q4_element_c
 
 contains
 
@@ -254,5 +255,25 @@ contains
     initial_position = real(pos_r,c_double)
     rb_tilting_pad_prepare_c = int(st,c_int)
   end function rb_tilting_pad_prepare_c
+
+  integer(c_int) function rb_reynolds_q4_element_c(k_x, k_z, q, l_e, w_e, e_matrix, e_column) &
+      bind(C, name="rb_reynolds_q4_element_c")
+    real(c_double), value :: k_x, k_z, q, l_e, w_e
+    real(c_double), intent(out) :: e_matrix(16), e_column(4)
+    real(rk) :: em(4,4), ec(4)
+    integer(ik) :: st
+    integer :: i, j, idx
+
+    call rb_reynolds_q4_element(real(k_x,rk), real(k_z,rk), real(q,rk), real(l_e,rk), real(w_e,rk), em, ec, st)
+    idx = 0
+    do j = 1, 4
+      do i = 1, 4
+        idx = idx + 1
+        e_matrix(idx) = real(em(i,j),c_double)
+      end do
+    end do
+    e_column = real(ec,c_double)
+    rb_reynolds_q4_element_c = int(st,c_int)
+  end function rb_reynolds_q4_element_c
 
 end module rb_c_api
