@@ -211,11 +211,55 @@ contains
     real(rk), intent(inout) :: b(:)
     real(rk), intent(in) :: press_cavitate
     integer(ik), intent(out) :: status
-    integer :: i
-    call rb_lu_solve_band_signed(a,total_n,bandwidth,a_lower,index1,b,status)
-    if (status /= RB_OK) return
-    do i=1,int(total_n)
-      b(i)=max(b(i),press_cavitate)
+    integer :: total_column, ll, k, i, ip
+    real(rk) :: tmp, dum
+
+    ! IMPORTANT: the cavitation clamp belongs inside the backward
+    ! substitution.  This is the algorithm used by the pinned ROSS banded
+    ! solver: a clamped downstream pressure participates in the remaining
+    ! upstream substitutions.  Solving the signed system first and clipping
+    ! afterwards is not algebraically equivalent and shifts the bearing
+    ! equilibrium/K/C.
+    status = RB_OK
+    total_column = 2*int(bandwidth)-1
+    if (total_n < 1 .or. total_n > size(a,1) .or. bandwidth < 1 .or. &
+        size(a,2) < total_column .or. size(a_lower,1) < total_n .or. &
+        size(index1) < total_n .or. size(b) < total_n) then
+      status = RB_ERR_INPUT
+      return
+    end if
+
+    ll = int(bandwidth)-1
+    do k = 1, int(total_n)
+      ip = int(index1(k))
+      if (ip < 1 .or. ip > total_n) then
+        status = RB_ERR_INPUT
+        return
+      end if
+      if (ip /= k) then
+        tmp = b(k)
+        b(k) = b(ip)
+        b(ip) = tmp
+      end if
+      if (ll < total_n) ll = ll + 1
+      do i = k+1, ll
+        b(i) = b(i) - a_lower(k,i-k)*b(k)
+      end do
+    end do
+
+    ll = 1
+    do i = int(total_n), 1, -1
+      dum = b(i)
+      do k = 2, ll
+        dum = dum - a(i,k)*b(k+i-1)
+      end do
+      if (abs(a(i,1)) <= tiny(1._rk)) then
+        status = RB_ERR_INPUT
+        return
+      end if
+      b(i) = dum/a(i,1)
+      if (ll < total_column) ll = ll + 1
+      b(i) = max(b(i), press_cavitate)
     end do
   end subroutine rb_lu_solve_band_cavitating
 
