@@ -85,6 +85,15 @@ contains
         n1=ix*(int(ny)+1)+1
         nbc=nbc+1;bcidx(nbc)=int(2*(n1-1)+1,ik);pres(nbc)=0._rk
       end do
+      ! The fixed-geometry back-face constraints remove radial rigid motion,
+      ! but the plane-strain strip still has one free circumferential
+      ! rigid-body translation.  Anchor one back-face x DOF to make the
+      ! elastic problem nonsingular without changing any strain field.
+      ! This is the gauge constraint corresponding to the ROSS deformation
+      ! solution, whose reported physics depends on strain/radial displacement,
+      ! not on an arbitrary uniform x translation.
+      n1=1
+      nbc=nbc+1;bcidx(nbc)=int(2*(n1-1),ik);pres(nbc)=0._rk
     else
       pivot_ix=nint(pivot_fraction*real(nx,rk));pivot_ix=max(0,min(int(nx),pivot_ix))
       do iy=0,int(ny)
