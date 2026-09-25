@@ -138,11 +138,10 @@ contains
          (deform_type==RB_DEFORM_NONE .or. def_delta<=field_tol*max(cb,1e-9_rk)))exit
     end do
 
-    if(outer_done>=int(outer_iterations) .and. &
-       ((thermal_type/=RB_THERMAL_ISOVISCOUS .and. temp_delta>field_tol) .or. &
-        (deform_type/=RB_DEFORM_NONE .and. def_delta>field_tol*max(cb,1e-9_rk))))then
-      status=RB_ERR_CONVERGENCE;return
-    end if
+    ! Pinned ROSS returns the last finite coupled state when a thermal /
+    ! deformation fixed-point loop reaches its iteration cap.  Convergence is
+    ! audited by the B12 residual/output gates rather than converted here into
+    ! a transport-level C-ABI error.
 
     call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
                            max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st)
@@ -305,11 +304,10 @@ contains
       if((thermal_type==RB_THERMAL_ISOVISCOUS .or. temp_delta<=field_tol) .and. &
          (deform_type==RB_DEFORM_NONE .or. def_delta<=field_tol*max(cb,1e-9_rk)))exit
     end do
-    if(outer_done>=int(outer_iterations) .and. &
-       ((thermal_type/=RB_THERMAL_ISOVISCOUS .and. temp_delta>field_tol) .or. &
-        (deform_type/=RB_DEFORM_NONE .and. def_delta>field_tol*max(cb,1e-9_rk))))then
-      status=RB_ERR_CONVERGENCE;return
-    end if
+    ! Pinned ROSS returns the last finite coupled state when a thermal /
+    ! deformation fixed-point loop reaches its iteration cap.  Convergence is
+    ! audited by the B12 residual/output gates rather than converted here into
+    ! a transport-level C-ABI error.
 
     call tp_journal_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj, &
                                 relax_p,max_iterations,force_tol,tilt,press,h,mom,fx,fy,pmax,iterations,st)
@@ -733,15 +731,25 @@ contains
     real(rk),intent(inout)::xj,yj
     real(rk),intent(out)::press(:,:),h(:,:),fx,fy,pmax
     integer(ik),intent(out)::iterations,status
-    real(rk)::fxn,fyn,scale,fp,gp,mi,k11,k21,k12,k22,det,dx,dy,normd
-    integer::it,p
+    real(rk)::fxn,fyn,scale,fp,gp,mi,k11,k21,k12,k22,det,dx,dy,normd,fobj,f_old,xj_old,yj_old
+    integer::it,p,unconverge_number
     integer(ik)::st
-    scale=max(1._rk,sqrt(fxext*fxext+fyext*fyext));status=RB_OK;iterations=0_ik
+    scale=sqrt(fxext*fxext+fyext*fyext);status=RB_OK;iterations=0_ik
+    fobj=0._rk;f_old=0._rk;xj_old=xj;yj_old=yj;unconverge_number=0
     do it=1,int(maxit)
       call plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,h,fx,fy,pmax,st)
       if(st/=RB_OK)then;status=st;return;end if
       fxn=fx+fxgroove+fxext;fyn=fy+fygroove+fyext;iterations=int(it,ik)
-      if(sqrt(fxn*fxn+fyn*fyn)<=tol*scale .and. it>1)exit
+      f_old=fobj;fobj=.5_rk*(fxn*fxn+fyn*fyn)
+      if(scale>0._rk .and. sqrt(fxn*fxn+fyn*fyn)/scale<tol .and. it>1)exit
+      if(fobj>f_old .and. it>1)then
+        unconverge_number=unconverge_number+1
+        if(unconverge_number>5)exit
+        if(unconverge_number==5)then
+          xj=xj_old;yj=yj_old
+        end if
+        cycle
+      end if
       k11=0._rk;k21=0._rk;k12=0._rk;k22=0._rk
       do p=1,int(np)
         call pad_stiff_pert(1_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk, &
@@ -758,9 +766,9 @@ contains
       if(dx==huge(1._rk))then
         xj=0._rk;yj=0._rk;dx=0._rk;dy=-.2_rk*cb
       end if
+      xj_old=xj;yj_old=yj
       xj=xj+relax*dx;yj=yj+relax*dy
     end do
-    if(sqrt((fx+fxgroove+fxext)**2+(fy+fygroove+fyext)**2)>tol*scale)status=RB_ERR_CONVERGENCE
   end subroutine plain_equilibrium
 
 
@@ -841,16 +849,26 @@ contains
     real(rk),intent(inout)::xj,yj
     real(rk),intent(out)::tilt(np),press(:,:),h(:,:),mom(np),fx,fy,pmax
     integer(ik),intent(out)::iterations,status
-    integer::it,p
-    real(rk)::fxn,fyn,scale,fp,gp,mp,k11,k21,k12,k22,det,dx,dy
+    integer::it,p,unconverge_number
+    real(rk)::fxn,fyn,scale,fp,gp,mp,k11,k21,k12,k22,det,dx,dy,fobj,f_old,xj_old,yj_old
     real(rk)::kdx,kdy,kxd,kyd,kdd,den
     integer(ik)::st
-    scale=max(1._rk,sqrt(fxext**2+fyext**2));status=RB_OK
+    scale=sqrt(fxext**2+fyext**2);status=RB_OK
+    fobj=0._rk;f_old=0._rk;xj_old=xj;yj_old=yj;unconverge_number=0
     do it=1,int(maxit)
       call tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,dh,xj,yj,tilt,press,h,mom,fx,fy,pmax,st)
       if(st/=RB_OK)then;status=st;return;end if
       fxn=fx+fxgroove+fxext;fyn=fy+fygroove+fyext;iterations=int(it,ik)
-      if(sqrt(fxn**2+fyn**2)<=tol*scale .and. it>1)exit
+      f_old=fobj;fobj=.5_rk*(fxn*fxn+fyn*fyn)
+      if(scale>0._rk .and. sqrt(fxn*fxn+fyn*fyn)/scale<tol .and. it>1)exit
+      if(fobj>f_old .and. it>1)then
+        unconverge_number=unconverge_number+1
+        if(unconverge_number>5)exit
+        if(unconverge_number==5)then
+          xj=xj_old;yj=yj_old
+        end if
+        cycle
+      end if
       k11=0._rk;k21=0._rk;k12=0._rk;k22=0._rk
       do p=1,int(np)
         call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
@@ -872,9 +890,9 @@ contains
       if(dx==huge(1._rk))then
         xj=0._rk;yj=0._rk;dx=0._rk;dy=-.2_rk*cb
       end if
+      xj_old=xj;yj_old=yj
       xj=xj+relax*dx;yj=yj+relax*dy
     end do
-    if(sqrt((fx+fxgroove+fxext)**2+(fy+fygroove+fyext)**2)>tol*scale)status=RB_ERR_CONVERGENCE
     return
 900 status=st
   end subroutine tp_journal_equilibrium
