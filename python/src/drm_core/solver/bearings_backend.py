@@ -11,6 +11,7 @@ from drm_core.domain.bearings import (
     CoefficientBearing,
     CylindricalBearing,
     PlainJournalPhysicsBearing,
+    TiltingPadPhysicsBearing,
     RollerBearing,
     SqueezeFilmDamper,
     validate_advanced_bearing,
@@ -289,6 +290,91 @@ class AdvancedBearingBackend:
                 "yj_ratio": float(yj.value),
                 "eccentricity_ratio": float(np.hypot(xj.value, yj.value)),
                 "attitude_angle_rad": float(np.arctan2(-xj.value, -yj.value)),
+                "fx_hydro_n": float(fx.value),
+                "fy_hydro_n": float(fy.value),
+                "p_max_pa": float(pmax.value),
+                "iterations": int(iterations.value),
+                "thermal_type": None,
+            },
+        )
+
+    def _tilting_pad_physics(
+        self,
+        bearing: TiltingPadPhysicsBearing,
+        speed: float,
+        frequency: float,
+    ) -> BearingEvaluation:
+        if bearing.thermal_type is not None:
+            raise SolverLibraryError(
+                "native TiltingPad THD/TEHD is not qualified yet; "
+                "thermal_type must be None for the current physics provider"
+            )
+        arrays = [
+            np.ascontiguousarray(v, dtype=np.float64)
+            for v in (
+                bearing.pivot_angle_rad,
+                bearing.pad_arc_rad,
+                bearing.pad_axial_length_m,
+                bearing.preload,
+                bearing.offset,
+                bearing.k_rotate_nm_rad,
+            )
+        ]
+        n = len(arrays[0])
+        xj = ct.c_double()
+        yj = ct.c_double()
+        tilt = np.empty(n, dtype=np.float64)
+        K = np.empty(4, dtype=np.float64)
+        C = np.empty(4, dtype=np.float64)
+        fx = ct.c_double()
+        fy = ct.c_double()
+        pmax = ct.c_double()
+        iterations = ct.c_int()
+        status = self.lib.rb_tilting_pad_isoviscous_c(
+            float(speed),
+            float(frequency),
+            float(bearing.weight_n),
+            float(bearing.fxs_load_n),
+            float(bearing.fys_load_n),
+            float(bearing.journal_diameter_m),
+            float(bearing.radial_clearance_m),
+            float(bearing.oil_viscosity_pa_s),
+            float(bearing.pad_thickness_m),
+            float(bearing.pad_density_kg_m3),
+            n,
+            *(self._ptr(a) for a in arrays),
+            int(bearing.total_e_x_film),
+            int(bearing.total_e_z_film),
+            float(bearing.xj_ratio_initial),
+            float(bearing.yj_ratio_initial),
+            float(bearing.relax_p),
+            int(bearing.max_iterations),
+            float(bearing.force_tolerance),
+            ct.byref(xj),
+            ct.byref(yj),
+            self._ptr(tilt),
+            self._ptr(K),
+            self._ptr(C),
+            ct.byref(fx),
+            ct.byref(fy),
+            ct.byref(pmax),
+            ct.byref(iterations),
+        )
+        self._status(status, "TiltingPad native isoviscous physics")
+        return BearingEvaluation(
+            np.asarray(K).reshape((2, 2), order="F"),
+            np.asarray(C).reshape((2, 2), order="F"),
+            np.zeros((2, 2)),
+            bearing.model_family,
+            {
+                "native": True,
+                "physics_provider": "Fortran Reynolds/isoviscous + pad-DOF condensation",
+                "speed_rad_s": float(speed),
+                "excitation_frequency_rad_s": float(frequency),
+                "xj_ratio": float(xj.value),
+                "yj_ratio": float(yj.value),
+                "eccentricity_ratio": float(np.hypot(xj.value, yj.value)),
+                "tilt_angle_rad": tilt.copy(),
                 "fx_hydro_n": float(fx.value),
                 "fy_hydro_n": float(fy.value),
                 "p_max_pa": float(pmax.value),
@@ -621,6 +707,8 @@ class AdvancedBearingBackend:
             return self._cylindrical(bearing, speed)
         if isinstance(bearing, PlainJournalPhysicsBearing):
             return self._plain_journal_physics(bearing, speed)
+        if isinstance(bearing, TiltingPadPhysicsBearing):
+            return self._tilting_pad_physics(bearing, speed, frequency)
         if isinstance(bearing, SqueezeFilmDamper):
             return self._sfd(bearing, frequency)
         raise TypeError(f"unsupported advanced bearing {type(bearing).__name__}")
