@@ -137,10 +137,7 @@ def _result_record(run_case, ross_root: Path, fixture_name: str, *, overrides=No
     tout_by_pad = np.asarray(out["temp_out_let_bulk"][0], dtype=float)
     # Formal B12 scalar T_max is the ROSS-reported bearing maximum
     # (tpad_max), i.e. the exact quantity returned by the pinned solver.
-    # Keep the max of the exported comparison field separately: it is useful
-    # diagnostics, but it is not interchangeable with ROSS tpad_max.
     tmax = float(np.atleast_1d(out["tpad_max"])[0])
-    temperature_field_max = float(np.max(temperature))
     pmax = float(np.max(pressure))
 
     dhc = np.asarray(out.get("dhc", [[[0.0]]])[0], dtype=float)
@@ -168,7 +165,6 @@ def _result_record(run_case, ross_root: Path, fixture_name: str, *, overrides=No
             "yj_ratio": float(out["yj_cb"][0]),
             "p_max_pa": pmax,
             "t_max_k": tmax,
-            "temperature_field_max_k": temperature_field_max,
             "t_out_bulk_k": float(np.mean(tout_by_pad)),
             "t_out_bulk_by_pad_k": tout_by_pad,
             "deformation_max_m": deform_max,
