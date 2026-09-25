@@ -14,6 +14,7 @@ module rb_native_multiphysics
 
   public :: rb_plain_journal_multiphysics
   public :: rb_tilting_pad_multiphysics
+  public :: rb_plain_journal_fixed_state
 
 contains
 
@@ -432,6 +433,39 @@ contains
     end do
   end subroutine rb_groove_forces
 
+
+
+  subroutine rb_plain_journal_fixed_state(speed,d,cb,viscosity,np,piv,arc,alen,pre,off,nx,nz, &
+                                           xj_ratio,yj_ratio,pressure,fx,fy,pmax,k,status)
+    real(rk),intent(in)::speed,d,cb,viscosity,piv(np),arc(np),alen(np),pre(np),off(np),xj_ratio,yj_ratio
+    integer(ik),intent(in)::np,nx,nz
+    real(rk),intent(out)::pressure(:,:),fx,fy,pmax,k(2,2)
+    integer(ik),intent(out)::status
+    integer::nn,p
+    real(rk)::xj,yj,fp,gp,mi
+    real(rk),allocatable::mu(:,:),dh(:,:),h(:,:)
+    integer(ik)::st
+    nn=(int(nx)+1)*(int(nz)+1)
+    if(viscosity<=0._rk .or. size(pressure,1)<nn .or. size(pressure,2)<int(np))then
+      status=RB_ERR_INPUT;return
+    end if
+    allocate(mu(nn,np),dh(int(nx)+1,np),h(nn,np))
+    mu=viscosity;dh=0._rk;xj=xj_ratio*cb;yj=yj_ratio*cb
+    call plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,pressure,h,fx,fy,pmax,st)
+    if(st/=RB_OK)then;status=st;return;end if
+    k=0._rk
+    do p=1,int(np)
+      call pad_stiff_pert(1_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk, &
+                          mu(:,p),dh(:,p),pressure(:,p),fp,gp,mi,st)
+      if(st/=RB_OK)then;status=st;return;end if
+      k(1,1)=k(1,1)+fp;k(2,1)=k(2,1)+gp
+      call pad_stiff_pert(2_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk, &
+                          mu(:,p),dh(:,p),pressure(:,p),fp,gp,mi,st)
+      if(st/=RB_OK)then;status=st;return;end if
+      k(1,2)=k(1,2)+fp;k(2,2)=k(2,2)+gp
+    end do
+    status=RB_OK
+  end subroutine rb_plain_journal_fixed_state
 
   logical function rb_check_common(speed,d,cb,mu,np,arc,alen,pre,off,nx,nz,relax_p,maxit,ftol)
     real(rk),intent(in)::speed,d,cb,mu,arc(np),alen(np),pre(np),off(np),relax_p,ftol
