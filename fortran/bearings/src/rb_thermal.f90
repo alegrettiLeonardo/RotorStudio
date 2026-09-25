@@ -277,6 +277,12 @@ contains
         my=.25_rk*(my_n(n1)+my_n(n2)+my_n(n3)+my_n(n4))
         pe=.25_rk*(p_n(n1)+p_n(n2)+p_n(n3)+p_n(n4))
         q =.25_rk*(q_n(n1)+q_n(n2)+q_n(n3)+q_n(n4))
+        ! ROSS temp_xy_assemble_all_jit suppresses reaction/dissipation for
+        ! every element wholly inside the solid pad, including the last solid
+        ! row whose upper nodes lie exactly on the pad/film interface.
+        if(iy<int(ny_pad))then
+          pe=0._rk;q=0._rk
+        end if
         call rb_energy_q4(x([n1,n2,n3,n4]),y([n1,n2,n3,n4]),kx,ky,mx,my,pe,q,em,ec)
         if(iy<int(ny_pad))then
           if(ix==0 .and. convec_edges>0._rk)call rb_add_edge_convection(1,convec_edges,temp_ambient,x([n1,n2,n3,n4]),y([n1,n2,n3,n4]),em,ec)
