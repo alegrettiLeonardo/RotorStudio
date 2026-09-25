@@ -417,6 +417,8 @@ def test_b12_plain_journal_tehd_parity():
 def test_b12_tilting_pad_synchronous_thd_parity():
     golden, fields = _load("tilting_pad_synchronous_thd")
     native = _tilting_native(golden["inputs"], golden["case"]["whirl_rad_s"])
+    print("B12_FIELD_L2 tpad_sync pressure", _relative_l2(native["pressure"], fields["pressure_field_pa"]))
+    print("B12_FIELD_L2 tpad_sync temperature", _relative_l2(native["temperature"], fields["temperature_field_k"]))
     _assert_scalar_and_matrices(native, golden, thermal=True)
     np.testing.assert_allclose(
         native["tilt"], golden["outputs"]["tilt_angle_rad"], rtol=1.0e-3, atol=1.0e-8
