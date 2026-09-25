@@ -2,7 +2,7 @@
   "authority": {
     "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
     "fixture": "tilt_5pad_isoviscous",
-    "payload_sha256": "e3c90299d93ddd5f174b8d2d6777da68f3b0f9ae47c29ccf9c33ea7fccb70da2",
+    "payload_sha256": "489131b478eafcbb638f3497a84a77a6dcf1d750a3393681c30e1a30750ffafe",
     "repository": "petrobras/ross"
   },
   "case": {
@@ -52,7 +52,7 @@
       "authority": {
         "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
         "fixture": "tilt_5pad_isoviscous",
-        "payload_sha256": "6431e4dca92591ecc52adee4804817996e4b6824d08744038e1221a37cece97f",
+        "payload_sha256": "95dcbab0d65a458129199a9fa37d8ab04a1a72c3a95fa2fee94f24162d98fed1",
         "repository": "petrobras/ross"
       },
       "case": {
@@ -260,17 +260,17 @@
       "outputs": {
         "C_n_s_m": [
           [
-            4277411.525678658,
-            -2740.1424481003037
+            4277411.525678657,
+            -2740.1424480997766
           ],
           [
-            -3141.162162312168,
-            17072760.99324018
+            -3141.1621623132223,
+            17072760.993240185
           ]
         ],
         "K_n_m": [
           [
-            492425072.129573,
+            492425072.12957305,
             -632560.8151180744
           ],
           [
@@ -306,7 +306,7 @@
       "authority": {
         "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
         "fixture": "tilt_5pad_isoviscous",
-        "payload_sha256": "bac9c17a15fe06b8e1e764337be46e47770a2c1b9784c64086fe21d72fe3a536",
+        "payload_sha256": "fb72215571f888ab26a9b2ddd96f8911d1710b96b096e36c8648b4007b3b10b0",
         "repository": "petrobras/ross"
       },
       "case": {
@@ -518,7 +518,7 @@
             -1492.6327400462453
           ],
           [
-            -2957.702192284799,
+            -2957.702192285326,
             17854230.442756865
           ]
         ],
@@ -560,7 +560,7 @@
       "authority": {
         "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
         "fixture": "tilt_5pad_isoviscous",
-        "payload_sha256": "829f98cffac80f6366657390e55fe3de4815d77422047da75be1d79158119f14",
+        "payload_sha256": "0e7c69c03c6c6a1ac3d3c0fe68cee6c6208fc99c5a5b0b5ab521bc94d10f3e4c",
         "repository": "petrobras/ross"
       },
       "case": {
@@ -769,11 +769,11 @@
         "C_n_s_m": [
           [
             5415171.466894722,
-            433.6775841307824
+            433.67758413141485
           ],
           [
-            -2947.328167655936,
-            19394951.76514255
+            -2947.3281676565684,
+            19394951.765142545
           ]
         ],
         "K_n_m": [
@@ -814,7 +814,7 @@
       "authority": {
         "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
         "fixture": "tilt_5pad_isoviscous",
-        "payload_sha256": "7ef03c0cd5bb1a758ed851687abd5ebffda3e78d58412e60cf7bb068f49c5761",
+        "payload_sha256": "1e1aea95a73a38920afb19d25e6e9eb829813fcec400a94b818a902e430253d1",
         "repository": "petrobras/ross"
       },
       "case": {
@@ -1023,11 +1023,11 @@
         "C_n_s_m": [
           [
             5949957.287687981,
-            1640.2724503103566
+            1640.272450310843
           ],
           [
-            -3198.75405229335,
-            20695430.48358006
+            -3198.754052292864,
+            20695430.483580057
           ]
         ],
         "K_n_m": [
@@ -1036,7 +1036,7 @@
             -1108216.1402804255
           ],
           [
-            -334016.8126399517,
+            -334016.8126401901,
             2311369815.92854
           ]
         ],
