@@ -338,13 +338,10 @@ contains
     if(abs(avg_raw-avg_old)>10._rk)then;rt=min(relax_t,10._rk/abs(avg_raw-avg_old));else;rt=relax_t;end if
     temp_new(1:nne)=rt*raw+(1._rk-rt)*temp_old(1:nne)
     rms_temp=sqrt(sum((temp_new(1:nne)-temp_old(1:nne))**2)/real(nne,rk))
-    ! ROSS tpad_max is the maximum temperature at the pad/film interface,
-    ! not the global maximum over the combined pad+film energy mesh.
-    temp_max=temp_inlet
-    do ix=0,int(nx)
-      n=ix*ny+int(ny_pad)+1
-      temp_max=max(temp_max,temp_new(n))
-    end do
+    ! B12 golden T_max is max(fields["film_temperature"]) from pinned ROSS.
+    ! The smooth-pad full-energy mesh contains the complete radial film field,
+    ! so retain the film/global maximum rather than a pad-surface-only metric.
+    temp_max=maxval(temp_new(1:nne))
     ! Collapse the relaxed radial viscosity profile to the exact discrete
     ! generalized-Reynolds Gamma used by ROSS.  pad_static/pad_*_pert consume
     ! mu_center through -1/(12*mu_center), so this preserves the full radial
