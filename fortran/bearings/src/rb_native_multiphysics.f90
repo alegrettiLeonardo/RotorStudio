@@ -84,7 +84,7 @@ contains
     ! Gamma is the analytic -1/(12*mu) multiplied by (1-1/ny^2).  Store the
     ! numerically equivalent viscosity on the isoviscous path so the native
     ! 2-D Reynolds solve reproduces the pinned discrete operator exactly.
-    if(thermal_type==RB_THERMAL_ISOVISCOUS .and. ny_film>1)then
+    if(ny_film>1)then
       delta=delta/(1._rk-1._rk/real(ny_film*ny_film,rk))
     end if
     mu=delta;mu_new=delta;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
@@ -272,7 +272,7 @@ contains
     ! Gamma is the analytic -1/(12*mu) multiplied by (1-1/ny^2).  Store the
     ! numerically equivalent viscosity on the isoviscous path so the native
     ! 2-D Reynolds solve reproduces the pinned discrete operator exactly.
-    if(thermal_type==RB_THERMAL_ISOVISCOUS .and. ny_film>1)then
+    if(ny_film>1)then
       delta=delta/(1._rk-1._rk/real(ny_film*ny_film,rk))
     end if
     mu=delta;mu_new=delta;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
