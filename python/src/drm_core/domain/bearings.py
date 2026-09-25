@@ -519,6 +519,13 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
             raise ValueError("PlainJournal transverse pad/film meshes must be >= 2; pad mesh must be even")
         if bearing.outer_iterations < 1 or bearing.field_tolerance <= 0:
             raise ValueError("PlainJournal outer_iterations must be >=1 and field_tolerance >0")
+        for value in (
+            bearing.temperature_reference_k,
+            bearing.ambient_pressure_1_pa,
+            bearing.ambient_pressure_2_pa,
+        ):
+            if value is not None and not isfinite(float(value)):
+                raise ValueError("PlainJournal reference temperature / ambient pressures must be finite")
     elif isinstance(bearing, BallBearing):
         scalars = [bearing.n_balls, bearing.d_balls_m, bearing.static_load_n]
         if bearing.n_balls <= 0 or bearing.d_balls_m <= 0 or bearing.static_load_n < 0:
