@@ -828,7 +828,6 @@ contains
         cycle
       end if
       k11=0._rk;k21=0._rk;k12=0._rk;k22=0._rk
-      k11j=0._rk;k21j=0._rk;k12j=0._rk;k22j=0._rk
       do p=1,int(np)
         call pad_stiff_pert(1_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk, &
                             mu(:,p),dh(:,p),press(:,p),fp,gp,mi,st)
@@ -951,6 +950,7 @@ contains
         cycle
       end if
       k11=0._rk;k21=0._rk;k12=0._rk;k22=0._rk
+      k11j=0._rk;k21j=0._rk;k12j=0._rk;k22j=0._rk
       do p=1,int(np)
         call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
              mu(:,p),dh(:,p),press(:,p),fp,gp,kdx,st);if(st/=RB_OK)goto 900
