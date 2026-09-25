@@ -12,6 +12,7 @@ program test_ross_bearings_native
   use rb_reynolds_banded, only: rb_lu_factor_band, rb_lu_solve_band_cavitating
   use rb_reynolds_mesh, only: rb_reynolds_mesh_smooth
   use rb_film_thickness, only: rb_film_thickness_baseline
+  use rb_pressure_isoviscous, only: rb_pressure_smooth_isoviscous
   implicit none(type, external)
 
   integer(ik) :: st
@@ -29,9 +30,10 @@ program test_ross_bearings_native
   call test_reynolds_banded()
   call test_reynolds_mesh()
   call test_film_thickness()
+  call test_pressure_isoviscous()
   call test_sfd()
 
-  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5mesh/BF5film/BF5cfg/BF7'
+  print *, 'PASS standalone ROSS bearing native gates BF1/BF2/BF3/BF4/BF5a/BF5band/BF5mesh/BF5film/BF5press/BF5cfg/BF7'
 
 contains
 
@@ -298,6 +300,23 @@ contains
     call assert_close(dhdx(4),0.2_rk,1e-14_rk,1e-14_rk,406)
     if (.not.fullcav) error stop 407
   end subroutine test_film_thickness
+
+  subroutine test_pressure_isoviscous()
+    real(rk) :: h(9), p(9)
+
+    ! 2x2 smooth-pad Reynolds mesh. Film decreases linearly by x station:
+    ! h=[1.0,0.8,0.6]. All edge pressures are prescribed to zero, leaving
+    ! one interior node. The FE equation therefore has the closed-form
+    ! interior solution p=225/536 for mu=U=L=W=1.
+    h = [1._rk,1._rk,1._rk, 0.8_rk,0.8_rk,0.8_rk, 0.6_rk,0.6_rk,0.6_rk]
+    call rb_pressure_smooth_isoviscous(2_ik,2_ik,pi_/2._rk,1._rk,1._rk, &
+                                       h,1._rk,1._rk,0._rk,p,st)
+    if (st /= RB_OK) error stop 416
+    call assert_close(p(5),225._rk/536._rk,1e-12_rk,1e-12_rk,417)
+    call assert_close(p(1),0._rk,1e-14_rk,1e-14_rk,418)
+    call assert_close(p(9),0._rk,1e-14_rk,1e-14_rk,419)
+    if (minval(p) < -1e-14_rk) error stop 420
+  end subroutine test_pressure_isoviscous
 
   subroutine test_sfd()
     real(rk), parameter :: reyn_to_pas = 6894.757293168_rk
