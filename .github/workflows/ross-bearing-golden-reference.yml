@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   generate-ross-6320eab9:
@@ -56,15 +56,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Freeze generated references on qualification branch
-        if: github.head_ref == 'feature/ross-bearings-rotorstudio-20260925'
+      - name: Verify checked-in golden references are reproducible
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add tests/reference/ross_6320eab9
-          if git diff --cached --quiet; then
-            echo "Frozen ROSS references already match the pinned authority."
-            exit 0
-          fi
-          git commit -m "test: freeze ROSS 6320eab9 bearing golden cases"
-          git push origin HEAD:${{ github.head_ref }}
+          git diff --exit-code -- tests/reference/ross_6320eab9
+          echo "Checked-in golden references reproduce pinned ROSS 6320eab9 exactly."
