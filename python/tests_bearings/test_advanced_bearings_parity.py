@@ -340,6 +340,8 @@ def _assert_scalar_and_matrices(native, golden, *, thermal=False, deformation=Fa
                 "ross_K": o["K_n_m"],
                 "native_C": np.asarray(native["C"], dtype=float).tolist(),
                 "ross_C": o["C_n_s_m"],
+                "native_tilt": np.asarray(native.get("tilt", []), dtype=float).tolist(),
+                "ross_tilt": o.get("tilt_angle_rad", []),
             },
             sort_keys=True,
         ),
