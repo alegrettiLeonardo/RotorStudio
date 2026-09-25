@@ -9,6 +9,7 @@ module rb_c_api
   use rb_fixed_geometry, only: rb_elliptical_geometry, rb_offset_halves_geometry, rb_plain_journal_geometry
   use rb_tilting_pad_config, only: rb_tilting_pad_prepare
   use rb_reynolds_element, only: rb_reynolds_q4_element
+  use rb_pressure_isoviscous, only: rb_pressure_smooth_isoviscous
   implicit none(type, external)
   private
 
@@ -17,6 +18,7 @@ module rb_c_api
   public :: rb_cylindrical_coefficients_c, rb_sfd_coefficients_c
   public :: rb_elliptical_geometry_c, rb_offset_halves_geometry_c, rb_plain_journal_geometry_c
   public :: rb_tilting_pad_prepare_c, rb_reynolds_q4_element_c
+  public :: rb_pressure_smooth_isoviscous_c
 
 contains
 
@@ -275,5 +277,31 @@ contains
     e_column = real(ec,c_double)
     rb_reynolds_q4_element_c = int(st,c_int)
   end function rb_reynolds_q4_element_c
+
+  integer(c_int) function rb_pressure_smooth_isoviscous_c(total_e_x, total_e_z, arc_length_rad, &
+      pad_length, axial_length, h_n, viscosity, speed_surface, press_cavitate, pressure) &
+      bind(C, name="rb_pressure_smooth_isoviscous_c")
+    integer(c_int), value :: total_e_x, total_e_z
+    real(c_double), value :: arc_length_rad, pad_length, axial_length
+    real(c_double), intent(in) :: h_n(*)
+    real(c_double), value :: viscosity, speed_surface, press_cavitate
+    real(c_double), intent(out) :: pressure(*)
+    integer :: nn
+    real(rk), allocatable :: hr(:), pr(:)
+    integer(ik) :: st
+
+    if (total_e_x < 1_c_int .or. total_e_z < 1_c_int) then
+      rb_pressure_smooth_isoviscous_c = int(RB_ERR_INPUT,c_int)
+      return
+    end if
+    nn = (int(total_e_x)+1)*(int(total_e_z)+1)
+    allocate(hr(nn),pr(nn))
+    hr = real(h_n(1:nn),rk)
+    call rb_pressure_smooth_isoviscous(int(total_e_x,ik),int(total_e_z,ik),real(arc_length_rad,rk), &
+                                       real(pad_length,rk),real(axial_length,rk),hr,real(viscosity,rk), &
+                                       real(speed_surface,rk),real(press_cavitate,rk),pr,st)
+    pressure(1:nn) = real(pr,c_double)
+    rb_pressure_smooth_isoviscous_c = int(st,c_int)
+  end function rb_pressure_smooth_isoviscous_c
 
 end module rb_c_api
