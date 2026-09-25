@@ -345,7 +345,7 @@ contains
     real(rk),intent(out)::pressure(:),h(:),fx,fy,moment,pmax
     integer(ik),intent(out)::status
     integer::nn,ix,iz,node,n1,n2,n3,n4,bw,ncol,nbc
-    real(rk)::r,cpv,lead,xp,dx,dz,theta,hv,he,gamma,kcoef,q,u,area,ang,pavg,dhdx
+    real(rk)::r,cpv,lead,xp,dx,dz,theta,theta2,hv,he,gamma,kcoef,q,u,area,ang,pavg,dhdx
     real(rk),allocatable::a(:,:),rhs(:),alow(:,:),pres(:)
     integer(ik),allocatable::ipiv(:),bcidx(:),nodes0(:)
     real(rk)::em(4,4),ec(4)
@@ -402,10 +402,18 @@ contains
     do ix=0,int(nx)-1
       do iz=0,int(nz)-1
         n1=ix*(int(nz)+1)+iz+1;n2=(ix+1)*(int(nz)+1)+iz+1;n3=n2+1;n4=n1+1
-        area=dx*dz;theta=arc*(real(ix,rk)+.5_rk)/real(nx,rk);ang=lead+theta
-        pavg=.25_rk*(pressure(n1)+pressure(n2)+pressure(n3)+pressure(n4))
-        fx=fx-area*pavg*cos(ang);fy=fy-area*pavg*sin(ang)
-        moment=moment-(r+tp)*area*pavg*sin(theta-xp)
+        area=dx*dz
+        theta=arc*real(ix,rk)/real(nx,rk)
+        theta2=arc*real(ix+1,rk)/real(nx,rk)
+        ! Match ROSS integrate_xz exactly: form the nodal pressure-times-angle
+        ! field first, then take the Q4 element average.  Using p_avg at the
+        ! element-centre angle introduces a systematic coefficient bias.
+        fx=fx-area*.25_rk*(pressure(n1)*cos(lead+theta)+pressure(n4)*cos(lead+theta)+ &
+                           pressure(n2)*cos(lead+theta2)+pressure(n3)*cos(lead+theta2))
+        fy=fy-area*.25_rk*(pressure(n1)*sin(lead+theta)+pressure(n4)*sin(lead+theta)+ &
+                           pressure(n2)*sin(lead+theta2)+pressure(n3)*sin(lead+theta2))
+        moment=moment-(r+tp)*area*.25_rk*(pressure(n1)*sin(theta-xp)+pressure(n4)*sin(theta-xp)+ &
+                                          pressure(n2)*sin(theta2-xp)+pressure(n3)*sin(theta2-xp))
       end do
     end do
     moment=moment-krot*tilt
@@ -418,7 +426,7 @@ contains
     real(rk),intent(out)::fx,fy,moment
     integer(ik),intent(out)::status
     integer::nn,ix,iz,node,n1,n2,n3,n4,bw,ncol,nbc
-    real(rk)::r,cpv,lead,xp,dx,dz,theta,hv,he,gamma,kcoef,q,area,ang,pavg
+    real(rk)::r,cpv,lead,xp,dx,dz,theta,theta2,hv,he,gamma,kcoef,q,area,ang,pavg
     real(rk),allocatable::h(:),a(:,:),rhs(:),alow(:,:),pres(:)
     integer(ik),allocatable::ipiv(:),bcidx(:),nodes0(:)
     real(rk)::em(4,4),ec(4)
@@ -478,9 +486,15 @@ contains
     do ix=0,int(nx)-1
       do iz=0,int(nz)-1
         n1=ix*(int(nz)+1)+iz+1;n2=(ix+1)*(int(nz)+1)+iz+1;n3=n2+1;n4=n1+1
-        area=dx*dz;theta=arc*(real(ix,rk)+.5_rk)/real(nx,rk);ang=lead+theta
-        pavg=.25_rk*(rhs(n1)+rhs(n2)+rhs(n3)+rhs(n4))
-        fx=fx+area*pavg*cos(ang);fy=fy+area*pavg*sin(ang);moment=moment+(r+tp)*area*pavg*sin(theta-xp)
+        area=dx*dz
+        theta=arc*real(ix,rk)/real(nx,rk)
+        theta2=arc*real(ix+1,rk)/real(nx,rk)
+        fx=fx+area*.25_rk*(rhs(n1)*cos(lead+theta)+rhs(n4)*cos(lead+theta)+ &
+                           rhs(n2)*cos(lead+theta2)+rhs(n3)*cos(lead+theta2))
+        fy=fy+area*.25_rk*(rhs(n1)*sin(lead+theta)+rhs(n4)*sin(lead+theta)+ &
+                           rhs(n2)*sin(lead+theta2)+rhs(n3)*sin(lead+theta2))
+        moment=moment+(r+tp)*area*.25_rk*(rhs(n1)*sin(theta-xp)+rhs(n4)*sin(theta-xp)+ &
+                                          rhs(n2)*sin(theta2-xp)+rhs(n3)*sin(theta2-xp))
       end do
     end do
   end subroutine pad_pert
