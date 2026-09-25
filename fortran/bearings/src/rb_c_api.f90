@@ -11,6 +11,7 @@ module rb_c_api
   use rb_reynolds_element, only: rb_reynolds_q4_element
   use rb_pressure_isoviscous, only: rb_pressure_smooth_isoviscous
   use rb_dynamic_reduction, only: rb_dynamic_reduce_tilts
+  use rb_plain_journal_physics, only: rb_plain_journal_isoviscous
   implicit none(type, external)
   private
 
@@ -20,6 +21,7 @@ module rb_c_api
   public :: rb_elliptical_geometry_c, rb_offset_halves_geometry_c, rb_plain_journal_geometry_c
   public :: rb_tilting_pad_prepare_c, rb_reynolds_q4_element_c
   public :: rb_pressure_smooth_isoviscous_c, rb_dynamic_reduce_tilts_c
+  public :: rb_plain_journal_isoviscous_c
 
 contains
 
@@ -352,5 +354,58 @@ contains
     ip(1:n)=real(ipr,c_double)
     rb_dynamic_reduce_tilts_c = int(st,c_int)
   end function rb_dynamic_reduce_tilts_c
+
+  integer(c_int) function rb_plain_journal_isoviscous_c(speed, weight, fxs_load, fys_load, &
+      journal_diameter, radial_clearance, viscosity, n_pads, pivot_angle, pad_arc, pad_axial_length, &
+      preload, offset, total_e_x, total_e_z, xj_ratio_initial, yj_ratio_initial, relax_p, &
+      max_iterations, force_tolerance, xj_ratio, yj_ratio, k_out, c_out, fx_hydro, fy_hydro, &
+      p_max, iterations) bind(C, name="rb_plain_journal_isoviscous_c")
+    real(c_double), value :: speed, weight, fxs_load, fys_load, journal_diameter, radial_clearance, viscosity
+    integer(c_int), value :: n_pads, total_e_x, total_e_z, max_iterations
+    real(c_double), intent(in) :: pivot_angle(*), pad_arc(*), pad_axial_length(*), preload(*), offset(*)
+    real(c_double), value :: xj_ratio_initial, yj_ratio_initial, relax_p, force_tolerance
+    real(c_double), intent(out) :: xj_ratio, yj_ratio, k_out(4), c_out(4), fx_hydro, fy_hydro, p_max
+    integer(c_int), intent(out) :: iterations
+    real(rk), allocatable :: pivot_r(:), arc_r(:), axial_r(:), pre_r(:), off_r(:)
+    real(rk) :: xr, yr, kr(2,2), cr(2,2), fxr, fyr, pmaxr
+    integer(ik) :: st, itr
+    integer :: i, j, idx
+
+    if (n_pads < 1_c_int) then
+      rb_plain_journal_isoviscous_c = int(RB_ERR_INPUT,c_int)
+      iterations = 0_c_int
+      return
+    end if
+
+    allocate(pivot_r(n_pads), arc_r(n_pads), axial_r(n_pads), pre_r(n_pads), off_r(n_pads))
+    pivot_r = real(pivot_angle(1:n_pads),rk)
+    arc_r = real(pad_arc(1:n_pads),rk)
+    axial_r = real(pad_axial_length(1:n_pads),rk)
+    pre_r = real(preload(1:n_pads),rk)
+    off_r = real(offset(1:n_pads),rk)
+
+    call rb_plain_journal_isoviscous(real(speed,rk),real(weight,rk),real(fxs_load,rk),real(fys_load,rk), &
+                                     real(journal_diameter,rk),real(radial_clearance,rk),real(viscosity,rk), &
+                                     int(n_pads,ik),pivot_r,arc_r,axial_r,pre_r,off_r,int(total_e_x,ik), &
+                                     int(total_e_z,ik),real(xj_ratio_initial,rk),real(yj_ratio_initial,rk), &
+                                     real(relax_p,rk),int(max_iterations,ik),real(force_tolerance,rk), &
+                                     xr,yr,kr,cr,fxr,fyr,pmaxr,itr,st)
+    xj_ratio = real(xr,c_double)
+    yj_ratio = real(yr,c_double)
+    idx=0
+    do j=1,2
+      do i=1,2
+        idx=idx+1
+        k_out(idx)=real(kr(i,j),c_double)
+        c_out(idx)=real(cr(i,j),c_double)
+      end do
+    end do
+    fx_hydro=real(fxr,c_double)
+    fy_hydro=real(fyr,c_double)
+    p_max=real(pmaxr,c_double)
+    iterations=int(itr,c_int)
+    rb_plain_journal_isoviscous_c=int(st,c_int)
+  end function rb_plain_journal_isoviscous_c
+
 
 end module rb_c_api
