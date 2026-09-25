@@ -428,8 +428,14 @@ contains
       if(ix/=0 .and. ix/=ix_min .and. ix/=int(nx))cycle
       nr=ix*(int(nz)+1)+center+1;hx=h(nr)
       do jf=0,int(ny_film)
+        ! ROSS flow_rates/velocity belong to the hydrodynamic state that
+        ! precedes this thermal update.  Therefore q_in/q_out and the velocity
+        ! weighting used by t_outlet_bulk must use the viscosity associated
+        ! with temp_old, while the temperature factor itself comes from the
+        ! newly relaxed temp_new field.  Using temp_new here advances the flow
+        ! state one thermal iteration too early and perturbs hot-oil mixing.
         mur(jf+1)=max(rb_mu_of_t(mu1,mu2,t1,t2, &
-             temp_new(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
+             temp_old(ix*ny+int(ny_pad)+jf+1)),tiny(1._rk))
         invr(jf+1)=1._rk/mur(jf+1)
       end do
       cum1=0._rk;cum2=0._rk
