@@ -273,4 +273,37 @@ def configure_bearing_library(lib):
     ]
     lib.rb_dynamic_reduce_tilts_c.restype = ct.c_int
 
+
+    lib.rb_plain_journal_isoviscous_c.argtypes = [
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_int,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        ct.c_int,
+        ct.c_int,
+        ct.c_double,
+        ct.c_double,
+        ct.c_double,
+        ct.c_int,
+        ct.c_double,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        dptr,
+        ct.POINTER(ct.c_int),
+    ]
+    lib.rb_plain_journal_isoviscous_c.restype = ct.c_int
+
     return lib
