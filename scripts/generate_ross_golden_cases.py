@@ -197,18 +197,52 @@ def main() -> int:
     )
     cases["tilting_pad_asynchronous.json"] = async_doc
 
+    field_keys = (
+        "pressure_field_pa",
+        "temperature_field_k",
+        "theta_grid_rad",
+        "axial_grid_m",
+        "film_thickness_field_m",
+    )
     manifest = {
         "ross_commit": ROSS_SHA,
         "generator": "scripts/generate_ross_golden_cases.py",
+        "format": "JSON metadata/scalars + compressed NPZ full fields",
         "cases": {},
     }
-    for name, payload in cases.items():
-        p = args.out / name
-        p.write_text(
-            json.dumps(payload, indent=2, sort_keys=True) + "\n",
+    for json_name, payload in cases.items():
+        stem = Path(json_name).stem
+        npz_name = f"{stem}.npz"
+        summary = copy.deepcopy(payload)
+
+        if "points" in summary:
+            arrays = {
+                key: np.stack(
+                    [np.asarray(point["outputs"].pop(key), dtype=float) for point in summary["points"]]
+                )
+                for key in field_keys
+            }
+        else:
+            arrays = {
+                key: np.asarray(summary["outputs"].pop(key), dtype=float)
+                for key in field_keys
+            }
+        summary["field_file"] = npz_name
+        summary["field_shapes"] = {key: list(value.shape) for key, value in arrays.items()}
+
+        npz_path = args.out / npz_name
+        np.savez_compressed(npz_path, **arrays)
+        json_path = args.out / json_name
+        json_path.write_text(
+            json.dumps(summary, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
-        manifest["cases"][name] = hashlib.sha256(p.read_bytes()).hexdigest()
+        manifest["cases"][stem] = {
+            "json": json_name,
+            "json_sha256": hashlib.sha256(json_path.read_bytes()).hexdigest(),
+            "npz": npz_name,
+            "npz_sha256": hashlib.sha256(npz_path.read_bytes()).hexdigest(),
+        }
 
     (args.out / "manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
