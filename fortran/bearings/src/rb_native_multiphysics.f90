@@ -34,7 +34,7 @@ contains
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
     integer(ik)::st
-    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference
+    real(rk)::xj,yj,delta,temp_delta,def_delta,tmi,touti,rms,pex,temp_reference,k_last(2,2)
     real(rk),allocatable::mu(:,:),mu_new(:,:),dh(:,:),dh_new(:,:),press(:,:),h(:,:)
     real(rk),allocatable::tad(:,:),tad_new(:),tfull(:,:),tfull_new(:),muc(:)
     real(rk),allocatable::px(:),tpad(:),def(:)
@@ -70,13 +70,13 @@ contains
     allocate(tad(nn,np),tad_new(nn),tfull(nfull,np),tfull_new(nfull),muc(nn))
     allocate(px(int(nx)+1),tpad(npp),def(int(nx)+1))
     mu=mu1;mu_new=mu1;dh=0._rk;dh_new=0._rk;tad=temp_supply;tfull=temp_supply
-    xj=xj0*cb;yj=yj0*cb
+    xj=xj0*cb;yj=yj0*cb;k_last=0._rk
     call rb_groove_forces(np,d,piv,arc,alen,off,ambient_press1,ambient_press2,fx_groove,fy_groove)
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
 
     do it=1,int(outer_iterations)
       call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
-                             max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st)
+                             max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st,k_last)
       if(st/=RB_OK)then;status=st;return;end if
 
       mu_new=mu;dh_new=dh;temp_delta=0._rk;def_delta=0._rk;tmax=temp_supply;tout=0._rk
@@ -144,10 +144,14 @@ contains
     ! a transport-level C-ABI error.
 
     call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax_p, &
-                           max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st)
+                           max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st,k_last)
     if(st/=RB_OK)then;status=st;return;end if
     call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
+    ! ROSS 6320eab9 consumes the last in-loop Jacobian produced by the
+    ! hydrodynamic equilibrium search.  Do not silently replace it with a
+    ! tangent recomputed on the post-convergence state.
+    if(maxval(abs(k_last))>0._rk) k_out=k_last
     fx=fx+fx_groove;fy=fy+fy_groove
     xj_ratio=xj/cb;yj_ratio=yj/cb
 
@@ -725,12 +729,13 @@ contains
 
 
   subroutine plain_equilibrium(speed,fxext,fyext,fxgroove,fygroove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,dh,xj,yj,relax,maxit,tol, &
-                               press,h,fx,fy,pmax,iterations,status)
+                               press,h,fx,fy,pmax,iterations,status,k_last)
     real(rk),intent(in)::speed,fxext,fyext,fxgroove,fygroove,d,cb,piv(np),arc(np),alen(np),pre(np),off(np),mu(:,:),dh(:,:),relax,tol
     integer(ik),intent(in)::np,nx,nz,maxit
     real(rk),intent(inout)::xj,yj
     real(rk),intent(out)::press(:,:),h(:,:),fx,fy,pmax
     integer(ik),intent(out)::iterations,status
+    real(rk),intent(inout),optional::k_last(2,2)
     real(rk)::fxn,fyn,scale,fp,gp,mi,k11,k21,k12,k22,det,dx,dy,normd,fobj,f_old,xj_old,yj_old
     integer::it,p,unconverge_number
     integer(ik)::st
@@ -761,6 +766,7 @@ contains
         if(st/=RB_OK)then;status=st;return;end if
         k12=k12+fp;k22=k22+gp
       end do
+      if(present(k_last)) k_last=reshape([k11,k21,k12,k22],[2,2])
       call rb_newton_step(k11,k12,k21,k22,fxn,fyn,cb,dx,dy,st)
       if(st/=RB_OK)then;status=st;return;end if
       if(dx==huge(1._rk))then
