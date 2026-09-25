@@ -126,7 +126,7 @@ contains
           call rb_pad_surface_deformation(nx,ny_pad,0.5_rk*d*arc(p),pad_thickness,epad,nupad,pex,temp_reference, &
                                           tpad,px,.false.,off(p),def,st)
           if(st/=RB_OK)then;status=st;return;end if
-          dh_new(:,p)=-def
+          dh_new(:,p)=def
           def_delta=max(def_delta,maxval(abs(dh_new(:,p)-dh(:,p))))
         end if
       end do
@@ -295,7 +295,7 @@ contains
           call rb_pad_surface_deformation(nx,ny_pad,0.5_rk*d*arc(p),tp,epad,nupad,pex,temp_reference,tpad,px, &
                                           .true.,off(p),def,st)
           if(st/=RB_OK)then;status=st;return;end if
-          dh_new(:,p)=-def;def_delta=max(def_delta,maxval(abs(dh_new(:,p)-dh(:,p))))
+          dh_new(:,p)=def;def_delta=max(def_delta,maxval(abs(dh_new(:,p)-dh(:,p))))
         end if
       end do
       tout=tout/real(np,rk);mu=(1._rk-relax_t)*mu+relax_t*mu_new
