@@ -67,57 +67,7 @@ def _result_record(run_case, ross_root: Path, fixture_name: str, *, overrides=No
             raise ValueError("asynchronous golden case requires nonzero spin")
         inp["excit_ratios"] = float(omega) / omega_spin
 
-    # For the synchronous TiltingPad THD qualification case, capture the
-    # unreduced ROSS coefficient blocks entering dynamic_reduction.  The B12
-    # reduced cross terms are small differences of much larger direct/coupled
-    # terms, so this diagnostic is necessary to distinguish a field-state
-    # mismatch from a condensation mismatch.  It is log-only and does not
-    # change the frozen golden payload.
-    captured_blocks = None
-    if fixture_name == "tilt_5pad_full":
-        from ross.bearings.fluid_film import coefficients as _coeff
-
-        _orig_dynamic_reduction = _coeff.dynamic_reduction
-        _orig_gamma_g_pert = _coeff.gamma_g_pert
-        captured_blocks = {}
-        captured_gamma_g = {}
-
-        def _capture_gamma_g_pert(mesh, pad_index, pads, h_n, vis_effect_3d):
-            gamma, g = _orig_gamma_g_pert(mesh, pad_index, pads, h_n, vis_effect_3d)
-            # Smooth full-THD fixture: retain the nodal generalized-Reynolds
-            # fields that actually feed the final K/C perturbation solves.
-            captured_gamma_g[int(pad_index)] = {
-                "gamma": _jsonable(gamma),
-                "g": _jsonable(g),
-            }
-            return gamma, g
-
-        def _capture_dynamic_reduction(total_pads, stiffness, damping_block, pads, pad_density, excit_rad, ip, k_rotate):
-            names = (
-                "xx", "yx", "xy", "yy",
-                "deltax", "deltay", "xdelta", "ydelta", "deltadelta",
-                "xxi", "yxi", "xyi", "yyi",
-            )
-            captured_blocks["K"] = {name: _jsonable(getattr(stiffness, name)) for name in names}
-            captured_blocks["C"] = {name: _jsonable(getattr(damping_block, name)) for name in names}
-            captured_blocks["omega"] = float(excit_rad)
-            return _orig_dynamic_reduction(
-                total_pads, stiffness, damping_block, pads, pad_density, excit_rad, ip, k_rotate
-            )
-
-        _coeff.dynamic_reduction = _capture_dynamic_reduction
-        _coeff.gamma_g_pert = _capture_gamma_g_pert
-        try:
-            out = run_case(**inp, field_outputs=True)
-        finally:
-            _coeff.dynamic_reduction = _orig_dynamic_reduction
-            _coeff.gamma_g_pert = _orig_gamma_g_pert
-        captured_blocks["gamma_g"] = captured_gamma_g
-    else:
-        out = run_case(**inp, field_outputs=True)
-
-    if captured_blocks:
-        print("B12_ROSS_RAW_BLOCKS", json.dumps(captured_blocks, sort_keys=True))
+    out = run_case(**inp, field_outputs=True)
 
     fields = out["fields"][0]
     pressure = np.asarray(fields["pressure"], dtype=float)
@@ -135,9 +85,9 @@ def _result_record(run_case, ross_root: Path, fixture_name: str, *, overrides=No
     # ROSS reports the thermal outlet by pad.  Preserve the vector and expose
     # a single deterministic bulk outlet scalar for the B12 scalar gate.
     tout_by_pad = np.asarray(out["temp_out_let_bulk"][0], dtype=float)
-    # Formal B12 scalar T_max is the ROSS-reported bearing maximum
-    # (tpad_max), i.e. the exact quantity returned by the pinned solver.
-    tmax = float(np.atleast_1d(out["tpad_max"])[0])
+    # B12 T_max is defined on the same exported T(theta,z) film field used
+    # by the field-L2 gate.  Keep the scalar and field authority consistent.
+    tmax = float(np.max(temperature))
     pmax = float(np.max(pressure))
 
     dhc = np.asarray(out.get("dhc", [[[0.0]]])[0], dtype=float)
