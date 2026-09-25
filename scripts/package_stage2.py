@@ -82,8 +82,9 @@ def linux_runtime_libraries(solver):
 
 def windows_runtime_dlls():
     roots = []
-    explicit = os.environ.get("DRMROTOR_DLL_DIRS", "")
-    roots.extend(Path(p) for p in explicit.split(os.pathsep) if p)
+    for variable in ("DRMROTOR_DLL_DIRS", "DRMBEARINGS_DLL_DIRS"):
+        explicit = os.environ.get(variable, "")
+        roots.extend(Path(p) for p in explicit.split(os.pathsep) if p)
     ucrt = os.environ.get("UCRT64_BIN")
     if ucrt:
         roots.append(Path(ucrt))
@@ -108,7 +109,11 @@ def windows_runtime_dlls():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--solver", required=True)
+    parser.add_argument("--solver", required=True, help="Qualified libdrmrotor shared library")
+    parser.add_argument(
+        "--bearing-solver",
+        help="Qualified libdrmbearings shared library. Required for the advanced-bearing runtime.",
+    )
     parser.add_argument("--dist-dir", default="dist/stage2")
     parser.add_argument("--work-dir", default="build-stage2-pyinstaller")
     parser.add_argument("--id", default=os.environ.get("GITHUB_SHA", "local")[:12])
@@ -117,6 +122,9 @@ def main():
     solver = Path(args.solver).resolve()
     if not solver.is_file():
         raise SystemExit(f"solver library not found: {solver}")
+    bearing_solver = Path(args.bearing_solver).resolve() if args.bearing_solver else None
+    if bearing_solver is not None and not bearing_solver.is_file():
+        raise SystemExit(f"bearing solver library not found: {bearing_solver}")
 
     dist_root = Path(args.dist_dir).resolve()
     work_root = Path(args.work_dir).resolve()
@@ -138,10 +146,22 @@ def main():
         "--add-binary", f"{solver}{os.pathsep}.",
         "--add-data", f"{smoke}{os.pathsep}examples",
     ]
+    if bearing_solver is not None:
+        pyinstaller.extend(["--add-binary", f"{bearing_solver}{os.pathsep}."])
 
     runtime_dlls = windows_runtime_dlls() if os.name == "nt" else []
-    runtime_shared = linux_runtime_libraries(solver) if os.name != "nt" else []
+    runtime_shared = []
+    if os.name != "nt":
+        runtime_shared.extend(linux_runtime_libraries(solver))
+        if bearing_solver is not None:
+            runtime_shared.extend(linux_runtime_libraries(bearing_solver))
+
+    # Do not add the same BLAS/Fortran runtime twice when both native
+    # libraries resolve to the same dependency.
+    dependencies = {}
     for dependency in [*runtime_dlls, *runtime_shared]:
+        dependencies[str(dependency.resolve())] = dependency
+    for dependency in dependencies.values():
         pyinstaller.extend(["--add-binary", f"{dependency}{os.pathsep}."])
 
     pyinstaller.append(str(ROOT / "scripts" / "rotorstudio_entry.py"))
@@ -158,6 +178,9 @@ def main():
         "build_id": args.id,
         "solver_source_name": solver.name,
         "solver_sha256": sha256(solver),
+        "bearing_solver_source_name": bearing_solver.name if bearing_solver else None,
+        "bearing_solver_sha256": sha256(bearing_solver) if bearing_solver else None,
+        "advanced_bearing_runtime": "BUNDLED" if bearing_solver else "NOT_BUNDLED",
         "windows_runtime_dlls": [p.name for p in runtime_dlls],
         "linux_runtime_libraries": [p.name for p in runtime_shared],
         "entry": "RotorDynamicsStudio.exe" if os.name == "nt" else "RotorDynamicsStudio",
