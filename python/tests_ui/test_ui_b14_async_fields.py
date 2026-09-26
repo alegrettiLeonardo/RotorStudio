@@ -72,7 +72,7 @@ def test_b14_worker_does_not_block_qt_event_loop(qtbot):
     QTimer.singleShot(25, lambda: ticks.append("alive"))
     job = manager.submit(_bearing(), 100.0, 100.0, "A")
     qtbot.waitUntil(
-        lambda: _ControlledFacade.instances and _ControlledFacade.instances[0].entered.is_set(),
+        lambda: bool(_ControlledFacade.instances) and _ControlledFacade.instances[0].entered.is_set(),
         timeout=2000,
     )
     qtbot.waitUntil(lambda: bool(ticks), timeout=1000)
@@ -90,7 +90,7 @@ def test_b14_progress_polling_changes_and_cancel_never_publishes(qtbot):
     manager.completed.connect(completed.append)
     job = manager.submit(_bearing(), 100.0, 80.0, "A")
     qtbot.waitUntil(
-        lambda: _ControlledFacade.instances and _ControlledFacade.instances[0].entered.is_set(),
+        lambda: bool(_ControlledFacade.instances) and _ControlledFacade.instances[0].entered.is_set(),
         timeout=2000,
     )
     with qtbot.waitSignal(manager.progress, timeout=2000) as sig:
@@ -120,7 +120,7 @@ def test_b14_selection_key_is_immutable_request_identity(qtbot):
     manager = BearingJobManager(solver_factory=_ControlledFacade, poll_ms=25)
     job = manager.submit(_bearing(), 100.0, 90.0, "selection-A")
     qtbot.waitUntil(
-        lambda: _ControlledFacade.instances and _ControlledFacade.instances[0].entered.is_set(),
+        lambda: bool(_ControlledFacade.instances) and _ControlledFacade.instances[0].entered.is_set(),
         timeout=2000,
     )
     assert job.request.selection_key == "selection-A"
@@ -138,7 +138,7 @@ def test_b14_shutdown_with_active_job_is_cooperative(qtbot):
     manager = BearingJobManager(solver_factory=_ControlledFacade, poll_ms=25)
     manager.submit(_bearing(), 100.0, 100.0, "A")
     qtbot.waitUntil(
-        lambda: _ControlledFacade.instances and _ControlledFacade.instances[0].entered.is_set(),
+        lambda: bool(_ControlledFacade.instances) and _ControlledFacade.instances[0].entered.is_set(),
         timeout=2000,
     )
     assert manager.shutdown(3000)
