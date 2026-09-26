@@ -1,0 +1,54 @@
+B13-B18 BASELINE SNAPSHOT
+Date: 2026-09-26
+
+Requested local repository path:
+~/Documentos/RotorStudio-bearings
+
+ACCESS BOUNDARY
+This chat execution environment does not expose the user's Ubuntu shell or the
+filesystem at ~/Documentos/RotorStudio-bearings. Therefore the requested local
+commands (pwd, git status, tool versions, .venv identity) cannot be truthfully
+executed here. They remain BLOCKED_BY_ENVIRONMENT and are not represented as
+PASS.
+
+Connected repository inspected through the authorized GitHub connection:
+repository=alegrettiLeonardo/RotorStudio
+historical_B12_HEAD=4df7801d7c6d16cabd092ad6e2e802a6626873c8
+qualified_B13_HEAD=fe0d6c4b906c31a63bb569adfc07b12ddbdfde24
+work_branch=feature/b13-b18-advanced-bearing-productization-20260926
+branch_start_head=fe0d6c4b906c31a63bb569adfc07b12ddbdfde24
+B12_ancestor_of_branch_start=YES (established by the dedicated B13 qualification workflow)
+B13_PR=https://github.com/alegrettiLeonardo/RotorStudio/pull/15
+B13_workflow_run_id=36240346802
+B13_Linux_source_frozen=PASS
+B13_Windows_source_frozen=PASS
+B13_Stage1=57/57 PASS on Linux and Windows
+B13_B12_regression=PASS
+B13_ADVANCED_BEARING_CRUD=PASS
+
+Known B12 ROSS authority:
+petrobras/ross@6320eab9f890f1b3cc1710d508b446fe063ca68d
+
+Requested local baseline commands:
+pwd=BLOCKED_BY_ENVIRONMENT
+git status --short=BLOCKED_BY_ENVIRONMENT
+git status=BLOCKED_BY_ENVIRONMENT
+git branch --show-current=BLOCKED_BY_ENVIRONMENT
+git rev-parse HEAD=BLOCKED_BY_ENVIRONMENT
+git log -10 --oneline --decorate=BLOCKED_BY_ENVIRONMENT
+git remote -v=BLOCKED_BY_ENVIRONMENT
+python --version=BLOCKED_BY_ENVIRONMENT
+which python=BLOCKED_BY_ENVIRONMENT
+python -m pip --version=BLOCKED_BY_ENVIRONMENT
+cmake --version=BLOCKED_BY_ENVIRONMENT
+gfortran --version=BLOCKED_BY_ENVIRONMENT
+make --version=BLOCKED_BY_ENVIRONMENT
+ninja --version=BLOCKED_BY_ENVIRONMENT
+git --version=BLOCKED_BY_ENVIRONMENT
+git merge-base --is-ancestor 4df7801d7c6d16cabd092ad6e2e802a6626873c8 HEAD=BLOCKED_BY_ENVIRONMENT
+
+Continuation rule:
+Development continues from the already qualified B13 HEAD above. B12 physics is
+frozen unless a reproduced defect requires a minimal, explicitly requalified
+change. Local-machine gates remain BLOCKED until an execution channel for the
+user's Ubuntu shell is actually available.
