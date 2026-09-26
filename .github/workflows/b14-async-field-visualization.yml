@@ -86,7 +86,12 @@ jobs:
           unzip -q "$ZIP" -d "$CLEAN"
           cd "$CLEAN"
           unset PYTHONPATH DRMROTOR_LIB DRMROTOR_DLL_DIRS DRMBEARINGS_LIB DRMBEARINGS_DLL_DIRS
+          set +e
           ./RotorDynamicsStudio/RotorDynamicsStudio --qualification-smoke "$SMOKE"
+          RC=$?
+          if [ -f "$SMOKE/PACKAGED_SMOKE.json" ]; then cat "$SMOKE/PACKAGED_SMOKE.json"; fi
+          set -e
+          test "$RC" -eq 0
           python - <<PY
           import json, pathlib
           p=pathlib.Path(r"$SMOKE/PACKAGED_SMOKE.json")
@@ -203,8 +208,10 @@ jobs:
           Remove-Item Env:PYTHONPATH,Env:DRMROTOR_LIB,Env:DRMROTOR_DLL_DIRS,Env:DRMBEARINGS_LIB,Env:DRMBEARINGS_DLL_DIRS -ErrorAction SilentlyContinue
           $exe=Join-Path $clean "RotorDynamicsStudio/RotorDynamicsStudio.exe"
           $proc=Start-Process -FilePath $exe -ArgumentList @("--qualification-smoke",$smoke) -Wait -PassThru
+          $smokeJson=Join-Path $smoke "PACKAGED_SMOKE.json"
+          if (Test-Path $smokeJson) { Get-Content $smokeJson }
           if ($proc.ExitCode -ne 0) { throw "packaged B14 smoke exit code $($proc.ExitCode)" }
-          $d=Get-Content (Join-Path $smoke "PACKAGED_SMOKE.json") | ConvertFrom-Json
+          $d=Get-Content $smokeJson | ConvertFrom-Json
           if ($d.status -ne "PASS" -or $d.b14_async_fields.status -ne "PASS") { throw "B14 packaged smoke failed" }
           Copy-Item $smoke validation/reports/b14/windows/frozen_smoke -Recurse
       - uses: actions/upload-artifact@v4
