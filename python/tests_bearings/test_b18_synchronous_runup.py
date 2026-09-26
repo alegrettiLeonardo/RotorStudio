@@ -20,7 +20,7 @@ def _shaft():
 
 def _base_model():
     return RotorModel(
-        nodes=[Node(1,0.0),Node(2,.5)],
+        nodes=[Node(1,0.0),Node(2,2.0)],
         shafts=[_shaft()],
         bearings=[Bearing(3,2,(1.0e7,2.0e7,4.0e5,4.0e5))],
         forces=[Force(1,(2,1.0e-3,0.0))],
@@ -52,7 +52,7 @@ def test_b18_constant_advanced_equals_legacy_type5_runup():
         *legacy.bearings,
         _type5(1,b.kxx,b.kxy,b.kyx,b.kyy,b.cxx,b.cxy,b.cyx,b.cyy),
     ]
-    kwargs=dict(nr=0,rtol=2e-7,atol=2e-10,h_max=2e-3,max_points=300000)
+    kwargs=dict(nr=0,rtol=2e-7,atol=2e-10,h_max=2e-3,max_points=200000)
     ra=run_runup(advanced,_alpha(),[0.0,2.0],**kwargs)
     rl=run_runup(legacy,_alpha(),[0.0,2.0],**kwargs)
     # Both paths use adaptive DP45, but algebraically equivalent matrix
@@ -86,7 +86,7 @@ def test_b18_speed_dependent_linear_map_matches_independent_rhs_oracle():
         cyy=tuple(3.4e5+80.0*w for w in axis),
     )
     model.advanced_bearings=[b]
-    result=run_runup(model,_alpha(),[0.0,2.0],nr=0,rtol=2e-7,atol=2e-10,h_max=2e-3,max_points=100000)
+    result=run_runup(model,_alpha(),[0.0,2.0],nr=0,rtol=2e-7,atol=2e-10,h_max=2e-3,max_points=200000)
 
     # Independent Python/SciPy oracle: use RotorStudio's qualified stationary
     # matrices only for constant rotor/legacy terms; interpolate the B18 map
@@ -175,7 +175,7 @@ def test_b18_b16_synchronous_physical_maps_run_without_physical_provider_in_ode(
     operating=generate_operating_map(factory(),axis,interpolation="linear",backend=provider)
     mapped=operating.to_coefficient_bearing(tag="B18 synchronous physical map")
     model=_base_model();model.advanced_bearings=[mapped]
-    result=run_runup(model,_alpha(),[0.0,2.0],nr=0,rtol=1e-5,atol=1e-8,h_max=5e-3,max_points=100000)
+    result=run_runup(model,_alpha(),[0.0,2.0],nr=0,rtol=1e-5,atol=1e-8,h_max=5e-3,max_points=200000)
     assert result.metadata["map_points"]==len(axis)
     assert result.metadata["advanced_bearing_scope"].endswith("NO_TEHD_IN_ODE")
     assert np.isfinite(result.response).all()
@@ -193,7 +193,7 @@ def test_b18_time_step_and_map_resolution_convergence():
         )
     def run(axis,h):
         m=_base_model();m.advanced_bearings=[bearing(axis)]
-        return run_runup(m,_alpha(),[0.0,2.0],nr=0,rtol=2e-6,atol=2e-9,h_max=h,max_points=300000)
+        return run_runup(m,_alpha(),[0.0,2.0],nr=0,rtol=2e-6,atol=2e-9,h_max=h,max_points=200000)
     coarse=run(coarse_axis,4e-3);fine=run(fine_axis,2e-3);finer=run(fine_axis,1e-3)
     # Compare final state; refinement in time must collapse, and the map
     # refinement effect remains bounded for this smooth synthetic surface.
