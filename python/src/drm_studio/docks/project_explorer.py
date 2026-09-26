@@ -36,6 +36,13 @@ class ProjectExplorerDock(QDockWidget):
         self.tree.expandToDepth(2)
         self.setWidget(self.tree)
 
+        # QAbstractItemModel reset invalidates the QTreeView current QModelIndex.
+        # Re-select the session's stable EntityRef after every rebuild, even
+        # when an Edit keeps the same EntityRef and ProjectSession therefore
+        # correctly suppresses a redundant selectionChanged signal.
+        self.model.modelReset.connect(
+            lambda: self._session_selection_changed(self.session.selection)
+        )
         self.tree.selectionModel().currentChanged.connect(self._tree_current_changed)
         self.tree.customContextMenuRequested.connect(self._show_context_menu)
         self.tree.doubleClicked.connect(self._double_clicked)
