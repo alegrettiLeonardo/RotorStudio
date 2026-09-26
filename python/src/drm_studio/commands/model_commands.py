@@ -88,6 +88,7 @@ class EditDiskCommand(QUndoCommand):
     def undo(self):self._assign(self.old_disk)
 
 
+
 class ReplaceRotorDefinitionsCommand(QUndoCommand):
     """Undoable replacement of qualified coaxial RotorDefinition rows."""
 
@@ -106,6 +107,7 @@ class ReplaceRotorDefinitionsCommand(QUndoCommand):
 
     def redo(self):self._assign(self.new)
     def undo(self):self._assign(self.old)
+
 
 
 def _model_validation_family(model):
@@ -136,7 +138,6 @@ class EditBearingCommand(QUndoCommand):
     def redo(self):self._assign(self.new_bearing)
     def undo(self):self._assign(self.old_bearing)
 
-
 # ---------------------------------------------------------------------------
 # B13 â€” advanced bearing transactional CRUD
 # ---------------------------------------------------------------------------
@@ -147,35 +148,49 @@ def _advanced_ref(index: int):
 
 
 def _validate_advanced_candidate(model) -> None:
-    # B13 edits a stationary-model entity. Existing solver gates remain the
-    # authority for coaxial/rotating/run-up use; CRUD does not relax them.
+    # CRUD validates the stationary model without relaxing the existing
+    # fail-closed coaxial/rotating/run-up gates.
     validate_model(model, analysis="stationary")
 
 
 class AddAdvancedBearingCommand(QUndoCommand):
-    """Insert one fully constructed advanced-bearing domain object."""
+    """Insert one complete, pre-validated advanced-bearing domain object."""
 
     def __init__(self, session, bearing, index: int | None = None, text: str | None = None):
         self.session = session
         self.bearing = copy.deepcopy(bearing)
-        self.index = len(session.project.model.advanced_bearings) if index is None else int(index)
-        if self.index < 0 or self.index > len(session.project.model.advanced_bearings):
-            raise IndexError(f"advanced bearing insertion index {self.index} is out of range")
+        self.index = (
+            len(session.project.model.advanced_bearings)
+            if index is None else int(index)
+        )
+        if not 0 <= self.index <= len(session.project.model.advanced_bearings):
+            raise IndexError(
+                f"advanced bearing insertion index {self.index} is out of range"
+            )
         self.previous_selection = session.selection
+
         candidate = copy.deepcopy(session.project.model)
-        candidate.advanced_bearings.insert(self.index, copy.deepcopy(self.bearing))
+        candidate.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
         _validate_advanced_candidate(candidate)
-        tag = getattr(self.bearing, "tag", "") or getattr(self.bearing, "model_family", "advanced bearing")
+
+        tag = (
+            getattr(self.bearing, "tag", "")
+            or getattr(self.bearing, "model_family", "advanced bearing")
+        )
         super().__init__(text or f"Add advanced bearing {tag}")
 
     def redo(self):
-        self.session.project.model.advanced_bearings.insert(self.index, copy.deepcopy(self.bearing))
+        self.session.project.model.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
         self.session.notify_model_changed()
         self.session.set_selection(_advanced_ref(self.index))
 
     def undo(self):
         current = self.session.project.model.advanced_bearings
-        if not (0 <= self.index < len(current)):
+        if not 0 <= self.index < len(current):
             raise IndexError("advanced bearing added by command is no longer present")
         current.pop(self.index)
         self.session.notify_model_changed()
@@ -189,21 +204,25 @@ class EditAdvancedBearingCommand(QUndoCommand):
         self.session = session
         self.index = int(index)
         current = session.project.model.advanced_bearings
-        if not (0 <= self.index < len(current)):
+        if not 0 <= self.index < len(current):
             raise IndexError(f"advanced bearing index {self.index} is out of range")
+
         self.old_bearing = copy.deepcopy(current[self.index])
         self.new_bearing = copy.deepcopy(new_bearing)
         if type(self.old_bearing) is not type(self.new_bearing):
             raise ValueError(
                 "B13 Edit does not convert bearing family; create a separate bearing instead"
             )
+
         candidate = copy.deepcopy(session.project.model)
         candidate.advanced_bearings[self.index] = copy.deepcopy(self.new_bearing)
         _validate_advanced_candidate(candidate)
         super().__init__(text or f"Edit advanced bearing {self.index + 1}")
 
     def _assign(self, bearing):
-        self.session.project.model.advanced_bearings[self.index] = copy.deepcopy(bearing)
+        self.session.project.model.advanced_bearings[self.index] = copy.deepcopy(
+            bearing
+        )
         self.session.notify_model_changed()
         self.session.set_selection(_advanced_ref(self.index))
 
@@ -215,16 +234,18 @@ class EditAdvancedBearingCommand(QUndoCommand):
 
 
 class DeleteAdvancedBearingCommand(QUndoCommand):
-    """Delete one advanced bearing and restore it at its original position on undo."""
+    """Delete one advanced bearing and restore its original position on undo."""
 
     def __init__(self, session, index: int, text: str | None = None):
         self.session = session
         self.index = int(index)
         current = session.project.model.advanced_bearings
-        if not (0 <= self.index < len(current)):
+        if not 0 <= self.index < len(current):
             raise IndexError(f"advanced bearing index {self.index} is out of range")
+
         self.bearing = copy.deepcopy(current[self.index])
         self.previous_selection = session.selection
+
         candidate = copy.deepcopy(session.project.model)
         candidate.advanced_bearings.pop(self.index)
         _validate_advanced_candidate(candidate)
@@ -232,5 +253,69 @@ class DeleteAdvancedBearingCommand(QUndoCommand):
 
     def redo(self):
         current = self.session.project.model.advanced_bearings
-        if not (0 <= self.index < len(current)):
-            raise IndexError( ‰…‘Ù…¹•‰•…É¥¹œÑ¼‘•±•Ñ”¥Ì¹¼±½¹•ÈÁÉ•Í•¹Ðˆ¤(€€€€€€€ÕÉÉ•¹Ð¹Á½À¡Í•±˜¹¥¹‘•à¤(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹¹½Ñ¥™å}µ½‘•±}¡…¹• ¤(€€€€€€€¥˜ÕÉÉ•¹Ðè(€€€€€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹Í•Ñ}Í•±•Ñ¥½¸¡}…‘Ù…¹•‘}É•˜¡µ¥¸¡Í•±˜¹¥¹‘•à°±•¸¡ÕÉÉ•¹Ð¤€´€Ä¤¤¤(€€€€€€€•±Í”è(€€€€€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹Í•Ñ}Í•±•Ñ¥½¸¡9½¹”¤((€€€‘•˜Õ¹‘¼¡Í•±˜¤è(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹ÁÉ½©•Ð¹µ½‘•°¹…‘Ù…¹•‘}‰•…É¥¹Ì¹¥¹Í•ÉÐ¡Í•±˜¹¥¹‘•à°½Áä¹‘••Á½Áä¡Í•±˜¹‰•…É¥¹œ¤¤(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹¹½Ñ¥™å}µ½‘•±}¡…¹• ¤(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹Í•Ñ}Í•±•Ñ¥½¸¡}…‘Ù…¹•‘}É•˜¡Í•±˜¹¥¹‘•à¤¤(()±…ÍÌÕÁ±¥…Ñ•‘Ù…¹•‘	•…É¥¹½µµ…¹¡EU¹‘½½µµ…¹¤è(€€€€ˆˆ‰É•…Ñ”…¸¥¹‘•Á•¹‘•¹Ð‘••À½ÁäÝ¥Ñ¡½ÕÐ¡…¹¥¹œÁ¡åÍ¥…°Á…É…µ•Ñ•ÉÌ¸ˆˆˆ((€€€‘•˜}}¥¹¥Ñ}|¡Í•±˜°Í•ÍÍ¥½¸°Í½ÕÉ•}¥¹‘•àè¥¹Ð°Ñ•áÐèÍÑÈð9½¹”€ô9½¹”¤è(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸€ôÍ•ÍÍ¥½¸(€€€€€€€Í•±˜¹Í½ÕÉ•}¥¹‘•à€ô¥¹Ð¡Í½ÕÉ•}¥¹‘•à¤(€€€€€€€ÕÉÉ•¹Ð€ôÍ•ÍÍ¥½¸¹ÁÉ½©•Ð¹µ½‘•°¹…‘Ù…¹•‘}‰•…É¥¹Ì(€€€€€€€¥˜¹½Ð€ À€ðôÍ•±˜¹Í½ÕÉ•}¥¹‘•à€ð±•¸¡ÕÉÉ•¹Ð¤¤è(€€€€€€€€€€€É…¥Í”%¹‘•áÉÉ½È¡˜‰…‘Ù…¹•‰•…É¥¹œ¥¹‘•àíÍ•±˜¹Í½ÕÉ•}¥¹‘•áô¥Ì½ÕÐ½˜É…¹”ˆ¤(€€€€€€€Í½ÕÉ”€ô½Áä¹‘••Á½Áä¡ÕÉÉ•¹ÑmÍ•±˜¹Í½ÕÉ•}¥¹‘•át¤(€€€€€€€½±‘}Ñ…œ€ôÍÑÈ¡•Ñ…ÑÑÈ¡Í½ÕÉ”°€‰Ñ…œˆ°€ˆˆ¤¤(€€€€€€€Ñ…œ€ô˜‰í½±‘}Ñ…ô½Áäˆ¥˜½±‘}Ñ…œ•±Í”˜‰í•Ñ…ÑÑÈ¡Í½ÕÉ”°€µ½‘•±}™…µ¥±äœ°€…‘Ù…¹•‰•…É¥¹œœ¥ô½Áäˆ(€€€€€€€Í•±˜¹‰•…É¥¹œ€ôÉ•Á±…”¡Í½ÕÉ”°Ñ…œõÑ…œ¤(€€€€€€€€Œ••Àµ½Áä……¥¸‰•…ÕÍ”™É½é•¸‘…Ñ…±…ÍÍ•Ì…¸ÍÑ¥±°½¹Ñ…¥¸µÕÑ…‰±”(€€€€€€€€ŒÁÉ½Ù•¹…¹”‘¥Ñ¥½¹…É¥•Ì¸Q¡”‘ÕÁ±¥…Ñ”µÕÍÐ‰”¥¹‘•Á•¹‘•¹Ð¸(€€€€€€€Í•±˜¹‰•…É¥¹œ€ô½Áä¹‘••Á½Áä¡Í•±˜¹‰•…É¥¹œ¤(€€€€€€€Í•±˜¹¥¹‘•à€ôÍ•±˜¹Í½ÕÉ•}¥¹‘•à€¬€Ä(€€€€€€€Í•±˜¹ÁÉ•Ù¥½ÕÍ}Í•±•Ñ¥½¸€ôÍ•ÍÍ¥½¸¹Í•±•Ñ¥½¸(€€€€€€€…¹‘¥‘…Ñ”€ô½Áä¹‘••Á½Áä¡Í•ÍÍ¥½¸¹ÁÉ½©•Ð¹µ½‘•°¤(€€€€€€€…¹‘¥‘…Ñ”¹…‘Ù…¹•‘}‰•…É¥¹Ì¹¥¹Í•ÉÐ¡Í•±˜¹¥¹‘•à°½Áä¹‘••Á½Áä¡Í•±˜¹‰•…É¥¹œ¤¤(€€€€€€€}Ù…±¥‘…Ñ•}…‘Ù…¹•‘}…¹‘¥‘…Ñ”¡…¹‘¥‘…Ñ”¤(€€€€€€€ÍÕÁ•È ¤¹}}¥¹¥Ñ}|¡Ñ•áÐ½È˜‰ÕÁ±¥…Ñ”…‘Ù…¹•‰•…É¥¹œíÍ•±˜¹Í½ÕÉ•}¥¹‘•à€¬€Åôˆ¤((€€€‘•˜É•‘¼¡Í•±˜¤è(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹ÁÉ½©•Ð¹µ½‘•°¹…‘Ù…¹•‘}‰•…É¥¹Ì¹¥¹Í•ÉÐ¡Í•±˜¹¥¹‘•à°½Áä¹‘••Á½Áä¡Í•±˜¹‰•…É¥¹œ¤¤(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹¹½Ñ¥™å}µ½‘•±}¡…¹• ¤(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹Í•Ñ}Í•±•Ñ¥½¸¡}…‘Ù…¹•‘}É•˜¡Í•±˜¹¥¹‘•à¤¤((€€€‘•˜Õ¹‘¼¡Í•±˜¤è(€€€€€€€ÕÉÉ•¹Ð€ôÍ•±˜¹Í•ÍÍ¥½¸¹ÁÉ½©•Ð¹µ½‘•°¹…‘Ù…¹•‘}‰•…É¥¹Ì(€€€€€€€¥˜¹½Ð€ À€ðôÍ•±˜¹¥¹‘•à€ð±•¸¡ÕÉÉ•¹Ð¤¤è(€€€€€€€€€€€É…¥Í”%¹‘•áÉÉ½È ‰‘ÕÁ±¥…Ñ•…‘Ù…¹•‰•…É¥¹œ¥Ì¹¼±½¹•ÈÁÉ•Í•¹Ðˆ¤(€€€€€€€ÕÉÉ•¹Ð¹Á½À¡Í•±˜¹¥¹‘•à¤(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹¹½Ñ¥™å}µ½‘•±}¡…¹• ¤(€€€€€€€Í•±˜¹Í•ÍÍ¥½¸¹Í•Ñ}Í•±•Ñ¥½¸¡Í•±˜¹ÁÉ•Ù¥½ÕÍ}Í•±•Ñ¥½¸¤(
+        if not 0 <= self.index < len(current):
+            raise IndexError("advanced bearing to delete is no longer present")
+        current.pop(self.index)
+        self.session.notify_model_changed()
+        if current:
+            self.session.set_selection(
+                _advanced_ref(min(self.index, len(current) - 1))
+            )
+        else:
+            self.session.set_selection(None)
+
+    def undo(self):
+        self.session.project.model.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
+        self.session.notify_model_changed()
+        self.session.set_selection(_advanced_ref(self.index))
+
+
+class DuplicateAdvancedBearingCommand(QUndoCommand):
+    """Create an independent copy while preserving every physical parameter."""
+
+    def __init__(self, session, source_index: int, text: str | None = None):
+        self.session = session
+        self.source_index = int(source_index)
+        current = session.project.model.advanced_bearings
+        if not 0 <= self.source_index < len(current):
+            raise IndexError(
+                f"advanced bearing index {self.source_index} is out of range"
+            )
+
+        source = copy.deepcopy(current[self.source_index])
+        old_tag = str(getattr(source, "tag", ""))
+        tag = (
+            f"{old_tag} copy"
+            if old_tag
+            else f"{getattr(source, 'model_family', 'advanced bearing')} copy"
+        )
+        self.bearing = copy.deepcopy(replace(source, tag=tag))
+        self.index = self.source_index + 1
+        self.previous_selection = session.selection
+
+        candidate = copy.deepcopy(session.project.model)
+        candidate.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
+        _validate_advanced_candidate(candidate)
+        super().__init__(
+            text or f"Duplicate advanced bearing {self.source_index + 1}"
+        )
+
+    def redo(self):
+        self.session.project.model.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
+        self.session.notify_model_changed()
+        self.session.set_selection(_advanced_ref(self.index))
+
+    def undo(self):
+        current = self.session.project.model.advanced_bearings
+        if not 0 <= self.index < len(current):
+            raise IndexError("duplicated advanced bearing is no longer present")
+        current.pop(self.index)
+        self.session.notify_model_changed()
+        self.session.set_selection(self.previous_selection)
+
