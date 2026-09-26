@@ -55,6 +55,19 @@ jobs:
         run: |
           set -o pipefail
           python -m pytest python/tests_bearings/test_b17_matched_whirl.py python/tests_ui/test_ui_b17_matched_whirl.py -q -s | tee validation/reports/b17/linux/b17.txt
+      - name: Checkout frozen ROSS authority
+        uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross_b17
+          fetch-depth: 1
+      - name: Install frozen ROSS authority
+        run: python -m pip install -e ./_ross_b17
+      - name: B17 frozen ROSS modal/Campbell parity
+        run: |
+          set -o pipefail
+          python scripts/qualify_b17_ross.py --ross-root ./_ross_b17 | tee validation/reports/b17/linux/ross_parity.txt
       - name: B16 B15 B14 B12 regression
         run: |
           set -o pipefail
