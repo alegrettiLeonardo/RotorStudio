@@ -120,16 +120,18 @@ jobs:
           python - <<'PY'
           import glob, hashlib, json, os, pathlib
           z=glob.glob('dist/b13/RotorDynamicsStudio-linux-*.zip')
+          complete=bool(z)
+          gate="PASS" if complete else "BLOCKED_OR_NOT_REACHED"
           payload={
-            "status":"PASS" if z else "BLOCKED",
+            "status":"PASS" if complete else "BLOCKED",
             "head_sha":os.environ["GITHUB_SHA"],
             "base_head":"4df7801d7c6d16cabd092ad6e2e802a6626873c8",
             "platform":"ubuntu-24.04",
-            "stage1":"57/57 PASS",
-            "b13_domain_commands_persistence":"PASS",
-            "b13_ui_crud":"PASS",
-            "b12_regression":"PASS",
-            "frozen_crud":"PASS" if z else "BLOCKED",
+            "stage1":"57/57 PASS" if complete else gate,
+            "b13_domain_commands_persistence":"PASS" if complete else gate,
+            "b13_ui_crud":"PASS" if complete else gate,
+            "b12_regression":"PASS" if complete else gate,
+            "frozen_crud":"PASS" if complete else gate,
           }
           if z:
             p=pathlib.Path(z[0])
@@ -179,6 +181,12 @@ jobs:
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-openblas
 
+      - name: Record UCRT64 runtime path
+        shell: msys2 {0}
+        run: |
+          mkdir -p validation/reports/b13/windows
+          echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -206,14 +214,14 @@ jobs:
           $bear = Get-ChildItem ./build-b13 -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
           if (-not $rotor) { throw "drmrotor DLL not found" }
           if (-not $bear) { throw "drmbearings DLL not found" }
-          $ucrt = "C:/msys64/ucrt64/bin"
-          if (-not (Test-Path $ucrt)) { $ucrt = Join-Path $env:RUNNER_TEMP "msys64/ucrt64/bin" }
-          if (-not (Test-Path $ucrt)) { throw "UCRT64 runtime path not found" }
+          $ucrt = $env:UCRT64_BIN
+          if (-not $ucrt -or -not (Test-Path $ucrt)) {
+            throw "UCRT64 runtime path from msys2/cygpath is unavailable: $ucrt"
+          }
           "DRMROTOR_LIB=$($rotor.FullName)" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
           "DRMBEARINGS_LIB=$($bear.FullName)" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
           "DRMROTOR_DLL_DIRS=$ucrt" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
           "DRMBEARINGS_DLL_DIRS=$ucrt" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
-          "UCRT64_BIN=$ucrt" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
           $root=(Get-Location).Path
           "PYTHONPATH=$root/python/src;$root" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
 
@@ -280,16 +288,18 @@ jobs:
         shell: pwsh
         run: |
           $zip=Get-ChildItem dist/b13/RotorDynamicsStudio-win32-*.zip -ErrorAction SilentlyContinue | Select-Object -First 1
+          $complete = [bool]$zip
+          $gate = $(if ($complete) {"PASS"} else {"BLOCKED_OR_NOT_REACHED"})
           $payload=[ordered]@{
-            status = $(if ($zip) {"PASS"} else {"BLOCKED"})
+            status = $(if ($complete) {"PASS"} else {"BLOCKED"})
             head_sha = $env:GITHUB_SHA
             base_head = "4df7801d7c6d16cabd092ad6e2e802a6626873c8"
             platform = "windows-2025 / UCRT64"
-            stage1 = "57/57 PASS"
-            b13_domain_commands_persistence = "PASS"
-            b13_ui_crud = "PASS"
-            b12_regression = "PASS"
-            frozen_crud = $(if ($zip) {"PASS"} else {"BLOCKED"})
+            stage1 = $(if ($complete) {"57/57 PASS"} else {$gate})
+            b13_domain_commands_persistence = $gate
+            b13_ui_crud = $gate
+            b12_regression = $gate
+            frozen_crud = $gate
           }
           if ($zip) {
             $payload.artifact=$zip.Name
