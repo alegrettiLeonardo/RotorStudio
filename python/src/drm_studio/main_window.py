@@ -741,6 +741,15 @@ class MainWindow(QMainWindow):
             self.restoreState(state)
 
     def closeEvent(self, event):
+        # B14 cooperative shutdown: request native bearing cancellation and wait
+        # for the worker to leave a solver safe point before Qt tears down.
+        if hasattr(self, "bearing_page") and not self.bearing_page.shutdown(5000):
+            self.session.log(
+                "WARNING",
+                "Bearing Performance worker did not stop within 5 s; close is deferred."
+            )
+            event.ignore()
+            return
         settings = QSettings()
         settings.setValue("main/geometry", self.saveGeometry())
         settings.setValue("main/state", self.saveState())
