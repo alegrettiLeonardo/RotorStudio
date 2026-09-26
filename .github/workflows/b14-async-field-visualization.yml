@@ -1,0 +1,236 @@
+name: B14 Async Field Visualization
+
+on:
+  push:
+    branches:
+      - feature/b13-b18-advanced-bearing-productization-20260926
+  pull_request:
+    branches:
+      - feature/ross-bearings-rotorstudio-20260925
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: b14-async-fields-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-b14:
+    name: Linux B14 source + frozen
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+      DRMROTOR_LIB: ${{ github.workspace }}/build-b14/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-b14/libdrmbearings.so
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify base ancestry and record HEAD
+        run: |
+          git merge-base --is-ancestor fe0d6c4b906c31a63bb569adfc07b12ddbdfde24 HEAD
+          git status --short
+          git rev-parse HEAD
+          git log -8 --oneline
+      - name: Install native and Qt dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: Install Core UI tests and packaging
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test,studio,ui-test,package]'
+      - name: Build Release and native tests
+        run: |
+          cmake -S fortran -B build-b14 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-b14 -j2
+          ctest --test-dir build-b14 --output-on-failure
+      - name: Stage 1 remains exactly 57
+        run: |
+          mkdir -p validation/reports/b14/linux
+          set -o pipefail
+          python -m pytest python/tests --collect-only -q | tee validation/reports/b14/linux/stage1_collection.txt
+          grep -Eq '57 tests collected|57 collected' validation/reports/b14/linux/stage1_collection.txt
+          python -m pytest python/tests -q | tee validation/reports/b14/linux/stage1_pytest.txt
+      - name: B14 native field and cooperative-cancel gates
+        run: |
+          set -o pipefail
+          python -m pytest python/tests_bearings/test_b14_async_fields.py -q | tee validation/reports/b14/linux/b14_native.txt
+      - name: B14 Qt worker/UI gates
+        run: |
+          set -o pipefail
+          python -m pytest python/tests_ui/test_ui_b14_async_fields.py -q | tee validation/reports/b14/linux/b14_ui.txt
+      - name: B12 regression and frozen ROSS parity
+        run: |
+          set -o pipefail
+          python -m pytest python/tests_bearings/test_advanced_bearings.py -q | tee validation/reports/b14/linux/b12_advanced.txt
+          python -m pytest python/tests_bearings/test_advanced_bearings_parity.py -q | tee validation/reports/b14/linux/b12_parity.txt
+      - name: Build Linux frozen application
+        run: |
+          ID="$(git rev-parse --short=12 HEAD)"
+          python scripts/package_stage2.py --solver "$DRMROTOR_LIB" --bearing-solver "$DRMBEARINGS_LIB" --dist-dir dist/b14 --work-dir build-b14-pyinstaller --id "$ID"
+      - name: Linux clean frozen B14 smoke
+        run: |
+          ZIP="$(ls dist/b14/RotorDynamicsStudio-linux-*.zip | head -1)"
+          CLEAN="$RUNNER_TEMP/rotorstudio-b14-linux-clean"
+          SMOKE="$RUNNER_TEMP/rotorstudio-b14-linux-smoke"
+          rm -rf "$CLEAN" "$SMOKE"
+          mkdir -p "$CLEAN" "$SMOKE"
+          unzip -q "$ZIP" -d "$CLEAN"
+          cd "$CLEAN"
+          unset PYTHONPATH DRMROTOR_LIB DRMROTOR_DLL_DIRS DRMBEARINGS_LIB DRMBEARINGS_DLL_DIRS
+          ./RotorDynamicsStudio/RotorDynamicsStudio --qualification-smoke "$SMOKE"
+          python - <<PY
+          import json, pathlib
+          p=pathlib.Path(r"$SMOKE/PACKAGED_SMOKE.json")
+          d=json.loads(p.read_text())
+          assert d["status"]=="PASS", d
+          b14=d["b14_async_fields"]
+          assert b14["status"]=="PASS", b14
+          assert b14["progress_samples"]>=1, b14
+          assert "film_thickness_field_m" in b14["field_shapes"], b14
+          print(json.dumps(b14,indent=2,sort_keys=True))
+          PY
+          cp -r "$SMOKE" "$GITHUB_WORKSPACE/validation/reports/b14/linux/frozen_smoke"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b14-linux-${{ github.sha }}
+          path: |
+            validation/reports/b14/linux/
+            dist/b14/
+          if-no-files-found: error
+          retention-days: 90
+
+  windows-b14:
+    name: Windows B14 source + frozen
+    runs-on: windows-2025
+    timeout-minutes: 120
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify base ancestry
+        shell: pwsh
+        run: |
+          git merge-base --is-ancestor fe0d6c4b906c31a63bb569adfc07b12ddbdfde24 HEAD
+          if ($LASTEXITCODE -ne 0) { throw "B14 base ancestry failed" }
+          git rev-parse HEAD
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc-fortran
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-openblas
+      - name: Record UCRT64 runtime path
+        shell: msys2 {0}
+        run: echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: Install Python dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test,studio,ui-test,package]'
+      - name: Build Release and native tests
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-b14 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-b14 --parallel
+          ctest --test-dir build-b14 --output-on-failure
+      - name: Locate DLLs
+        shell: pwsh
+        run: |
+          $rotor = Get-ChildItem ./build-b14 -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear = Get-ChildItem ./build-b14 -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          if (-not $rotor -or -not $bear) { throw "native DLL missing" }
+          $root=(Get-Location).Path
+          "DRMROTOR_LIB=$($rotor.FullName)" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_LIB=$($bear.FullName)" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMROTOR_DLL_DIRS=$env:UCRT64_BIN" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_DLL_DIRS=$env:UCRT64_BIN" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "PYTHONPATH=$root/python/src;$root" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Stage 1 and B14/B12 source gates
+        shell: pwsh
+        run: |
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          New-Item -ItemType Directory -Force validation/reports/b14/windows | Out-Null
+          $collection = python -m pytest python/tests --collect-only -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $collection | Tee-Object validation/reports/b14/windows/stage1_collection.txt
+          if (-not ($collection -match '57 tests collected|57 collected')) { throw "Stage 1 collection is not 57" }
+          python -m pytest python/tests -q | Tee-Object validation/reports/b14/windows/stage1_pytest.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest python/tests_bearings/test_b14_async_fields.py -q | Tee-Object validation/reports/b14/windows/b14_native.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest python/tests_ui/test_ui_b14_async_fields.py -q | Tee-Object validation/reports/b14/windows/b14_ui.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest python/tests_bearings/test_advanced_bearings.py python/tests_bearings/test_advanced_bearings_parity.py -q | Tee-Object validation/reports/b14/windows/b12_regression.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build Windows frozen application
+        shell: pwsh
+        run: |
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          $id=$env:GITHUB_SHA.Substring(0,12)
+          python scripts/package_stage2.py --solver "$env:DRMROTOR_LIB" --bearing-solver "$env:DRMBEARINGS_LIB" --dist-dir dist/b14 --work-dir build-b14-pyinstaller --id "$id"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Windows clean frozen B14 smoke
+        shell: pwsh
+        run: |
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          $zip=Get-ChildItem dist/b14/RotorDynamicsStudio-win32-*.zip | Select-Object -First 1
+          if (-not $zip) { throw "Windows B14 package not found" }
+          $clean=Join-Path $env:RUNNER_TEMP "rotorstudio-b14-windows-clean"
+          $smoke=Join-Path $env:RUNNER_TEMP "rotorstudio-b14-windows-smoke"
+          Remove-Item $clean,$smoke -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $clean,$smoke | Out-Null
+          Expand-Archive -Path $zip.FullName -DestinationPath $clean
+          Remove-Item Env:PYTHONPATH,Env:DRMROTOR_LIB,Env:DRMROTOR_DLL_DIRS,Env:DRMBEARINGS_LIB,Env:DRMBEARINGS_DLL_DIRS -ErrorAction SilentlyContinue
+          $exe=Join-Path $clean "RotorDynamicsStudio/RotorDynamicsStudio.exe"
+          $proc=Start-Process -FilePath $exe -ArgumentList @("--qualification-smoke",$smoke) -Wait -PassThru
+          if ($proc.ExitCode -ne 0) { throw "packaged B14 smoke exit code $($proc.ExitCode)" }
+          $d=Get-Content (Join-Path $smoke "PACKAGED_SMOKE.json") | ConvertFrom-Json
+          if ($d.status -ne "PASS" -or $d.b14_async_fields.status -ne "PASS") { throw "B14 packaged smoke failed" }
+          Copy-Item $smoke validation/reports/b14/windows/frozen_smoke -Recurse
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b14-windows-${{ github.sha }}
+          path: |
+            validation/reports/b14/windows/
+            dist/b14/
+          if-no-files-found: error
+          retention-days: 90
+
+  b14-gate:
+    name: B14 aggregate gate
+    needs: [linux-b14, windows-b14]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require Linux and Windows
+        env:
+          LINUX_RESULT: ${{ needs.linux-b14.result }}
+          WINDOWS_RESULT: ${{ needs.windows-b14.result }}
+        run: |
+          test "$LINUX_RESULT" = "success"
+          test "$WINDOWS_RESULT" = "success"
+      - name: Final B14 label
+        run: |
+          echo "B14_ASYNC_FIELD_VISUALIZATION = PASS"
+          echo "HEAD = $GITHUB_SHA"
