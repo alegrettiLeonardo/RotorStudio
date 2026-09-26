@@ -118,8 +118,8 @@ def test_b13_coefficient_gui_builds_2d_kcm_without_zeroing_mass(qtbot):
     assert bearing.speed_rad_s == (101.0, 202.0)
     assert bearing.frequency_rad_s == (303.0, 404.0, 505.0)
     assert bearing.interpolation == "linear"
-    assert bearing.kxx == [[11.0, 12.0, 13.0], [21.0, 22.0, 23.0]]
-    assert bearing.mxx == [[0.11, 0.12, 0.13], [0.21, 0.22, 0.23]]
+    assert bearing.kxx == ((11.0, 12.0, 13.0), (21.0, 22.0, 23.0))
+    assert bearing.mxx == ((0.11, 0.12, 0.13), (0.21, 0.22, 0.23))
 
 
 def test_b13_commands_add_edit_delete_duplicate_undo_redo_and_selection(qtbot):
