@@ -1,0 +1,31 @@
+{
+  "cases": {
+    "plain_journal_isoviscous": {
+      "json": "plain_journal_isoviscous.json",
+      "json_sha256": "f8b4cbd9caa27383db7bdfd92dc3cb3ee2640385033004f9c8f893302c3d674c",
+      "npz": "plain_journal_isoviscous.npz",
+      "npz_sha256": "307c2c4c27b58606e8999844e4aa51937f1f41ba0c70ae2b37e6602124cdd48e"
+    },
+    "plain_journal_tehd": {
+      "json": "plain_journal_tehd.json",
+      "json_sha256": "fd3fb6617f20ebd6517b35a0d598e41edadfa4fbbfa30b7b66d8c142d9b11482",
+      "npz": "plain_journal_tehd.npz",
+      "npz_sha256": "ff241566215270fb80fd7cdc31c232b48712ec2d27043af5a067c565418a2afc"
+    },
+    "tilting_pad_asynchronous": {
+      "json": "tilting_pad_asynchronous.json",
+      "json_sha256": "a72461b6c60ee98d4652f0fee648b49795b25a0fbca01d67ffc3720ac572520e",
+      "npz": "tilting_pad_asynchronous.npz",
+      "npz_sha256": "3d78edfa639013b6ee9b7cfb5e7061263659b7cd3c967d4b1067673076a73a73"
+    },
+    "tilting_pad_synchronous_thd": {
+      "json": "tilting_pad_synchronous_thd.json",
+      "json_sha256": "6fc7d71b539fba918038f2ff5f82b91db089b90f30d6adce7ec287050e9d5f77",
+      "npz": "tilting_pad_synchronous_thd.npz",
+      "npz_sha256": "ea2169da30a8b231e9d3b18b94af2da330318f1eb022da812d0aa2f25de84ca2"
+    }
+  },
+  "format": "JSON metadata/scalars + compressed NPZ full fields",
+  "generator": "scripts/generate_ross_golden_cases.py",
+  "ross_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d"
+}

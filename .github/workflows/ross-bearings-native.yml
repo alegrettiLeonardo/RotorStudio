@@ -1,0 +1,254 @@
+name: ROSS Bearings Native Qualification
+
+on:
+  push:
+    branches:
+      - feature/ross-bearings-fortran-integration
+      - feature/ross-bearings-rotorstudio-20260925
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ross-bearings-native-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-native:
+    name: Linux native bearing gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install numerical toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+
+      - name: Install frozen Python Core tests
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+
+      - name: Build Release and run all Fortran tests
+        run: |
+          cmake -S fortran -B build-bearings-release -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-bearings-release -j2
+          ctest --test-dir build-bearings-release --output-on-failure
+
+      - name: Build Debug/FPE and run standalone bearing gate
+        run: |
+          cmake -S fortran -B build-bearings-debug -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build-bearings-debug -j2
+          ctest --test-dir build-bearings-debug -R ross_bearings_native_bf1_bf2_bf3_bf4_bf5a_bf5band_bf5mesh_bf5film_bf5press_bf5cond_bf5cfg_bf5plain_bf7 --output-on-failure
+
+      - name: B10/B11 Debug-FPE packed ABI Python smoke
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-bearings-debug/libdrmrotor.so
+          DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-debug/libdrmbearings.so
+        run: |
+          set -o pipefail
+          mkdir -p validation/reports/ross_bearings_native/linux
+          python -m pytest python/tests_bearings/test_advanced_bearings.py -q \
+            | tee validation/reports/ross_bearings_native/linux/packed_abi_debug_pytest.txt
+
+      - name: Frozen Stage 1 regression remains exactly 57
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-bearings-release/libdrmrotor.so
+        run: |
+          set -o pipefail
+          mkdir -p validation/reports/ross_bearings_native/linux
+          python -m pytest python/tests --collect-only -q | tee validation/reports/ross_bearings_native/linux/stage1_collection.txt
+          grep -Eq '57 tests collected|57 collected' validation/reports/ross_bearings_native/linux/stage1_collection.txt
+          python -m pytest python/tests -q | tee validation/reports/ross_bearings_native/linux/stage1_pytest.txt
+
+      - name: B10/B11 qualify packed ABI and advanced-bearing integration
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-bearings-release/libdrmrotor.so
+          DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-release/libdrmbearings.so
+        run: |
+          set -o pipefail
+          python -m pytest python/tests_bearings/test_advanced_bearings.py -q \
+            | tee validation/reports/ross_bearings_native/linux/advanced_bearings_pytest.txt
+
+      - name: B12 frozen ROSS numerical parity
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-bearings-release/libdrmrotor.so
+          DRMBEARINGS_LIB: ${{ github.workspace }}/build-bearings-release/libdrmbearings.so
+        run: |
+          set -o pipefail
+          python -m pytest python/tests_bearings/test_advanced_bearings_parity.py -q \
+            | tee validation/reports/ross_bearings_native/linux/b12_parity_pytest.txt
+
+      - name: Record Linux evidence
+        if: always()
+        run: |
+          mkdir -p validation/reports/ross_bearings_native/linux
+          sha256sum build-bearings-release/libdrmbearings.so > validation/reports/ross_bearings_native/linux/libdrmbearings.sha256
+          {
+            echo "ROSS authority: 6320eab9f890f1b3cc1710d508b446fe063ca68d"
+            echo "Native head: $GITHUB_SHA"
+            echo "Implemented gates: BF1 BF2 BF3 BF5 BF6 BF7 B10 B11 B12"
+            echo "RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_NATIVE_PHYSICS_AND_COEFFICIENT_PROVIDER"
+            echo "Advanced native families: Ball Roller Cylindrical SFD PlainJournal TiltingPad"
+            echo "Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface"\n            echo "PlainJournal/TiltingPad rotor bridge: B12-qualified type-5 adapter enabled"
+            echo "B12: frozen ROSS numerical parity QUALIFIED for PlainJournal and TiltingPad; ThrustPad/run-up/transient/coaxial/asymmetric remain out of scope"
+          } > validation/reports/ross_bearings_native/linux/status.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ross-bearings-native-linux-${{ github.sha }}
+          path: validation/reports/ross_bearings_native/linux/
+          if-no-files-found: error
+          retention-days: 90
+
+  windows-native:
+    name: Windows native bearing gates
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc-fortran
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-openblas
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+
+      - name: Install Python Core tests
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test]'
+
+      - name: Build Release and run all Fortran tests
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-bearings-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-bearings-release --parallel
+          ctest --test-dir build-bearings-release --output-on-failure
+
+      - name: Locate solver DLLs for Python qualification
+        shell: pwsh
+        run: |
+          $rotor = Get-ChildItem .\build-bearings-release -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear = Get-ChildItem .\build-bearings-release -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          if (-not $rotor) { throw "drmrotor DLL not found" }
+          if (-not $bear) { throw "drmbearings DLL not found" }
+          "DRMROTOR_LIB=$($rotor.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_LIB=$($bear.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $ucrtBin = Join-Path $env:RUNNER_TEMP "msys64\ucrt64\bin"
+          if (-not (Test-Path $ucrtBin)) { throw "MSYS2 UCRT64 runtime directory not found at $ucrtBin" }
+          "DRMROTOR_DLL_DIRS=$ucrtBin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_DLL_DIRS=$ucrtBin" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $repoRoot = (Get-Location).Path
+          "PYTHONPATH=$repoRoot\python\src;$repoRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Frozen Stage 1 regression remains exactly 57
+        shell: pwsh
+        run: |
+          python -m pytest python/tests --collect-only -q | Tee-Object -FilePath stage1_collection_windows.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Select-String -Path stage1_collection_windows.txt -Pattern "57 tests collected|57 collected")) { throw "Frozen Stage 1 collection is not 57" }
+          python -m pytest python/tests -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: B10/B11 qualify packed ABI and advanced-bearing integration
+        shell: pwsh
+        run: |
+          python -m pytest python/tests_bearings/test_advanced_bearings.py -q | Tee-Object -FilePath advanced_bearings_windows.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build Debug/FPE and run standalone bearing gate
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-bearings-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-bearings-debug --parallel
+          ctest --test-dir build-bearings-debug -R ross_bearings_native_bf1_bf2_bf3_bf4_bf5a_bf5band_bf5mesh_bf5film_bf5press_bf5cond_bf5cfg_bf5plain_bf7 --output-on-failure
+
+      - name: B10/B11 Debug-FPE packed ABI Python smoke
+        shell: pwsh
+        run: |
+          $rotor = Get-ChildItem .\build-bearings-debug -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear = Get-ChildItem .\build-bearings-debug -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          if (-not $rotor -or -not $bear) { throw "Debug bearing/rotor DLL not found" }
+          $env:DRMROTOR_LIB = $rotor.FullName
+          $env:DRMBEARINGS_LIB = $bear.FullName
+          python -m pytest python/tests_bearings/test_advanced_bearings.py -q | Tee-Object -FilePath packed_abi_debug_windows.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: B12 frozen ROSS numerical parity
+        shell: pwsh
+        run: |
+          python -m pytest python/tests_bearings/test_advanced_bearings_parity.py -q | Tee-Object -FilePath b12_parity_windows.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Record Windows evidence
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force validation\reports\ross_bearings_native\windows | Out-Null
+          $dll = Get-ChildItem .\build-bearings-release -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          if (-not $dll) { throw "drmbearings DLL not found" }
+          $hash = (Get-FileHash $dll.FullName -Algorithm SHA256).Hash.ToLower()
+          @"
+          ROSS authority: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          Native head: $env:GITHUB_SHA
+          Implemented gates: BF1 BF2 BF3 BF5 BF6 BF7 B10 B11 B12
+          RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_NATIVE_PHYSICS_AND_COEFFICIENT_PROVIDER
+          Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface\n          PlainJournal/TiltingPad rotor bridge: B12-qualified type-5 adapter enabled
+          Python qualification: Stage1 57 + advanced-bearing suite
+          B12: frozen ROSS numerical parity QUALIFIED for PlainJournal and TiltingPad
+          Out of scope: ThrustPad/run-up/transient/coaxial/asymmetric advanced-bearing coupling
+          DLL: $($dll.FullName)
+          SHA256: $hash
+          "@ | Set-Content validation\reports\ross_bearings_native\windows\status.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ross-bearings-native-windows-${{ github.sha }}
+          path: validation/reports/ross_bearings_native/windows/
+          if-no-files-found: error
+          retention-days: 90
+
+  native-gate:
+    name: Standalone bearing aggregate gate
+    needs: [linux-native, windows-native]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require both native platforms
+        env:
+          LINUX_RESULT: ${{ needs.linux-native.result }}
+          WINDOWS_RESULT: ${{ needs.windows-native.result }}
+        run: |
+          test "$LINUX_RESULT" = "success"
+          test "$WINDOWS_RESULT" = "success"

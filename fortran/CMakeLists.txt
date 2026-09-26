@@ -4,6 +4,37 @@ set(CMAKE_Fortran_STANDARD 2018)
 set(CMAKE_Fortran_STANDARD_REQUIRED ON)
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
+
+# ROSS-derived bearing library.  It remains a separate shared library from
+# drmrotor and is consumed through its stable C ABI by the Python Core.
+# The qualified legacy drmrotor bearing path is therefore left untouched.
+add_library(drmbearings SHARED
+ bearings/src/rb_kinds.f90
+ bearings/src/rb_status.f90
+ bearings/src/rb_interpolation.f90
+ bearings/src/rb_rolling.f90
+ bearings/src/rb_cylindrical.f90
+ bearings/src/rb_squeeze_film_damper.f90
+ bearings/src/rb_fixed_geometry.f90
+ bearings/src/rb_tilting_pad_config.f90
+ bearings/src/rb_dynamic_reduction.f90
+ bearings/src/rb_reynolds_element.f90
+ bearings/src/rb_reynolds_banded.f90
+ bearings/src/rb_reynolds_mesh.f90
+ bearings/src/rb_film_thickness.f90
+ bearings/src/rb_pressure_isoviscous.f90
+ bearings/src/rb_thermal.f90
+ bearings/src/rb_pad_deformation.f90
+ bearings/src/rb_native_multiphysics.f90
+ bearings/src/rb_plain_journal_physics.f90
+ bearings/src/rb_tilting_pad_physics.f90
+ bearings/src/rb_c_api.f90)
+set_target_properties(drmbearings PROPERTIES OUTPUT_NAME drmbearings)
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(drmbearings PRIVATE
+  $<$<CONFIG:Debug>:-Wall -Wextra -Wimplicit-interface -ffree-line-length-none -fcheck=all -fbacktrace -ffpe-trap=invalid,zero,overflow>
+  $<$<CONFIG:Release>:-O2 -ffree-line-length-none>)
+endif()
 add_library(drmrotor SHARED
  src/rd_kinds.f90 src/rd_status.f90 src/rd_lapack.f90
  src/rd_shaft_circular.f90 src/rd_shaft_tapered.f90 src/rd_shaft_asymmetric.f90
@@ -36,3 +67,7 @@ add_test(NAME rotating_legacy_compatibility COMMAND test_rotating)
 add_executable(test_transient tests/test_transient.f90)
 target_link_libraries(test_transient PRIVATE drmrotor)
 add_test(NAME transient_dp45_reduction COMMAND test_transient)
+
+add_executable(test_ross_bearings_native bearings/tests/test_rb_native.f90)
+target_link_libraries(test_ross_bearings_native PRIVATE drmbearings)
+add_test(NAME ross_bearings_native_bf1_bf2_bf3_bf4_bf5a_bf5band_bf5mesh_bf5film_bf5press_bf5cond_bf5cfg_bf5plain_bf7 COMMAND test_ross_bearings_native)
