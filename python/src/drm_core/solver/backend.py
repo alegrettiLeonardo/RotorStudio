@@ -366,7 +366,12 @@ class FortranBackend:
                 self._ptr(time),self._ptr(resp),self._ptr(speed),self._iptr(nout),self._iptr(nru),self._iptr(na),self._iptr(nrj)
             )
             if status:
-                raise SolverLibraryError(f"Fortran rd_runup_coeffmap_legacy returned status={status}")
+                raise SolverLibraryError(
+                    f"Fortran rd_runup_coeffmap_legacy returned status={status}; "
+                    f"nout={int(nout[0])}, accepted_steps={int(na[0])}, "
+                    f"rejected_steps={int(nrj[0])}, map=[{axis[0]}, {axis[-1]}] rad/s, "
+                    f"runup=[{lo}, {hi}] rad/s"
+                )
             k=int(nout[0])
             return time[:k].copy(),resp[:,:k].copy(order='F'),speed[:k].copy(),{
                 "nr_used":int(nru[0]),"max_reduced_frequency_hz":0.0,
