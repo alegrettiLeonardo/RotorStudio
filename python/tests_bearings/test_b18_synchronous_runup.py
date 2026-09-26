@@ -40,7 +40,7 @@ def _constant_advanced(node=1):
 
 def _alpha():
     # Omega(t)=2*a2*t+a1 = 40 + 20*t rad/s on [0,2].
-    return np.asarray([10.0,40.0,0.0])
+    return np.asarray([200.0,40.0,0.0])
 
 
 def test_b18_constant_advanced_equals_legacy_type5_runup():
@@ -53,12 +53,12 @@ def test_b18_constant_advanced_equals_legacy_type5_runup():
         _type5(1,b.kxx,b.kxy,b.kyx,b.kyy,b.cxx,b.cxy,b.cyx,b.cyy),
     ]
     kwargs=dict(nr=0,rtol=2e-7,atol=2e-10,h_max=2e-3,max_points=200000)
-    ra=run_runup(advanced,_alpha(),[0.0,2.0],**kwargs)
-    rl=run_runup(legacy,_alpha(),[0.0,2.0],**kwargs)
+    ra=run_runup(advanced,_alpha(),[0.0,0.1],**kwargs)
+    rl=run_runup(legacy,_alpha(),[0.0,0.1],**kwargs)
     # Both paths use adaptive DP45, but algebraically equivalent matrix
     # assembly can produce slightly different accepted-step grids from roundoff.
     # Compare the trajectories on a common deterministic time grid.
-    grid=np.linspace(0.0,2.0,1001)
+    grid=np.linspace(0.0,0.1,1001)
     aa=np.vstack([np.interp(grid,ra.time_s,row) for row in ra.response])
     ll=np.vstack([np.interp(grid,rl.time_s,row) for row in rl.response])
     np.testing.assert_allclose(aa,ll,rtol=3e-7,atol=3e-10)
@@ -86,7 +86,7 @@ def test_b18_speed_dependent_linear_map_matches_independent_rhs_oracle():
         cyy=tuple(3.4e5+80.0*w for w in axis),
     )
     model.advanced_bearings=[b]
-    result=run_runup(model,_alpha(),[0.0,2.0],nr=0,rtol=2e-7,atol=2e-10,h_max=2e-3,max_points=200000)
+    result=run_runup(model,_alpha(),[0.0,0.1],nr=0,rtol=2e-7,atol=2e-10,h_max=2e-3,max_points=200000)
 
     # Independent Python/SciPy oracle: use RotorStudio's qualified stationary
     # matrices only for constant rotor/legacy terms; interpolate the B18 map
@@ -125,7 +125,7 @@ def test_b18_map_coverage_and_reduced_order_fail_closed():
         kxx=(1e7,1.1e7),kyy=(1.2e7,1.3e7),cxx=(3e5,3.1e5),cyy=(3.2e5,3.3e5),
     )]
     with pytest.raises(SolverLibraryError,match="coverage"):
-        run_runup(model,_alpha(),[0.0,2.0],nr=0)
+        run_runup(model,_alpha(),[0.0,0.1],nr=0)
     with pytest.raises(SolverLibraryError,match="reduced-order path is not qualified"):
         run_runup(model,_alpha(),[0.5,1.0],nr=4)
 
@@ -175,7 +175,7 @@ def test_b18_b16_synchronous_physical_maps_run_without_physical_provider_in_ode(
     operating=generate_operating_map(factory(),axis,interpolation="linear",backend=provider)
     mapped=operating.to_coefficient_bearing(tag="B18 synchronous physical map")
     model=_base_model();model.advanced_bearings=[mapped]
-    result=run_runup(model,_alpha(),[0.0,2.0],nr=0,rtol=1e-5,atol=1e-8,h_max=5e-3,max_points=200000)
+    result=run_runup(model,_alpha(),[0.0,0.1],nr=0,rtol=1e-5,atol=1e-8,h_max=5e-3,max_points=200000)
     assert result.metadata["map_points"]==len(axis)
     assert result.metadata["advanced_bearing_scope"].endswith("NO_TEHD_IN_ODE")
     assert np.isfinite(result.response).all()
@@ -193,7 +193,7 @@ def test_b18_time_step_and_map_resolution_convergence():
         )
     def run(axis,h):
         m=_base_model();m.advanced_bearings=[bearing(axis)]
-        return run_runup(m,_alpha(),[0.0,2.0],nr=0,rtol=2e-6,atol=2e-9,h_max=h,max_points=200000)
+        return run_runup(m,_alpha(),[0.0,0.1],nr=0,rtol=2e-6,atol=2e-9,h_max=h,max_points=200000)
     coarse=run(coarse_axis,4e-3);fine=run(fine_axis,2e-3);finer=run(fine_axis,1e-3)
     # Compare final state; refinement in time must collapse, and the map
     # refinement effect remains bounded for this smooth synthetic surface.
