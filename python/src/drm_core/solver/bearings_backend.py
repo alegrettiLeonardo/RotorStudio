@@ -26,6 +26,8 @@ _SFD_GEOMETRY = {"groove": 1, "end_seals": 2, "groove-end_seals": 3}
 
 _THERMAL_TYPE = {None: 0, "adiabatic": 1, "full": 2}
 _DEFORM_TYPE = {None: 0, "pad_mechanical": 1, "pad_mechanical_thermal": 2}
+_ROSS_B12_SHA = "6320eab9f890f1b3cc1710d508b446fe063ca68d"
+_NATIVE_FLUIDFILM_QUALIFICATION = "ROSS_PARITY_PASS_B12"
 
 _TP_BEARING_TYPE = {
     "conventional_tilting_pad": 1,
@@ -327,6 +329,9 @@ class AdvancedBearingBackend:
                 "thermal_type": bearing.thermal_type,
                 "deform_type": bearing.deform_type,
                 "abi": "packed-v1",
+                "qualification": _NATIVE_FLUIDFILM_QUALIFICATION,
+                "ross_authority_sha": _ROSS_B12_SHA,
+                "rotor_coupling_qualified": True,
             },
         )
 
@@ -441,6 +446,9 @@ class AdvancedBearingBackend:
                 "thermal_type": bearing.thermal_type,
                 "deform_type": bearing.deform_type,
                 "abi": "packed-v1",
+                "qualification": _NATIVE_FLUIDFILM_QUALIFICATION,
+                "ross_authority_sha": _ROSS_B12_SHA,
+                "rotor_coupling_qualified": True,
             },
         )
 
@@ -780,19 +788,11 @@ class AdvancedBearingBackend:
         speed_rad_s: float,
         frequency_rad_s: float | None = None,
     ) -> Bearing:
-        # The native physical PlainJournal provider is deliberately available
-        # for standalone qualification before rotor coupling.  Do not promote
-        # it into the qualified legacy type-5 assembly until its ROSS oracle
-        # coefficient/equilibrium gate is closed.
-        if isinstance(bearing, (PlainJournalPhysicsBearing, TiltingPadPhysicsBearing)) and not bool(
-            bearing.provenance.get("rotor_coupling_qualified", False)
-        ):
-            raise SolverLibraryError(
-                f"{type(bearing).__name__} native multiphysics solver is still "
-                "under ROSS parity qualification; rotor assembly is blocked. "
-                "Use PlainJournalBearing/CoefficientBearing with a qualified table, "
-                "or explicitly qualified provenance after the parity gate closes."
-            )
+        # B12 parity against the frozen ROSS authority qualifies the native
+        # PlainJournal/TiltingPad providers for the existing 2x2 translational
+        # type-5 bridge.  The historical type 1-8 / 20 implementation remains
+        # untouched; only the evaluated K/C row is adapted at the requested
+        # (Omega, omega) operating point.
         result = self.evaluate(bearing, speed_rad_s, frequency_rad_s)
         if np.max(np.abs(result.M)) > 1e-14:
             raise SolverLibraryError(
