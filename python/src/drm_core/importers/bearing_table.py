@@ -172,13 +172,10 @@ def parse_coefficient_table(
         raise BearingTableImportError("bearing coefficient table is empty")
 
     first_tokens = tuple(token.strip() for token in data_chunks[0].split("|"))
-    try:
-        first_values = tuple(_strict_number(token) for token in first_tokens)
-        first_is_data = True
-    except BearingTableImportError:
-        first_values = ()
-        first_is_data = False
-    if not first_is_data:
+    # Only an explicit rpm/Kxx/... label row is treated as a header.  A
+    # malformed first numeric point (including NaN/Inf) must fail as data
+    # rather than being reinterpreted as a header.
+    if first_tokens and first_tokens[0].casefold() == "rpm":
         header = tuple(token.casefold() for token in first_tokens)
         if header != IRDIN_COLUMNS:
             raise BearingTableImportError(
