@@ -31,6 +31,55 @@ def _type5(node, kxx, kxy, kyx, kyy, cxx, cxy, cyx, cyy):
     return Bearing(5, node, (kxx, kxy, kyx, kyy, cxx, cxy, cyx, cyy))
 
 
+def _plain_physics(node=1):
+    return PlainJournalPhysicsBearing(
+        node=node,
+        weight_n=112814.90696191376,
+        journal_diameter_m=0.3999992,
+        radial_clearance_m=0.000194564,
+        oil_viscosity_pa_s=0.01901574061455835,
+        pivot_angle_rad=(np.pi / 2.0, 3.0 * np.pi / 2.0),
+        pad_arc_rad=(3.07177948351002, 3.07177948351002),
+        pad_axial_length_m=(0.263144, 0.263144),
+        preload=(0.0, 0.0),
+        offset=(0.5, 0.5),
+        total_e_x_film=20,
+        total_e_z_film=10,
+        xj_ratio_initial=0.15,
+        yj_ratio_initial=-0.2,
+        force_tolerance=5e-3,
+    )
+
+
+def _tilting_physics(node=1):
+    return TiltingPadPhysicsBearing(
+        node=node,
+        weight_n=112814.90696191376,
+        journal_diameter_m=0.3999992,
+        radial_clearance_m=0.000194564,
+        oil_viscosity_pa_s=0.01901574061455835,
+        pad_thickness_m=0.149614636,
+        pad_density_kg_m3=7835.631544657211,
+        pivot_angle_rad=(
+            0.9424777960769379,
+            2.199114857512855,
+            3.4557519189487724,
+            4.71238898038469,
+            5.969026041820607,
+        ),
+        pad_arc_rad=(1.0471975511965976,) * 5,
+        pad_axial_length_m=(0.263144,) * 5,
+        preload=(0.3,) * 5,
+        offset=(0.5,) * 5,
+        k_rotate_nm_rad=(0.0,) * 5,
+        total_e_x_film=20,
+        total_e_z_film=10,
+        xj_ratio_initial=0.15,
+        yj_ratio_initial=-0.2,
+        force_tolerance=5e-3,
+    )
+
+
 def test_native_ball_oracle():
     backend = AdvancedBearingBackend()
     result = backend.evaluate(
@@ -553,3 +602,45 @@ def test_advanced_bearing_project_roundtrip(tmp_path):
     assert restored.speed_rad_s == (100.0, 200.0)
     assert restored.frequency_rad_s == (50.0, 150.0)
     assert restored.provenance["ross_sha"].startswith("6320eab9")
+
+@pytest.mark.parametrize("factory", [_plain_physics, _tilting_physics])
+def test_b12_qualified_native_fluidfilm_promotes_to_rotor_type5_bridge(factory):
+    speed = 94.24777960769379
+    bearing = factory(1)
+    provider = AdvancedBearingBackend()
+    evaluated = provider.evaluate(bearing, speed_rad_s=speed, frequency_rad_s=speed)
+    assert evaluated.details["qualification"] == "ROSS_PARITY_PASS_B12"
+    assert evaluated.details["rotor_coupling_qualified"] is True
+    assert evaluated.details["ross_authority_sha"].startswith("6320eab9")
+
+    adapted = provider.as_legacy_bearing(
+        bearing, speed_rad_s=speed, frequency_rad_s=speed
+    )
+    assert adapted.bearing_type == 5
+    expected_props = (
+        evaluated.K[0, 0], evaluated.K[0, 1],
+        evaluated.K[1, 0], evaluated.K[1, 1],
+        evaluated.C[0, 0], evaluated.C[0, 1],
+        evaluated.C[1, 0], evaluated.C[1, 1],
+    )
+    np.testing.assert_allclose(adapted.properties, expected_props, rtol=0, atol=0)
+
+    support = _type5(2, 1.5e6, 0.0, 0.0, 1.5e6, 150.0, 0.0, 0.0, 150.0)
+    advanced_model = RotorModel(
+        nodes=[Node(1, 0.0), Node(2, 1.0)],
+        shafts=[_shaft()],
+        bearings=[support],
+        advanced_bearings=[bearing],
+    )
+    manual_model = RotorModel(
+        nodes=[Node(1, 0.0), Node(2, 1.0)],
+        shafts=[_shaft()],
+        bearings=[adapted, support],
+    )
+
+    rotor = FortranBackend()
+    advanced_mats = rotor.assemble_matrices(advanced_model, speed)
+    manual_mats = rotor.assemble_matrices(manual_model, speed)
+    for actual, expected in zip(advanced_mats, manual_mats):
+        np.testing.assert_allclose(actual, expected, rtol=1e-13, atol=1e-9)
+
