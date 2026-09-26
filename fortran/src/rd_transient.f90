@@ -3,10 +3,10 @@ module rd_transient
   use rd_status,only:RD_OK,RD_ERR_INPUT,RD_ERR_UNSUPPORTED
   use rd_lapack,only:solve_real
   use rd_reduction,only:modal_truncation
-  use rd_dp45,only:dp45_time_fdn_grid,dp45_runup_span
+  use rd_dp45,only:dp45_time_fdn_grid,dp45_runup_span,dp45_runup_coeffmap_span
   implicit none(type,external)
   private
-  public :: time_foundation_response,runup_response
+  public :: time_foundation_response,runup_response,runup_coeffmap_response
 contains
   subroutine time_foundation_response(M,C,K,Mb,Cb,Kb,is_zero,bear,nbear,foundation_amp,pulse_duration,dt,npts,nr_request,rtol,atol,h_init,h_max,response,force,time,nr_used,max_frequency_hz,naccept,nreject,status)
     real(rk),intent(in)::M(:,:),C(:,:),K(:,:),Mb(:,:),Cb(:,:),Kb(:,:),bear(34,nbear),foundation_amp(2*nbear),pulse_duration,dt,rtol,atol,h_init,h_max
@@ -74,6 +74,59 @@ contains
     call dp45_runup_span(XK,XC,XC1,BFre(:,1),BFim(:,1),alpha,t0,tf,y0,rtol,atol,h_init,h_max,max_out,time,yout,nout,naccept,nreject,status);if(status/=RD_OK)return
     do j=1,nout
       response(keep,j)=matmul(Tr,yout(1:nr_used,j));speed(j)=2*a2*time(j)+a1
+    enddo
+  end subroutine
+
+  subroutine runup_coeffmap_response(M,C,C1,K,is_zero,force_complex,alpha,map_nodes,speed_axis,Ktab,Ctab,interp, &
+      t0,tf,rtol,atol,h_init,h_max,max_out,time,response,speed,nout,nr_used,naccept,nreject,status)
+    real(rk),intent(in)::M(:,:),C(:,:),C1(:,:),K(:,:),force_complex(:,:),alpha(3),speed_axis(:),Ktab(:,:,:),Ctab(:,:,:)
+    logical,intent(in)::is_zero(:);integer(ik),intent(in)::map_nodes(:),interp,max_out
+    real(rk),intent(in)::t0,tf,rtol,atol,h_init,h_max
+    real(rk),intent(out)::time(max_out),response(size(M,1),max_out),speed(max_out)
+    integer(ik),intent(out)::nout,nr_used,naccept,nreject,status
+    integer::ndof,nc,i,j,idx,node,nstate;integer,allocatable::keep(:),orig_to_red(:)
+    integer(ik),allocatable::map_i(:),map_j(:)
+    real(rk),allocatable::Mr(:,:),Cr(:,:),C1r(:,:),Kr(:,:),XK(:,:),XC(:,:),XC1(:,:),Minv(:,:),eye(:,:), &
+      frre(:,:),frim(:,:),BFre(:,:),BFim(:,:),y0(:),yout(:,:)
+    real(rk)::a2,a1
+    ndof=size(M,1);response=0._rk;time=0._rk;speed=0._rk;status=RD_OK;nout=0;naccept=0;nreject=0
+    if(tf<t0.or.max_out<2.or.size(force_complex,1)/=ndof.or.size(force_complex,2)/=2.or. &
+       size(speed_axis)<2.or.size(Ktab,1)/=4.or.size(Ctab,1)/=4.or. &
+       size(Ktab,2)/=size(speed_axis).or.size(Ctab,2)/=size(speed_axis).or. &
+       size(Ktab,3)/=size(map_nodes).or.size(Ctab,3)/=size(map_nodes))then
+      status=RD_ERR_INPUT;return
+    endif
+    nc=count(.not.is_zero);if(nc<1)then;status=RD_ERR_INPUT;return;endif
+    nr_used=int(nc,ik)
+    allocate(keep(nc),orig_to_red(ndof));orig_to_red=0;idx=0
+    do i=1,ndof
+      if(.not.is_zero(i))then;idx=idx+1;keep(idx)=i;orig_to_red(i)=idx;endif
+    enddo
+    allocate(map_i(size(map_nodes)),map_j(size(map_nodes)))
+    do i=1,size(map_nodes)
+      node=int(map_nodes(i))
+      if(node<1.or.4*node>ndof)then;status=RD_ERR_INPUT;return;endif
+      map_i(i)=int(orig_to_red(4*node-3),ik);map_j(i)=int(orig_to_red(4*node-2),ik)
+      if(map_i(i)<1.or.map_j(i)<1)then;status=RD_ERR_INPUT;return;endif
+    enddo
+    allocate(Mr(nc,nc),Cr(nc,nc),C1r(nc,nc),Kr(nc,nc))
+    Mr=M(keep,keep);Cr=C(keep,keep);C1r=C1(keep,keep);Kr=K(keep,keep)
+    allocate(XK(nc,nc),XC(nc,nc),XC1(nc,nc),Minv(nc,nc),eye(nc,nc),frre(nc,1),frim(nc,1),BFre(nc,1),BFim(nc,1))
+    XK=Kr;call solve_left(Mr,XK,status);if(status/=RD_OK)return
+    XC=Cr;call solve_left(Mr,XC,status);if(status/=RD_OK)return
+    XC1=C1r;call solve_left(Mr,XC1,status);if(status/=RD_OK)return
+    eye=0._rk;do i=1,nc;eye(i,i)=1._rk;enddo
+    Minv=eye;call solve_left(Mr,Minv,status);if(status/=RD_OK)return
+    frre(:,1)=force_complex(keep,1);frim(:,1)=force_complex(keep,2)
+    BFre=frre;call solve_left(Mr,BFre,status);if(status/=RD_OK)return
+    BFim=frim;call solve_left(Mr,BFim,status);if(status/=RD_OK)return
+    nstate=2*nc;allocate(y0(nstate),yout(nstate,max_out));y0=0._rk
+    call dp45_runup_coeffmap_span(XK,XC,XC1,Minv,map_i,map_j,speed_axis,Ktab,Ctab,interp,BFre(:,1),BFim(:,1), &
+      alpha,t0,tf,y0,rtol,atol,h_init,h_max,max_out,time,yout,nout,naccept,nreject,status)
+    if(status/=RD_OK)return
+    a2=alpha(1);a1=alpha(2)
+    do j=1,nout
+      response(keep,j)=yout(1:nc,j);speed(j)=2._rk*a2*time(j)+a1
     enddo
   end subroutine
 

@@ -1,0 +1,151 @@
+name: B18 Synchronous Advanced Bearing Run-up
+
+on:
+  push:
+    branches:
+      - feature/b13-b18-advanced-bearing-productization-20260926
+  pull_request:
+    branches:
+      - feature/ross-bearings-rotorstudio-20260925
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: b18-runup-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-b18:
+    name: Linux B18 source qualification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+      DRMROTOR_LIB: ${{ github.workspace }}/build-b18/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-b18/libdrmbearings.so
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Verify B17 qualified ancestry
+        run: git merge-base --is-ancestor 5c0f76a11499f75b5ced0a3a893fbe0e835604f0 HEAD
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m pip install -e './python[test,studio,ui-test,package]'
+      - name: Release build and native tests
+        run: |
+          cmake -S fortran -B build-b18 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-b18 -j2
+          ctest --test-dir build-b18 --output-on-failure
+      - name: Stage 1 exactly 57
+        run: |
+          set -o pipefail
+          mkdir -p validation/reports/b18/linux
+          collection="$(python -m pytest python/tests --collect-only -q)"
+          echo "$collection" | tee validation/reports/b18/linux/stage1_collection.txt
+          echo "$collection" | grep -Eq '57 tests collected|57 collected'
+          python -m pytest python/tests -q | tee validation/reports/b18/linux/stage1.txt
+      - name: B18 run-up gates
+        run: |
+          set -o pipefail
+          python -m pytest python/tests_bearings/test_b18_synchronous_runup.py python/tests_ui/test_ui_b18_synchronous_runup.py -q -s | tee validation/reports/b18/linux/b18.txt
+      - name: B12-B17 regressions
+        run: |
+          set -o pipefail
+          python -m pytest python/tests_bearings/test_b17_matched_whirl.py python/tests_bearings/test_b16_operating_map_cache.py python/tests_bearings/test_b15_irdin_coefficient_import.py python/tests_bearings/test_b14_async_fields.py -q | tee validation/reports/b18/linux/b14_b17.txt
+          python -m pytest python/tests_bearings/test_advanced_bearings.py python/tests_bearings/test_advanced_bearings_parity.py -q | tee validation/reports/b18/linux/b12.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b18-linux-${{ github.sha }}
+          path: validation/reports/b18/linux/
+          if-no-files-found: error
+
+  windows-b18:
+    name: Windows B18 source qualification
+    runs-on: windows-2025
+    timeout-minutes: 120
+    env: {QT_QPA_PLATFORM: offscreen}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Verify B17 qualified ancestry
+        shell: pwsh
+        run: |
+          git merge-base --is-ancestor 5c0f76a11499f75b5ced0a3a893fbe0e835604f0 HEAD
+          if ($LASTEXITCODE -ne 0) { throw "B18 ancestry failed" }
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc-fortran
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-openblas
+      - name: Record runtime
+        shell: msys2 {0}
+        run: echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - shell: pwsh
+        run: python -m pip install -e './python[test,studio,ui-test,package]'
+      - name: Build Release
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-b18 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-b18 --parallel
+          ctest --test-dir build-b18 --output-on-failure
+      - name: Locate DLLs
+        shell: pwsh
+        run: |
+          $rotor=Get-ChildItem ./build-b18 -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear=Get-ChildItem ./build-b18 -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          if (-not $rotor -or -not $bear) { throw "native DLL missing" }
+          $root=(Get-Location).Path
+          "DRMROTOR_LIB=$($rotor.FullName)" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_LIB=$($bear.FullName)" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMROTOR_DLL_DIRS=$env:UCRT64_BIN" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_DLL_DIRS=$env:UCRT64_BIN" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "PYTHONPATH=$root/python/src;$root" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Stage 1 and B18 gates
+        shell: pwsh
+        run: |
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          New-Item -ItemType Directory -Force validation/reports/b18/windows | Out-Null
+          $collection=python -m pytest python/tests --collect-only -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $collection | Tee-Object validation/reports/b18/windows/stage1_collection.txt
+          if (-not ($collection -match '57 tests collected|57 collected')) { throw "Stage 1 collection is not 57" }
+          python -m pytest python/tests -q | Tee-Object validation/reports/b18/windows/stage1.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest python/tests_bearings/test_b18_synchronous_runup.py python/tests_ui/test_ui_b18_synchronous_runup.py -q -s | Tee-Object validation/reports/b18/windows/b18.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b18-windows-${{ github.sha }}
+          path: validation/reports/b18/windows/
+          if-no-files-found: error
+
+  b18-gate:
+    name: B18 aggregate gate
+    needs: [linux-b18, windows-b18]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require Linux and Windows
+        env:
+          LINUX_RESULT: ${{ needs.linux-b18.result }}
+          WINDOWS_RESULT: ${{ needs.windows-b18.result }}
+        run: |
+          test "$LINUX_RESULT" = "success"
+          test "$WINDOWS_RESULT" = "success"
+      - run: |
+          echo "B18_SYNCHRONOUS_ADVANCED_BEARING_RUNUP = PASS"
+          echo "SCOPE = FULL_ORDER SYNCHRONOUS_COEFFICIENT_POLICY MAP_BASED NO_TEHD_IN_ODE"
+          echo "HEAD = $GITHUB_SHA"

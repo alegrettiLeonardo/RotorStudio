@@ -3,10 +3,15 @@ class SolverFacade:
     def __init__(self,library_path=None): self.backend=FortranBackend(library_path)
     def modal(self,model,speed_rad_s): return self.backend.modal_eigenvalues(model,speed_rad_s)
     def modal_eigensystem(self,model,speed_rad_s): return self.backend.modal_eigensystem(model,speed_rad_s)
+    def modal_at_frequency(self,model,speed_rad_s,frequency_rad_s): return self.backend.modal_eigenvalues_at_frequency(model,speed_rad_s,frequency_rad_s)
+    def modal_eigensystem_at_frequency(self,model,speed_rad_s,frequency_rad_s): return self.backend.modal_eigensystem_at_frequency(model,speed_rad_s,frequency_rad_s)
     def assemble(self,model,speed_rad_s=0.0): return self.backend.assemble_matrices(model,speed_rad_s)
     def bearings(self,model,speed_rad_s): return self.backend.bearings_matrices(model,speed_rad_s)
-    def advanced_bearing(self,bearing,speed_rad_s,frequency_rad_s=None): return self.backend._bearing_provider().evaluate(bearing,speed_rad_s,frequency_rad_s)
-    def advanced_bearing_fields(self,bearing,speed_rad_s,frequency_rad_s=None): return self.backend._bearing_provider().evaluate_fields(bearing,speed_rad_s,frequency_rad_s)
+    def advanced_bearing(self,bearing,speed_rad_s,frequency_rad_s=None,**kwargs): return self.backend._bearing_provider().evaluate(bearing,speed_rad_s,frequency_rad_s,**kwargs)
+    def advanced_bearing_fields(self,bearing,speed_rad_s,frequency_rad_s=None,**kwargs): return self.backend._bearing_provider().evaluate_fields(bearing,speed_rad_s,frequency_rad_s,**kwargs)
+    def advanced_bearing_job_reset(self): return self.backend._bearing_provider().reset_job_control()
+    def advanced_bearing_cancel(self): return self.backend._bearing_provider().request_cancel()
+    def advanced_bearing_job_progress(self): return self.backend._bearing_provider().job_progress()
     def prepare_elliptical_bearing(self,**kwargs): return self.backend._bearing_provider().prepare_elliptical_geometry(**kwargs)
     def prepare_offset_halves_bearing(self,**kwargs): return self.backend._bearing_provider().prepare_offset_halves_geometry(**kwargs)
     def prepare_plain_journal_bearing(self,**kwargs): return self.backend._bearing_provider().prepare_plain_journal_geometry(**kwargs)
@@ -24,3 +29,10 @@ class SolverFacade:
     def asymmetric_frequency_response(self,model,speeds_rad_s): return self.backend.asymmetric_frequency_response(model,speeds_rad_s)
     def foundation_time_response(self,model,rotor_speed_rad_s,dt,npts,**kwargs): return self.backend.foundation_time_response(model,rotor_speed_rad_s,dt,npts,**kwargs)
     def runup(self,model,alpha,tspan,**kwargs): return self.backend.runup(model,alpha,tspan,**kwargs)
+
+    def generate_bearing_operating_map(self,bearing,speed_rad_s,frequency_rad_s=None,**kwargs):
+        from .bearing_maps import generate_operating_map
+        return generate_operating_map(
+            bearing, speed_rad_s, frequency_rad_s,
+            backend=self.backend._bearing_provider(), **kwargs
+        )

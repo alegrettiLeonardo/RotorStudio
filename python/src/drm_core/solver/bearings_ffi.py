@@ -356,6 +356,13 @@ def configure_bearing_library(lib):
     lib.rb_tilting_pad_multiphysics_c.restype = ct.c_int
 
     iptr = ct.POINTER(ct.c_int)
+    lib.rb_job_reset_c.argtypes = []
+    lib.rb_job_reset_c.restype = ct.c_int
+    lib.rb_job_request_cancel_c.argtypes = []
+    lib.rb_job_request_cancel_c.restype = ct.c_int
+    lib.rb_job_progress_c.argtypes = [iptr, iptr, iptr, iptr, iptr, iptr]
+    lib.rb_job_progress_c.restype = ct.c_int
+
     lib.rb_plain_journal_multiphysics_pack_c.argtypes = [
         ct.c_int, dptr, iptr, dptr, dptr, dptr, dptr, dptr, dptr, dptr, dptr
     ]
@@ -377,6 +384,21 @@ def configure_bearing_library(lib):
         dptr, dptr, dptr, dptr, dptr, dptr, dptr,
     ]
     lib.rb_tilting_pad_multiphysics_fields_pack_c.restype = ct.c_int
+
+    # B14 additive field ABI.  The B12 fields ABI above remains frozen and
+    # callable for parity/regression evidence.
+    lib.rb_plain_journal_multiphysics_fields_v2_pack_c.argtypes = [
+        ct.c_int, dptr, iptr,
+        dptr, dptr, dptr, dptr, dptr,
+        dptr, dptr, dptr, dptr, dptr, dptr, dptr, dptr,
+    ]
+    lib.rb_plain_journal_multiphysics_fields_v2_pack_c.restype = ct.c_int
+    lib.rb_tilting_pad_multiphysics_fields_v2_pack_c.argtypes = [
+        ct.c_int, dptr, iptr,
+        dptr, dptr, dptr, dptr, dptr, dptr,
+        dptr, dptr, dptr, dptr, dptr, dptr, dptr, dptr, dptr,
+    ]
+    lib.rb_tilting_pad_multiphysics_fields_v2_pack_c.restype = ct.c_int
 
     lib.rb_plain_journal_fixed_state_pack_c.argtypes = [
         ct.c_int, dptr, ct.POINTER(ct.c_int),

@@ -7,7 +7,7 @@ import hashlib,json,os,platform,sys
 import numpy as np
 from .domain.model import RotorModel
 from .domain.bearings import advanced_bearing_to_dict, advanced_bearing_from_dict
-from .analysis.modal import run_modal
+from .analysis.modal import run_modal,track_modal_branches
 from .analysis.frequency_response import run_frequency_response,run_auxiliary_frequency_response,run_foundation_frequency_response
 from .analysis.critical_speed import run_critical_speeds
 from .analysis.coaxial import run_coaxial_modal,run_coaxial_frequency_response
@@ -98,10 +98,18 @@ class AnalysisService:
             speeds=np.asarray(p.pop("speeds_rad_s"),float)
             result=[]
             total=int(speeds.size)
+            b17_tracking="coefficient_policy" in p
+            if b17_tracking:
+                p["with_eigenvectors"]=True
+            previous=None
             for index,w in enumerate(speeds,1):
                 if cancel_check is not None and cancel_check():
                     raise AnalysisCancelled(f"modal_sweep cancelled safely before speed point {index}/{total}")
-                result.append(run_modal(model,float(w),library_path=lib,**p))
+                point=run_modal(model,float(w),library_path=lib,**p)
+                if b17_tracking and previous is not None:
+                    point=track_modal_branches(previous,point)
+                result.append(point)
+                previous=point
                 if progress_callback is not None:
                     progress_callback(index,total)
             if cancel_check is not None and cancel_check():

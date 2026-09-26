@@ -35,6 +35,7 @@ class PackagedQualification(QObject):
         self.bearing_smoke = None
         self.fluidfilm_smoke = None
         self.b13_crud_smoke = None
+        self.b14_field_smoke = None
         self._connect_window(window)
 
     def _connect_window(self, window):
@@ -51,6 +52,14 @@ class PackagedQualification(QObject):
             # entities does not run Reynolds/THD/TEHD.
             from .b13_qualification import run_b13_frozen_crud_smoke
             self.b13_crud_smoke = run_b13_frozen_crud_smoke(
+                self.window, self.output_dir
+            )
+
+            # B14 uses the real packaged Qt worker, QTimer-polled native progress
+            # and the additive native field ABI.  No source-tree backend or mock
+            # field is admitted in this smoke.
+            from .b14_qualification import run_b14_frozen_field_smoke
+            self.b14_field_smoke = run_b14_frozen_field_smoke(
                 self.window, self.output_dir
             )
 
@@ -225,6 +234,7 @@ class PackagedQualification(QObject):
                         "launch",
                         "open packaged example",
                         "B13 advanced-bearing GUI CRUD + save/reopen",
+                        "B14 asynchronous native bearing fields + visualization",
                         "native advanced-bearing load/oracle",
                         "real modal",
                         "real Campbell",
@@ -237,6 +247,7 @@ class PackagedQualification(QObject):
                     "result_count": len(self.records),
                     "advanced_bearing": self.bearing_smoke,
                     "b13_advanced_bearing_crud": self.b13_crud_smoke,
+                    "b14_async_fields": self.b14_field_smoke,
                     "native_fluidfilm_bearing": self.fluidfilm_smoke,
                     "saved_project": str(self.output_dir / "packaged_saved_project.rds"),
                     "screenshot": str(screenshot),

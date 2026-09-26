@@ -10,13 +10,13 @@ module rd_c_api
  use rd_critical_speed,only:critical_speeds,critical_speeds_ex
  use rd_coaxial_solver,only:coaxial_eigs,coaxial_frequency_response
  use rd_rotating_solver,only:asymmetric_eigs,asymmetric_frequency_response
- use rd_transient,only:time_foundation_response,runup_response
+ use rd_transient,only:time_foundation_response,runup_response,runup_coeffmap_response
  use rd_shaft_circular,only:shaft_circular_matrices
  use rd_shaft_tapered,only:shaft_tapered_matrices
  use rd_shaft_asymmetric,only:shaft_asymmetric_matrices
  implicit none(type,external);private
  public::rd_modal_legacy,rd_modal_legacy_vectors,rd_assemble_legacy,rd_bearings_legacy,rd_freq_rsp_legacy,rd_crit_spd_legacy,rd_crit_spd_legacy_ex
- public::rd_freq_aux_legacy,rd_freq_fdn_legacy,rd_time_fdn_legacy,rd_runup_legacy
+ public::rd_freq_aux_legacy,rd_freq_fdn_legacy,rd_time_fdn_legacy,rd_runup_legacy,rd_runup_coeffmap_legacy
  public::rd_element_circular_legacy,rd_element_tapered_legacy,rd_element_asymmetric_legacy
  public::rd_coax_modal_legacy,rd_coax_freq_rsp_legacy,rd_asym_assemble_legacy,rd_bearasym_legacy,rd_asym_modal_legacy,rd_asym_freq_rsp_legacy,rd_version
 contains
@@ -235,6 +235,61 @@ contains
    if(st/=RD_OK)then;rd_runup_legacy=st;return;endif
    do j=1,no;time(j)=tt(j);speed(j)=ss(j);do i=1,ndof;response((j-1)*ndof+i)=resp(i,j);enddo;enddo
    nout=no;nr_used=nru;naccept=na;nreject=nrj;rd_runup_legacy=RD_OK
+ end function
+
+ integer(c_int) function rd_runup_coeffmap_legacy(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,nforce,force,nmap,map_nodes, &
+     nspeed,map_speed,map_k,map_c,interp,alpha,t0,tf,rtol,atol,h_init,h_max,max_out,time,response,speed,nout,nr_used,naccept,nreject) &
+     bind(C,name='rd_runup_coeffmap_legacy')
+   integer(c_int),value::nnode,nshaft,ndisc,nbear,nforce,nmap,nspeed,interp,max_out
+   real(c_double),intent(in)::z(*),shaft(*),disc(*),bear(*),force(*),map_speed(*),map_k(*),map_c(*),alpha(*)
+   integer(c_int),intent(in)::map_nodes(*)
+   real(c_double),value::t0,tf,rtol,atol,h_init,h_max
+   real(c_double),intent(out)::time(*),response(*),speed(*)
+   integer(c_int),intent(out)::nout,nr_used,naccept,nreject
+   real(rk),allocatable::zz(:),sh(:,:),di(:,:),be(:,:),fo(:,:),aa(:),M0(:,:),C0(:,:),C1(:,:),K0(:,:),K1(:,:), &
+     Mb(:,:),Cb(:,:),Kb(:,:),M(:,:),C(:,:),K(:,:),fc(:,:),axis(:),kt(:,:,:),ct(:,:,:),tt(:),resp(:,:),ss(:)
+   integer(ik),allocatable::nodes(:)
+   logical,allocatable::iz(:)
+   integer::i,j,flat_index,b,node,ftype,ndof;real(rk)::mag,phase,qr,qi
+   integer(ik)::st,no,nru,na,nrj
+   rd_runup_coeffmap_legacy=RD_ERR_INPUT
+   if(nnode<=0.or.max_out<2.or.nmap<1.or.nspeed<2)return
+   ndof=4*nnode
+   call unpack(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,zz,sh,di,be)
+   do i=1,nbear
+     if(be(1,i)>6.5_rk)then;rd_runup_coeffmap_legacy=RD_ERR_UNSUPPORTED;return;endif
+   enddo
+   allocate(fo(5,nforce),aa(3),nodes(nmap),axis(nspeed),kt(4,nspeed,nmap),ct(4,nspeed,nmap))
+   do j=1,nforce;do i=1,5;fo(i,j)=force((j-1)*5+i);enddo;enddo
+   do i=1,3;aa(i)=alpha(i);enddo
+   do i=1,nmap;nodes(i)=int(map_nodes(i),ik);enddo
+   do i=1,nspeed;axis(i)=map_speed(i);enddo
+   do b=1,nmap;do j=1,nspeed;do i=1,4
+     flat_index=(b-1)*4*nspeed+(j-1)*4+i
+     kt(i,j,b)=map_k(flat_index);ct(i,j,b)=map_c(flat_index)
+   enddo;enddo;enddo
+   allocate(M0(ndof,ndof),C0(ndof,ndof),C1(ndof,ndof),K0(ndof,ndof),K1(ndof,ndof),Mb(ndof,ndof),Cb(ndof,ndof), &
+     Kb(ndof,ndof),M(ndof,ndof),C(ndof,ndof),K(ndof,ndof),iz(ndof),fc(ndof,2),tt(max_out),resp(ndof,max_out),ss(max_out));fc=0
+   call assemble_rotor(nnode,zz,nshaft,sh,ndisc,di,M0,C0,C1,K0,K1,st);if(st/=RD_OK)then;rd_runup_coeffmap_legacy=st;return;endif
+   call assemble_bearings(nnode,nbear,be,0._rk,Mb,Cb,Kb,iz,st);if(st/=RD_OK)then;rd_runup_coeffmap_legacy=st;return;endif
+   M=M0+Mb;C=C0+Cb;K=K0+Kb
+   do i=1,nforce
+     ftype=nint(fo(1,i));if(ftype/=1.and.ftype/=2)cycle
+     node=nint(fo(2,i));if(node<1.or.node>nnode)then;rd_runup_coeffmap_legacy=RD_ERR_INPUT;return;endif
+     mag=fo(3,i);phase=fo(4,i);qr=mag*cos(phase);qi=mag*sin(phase)
+     if(ftype==1)then
+       fc(4*node-3,1)=fc(4*node-3,1)+qr;fc(4*node-3,2)=fc(4*node-3,2)+qi
+       fc(4*node-2,1)=fc(4*node-2,1)+qi;fc(4*node-2,2)=fc(4*node-2,2)-qr
+     else
+       fc(4*node-1,1)=fc(4*node-1,1)-qi;fc(4*node-1,2)=fc(4*node-1,2)+qr
+       fc(4*node,1)=fc(4*node,1)+qr;fc(4*node,2)=fc(4*node,2)+qi
+     endif
+   enddo
+   call runup_coeffmap_response(M,C,C1,K,iz,fc,aa,nodes,axis,kt,ct,int(interp,ik),t0,tf,rtol,atol,h_init,h_max, &
+     int(max_out,ik),tt,resp,ss,no,nru,na,nrj,st)
+   if(st/=RD_OK)then;rd_runup_coeffmap_legacy=st;return;endif
+   do j=1,no;time(j)=tt(j);speed(j)=ss(j);do i=1,ndof;response((j-1)*ndof+i)=resp(i,j);enddo;enddo
+   nout=no;nr_used=nru;naccept=na;nreject=nrj;rd_runup_coeffmap_legacy=RD_OK
  end function
 
  integer(c_int) function rd_crit_spd_legacy(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,NX,damped,ncrit,maxiter,tol,out) bind(C,name='rd_crit_spd_legacy')

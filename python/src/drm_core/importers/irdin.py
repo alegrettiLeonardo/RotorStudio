@@ -1,17 +1,11 @@
 from __future__ import annotations
 
-"""Non-numerical import of the historical iRdin/VB6 INI calculation format.
+"""Conservative import of the historical iRdin/VB6 INI calculation format.
 
-The importer is intentionally conservative. It maps shaft-section geometry and
-material exactly into RotorModel, while preserving distributed masses, bearing
-coefficient tables, response probes and unbalance records as engineering-sketch
-metadata. Those legacy records are *not* silently approximated into Stage 1
-numerical elements because the qualified RotorStudio core does not yet expose a
-speed-dependent bearing-table contract equivalent to iRdin.
-
-Imported projects therefore open as faithful engineering sketches and are marked
-BLOCKED_FOR_NUMERICAL_ANALYSIS until an explicit, qualified numerical conversion
-is implemented.
+B15 maps validated inline iRdin bearing coefficient TABLE records into typed
+CoefficientBearing objects without changing K/C signs or values; only the rpm
+axis is converted to rad/s. Other legacy entities remain engineering-sketch
+metadata until their own numerical mappings are explicitly qualified.
 """
 
 from collections import defaultdict
@@ -26,6 +20,7 @@ from drm_core.domain.model import (
     TaperedShaftElement,
 )
 from drm_core.stage1 import RotorProject
+from .bearing_table import BearingTableImportError, parse_irdin_coefficient_table
 
 
 _GRID_KEY = re.compile(r"^(\d+)\s*,\s*(\d+)$")
@@ -231,6 +226,93 @@ def _shaft_geometry(
     return nodes, shafts, sketch_sections
 
 
+def _insert_exact_stations(
+    nodes: list[Node],
+    shafts: list[Any],
+    positions_m: list[float],
+) -> tuple[list[Node], list[Any], list[int]]:
+    """Split shaft elements at requested physical stations without geometry loss."""
+    if not positions_m:
+        return nodes, shafts, []
+    tol = 1.0e-10
+    z_by_node = {int(node.number): float(node.z_m) for node in nodes}
+    zmin = min(z_by_node.values())
+    zmax = max(z_by_node.values())
+    for position in positions_m:
+        if position < zmin - tol or position > zmax + tol:
+            raise IrdinImportError(
+                f"bearing position {position * 1000.0:.12g} mm lies outside shaft range "
+                f"[{zmin * 1000.0:.12g}, {zmax * 1000.0:.12g}] mm"
+            )
+
+    stations = sorted([*z_by_node.values(), *map(float, positions_m)])
+    unique: list[float] = []
+    for value in stations:
+        if not unique or abs(value - unique[-1]) > tol:
+            unique.append(value)
+    new_nodes = [Node(index + 1, value) for index, value in enumerate(unique)]
+
+    def source_for(midpoint: float):
+        for shaft in shafts:
+            a = z_by_node[int(shaft.node1)]
+            b = z_by_node[int(shaft.node2)]
+            lo, hi = min(a, b), max(a, b)
+            if lo - tol <= midpoint <= hi + tol:
+                return shaft, a, b
+        raise IrdinImportError(f"no source shaft element covers z={midpoint:.12g} m")
+
+    new_shafts: list[Any] = []
+    for index, (a, b) in enumerate(zip(unique[:-1], unique[1:]), start=1):
+        source, source_a, source_b = source_for(0.5 * (a + b))
+        if isinstance(source, TaperedShaftElement):
+            span = source_b - source_a
+            if abs(span) <= tol:
+                raise IrdinImportError("zero-length tapered shaft encountered during station insertion")
+            fa = (a - source_a) / span
+            fb = (b - source_a) / span
+            do_a = source.outer_diameter_1_m + fa * (
+                source.outer_diameter_2_m - source.outer_diameter_1_m
+            )
+            do_b = source.outer_diameter_1_m + fb * (
+                source.outer_diameter_2_m - source.outer_diameter_1_m
+            )
+            di_a = source.inner_diameter_1_m + fa * (
+                source.inner_diameter_2_m - source.inner_diameter_1_m
+            )
+            di_b = source.inner_diameter_1_m + fb * (
+                source.inner_diameter_2_m - source.inner_diameter_1_m
+            )
+            new_shafts.append(
+                TaperedShaftElement(
+                    source.shaft_type, index, index + 1,
+                    do_a, do_b, di_a, di_b,
+                    source.rho_kg_m3, source.E_pa, source.G_pa, source.axial_force_n,
+                )
+            )
+        elif isinstance(source, ShaftElement):
+            new_shafts.append(
+                ShaftElement(
+                    source.shaft_type, index, index + 1,
+                    source.outer_diameter_m, source.inner_diameter_m,
+                    source.rho_kg_m3, source.E_pa, source.G_pa,
+                    source.damping_factor, source.axial_force_n, source.torque_nm,
+                )
+            )
+        else:
+            raise IrdinImportError(
+                f"unsupported shaft type during iRdin station insertion: {type(source).__name__}"
+            )
+
+    mapped_nodes = []
+    for position in positions_m:
+        candidates = [abs(node.z_m - position) for node in new_nodes]
+        best = min(range(len(candidates)), key=candidates.__getitem__)
+        if candidates[best] > tol:
+            raise IrdinImportError(f"failed to create exact node for bearing at z={position} m")
+        mapped_nodes.append(new_nodes[best].number)
+    return new_nodes, new_shafts, mapped_nodes
+
+
 def load_irdin_project(path: str | Path) -> RotorProject:
     source = Path(path)
     doc = _parse_document(_read_text(source))
@@ -250,6 +332,11 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         rho_kg_m3=rho_kg_m3,
         poisson=poisson,
     )
+    bearing_rows = _grid_rows(doc.get("mancais"))
+    bearing_positions_m = [_number(_cell(row, 0)) / 1000.0 for row in bearing_rows]
+    nodes, shafts, bearing_nodes = _insert_exact_stations(
+        nodes, shafts, bearing_positions_m
+    )
 
     masses: list[dict[str, Any]] = []
     for index, row in enumerate(_grid_rows(doc.get("massas")), start=1):
@@ -267,13 +354,40 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         )
 
     bearings: list[dict[str, Any]] = []
-    for index, row in enumerate(_grid_rows(doc.get("mancais")), start=1):
+    advanced_bearings = []
+    for index, row in enumerate(bearing_rows, start=1):
         raw_table = _cell(row, 11)
+        position_mm = _number(_cell(row, 0))
+        name_bearing = _cell(row, 10) or f"Bearing {index}"
+        node = int(bearing_nodes[index - 1])
+        table_rows: list[dict[str, float]] = []
+        table_mapped = False
+        interpolation = None
+        if raw_table.strip().upper().startswith("TABLE"):
+            try:
+                imported = parse_irdin_coefficient_table(raw_table, node=node)
+            except BearingTableImportError as exc:
+                raise IrdinImportError(f"bearing {index}: {exc}") from exc
+            table_rows = imported.as_rows()
+            interpolation = "pchip"
+            advanced_bearings.append(
+                imported.to_coefficient_bearing(
+                    interpolation=interpolation,
+                    tag=name_bearing,
+                    provenance={
+                        "source_bearing_index": index,
+                        "source_position_mm": position_mm,
+                        "source_name": name_bearing,
+                    },
+                )
+            )
+            table_mapped = True
         bearings.append(
             {
                 "index": index,
-                "position_mm": _number(_cell(row, 0)),
-                "name": _cell(row, 10) or f"Bearing {index}",
+                "node": node,
+                "position_mm": position_mm,
+                "name": name_bearing,
                 "constant_kc": {
                     "kxx": _number(_cell(row, 1), 0.0),
                     "kyy": _number(_cell(row, 2), 0.0),
@@ -284,7 +398,9 @@ def load_irdin_project(path: str | Path) -> RotorProject:
                     "cxy": _number(_cell(row, 7), 0.0),
                     "cyx": _number(_cell(row, 8), 0.0),
                 },
-                "table": _bearing_table(raw_table, index),
+                "table": table_rows,
+                "table_mapped": table_mapped,
+                "interpolation": interpolation,
                 "raw_source": raw_table,
             }
         )
@@ -350,27 +466,43 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         "package_divisions": max(1, _integer(data.get("p_div"), 1)),
     }
 
-    reasons: list[str] = []
+    blockers: list[dict[str, str]] = []
+
+    def block(code: str, message: str) -> None:
+        blockers.append({"code": code, "message": message})
+
     if masses:
-        reasons.append(
+        block(
+            "IRDIN_DISTRIBUTED_MASS_UNMAPPED",
             "distributed iRdin mass/package records are preserved for the sketch but are not "
-            "silently converted to Stage 1 DISK physics"
+            "silently converted to Stage 1 DISK physics",
         )
-    if any(item["table"] for item in bearings):
-        reasons.append(
-            "speed-dependent iRdin bearing K/C tables do not have an equivalent qualified "
-            "RotorStudio Stage 1 bearing-table contract"
-        )
-    elif bearings:
-        reasons.append(
-            "legacy bearing locations/coefficients are preserved for the sketch pending an "
-            "explicit qualified numerical mapping"
+    unmapped_bearings = [item for item in bearings if not item["table_mapped"]]
+    if unmapped_bearings:
+        if any(item["raw_source"].strip() for item in unmapped_bearings):
+            block(
+                "IRDIN_BEARING_COEFFICIENT_TABLE_UNMAPPED",
+                "one or more legacy bearing coefficient sources are not inline TABLE records "
+                "and remain unmapped",
+            )
+        else:
+            block(
+                "IRDIN_BEARING_DEFINITION_UNMAPPED",
+                "legacy bearing locations/constant coefficients without inline TABLE data "
+                "remain unmapped",
+            )
+    if concentrated:
+        block(
+            "IRDIN_CONCENTRATED_MASS_UNMAPPED",
+            "legacy concentrated-mass records are preserved pending an explicit qualified mapping",
         )
     if supports:
-        reasons.append(
+        block(
+            "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED",
             "legacy flexible-support records are preserved for the sketch pending an explicit "
-            "qualified numerical mapping"
+            "qualified numerical mapping",
         )
+    reasons = [item["message"] for item in blockers]
 
     metadata = {
         "source_format": "iRdin/VB6 INI",
@@ -407,11 +539,19 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         "numerical_readiness": {
             "status": "BLOCKED_FOR_NUMERICAL_ANALYSIS" if reasons else "READY",
             "exact_shaft_geometry": True,
+            "mapped_inline_bearing_tables": sum(
+                1 for item in bearings if item["table_mapped"]
+            ),
+            "blockers": blockers,
             "reasons": reasons,
         },
     }
 
-    model = RotorModel(nodes=nodes, shafts=shafts)
+    model = RotorModel(
+        nodes=nodes,
+        shafts=shafts,
+        advanced_bearings=advanced_bearings,
+    )
     return RotorProject(name=name, model=model, analyses=[], metadata=metadata)
 
 

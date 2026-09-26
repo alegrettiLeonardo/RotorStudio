@@ -5,4 +5,5 @@ module rb_status
   integer(ik), parameter :: RB_ERR_INPUT = 1_ik
   integer(ik), parameter :: RB_ERR_UNSUPPORTED = 2_ik
   integer(ik), parameter :: RB_ERR_CONVERGENCE = 3_ik
+  integer(ik), parameter :: RB_ERR_CANCELLED = 4_ik
 end module rb_status

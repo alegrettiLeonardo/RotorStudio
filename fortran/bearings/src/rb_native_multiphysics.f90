@@ -1,6 +1,7 @@
 module rb_native_multiphysics
   use rb_kinds, only: rk, ik
-  use rb_status, only: RB_OK, RB_ERR_INPUT, RB_ERR_CONVERGENCE
+  use rb_status, only: RB_OK, RB_ERR_INPUT, RB_ERR_CONVERGENCE, RB_ERR_CANCELLED
+  use rb_job_control, only: rb_job_cancelled, rb_job_update
   use rb_reynolds_element, only: rb_reynolds_q4_element
   use rb_reynolds_banded, only: rb_assemble_q4_banded, rb_include_pressure_bc, &
                                 rb_lu_factor_band, rb_lu_solve_band_cavitating, rb_lu_solve_band_signed
@@ -22,7 +23,7 @@ contains
       thermal_type,deform_type,pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
       convec_edges,convec_back,np,piv,arc,alen,pre,off,nx,nz,ny_pad,ny_film,xj0,yj0,relax_p,relax_t, &
       max_iterations,outer_iterations,force_tol,field_tol,xj_ratio,yj_ratio,k_out,c_out,fx,fy,pmax,tmax,tout, &
-      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in,ambient_press1_in,ambient_press2_in,hotoil_lamda_in)
+      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,film_thickness_field,pad_load_n,temp_reference_in,ambient_press1_in,ambient_press2_in,hotoil_lamda_in)
     real(rk),intent(in)::speed,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
     integer(ik),intent(in)::thermal_type,deform_type,np,nx,nz,ny_pad,ny_film,max_iterations,outer_iterations
     real(rk),intent(in)::pad_thickness,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
@@ -30,7 +31,7 @@ contains
     real(rk),intent(in)::xj0,yj0,relax_p,relax_t,force_tol,field_tol
     real(rk),intent(out)::xj_ratio,yj_ratio,k_out(2,2),c_out(2,2),fx,fy,pmax,tmax,tout,deform_max
     integer(ik),intent(out)::iterations,status
-    real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:)
+    real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:),film_thickness_field(:,:),pad_load_n(:)
     real(rk),intent(in),optional::temp_reference_in,ambient_press1_in,ambient_press2_in,hotoil_lamda_in
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
@@ -50,6 +51,8 @@ contains
     if(present(hotoil_lamda_in))hotoil_lamda=hotoil_lamda_in
     status=RB_OK;xj_ratio=0._rk;yj_ratio=0._rk;k_out=0._rk;c_out=0._rk
     fx=0._rk;fy=0._rk;pmax=0._rk;tmax=temp_supply;tout=temp_supply;deform_max=0._rk;iterations=0_ik
+    if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+    call rb_job_update(1_ik,0_ik,outer_iterations,0_ik,np)
     if(.not.rb_check_common(speed,d,cb,mu1,np,arc,alen,pre,off,nx,nz,relax_p,max_iterations,force_tol))then
       status=RB_ERR_INPUT;return
     end if
@@ -96,13 +99,18 @@ contains
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
 
     do it=1,int(outer_iterations)
+      if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+      call rb_job_update(1_ik,int(it,ik),outer_iterations,0_ik,np)
       mu_hydro=mu;gfun_hydro=gfun
       call plain_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,relax_p, &
                              max_iterations,force_tol,press,h,fx,fy,pmax,iterations,st,k_last)
       if(st/=RB_OK)then;status=st;return;end if
 
       mu_new=mu;gfun_new=gfun;dh_new=dh;temp_delta=0._rk;def_delta=0._rk;tmax=temp_supply;tout=0._rk
+      call rb_job_update(2_ik,int(it,ik),outer_iterations,0_ik,np)
       do p=1,int(np)
+        if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+        call rb_job_update(2_ik,int(it,ik),outer_iterations,int(p-1,ik),np)
         select case(thermal_type)
         case(RB_THERMAL_ISOVISCOUS)
           tad_new=tad(:,p);muc=mu(:,p);tmi=maxval(tad_new);touti=temp_supply;touti_bulk=temp_supply
@@ -253,6 +261,8 @@ contains
     ! Do not re-run journal equilibrium after the coupled loop.  Pinned ROSS
     ! emits the last hydrodynamic state produced inside that loop; an extra
     ! equilibrium pass over-converges xj/yj and changes p/K/C.
+    if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+    call rb_job_update(4_ik,int(max(outer_done,1),ik),outer_iterations,0_ik,np)
     call plain_coefficients(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu_hydro,gfun_hydro,dh,xj,yj,press,k_out,c_out,st)
     if(st/=RB_OK)then;status=st;return;end if
     ! ROSS 6320eab9 consumes the last in-loop Jacobian produced by the
@@ -294,6 +304,17 @@ contains
       end if
       deformation_field(1:int(nx)+1,1:int(np))=dh(1:int(nx)+1,1:int(np))
     end if
+    if(present(film_thickness_field))then
+      if(size(film_thickness_field,1)<nn .or. size(film_thickness_field,2)<int(np))then
+        status=RB_ERR_INPUT;return
+      end if
+      film_thickness_field(1:nn,1:int(np))=h(1:nn,1:int(np))
+    end if
+    if(present(pad_load_n))then
+      if(size(pad_load_n)<int(np))then;status=RB_ERR_INPUT;return;end if
+      call rb_integrate_pad_loads_from_pressure(d,np,piv,arc,alen,off,nx,nz,press,pad_load_n)
+    end if
+    call rb_job_update(6_ik,int(max(outer_done,1),ik),outer_iterations,np,np)
   end subroutine rb_plain_journal_multiphysics
 
 
@@ -301,7 +322,7 @@ contains
       thermal_type,deform_type,tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient, &
       convec_edges,convec_back,np,piv,arc,alen,pre,off,krot,nx,nz,ny_pad,ny_film,xj0,yj0,relax_p,relax_t, &
       max_iterations,outer_iterations,force_tol,field_tol,xj_ratio,yj_ratio,tilt,k_out,c_out,fx,fy,pmax,tmax,tout, &
-      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,temp_reference_in,ambient_press1_in,ambient_press2_in,hotoil_lamda_in)
+      deform_max,iterations,status,pressure_field,temperature_field,deformation_field,film_thickness_field,pad_load_n,temp_reference_in,ambient_press1_in,ambient_press2_in,hotoil_lamda_in)
     real(rk),intent(in)::speed,omega,weight,fxs_load,fys_load,d,cb,mu1,mu2,t1,t2,rho,cp,klube
     integer(ik),intent(in)::thermal_type,deform_type,np,nx,nz,ny_pad,ny_film,max_iterations,outer_iterations
     real(rk),intent(in)::tp,pad_density,kpad,epad,nupad,alphapad,temp_supply,temp_journal,temp_ambient
@@ -309,7 +330,7 @@ contains
     real(rk),intent(in)::xj0,yj0,relax_p,relax_t,force_tol,field_tol
     real(rk),intent(out)::xj_ratio,yj_ratio,tilt(np),k_out(2,2),c_out(2,2),fx,fy,pmax,tmax,tout,deform_max
     integer(ik),intent(out)::iterations,status
-    real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:)
+    real(rk),intent(out),optional::pressure_field(:,:),temperature_field(:,:),deformation_field(:,:),film_thickness_field(:,:),pad_load_n(:)
     real(rk),intent(in),optional::temp_reference_in,ambient_press1_in,ambient_press2_in,hotoil_lamda_in
 
     integer::nn,nfull,npp,it,p,ix,iy,iz,n,outer_done,stride
@@ -331,6 +352,8 @@ contains
     if(present(hotoil_lamda_in))hotoil_lamda=hotoil_lamda_in
     status=RB_OK;xj_ratio=0._rk;yj_ratio=0._rk;tilt=0._rk;k_out=0._rk;c_out=0._rk
     fx=0._rk;fy=0._rk;pmax=0._rk;tmax=temp_supply;tout=temp_supply;deform_max=0._rk;iterations=0_ik
+    if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+    call rb_job_update(1_ik,0_ik,outer_iterations,0_ik,np)
     if(.not.rb_check_common(speed,d,cb,mu1,np,arc,alen,pre,off,nx,nz,relax_p,max_iterations,force_tol) .or. &
        omega<=0._rk .or. tp<=0._rk .or. pad_density<0._rk .or. any(off<=0._rk) .or. any(off>=1._rk))then
       status=RB_ERR_INPUT;return
@@ -375,13 +398,18 @@ contains
     fxext=fxs_load;fyext=fys_load-weight;outer_done=0
 
     do it=1,int(outer_iterations)
+      if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+      call rb_job_update(1_ik,int(it,ik),outer_iterations,0_ik,np)
       mu_hydro=mu;gfun_hydro=gfun
       call tp_journal_equilibrium(speed,fxext,fyext,fx_groove,fy_groove,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj, &
                                   relax_p,max_iterations,force_tol,tilt,press,h,mom,fx,fy,pmax,iterations,st, &
                                   kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
       if(st/=RB_OK)then;status=st;return;end if
       mu_new=mu;gfun_new=gfun;dh_new=dh;temp_delta=0._rk;def_delta=0._rk;tmax=temp_supply;tout=0._rk
+      call rb_job_update(2_ik,int(it,ik),outer_iterations,0_ik,np)
       do p=1,int(np)
+        if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+        call rb_job_update(2_ik,int(it,ik),outer_iterations,int(p-1,ik),np)
         select case(thermal_type)
         case(RB_THERMAL_ISOVISCOUS)
           tad_new=tad(:,p);muc=mu(:,p);tmi=maxval(tad_new);touti=temp_supply;touti_bulk=temp_supply
@@ -537,6 +565,8 @@ contains
 
     ! Same authority rule as PlainJournal: the last THD/hydrodynamic state is
     ! the output state.  Do not execute an additional post-loop equilibrium.
+    if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+    call rb_job_update(4_ik,int(max(outer_done,1),ik),outer_iterations,0_ik,np)
     call tp_coefficients(speed,omega,d,cb,tp,pad_density,np,piv,arc,alen,pre,off,krot,nx,nz,mu_hydro,gfun_hydro,dh,xj,yj,tilt, &
                          press,k_out,c_out,st,kj_last,kdx_last,kdy_last,kxd_last,kyd_last,kdd_last)
     if(st/=RB_OK)then;status=st;return;end if
@@ -575,6 +605,17 @@ contains
       end if
       deformation_field(1:int(nx)+1,1:int(np))=dh(1:int(nx)+1,1:int(np))
     end if
+    if(present(film_thickness_field))then
+      if(size(film_thickness_field,1)<nn .or. size(film_thickness_field,2)<int(np))then
+        status=RB_ERR_INPUT;return
+      end if
+      film_thickness_field(1:nn,1:int(np))=h(1:nn,1:int(np))
+    end if
+    if(present(pad_load_n))then
+      if(size(pad_load_n)<int(np))then;status=RB_ERR_INPUT;return;end if
+      call rb_integrate_pad_loads_from_pressure(d,np,piv,arc,alen,off,nx,nz,press,pad_load_n)
+    end if
+    call rb_job_update(6_ik,int(max(outer_done,1),ik),outer_iterations,np,np)
   end subroutine rb_tilting_pad_multiphysics
 
 
@@ -639,6 +680,33 @@ contains
   end subroutine rb_groove_forces
 
 
+
+
+  subroutine rb_integrate_pad_loads_from_pressure(d,np,piv,arc,alen,off,nx,nz,pressure,pad_load_n)
+    real(rk),intent(in)::d,piv(np),arc(np),alen(np),off(np),pressure(:,:)
+    integer(ik),intent(in)::np,nx,nz
+    real(rk),intent(out)::pad_load_n(np)
+    integer::p,ix,iz,n1,n2,n3,n4
+    real(rk)::r,dx,dz,area,lead,theta,theta2,fxp,fyp
+    r=.5_rk*d;pad_load_n=0._rk
+    do p=1,int(np)
+      dx=r*arc(p)/real(nx,rk);dz=alen(p)/real(nz,rk);lead=piv(p)-arc(p)*off(p)
+      fxp=0._rk;fyp=0._rk
+      do ix=0,int(nx)-1
+        theta=arc(p)*real(ix,rk)/real(nx,rk)
+        theta2=arc(p)*real(ix+1,rk)/real(nx,rk)
+        do iz=0,int(nz)-1
+          n1=ix*(int(nz)+1)+iz+1;n2=(ix+1)*(int(nz)+1)+iz+1;n3=n2+1;n4=n1+1
+          area=dx*dz
+          fxp=fxp-area*.25_rk*(pressure(n1,p)*cos(lead+theta)+pressure(n4,p)*cos(lead+theta)+ &
+                                pressure(n2,p)*cos(lead+theta2)+pressure(n3,p)*cos(lead+theta2))
+          fyp=fyp-area*.25_rk*(pressure(n1,p)*sin(lead+theta)+pressure(n4,p)*sin(lead+theta)+ &
+                                pressure(n2,p)*sin(lead+theta2)+pressure(n3,p)*sin(lead+theta2))
+        end do
+      end do
+      pad_load_n(p)=sqrt(fxp*fxp+fyp*fyp)
+    end do
+  end subroutine rb_integrate_pad_loads_from_pressure
 
   subroutine rb_plain_journal_fixed_state(speed,d,cb,viscosity,np,piv,arc,alen,pre,off,nx,nz, &
                                            xj_ratio,yj_ratio,pressure,fx,fy,pmax,k,status)
@@ -1005,6 +1073,8 @@ contains
     scale=sqrt(fxext*fxext+fyext*fyext);status=RB_OK;iterations=0_ik
     fobj=0._rk;f_old=0._rk;xj_old=xj;yj_old=yj;unconverge_number=0
     do it=1,int(maxit)
+      if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+      call rb_job_update(1_ik,int(it,ik),maxit,0_ik,np)
       call plain_force(speed,d,cb,np,piv,arc,alen,pre,off,nx,nz,mu,gfun,dh,xj,yj,press,h,fx,fy,pmax,st)
       if(st/=RB_OK)then;status=st;return;end if
       fxn=fx+fxgroove+fxext;fyn=fy+fygroove+fyext;iterations=int(it,ik)
@@ -1051,6 +1121,8 @@ contains
     integer(ik)::st
     status=RB_OK;k=0._rk;c=0._rk
     do p=1,int(np)
+      if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+      call rb_job_update(4_ik,0_ik,0_ik,int(p-1,ik),np)
       call pad_stiff_pert(1_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk,mu(:,p),dh(:,p), &
                           pstatic(:,p),fp,gp,mi,st,gfun(:,p));if(st/=RB_OK)goto 900;k(1,1)=k(1,1)+fp;k(2,1)=k(2,1)+gp
       call pad_stiff_pert(2_ik,speed,d,cb,0._rk,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,0._rk,mu(:,p),dh(:,p), &
@@ -1075,6 +1147,7 @@ contains
     integer(ik)::st
     status=RB_OK;fx=0._rk;fy=0._rk;pmax=0._rk;nn=(int(nx)+1)*(int(nz)+1);r=.5_rk*d
     do p=1,int(np)
+      if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
       lead=piv(p)-arc(p)*off(p);xp=off(p)*arc(p);rtilt=r+cb+tp
       s1=sin(-xp);s2=sin(arc(p)-xp)
       if(abs(s1)<1e-12_rk .or. abs(s2)<1e-12_rk)then;status=RB_ERR_INPUT;return;end if
@@ -1088,6 +1161,7 @@ contains
       if(lo>hi)then;t=lo;lo=hi;hi=t;end if
 
       do iter=1,100
+        if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
         if(abs(hi-lo)<1e-8_rk)then
           t=lo
         else
@@ -1142,6 +1216,8 @@ contains
     scale=sqrt(fxext**2+fyext**2);status=RB_OK
     fobj=0._rk;f_old=0._rk;xj_old=xj;yj_old=yj;unconverge_number=0
     do it=1,int(maxit)
+      if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+      call rb_job_update(1_ik,int(it,ik),maxit,0_ik,np)
       call tp_equilibrate_fields(speed,d,cb,tp,np,piv,arc,alen,pre,off,krot,nx,nz,mu,gfun,dh,xj,yj,tilt,press,h,mom,fx,fy,pmax,st)
       if(st/=RB_OK)then;status=st;return;end if
       fxn=fx+fxgroove+fxext;fyn=fy+fygroove+fyext;iterations=int(it,ik)
@@ -1158,6 +1234,8 @@ contains
       k11=0._rk;k21=0._rk;k12=0._rk;k22=0._rk
       k11j=0._rk;k21j=0._rk;k12j=0._rk;k22j=0._rk
       do p=1,int(np)
+        if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+        call rb_job_update(1_ik,int(it,ik),maxit,int(p-1,ik),np)
         call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p), &
              mu(:,p),dh(:,p),press(:,p),fp,gp,kdx,st,gfun(:,p));if(st/=RB_OK)goto 900
         k11=k11+fp;k21=k21+gp;k11j=k11j+fp;k21j=k21j+gp
@@ -1239,6 +1317,8 @@ contains
     if(.not.use_stiff_override)then
       kj=0._rk
       do p=1,int(np)
+      if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+      call rb_job_update(4_ik,0_ik,0_ik,int(p-1,ik),np)
       call pad_stiff_pert(1_ik,speed,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p), &
                           pstatic(:,p),fp,gp,kdx(p),st,gfun(:,p));if(st/=RB_OK)goto 900
       kj(1,1)=kj(1,1)+fp;kj(2,1)=kj(2,1)+gp
@@ -1251,6 +1331,8 @@ contains
     end if
     cj=0._rk;cdx=0._rk;cdy=0._rk;cxd=0._rk;cyd=0._rk;cdd=0._rk
     do p=1,int(np)
+      if(rb_job_cancelled())then;status=RB_ERR_CANCELLED;return;end if
+      call rb_job_update(4_ik,0_ik,0_ik,int(p-1,ik),np)
       call pad_pert(1_ik,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p),pstatic(:,p),fp,gp,mp,st);if(st/=RB_OK)goto 900
       cj(1,1)=cj(1,1)+fp;cj(2,1)=cj(2,1)+gp;cdx(p)=mp
       call pad_pert(2_ik,d,cb,tp,piv(p),arc(p),alen(p),pre(p),off(p),nx,nz,xj,yj,tilt(p),mu(:,p),dh(:,p),pstatic(:,p),fp,gp,mp,st);if(st/=RB_OK)goto 900
