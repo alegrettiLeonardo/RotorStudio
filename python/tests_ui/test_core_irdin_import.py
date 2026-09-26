@@ -16,13 +16,22 @@ def test_real_cryostar_irdin_import_preserves_exact_shaft_geometry_and_sketch_en
     assert project.metadata["source_format"] == "iRdin/VB6 INI"
 
     model = project.model
-    assert len(model.nodes) == 17
-    assert len(model.shafts) == 16
+    # B15 inserts exact FE stations at the two imported bearing locations.
+    # The 16 historical shaft sections remain preserved in sketch metadata.
+    assert len(model.nodes) == 19
+    assert len(model.shafts) == 18
     assert model.nodes[-1].z_m == pytest.approx(2.58555)
     assert model.shafts[0].outer_diameter_m == pytest.approx(0.06985)
-    assert model.shafts[6].outer_diameter_m == pytest.approx(0.175)
-    assert model.shafts[7].outer_diameter_m == pytest.approx(0.170)
+    outside = [
+        getattr(shaft, "outer_diameter_m", getattr(shaft, "outer_diameter_1_m", None))
+        for shaft in model.shafts
+    ]
+    assert any(value == pytest.approx(0.175) for value in outside)
+    assert any(value == pytest.approx(0.170) for value in outside)
     assert model.shafts[-1].outer_diameter_m == pytest.approx(0.065)
+    assert [model.nodes[b.node - 1].z_m for b in model.advanced_bearings] == pytest.approx(
+        [0.36105, 2.2811]
+    )
 
     legacy = project.metadata["legacy_irdin"]
     assert legacy["reference"] == "EST"
@@ -61,13 +70,17 @@ def test_real_cryostar_irdin_import_preserves_exact_shaft_geometry_and_sketch_en
     assert all(p["orientation_deg"] == pytest.approx(45.0) for p in sketch["probes"])
 
 
-def test_real_cryostar_import_is_explicitly_blocked_from_numerical_analysis():
+def test_real_cryostar_import_maps_bearing_tables_but_preserves_other_blockers():
     project = load_irdin_project(FIXTURE)
     readiness = project.metadata["numerical_readiness"]
     assert readiness["status"] == "BLOCKED_FOR_NUMERICAL_ANALYSIS"
     assert readiness["exact_shaft_geometry"] is True
-    assert any("bearing K/C tables" in reason for reason in readiness["reasons"])
+    assert readiness["mapped_inline_bearing_tables"] == 2
+    codes = {item["code"] for item in readiness["blockers"]}
+    assert "IRDIN_BEARING_COEFFICIENT_TABLE_UNMAPPED" not in codes
+    assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" in codes
     assert any("mass/package" in reason for reason in readiness["reasons"])
+    assert len(project.model.advanced_bearings) == 2
 
     case = AnalysisCase("modal", {"speed_rad_s": 0.0}, "Must Not Run")
     with pytest.raises(ValueError, match="BLOCKED_FOR_NUMERICAL_ANALYSIS"):
@@ -87,3 +100,5 @@ def test_real_cryostar_import_can_be_saved_as_rds_and_reopened_without_losing_sk
     assert len(reopened.metadata["sketch"]["sections"]) == 16
     assert len(reopened.metadata["sketch"]["masses"]) == 3
     assert len(reopened.metadata["sketch"]["bearings"]) == 2
+    assert len(reopened.model.advanced_bearings) == 2
+    assert reopened.model.advanced_bearings == project.model.advanced_bearings

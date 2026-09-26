@@ -13,4 +13,11 @@ __all__=[n for n in globals() if not n.startswith("_")]
 
 from .post.modes import plot_mode_3d
 
-from .importers import IrdinImportError, load_irdin_project
+from .importers import (
+    IrdinImportError,
+    load_irdin_project,
+    BearingTableImportError,
+    ImportedBearingTable,
+    parse_coefficient_table,
+    parse_irdin_coefficient_table,
+)
