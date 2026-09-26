@@ -1,6 +1,6 @@
 # ROSS Bearings in Fortran → RotorStudio Integration Plan
 
-Status: **ROTORSTUDIO COEFFICIENT-PROVIDER INTEGRATION IN PROGRESS; FULL NATIVE THD/TEHD NOT YET CLOSED**
+Status: **PLAINJOURNAL + TILTINGPAD NATIVE THD/TEHD B12 QUALIFIED; STATIONARY ROTORSTUDIO INTEGRATION PROMOTED**
 
 RotorStudio base at plan freeze:
 
@@ -14,36 +14,40 @@ ROSS source authorities:
 
 AMB / magnetic bearings are explicitly **out of scope**.
 
-## 0. Execution status at native implementation start
+## 0. Execution status after B12 closure
 
 Native implementation branch: `feature/ross-bearings-fortran-integration`.
 
 Current integration branch: `feature/ross-bearings-rotorstudio-20260925`.
-See `docs/ROSS_BEARINGS_ROTORSTUDIO_INTEGRATION.md` for the implemented
-runtime boundary and explicit remaining blocks.
+See `docs/ROSS_BEARINGS_ROTORSTUDIO_INTEGRATION.md` for the promoted runtime
+boundary and the remaining explicit exclusions.
 
-The first additive standalone target is `libdrmbearings`. It is built beside
-`libdrmrotor` but is **not linked into RotorStudio runtime yet**.
+`libdrmbearings` is built beside `libdrmrotor` and is now consumed through
+the typed Python bearing backend and the packaged desktop application.
 
-Initial implementation gates now present in the branch:
+Closed gates include:
 
-- **BF1** — generic ROSS coefficient interpolation core: constant/1-D/2-D
-  semantics, linear mode, PCHIP mode, and linear endpoint extrapolation;
-- **BF2** — BallBearingElement and RollerBearingElement formulas reimplemented
-  from current ROSS and pinned to current upstream oracle values;
-- **BF3** — current ROSS CylindricalBearing closed-form short-bearing model;
-- **BF4** — fixed-geometry translators compiled and source-qualified for
-  PartialArc / Elliptical / OffsetHalves / MultiLobe / PressureDam / PlainJournal;
-- **BF5a** — source-faithful Reynolds Q4 element kernel;
-- **BF5band** — banded Reynolds assembly/LU/cavitating solve kernels;
-- **BF5film** — rigid/isoviscous baseline film-thickness kernel;
-- **BF5cfg** — TiltingPad configuration and initial-position gate;
-- **BF7** — SqueezeFilmDamper, including groove, end-seals and combined
-  geometry branches with cavitation on/off.
+- **BF1** — generic ROSS coefficient interpolation core;
+- **BF2** — BallBearingElement and RollerBearingElement parity;
+- **BF3** — CylindricalBearing parity;
+- **BF4** — fixed-geometry translators;
+- **BF5** — PlainJournal/TiltingPad rigid/isoviscous Reynolds, equilibrium,
+  perturbation coefficients and TiltingPad pad-DOF condensation;
+- **BF6** — native viscosity-temperature coupling, full THD, hot-oil
+  carryover and pad deformation/TEHD for the qualified smooth regular-flooded
+  PlainJournal/TiltingPad scope;
+- **BF7** — SqueezeFilmDamper geometry branches;
+- **B10/B11** — packed C ABI and Python↔Fortran memory/transport qualification
+  on Linux and Windows Release + Debug/FPE;
+- **B12** — frozen ROSS golden-case parity for PlainJournal isoviscous,
+  PlainJournal TEHD, TiltingPad synchronous THD and TiltingPad asynchronous
+  `Omega`/`omega` sweep.
 
-The remaining advanced journal/tilting/thrust work stays standalone until its
-native gates are closed. No `drm_core`, SolverFacade, RotorStudio UI, or existing
-legacy bearing packet consumes `libdrmbearings` at this stage.
+PlainJournalPhysicsBearing and TiltingPadPhysicsBearing are promoted to the
+stationary RotorStudio 2x2 translational K/C bridge. The historical type 1–8 /
+20 implementation remains unchanged. ThrustPad, transient/run-up policy,
+coaxial, rotating-frame/asymmetric coupling and nonzero bearing mass remain
+separate qualification scopes.
 
 ### Coordinate / DOF boundary
 
@@ -120,21 +124,21 @@ The standalone library already owns a qualified journal-film engine through G3�
 
 - `TiltingPad`
 
-Existing standalone state:
+Current qualified state:
 - G7.0 source audit: PASS
 - G7.1 geometry: PASS
 - G7.2 prescribed film / pressure / force / pivot moment: PASS
-- G7.3+ pending
+- G7.3 pad tilt equilibrium: PASS
+- G7.4 journal + pad static equilibrium: PASS
+- G7.5 unreduced dynamic perturbation fields: PASS
+- G7.6 pad-DOF dynamic condensation with independent whirl frequency: PASS
+- G7.7 reduced K/C provider: PASS
+- G7.9 full THD / hot-oil coupling for the frozen smooth regular-flooded scope: PASS
+- G7.10 pad deformation / TEHD for the frozen qualified scope: PASS
 
-Required completion:
-- G7.3 pad tilt equilibrium at fixed journal center
-- G7.4 journal + pad static equilibrium
-- G7.5 unreduced dynamic perturbation fields
-- G7.6 exact pad-DOF condensation
-- G7.7 reduced synchronous K/C + baseline facade
-- G7.8 turbulent model
-- G7.9 THD
-- G7.10 deformation / compliant pivot options
+Turbulent/special-flow extensions outside the frozen B12 cases and compliant
+pivot variants remain separately capability-gated; they are not implied by
+the PlainJournal/TiltingPad B12 promotion.
 
 ### F. Thrust bearing
 
@@ -227,9 +231,7 @@ No Reynolds/thermal equation is duplicated in wrappers.
 
 ### BF5 — TiltingPad rigid/isoviscous completion
 
-**Current partial status:** configuration, baseline film thickness, Reynolds Q4
-element and banded linear-solver kernels are implemented. The operating-point
-solver is not yet closed.
+**Current status: QUALIFIED for the declared B12 scope.** Configuration, film thickness, Reynolds Q4 and banded solve, pad-tilt equilibrium, journal equilibrium, perturbation blocks, exact pad-DOF condensation and reduced K/C are closed against the frozen ROSS authority.
 
 Close G7.3 → G7.7 before turbulence/THD.
 
@@ -249,14 +251,13 @@ G7.5–G7.7 close perturbation fields, condensation, and reduced K/C.
 
 ### BF6 — TiltingPad advanced physics
 
-After rigid/isoviscous parity:
-- turbulence;
-- adiabatic/full THD;
-- hot-oil mixing;
-- pad thermal/mechanical deformation;
-- pivot compliance.
+**Current status for promotion scope:** full THD, temperature-dependent
+viscosity, hot-oil carryover and pad deformation/TEHD are B12-qualified for
+the frozen smooth regular-flooded PlainJournal/TiltingPad golden cases.
 
-Each option is a separate capability flag and qualification matrix entry.
+Turbulence, special-flow variants and pivot-compliance variants remain
+separate capability flags and require their own qualification evidence before
+being promoted beyond this declared scope.
 
 ### BF7 — SqueezeFilmDamper
 
@@ -299,6 +300,24 @@ implementation must retain a provenance note identifying
 `petrobras/ross@6320eab9f890f1b3cc1710d508b446fe063ca68d` and preserve the
 required license/notice obligations. ROSS remains a development oracle, not a
 RotorStudio runtime dependency.
+
+## 4.2 Promotion closure record
+
+For PlainJournalPhysicsBearing and TiltingPadPhysicsBearing, the required
+family lifecycle has reached:
+
+```text
+SOURCE_AUDITED
+→ NATIVE_IMPLEMENTED
+→ ROSS_PARITY_PASS
+→ C_ABI_PASS
+→ READY_FOR_ROTORSTUDIO
+```
+
+Runtime result metadata records `qualification=ROSS_PARITY_PASS_B12` and the
+exact frozen ROSS authority SHA. Stationary RotorStudio assembly is enabled
+through the existing type-5 K/C adapter; unsupported coupling modes remain
+fail-closed.
 
 ## 5. Qualification requirements before RotorStudio integration
 
