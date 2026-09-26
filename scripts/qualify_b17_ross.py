@@ -151,16 +151,22 @@ def _qualify_case(label,bearing,rs,convert):
         rpoint=rcamp.modal_results[float(speed)]
         rs_wd=np.sort(np.abs(np.imag(point.eigenvalues)))
         ross_wd=np.sort(np.abs(np.asarray(rpoint.wd,dtype=float)))
-        # ROSS Campbell may retain coincident forward/backward branches as
-        # duplicate rows. Compare the unique physical frequencies; duplicate
-        # multiplicity is a result-container convention, not rotor physics.
+        # Zero-imaginary real modes are not whirl branches. ROSS Campbell may
+        # retain a different conjugate/multiplicity representation for those
+        # roots after 6DOF->4DOF conversion. Full matched-modal eigenvalue
+        # parity above already gates those roots. Campbell therefore compares
+        # only positive physical whirl branches, de-duplicating coincident
+        # ROSS forward/backward rows without changing numeric tolerances.
+        eps=1e-8
+        rs_pos=rs_wd[rs_wd>eps]
+        ross_pos=ross_wd[ross_wd>eps]
         ross_unique=[]
-        for value in ross_wd:
+        for value in ross_pos:
             if not ross_unique or abs(float(value)-ross_unique[-1]) > 1e-7*max(1.0,abs(float(value))):
                 ross_unique.append(float(value))
         ross_unique=np.asarray(ross_unique,dtype=float)
-        assert len(ross_unique)==len(rs_wd),(label,speed,rs_wd,ross_wd)
-        np.testing.assert_allclose(rs_wd,ross_unique,rtol=5e-4,atol=8e-3)
+        assert len(ross_unique)==len(rs_pos),(label,speed,rs_wd,ross_wd)
+        np.testing.assert_allclose(rs_pos,ross_unique,rtol=5e-4,atol=8e-3)
     return {
         "case":label,"fixed_modes":len(fixed.eigenvalues),"matched_modes":len(matched.eigenvalues),
         "minimum_inner_mac":min(float(d["last_mac"]) for d in matched.metadata["matched_whirl"]),
