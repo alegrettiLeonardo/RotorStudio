@@ -6,6 +6,7 @@ class SolverFacade:
     def assemble(self,model,speed_rad_s=0.0): return self.backend.assemble_matrices(model,speed_rad_s)
     def bearings(self,model,speed_rad_s): return self.backend.bearings_matrices(model,speed_rad_s)
     def advanced_bearing(self,bearing,speed_rad_s,frequency_rad_s=None): return self.backend._bearing_provider().evaluate(bearing,speed_rad_s,frequency_rad_s)
+    def advanced_bearing_fields(self,bearing,speed_rad_s,frequency_rad_s=None): return self.backend._bearing_provider().evaluate_fields(bearing,speed_rad_s,frequency_rad_s)
     def prepare_elliptical_bearing(self,**kwargs): return self.backend._bearing_provider().prepare_elliptical_geometry(**kwargs)
     def prepare_offset_halves_bearing(self,**kwargs): return self.backend._bearing_provider().prepare_offset_halves_geometry(**kwargs)
     def prepare_plain_journal_bearing(self,**kwargs): return self.backend._bearing_provider().prepare_plain_journal_geometry(**kwargs)
