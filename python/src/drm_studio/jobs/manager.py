@@ -22,7 +22,7 @@ class BearingJobManager(QObject):
     cancelled = Signal(object, str)
     failed = Signal(object)
 
-    def __init__(self, parent=None, *, solver_factory=SolverFacade, poll_ms=100):
+    def __init__(self, parent=None, *, solver_factory=SolverFacade, poll_ms=25):
         super().__init__(parent)
         self.pool = QThreadPool(self)
         self.pool.setMaxThreadCount(1)

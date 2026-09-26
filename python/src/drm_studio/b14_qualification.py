@@ -22,8 +22,8 @@ def _bearing():
         pad_axial_length_m=(0.263144, 0.263144),
         preload=(0.0, 0.0),
         offset=(0.5, 0.5),
-        total_e_x_film=8,
-        total_e_z_film=4,
+        total_e_x_film=20,
+        total_e_z_film=10,
         total_e_y_pad=4,
         total_e_y_film=4,
         xj_ratio_initial=0.15,
@@ -87,12 +87,12 @@ def run_b14_frozen_field_smoke(window, output_dir):
         raise RuntimeError("B14 frozen field smoke observed no native progress")
 
     expected = {
-        "pressure_field_pa": (2, 9, 5),
-        "temperature_field_k": (2, 9, 5),
-        "film_thickness_field_m": (2, 9, 5),
-        "deformation_field_m": (2, 9),
-        "theta_rad": (2, 9),
-        "axial_position_m": (2, 5),
+        "pressure_field_pa": (2, 21, 11),
+        "temperature_field_k": (2, 21, 11),
+        "film_thickness_field_m": (2, 21, 11),
+        "deformation_field_m": (2, 21),
+        "theta_rad": (2, 21),
+        "axial_position_m": (2, 11),
         "pad_load_n": (2,),
     }
     shapes = {}
