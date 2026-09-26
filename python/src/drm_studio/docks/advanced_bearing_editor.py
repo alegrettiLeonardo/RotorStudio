@@ -128,6 +128,8 @@ def _parse_json_numeric(text: str, name: str):
 
 
 def _data_text(value) -> str:
+    if value is None:
+        return ""
     if isinstance(value, (int, float)):
         return f"{float(value):.15g}"
     return json.dumps(value, separators=(", ", ": "))
@@ -295,11 +297,16 @@ class AdvancedBearingEditor(QDialog):
             if isinstance(value, list):
                 return tuple(freeze_coeff(x) for x in value)
             return value
+        optional_fallbacks = {"Kyy", "Cyy", "Myy"}
         for row, name in enumerate(self.coeff_names):
             item = self.coeff_table.item(row, 1)
-            data[name.lower()] = freeze_coeff(
-                _parse_json_numeric("" if item is None else item.text(), name)
-            )
+            text = "" if item is None else item.text().strip()
+            if name in optional_fallbacks and not text:
+                data[name.lower()] = None
+            else:
+                data[name.lower()] = freeze_coeff(
+                    _parse_json_numeric(text, name)
+                )
         bearing = CoefficientBearing(
             node=self._node(),
             kxx=data["kxx"], cxx=data["cxx"],
@@ -732,9 +739,9 @@ class AdvancedBearingEditor(QDialog):
         self.frequency_axis.setText(_axis_text(b.frequency_rad_s))
         self.interpolation_combo.setCurrentText(str(b.interpolation))
         values = {
-            "Kxx": b.kxx, "Kxy": b.kxy, "Kyx": b.kyx, "Kyy": b.kxx if b.kyy is None else b.kyy,
-            "Cxx": b.cxx, "Cxy": b.cxy, "Cyx": b.cyx, "Cyy": b.cxx if b.cyy is None else b.cyy,
-            "Mxx": b.mxx, "Mxy": b.mxy, "Myx": b.myx, "Myy": b.mxx if b.myy is None else b.myy,
+            "Kxx": b.kxx, "Kxy": b.kxy, "Kyx": b.kyx, "Kyy": b.kyy,
+            "Cxx": b.cxx, "Cxy": b.cxy, "Cyx": b.cyx, "Cyy": b.cyy,
+            "Mxx": b.mxx, "Mxy": b.mxy, "Myx": b.myx, "Myy": b.myy,
         }
         for row, name in enumerate(self.coeff_names):
             self.coeff_table.item(row, 1).setText(_data_text(values[name]))
