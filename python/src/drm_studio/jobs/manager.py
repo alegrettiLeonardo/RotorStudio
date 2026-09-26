@@ -99,9 +99,24 @@ class BearingJobManager(QObject):
         if not self._jobs:
             self._timer.stop()
 
+    def _emit_progress_snapshot(self, job):
+        """Emit one last observable native snapshot before a terminal signal.
+
+        Fast native solves can finish between QTimer polls, especially in the
+        frozen application.  Publishing the terminal snapshot preserves the
+        polling-only ABI design while guaranteeing that callers can observe
+        the native stage/progress state for every completed job.
+        """
+        if job is None:
+            return
+        progress = job.progress_snapshot()
+        if progress is not None:
+            self.progress.emit(job.request, progress)
+
     def _completed(self, outcome):
         job = next((j for j in self._jobs if j.request.request_id == outcome.request.request_id), None)
         if job is not None:
+            self._emit_progress_snapshot(job)
             self._forget(job)
         self.completed.emit(outcome)
 

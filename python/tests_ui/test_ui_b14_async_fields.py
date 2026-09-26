@@ -61,6 +61,28 @@ class _FailingFacade(_ControlledFacade):
         raise RuntimeError("solver sentinel failure")
 
 
+class _FastFacade(_ControlledFacade):
+    def advanced_bearing_job_progress(self):
+        return BearingJobProgress(6, "completed", 1, 1, 1, 1, False)
+
+    def advanced_bearing_fields(self, bearing, speed, frequency, **kwargs):
+        evaluation = BearingEvaluation(
+            np.eye(2), np.eye(2), np.zeros((2, 2)), bearing.model_family, {}
+        )
+        return {
+            "evaluation": evaluation,
+            "pressure_field_pa": None,
+            "temperature_field_k": None,
+            "film_thickness_field_m": None,
+            "deformation_field_m": None,
+            "theta_rad": None,
+            "axial_position_m": None,
+            "pad_index": None,
+            "pad_load_n": None,
+            "convergence": {"stage": "completed", "percent": 100.0},
+        }
+
+
 def _bearing():
     return CoefficientBearing(node=1, kxx=1.1e6, kyy=1.2e6, cxx=101.0, cyy=102.0)
 
@@ -103,6 +125,17 @@ def test_b14_progress_polling_changes_and_cancel_never_publishes(qtbot):
     assert cancelled.args[0].selection_key == "A"
     assert job.state == JobState.CANCELLED.value
     assert completed == []
+
+
+def test_b14_fast_native_completion_emits_terminal_progress(qtbot):
+    manager = BearingJobManager(solver_factory=_FastFacade, poll_ms=25)
+    observed = []
+    manager.progress.connect(lambda _request, progress: observed.append(progress))
+    with qtbot.waitSignal(manager.completed, timeout=3000):
+        manager.submit(_bearing(), 100.0, 100.0, "fast")
+    assert observed, "terminal native progress was not observable"
+    assert observed[-1].stage == "completed"
+    assert observed[-1].percent == 100.0
 
 
 def test_b14_solver_error_reaches_gui_manager(qtbot):
