@@ -52,15 +52,18 @@ jobs:
           ctest --test-dir build-b15 --output-on-failure
       - name: Stage 1 remains exactly 57
         run: |
+          set -o pipefail
           mkdir -p validation/reports/b15/linux
           python -m pytest python/tests --collect-only -q | tee validation/reports/b15/linux/stage1_collection.txt
           grep -Eq '57 tests collected|57 collected' validation/reports/b15/linux/stage1_collection.txt
           python -m pytest python/tests -q | tee validation/reports/b15/linux/stage1_pytest.txt
       - name: B15 real iRdin coefficient-table gates
         run: |
+          set -o pipefail
           python -m pytest python/tests_bearings/test_b15_irdin_coefficient_import.py python/tests_ui/test_core_irdin_import.py -q | tee validation/reports/b15/linux/b15.txt
       - name: B14 and B12 regression
         run: |
+          set -o pipefail
           python -m pytest python/tests_bearings/test_b14_async_fields.py python/tests_ui/test_ui_b14_async_fields.py -q | tee validation/reports/b15/linux/b14_regression.txt
           python -m pytest python/tests_bearings/test_advanced_bearings.py python/tests_bearings/test_advanced_bearings_parity.py -q | tee validation/reports/b15/linux/b12_regression.txt
       - uses: actions/upload-artifact@v4
