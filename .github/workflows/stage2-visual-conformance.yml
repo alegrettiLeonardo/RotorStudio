@@ -22,6 +22,7 @@ jobs:
       QT_QPA_PLATFORM: offscreen
       PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
       DRMROTOR_LIB: ${{ github.workspace }}/build-stage21/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-stage21/libdrmbearings.so
     steps:
       - uses: actions/checkout@v4
         with:
