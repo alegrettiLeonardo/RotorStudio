@@ -122,6 +122,29 @@ def test_b13_coefficient_gui_builds_2d_kcm_without_zeroing_mass(qtbot):
     assert bearing.mxx == ((0.11, 0.12, 0.13), (0.21, 0.22, 0.23))
 
 
+
+
+def test_b13_coefficient_edit_preserves_optional_fallbacks(qtbot):
+    model = _project().model
+    original = CoefficientBearing(
+        node=1,
+        kxx=1.23e6,
+        cxx=123.0,
+        kyy=None,
+        cyy=None,
+        mxx=0.456,
+        myy=None,
+        tag="fallback sentinel",
+    )
+    editor = AdvancedBearingEditor(model, bearing=original)
+    qtbot.addWidget(editor)
+    rebuilt = editor.bearing()
+    assert rebuilt == original
+    assert rebuilt.kyy is None
+    assert rebuilt.cyy is None
+    assert rebuilt.myy is None
+
+
 def test_b13_commands_add_edit_delete_duplicate_undo_redo_and_selection(qtbot):
     session = ProjectSession(_project())
     first = CoefficientBearing(node=1, kxx=1.01e6, cxx=101.0, tag="A")
