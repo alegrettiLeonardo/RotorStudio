@@ -291,9 +291,15 @@ class AdvancedBearingEditor(QDialog):
         speed = _axis_from_text(self.speed_axis, "speed_rad_s")
         frequency = _axis_from_text(self.frequency_axis, "frequency_rad_s")
         data = {}
+        def freeze_coeff(value):
+            if isinstance(value, list):
+                return tuple(freeze_coeff(x) for x in value)
+            return value
         for row, name in enumerate(self.coeff_names):
             item = self.coeff_table.item(row, 1)
-            data[name.lower()] = _parse_json_numeric("" if item is None else item.text(), name)
+            data[name.lower()] = freeze_coeff(
+                _parse_json_numeric("" if item is None else item.text(), name)
+            )
         bearing = CoefficientBearing(
             node=self._node(),
             kxx=data["kxx"], cxx=data["cxx"],
