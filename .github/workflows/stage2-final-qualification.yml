@@ -105,6 +105,9 @@ jobs:
           assert d["backend"]=="Fortran2018/ctypes", d
           assert d["advanced_bearing"]["status"]=="PASS", d
           assert d["advanced_bearing"]["family"]=="ball", d
+          assert d["native_fluidfilm_bearing"]["status"]=="PASS", d
+          assert d["native_fluidfilm_bearing"]["qualification"]=="ROSS_PARITY_PASS_B12", d
+          assert d["native_fluidfilm_bearing"]["rotor_assembly"]=="PASS", d
           print(json.dumps(d,indent=2,sort_keys=True))
           PY
           cp -r "$SMOKE" "$GITHUB_WORKSPACE/validation/reports/stage2_final_linux/clean_smoke"
@@ -123,6 +126,7 @@ jobs:
             "real_fortran_e2e":"PASS",
             "legacy_fortran_core_diff_from_stage2_base":"ZERO",
             "advanced_bearing_runtime":"BUNDLED_AND_SMOKE_PASS",
+            "native_fluidfilm_rotor_bridge":"B12_QUALIFIED_AND_SMOKE_PASS",
             "frozen_app":"PASS",
             "clean_install":"PASS",
             "mockup_screenshots":"5/5",
@@ -266,6 +270,9 @@ jobs:
           if ($payload.status -ne "PASS") { throw "packaged smoke failed" }
           if ($payload.advanced_bearing.status -ne "PASS") { throw "packaged advanced-bearing smoke failed" }
           if ($payload.advanced_bearing.family -ne "ball") { throw "unexpected packaged advanced-bearing family" }
+          if ($payload.native_fluidfilm_bearing.status -ne "PASS") { throw "packaged native fluid-film smoke failed" }
+          if ($payload.native_fluidfilm_bearing.qualification -ne "ROSS_PARITY_PASS_B12") { throw "native fluid-film qualification missing" }
+          if ($payload.native_fluidfilm_bearing.rotor_assembly -ne "PASS") { throw "native fluid-film rotor assembly failed" }
           Copy-Item $smoke validation\reports\stage2_final_windows\clean_smoke -Recurse
 
       - name: Record Windows final evidence
@@ -348,6 +355,7 @@ jobs:
               "mockup_screenshots":"5 real application screenshots generated on Linux",
               "legacy_fortran_core_diff":"ZERO vs STAGE2_BASE_HEAD",
               "advanced_bearing_runtime":"bundled libdrmbearings + clean frozen smoke PASS",
+              "native_fluidfilm_rotor_bridge":"B12 qualified + clean frozen assembly smoke PASS",
             },
           }
           pathlib.Path("validation/reports/STAGE2_FINAL_QUALIFICATION.json").write_text(json.dumps(payload,indent=2,sort_keys=True))
