@@ -2,6 +2,7 @@ module rb_c_api
   use, intrinsic :: iso_c_binding, only: c_int, c_double
   use rb_kinds, only: rk, ik
   use rb_status, only: RB_OK, RB_ERR_INPUT
+  use rb_job_control, only: rb_job_reset, rb_job_request_cancel, rb_job_snapshot
   use rb_interpolation, only: rb_interp1, rb_interp2
   use rb_rolling, only: rb_ball_coefficients, rb_roller_coefficients
   use rb_cylindrical, only: rb_cylindrical_coefficients
@@ -27,9 +28,30 @@ module rb_c_api
   public :: rb_plain_journal_multiphysics_c, rb_tilting_pad_multiphysics_c
   public :: rb_plain_journal_multiphysics_pack_c, rb_tilting_pad_multiphysics_pack_c
   public :: rb_plain_journal_multiphysics_fields_pack_c, rb_tilting_pad_multiphysics_fields_pack_c
+  public :: rb_plain_journal_multiphysics_fields_v2_pack_c, rb_tilting_pad_multiphysics_fields_v2_pack_c
+  public :: rb_job_reset_c, rb_job_request_cancel_c, rb_job_progress_c
   public :: rb_plain_journal_fixed_state_pack_c
 
 contains
+
+  integer(c_int) function rb_job_reset_c() bind(C,name="rb_job_reset_c")
+    call rb_job_reset()
+    rb_job_reset_c=int(RB_OK,c_int)
+  end function rb_job_reset_c
+
+  integer(c_int) function rb_job_request_cancel_c() bind(C,name="rb_job_request_cancel_c")
+    call rb_job_request_cancel()
+    rb_job_request_cancel_c=int(RB_OK,c_int)
+  end function rb_job_request_cancel_c
+
+  integer(c_int) function rb_job_progress_c(stage,iteration,max_iterations,completed,total,cancelled) bind(C,name="rb_job_progress_c")
+    integer(c_int),intent(out)::stage,iteration,max_iterations,completed,total,cancelled
+    integer(ik)::s,it,mx,done,tot,can
+    call rb_job_snapshot(s,it,mx,done,tot,can)
+    stage=int(s,c_int);iteration=int(it,c_int);max_iterations=int(mx,c_int)
+    completed=int(done,c_int);total=int(tot,c_int);cancelled=int(can,c_int)
+    rb_job_progress_c=int(RB_OK,c_int)
+  end function rb_job_progress_c
 
   integer(c_int) function rb_interp1_c(n, x, y, xq, method, yq) bind(C, name="rb_interp1_c")
     integer(c_int), value :: n, method
@@ -719,6 +741,99 @@ contains
     rb_tilting_pad_multiphysics_fields_pack_c=int(st,c_int)
   end function rb_tilting_pad_multiphysics_fields_pack_c
 
+
+
+  integer(c_int) function rb_plain_journal_multiphysics_fields_v2_pack_c(n_pads, rcfg, icfg, pivot_angle, pad_arc, &
+      pad_axial_length, preload, offset, k_out, c_out, summary, pressure_out, temperature_out, deformation_out, &
+      film_thickness_out, pad_load_out) bind(C,name="rb_plain_journal_multiphysics_fields_v2_pack_c")
+    integer(c_int),value::n_pads
+    real(c_double),intent(in)::rcfg(*),pivot_angle(*),pad_arc(*),pad_axial_length(*),preload(*),offset(*)
+    integer(c_int),intent(in)::icfg(*)
+    real(c_double),intent(out)::k_out(4),c_out(4),summary(9),pressure_out(*),temperature_out(*),deformation_out(*),film_thickness_out(*),pad_load_out(*)
+    real(rk),allocatable::piv(:),arc(:),alen(:),pre(:),off(:),pf(:,:),tf(:,:),df(:,:),hf(:,:),loads(:)
+    real(rk)::xr,yr,k(2,2),cc(2,2),fx,fy,pm,tm,to,dm
+    integer(ik)::st,it
+    integer::n,nn,nx,nz,p,i,idx
+    n=int(n_pads)
+    if(n<1)then;rb_plain_journal_multiphysics_fields_v2_pack_c=int(RB_ERR_INPUT,c_int);summary=0._c_double;return;end if
+    nx=int(icfg(3));nz=int(icfg(4));nn=(nx+1)*(nz+1)
+    allocate(piv(n),arc(n),alen(n),pre(n),off(n),pf(nn,n),tf(nn,n),df(nx+1,n),hf(nn,n),loads(n))
+    piv=real(pivot_angle(1:n),rk);arc=real(pad_arc(1:n),rk);alen=real(pad_axial_length(1:n),rk)
+    pre=real(preload(1:n),rk);off=real(offset(1:n),rk);pf=0._rk;tf=0._rk;df=0._rk;hf=0._rk;loads=0._rk
+    call rb_plain_journal_multiphysics(real(rcfg(1),rk),real(rcfg(2),rk),real(rcfg(3),rk),real(rcfg(4),rk), &
+      real(rcfg(5),rk),real(rcfg(6),rk),real(rcfg(7),rk),real(rcfg(8),rk),real(rcfg(9),rk),real(rcfg(10),rk), &
+      real(rcfg(11),rk),real(rcfg(12),rk),real(rcfg(13),rk),int(icfg(1),ik),int(icfg(2),ik),real(rcfg(14),rk), &
+      real(rcfg(15),rk),real(rcfg(16),rk),real(rcfg(17),rk),real(rcfg(18),rk),real(rcfg(19),rk),real(rcfg(20),rk), &
+      real(rcfg(21),rk),real(rcfg(22),rk),real(rcfg(23),rk),int(n_pads,ik),piv,arc,alen,pre,off,int(icfg(3),ik), &
+      int(icfg(4),ik),int(icfg(5),ik),int(icfg(6),ik),real(rcfg(24),rk),real(rcfg(25),rk),real(rcfg(26),rk), &
+      real(rcfg(27),rk),int(icfg(7),ik),int(icfg(8),ik),real(rcfg(28),rk),real(rcfg(29),rk),xr,yr,k,cc,fx,fy,pm,tm,to,dm,it,st, &
+      pf,tf,df,hf,loads,temp_reference_in=real(rcfg(30),rk),ambient_press1_in=real(rcfg(31),rk), &
+      ambient_press2_in=real(rcfg(32),rk),hotoil_lamda_in=real(rcfg(33),rk))
+    k_out=[real(k(1,1),c_double),real(k(2,1),c_double),real(k(1,2),c_double),real(k(2,2),c_double)]
+    c_out=[real(cc(1,1),c_double),real(cc(2,1),c_double),real(cc(1,2),c_double),real(cc(2,2),c_double)]
+    summary=[real(xr,c_double),real(yr,c_double),real(fx,c_double),real(fy,c_double),real(pm,c_double),real(tm,c_double),real(to,c_double),real(dm,c_double),real(it,c_double)]
+    idx=0
+    do p=1,n
+      do i=1,nn
+        idx=idx+1;pressure_out(idx)=real(pf(i,p),c_double);temperature_out(idx)=real(tf(i,p),c_double);film_thickness_out(idx)=real(hf(i,p),c_double)
+      end do
+    end do
+    idx=0
+    do p=1,n
+      do i=1,nx+1
+        idx=idx+1;deformation_out(idx)=real(df(i,p),c_double)
+      end do
+      pad_load_out(p)=real(loads(p),c_double)
+    end do
+    rb_plain_journal_multiphysics_fields_v2_pack_c=int(st,c_int)
+  end function rb_plain_journal_multiphysics_fields_v2_pack_c
+
+  integer(c_int) function rb_tilting_pad_multiphysics_fields_v2_pack_c(n_pads, rcfg, icfg, pivot_angle, pad_arc, &
+      pad_axial_length, preload, offset, k_rotate, tilt_angle, k_out, c_out, summary, pressure_out, temperature_out, &
+      deformation_out, film_thickness_out, pad_load_out) bind(C,name="rb_tilting_pad_multiphysics_fields_v2_pack_c")
+    integer(c_int),value::n_pads
+    real(c_double),intent(in)::rcfg(*),pivot_angle(*),pad_arc(*),pad_axial_length(*),preload(*),offset(*),k_rotate(*)
+    integer(c_int),intent(in)::icfg(*)
+    real(c_double),intent(out)::tilt_angle(*),k_out(4),c_out(4),summary(9),pressure_out(*),temperature_out(*),deformation_out(*),film_thickness_out(*),pad_load_out(*)
+    real(rk),allocatable::piv(:),arc(:),alen(:),pre(:),off(:),krot(:),tilt(:),pf(:,:),tf(:,:),df(:,:),hf(:,:),loads(:)
+    real(rk)::xr,yr,k(2,2),cc(2,2),fx,fy,pm,tm,to,dm
+    integer(ik)::st,it
+    integer::n,nn,nx,nz,p,i,idx
+    n=int(n_pads)
+    if(n<1)then;rb_tilting_pad_multiphysics_fields_v2_pack_c=int(RB_ERR_INPUT,c_int);summary=0._c_double;return;end if
+    nx=int(icfg(3));nz=int(icfg(4));nn=(nx+1)*(nz+1)
+    allocate(piv(n),arc(n),alen(n),pre(n),off(n),krot(n),tilt(n),pf(nn,n),tf(nn,n),df(nx+1,n),hf(nn,n),loads(n))
+    piv=real(pivot_angle(1:n),rk);arc=real(pad_arc(1:n),rk);alen=real(pad_axial_length(1:n),rk)
+    pre=real(preload(1:n),rk);off=real(offset(1:n),rk);krot=real(k_rotate(1:n),rk)
+    pf=0._rk;tf=0._rk;df=0._rk;hf=0._rk;loads=0._rk
+    call rb_tilting_pad_multiphysics(real(rcfg(1),rk),real(rcfg(2),rk),real(rcfg(3),rk),real(rcfg(4),rk), &
+      real(rcfg(5),rk),real(rcfg(6),rk),real(rcfg(7),rk),real(rcfg(8),rk),real(rcfg(9),rk),real(rcfg(10),rk), &
+      real(rcfg(11),rk),real(rcfg(12),rk),real(rcfg(13),rk),real(rcfg(14),rk),int(icfg(1),ik),int(icfg(2),ik), &
+      real(rcfg(15),rk),real(rcfg(16),rk),real(rcfg(17),rk),real(rcfg(18),rk),real(rcfg(19),rk),real(rcfg(20),rk), &
+      real(rcfg(21),rk),real(rcfg(22),rk),real(rcfg(23),rk),real(rcfg(24),rk),real(rcfg(25),rk),int(n_pads,ik), &
+      piv,arc,alen,pre,off,krot,int(icfg(3),ik),int(icfg(4),ik),int(icfg(5),ik),int(icfg(6),ik),real(rcfg(26),rk), &
+      real(rcfg(27),rk),real(rcfg(28),rk),real(rcfg(29),rk),int(icfg(7),ik),int(icfg(8),ik),real(rcfg(30),rk), &
+      real(rcfg(31),rk),xr,yr,tilt,k,cc,fx,fy,pm,tm,to,dm,it,st,pf,tf,df,hf,loads,temp_reference_in=real(rcfg(32),rk), &
+      ambient_press1_in=real(rcfg(33),rk),ambient_press2_in=real(rcfg(34),rk),hotoil_lamda_in=real(rcfg(35),rk))
+    tilt_angle(1:n)=real(tilt,c_double)
+    k_out=[real(k(1,1),c_double),real(k(2,1),c_double),real(k(1,2),c_double),real(k(2,2),c_double)]
+    c_out=[real(cc(1,1),c_double),real(cc(2,1),c_double),real(cc(1,2),c_double),real(cc(2,2),c_double)]
+    summary=[real(xr,c_double),real(yr,c_double),real(fx,c_double),real(fy,c_double),real(pm,c_double),real(tm,c_double),real(to,c_double),real(dm,c_double),real(it,c_double)]
+    idx=0
+    do p=1,n
+      do i=1,nn
+        idx=idx+1;pressure_out(idx)=real(pf(i,p),c_double);temperature_out(idx)=real(tf(i,p),c_double);film_thickness_out(idx)=real(hf(i,p),c_double)
+      end do
+    end do
+    idx=0
+    do p=1,n
+      do i=1,nx+1
+        idx=idx+1;deformation_out(idx)=real(df(i,p),c_double)
+      end do
+      pad_load_out(p)=real(loads(p),c_double)
+    end do
+    rb_tilting_pad_multiphysics_fields_v2_pack_c=int(st,c_int)
+  end function rb_tilting_pad_multiphysics_fields_v2_pack_c
 
   integer(c_int) function rb_plain_journal_fixed_state_pack_c(n_pads,rcfg,icfg,pivot_angle,pad_arc,pad_axial_length, &
       preload,offset,k_out,summary,pressure_out) bind(C,name="rb_plain_journal_fixed_state_pack_c")

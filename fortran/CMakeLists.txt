@@ -11,6 +11,7 @@ find_package(LAPACK REQUIRED)
 add_library(drmbearings SHARED
  bearings/src/rb_kinds.f90
  bearings/src/rb_status.f90
+ bearings/src/rb_job_control.f90
  bearings/src/rb_interpolation.f90
  bearings/src/rb_rolling.f90
  bearings/src/rb_cylindrical.f90
