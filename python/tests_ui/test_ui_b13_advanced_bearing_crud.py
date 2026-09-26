@@ -261,6 +261,33 @@ def test_b13_save_reopen_same_engineering_objects(qtbot, tmp_path):
     assert reopened.project.model.advanced_bearings == session.project.model.advanced_bearings
 
 
+
+def test_b13_project_explorer_keeps_selection_after_edit_model_reset(qtbot):
+    project = _project()
+    old = CoefficientBearing(node=1, kxx=1.0e6, cxx=100.0, tag="selected")
+    project.model.advanced_bearings.append(old)
+    session = ProjectSession(project)
+    dock = ProjectExplorerDock(session)
+    qtbot.addWidget(dock)
+    dock.show()
+
+    ref = EntityRef("advanced_bearing", 0)
+    session.set_selection(ref)
+    qtbot.wait(1)
+    assert dock.model.data(dock.tree.currentIndex(), dock.model.EntityRole) == ref
+
+    new = CoefficientBearing(node=1, kxx=1.1e6, cxx=100.0, tag="selected")
+    session.undo_stack.push(EditAdvancedBearingCommand(session, 0, new))
+    qtbot.wait(1)
+    assert session.selection == ref
+    assert dock.tree.currentIndex().isValid()
+    assert dock.model.data(dock.tree.currentIndex(), dock.model.EntityRole) == ref
+
+    session.undo_stack.undo()
+    qtbot.wait(1)
+    assert dock.model.data(dock.tree.currentIndex(), dock.model.EntityRole) == ref
+
+
 def test_b13_project_explorer_root_and_entity_contexts(qtbot):
     project = _project()
     project.model.advanced_bearings.append(
