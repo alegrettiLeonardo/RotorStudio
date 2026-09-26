@@ -35,6 +35,48 @@ _TP_BEARING_TYPE = {
     "spray_bar_tilting_pad": 3,
 }
 _TP_EQUILIBRIUM = {"match_eccentricity": 1, "match_load": 2}
+_JOB_STAGE = {
+    0: "QUEUED",
+    1: "equilibrium",
+    2: "thermal",
+    3: "deformation",
+    4: "dynamic_coefficients",
+    5: "fields",
+    6: "completed",
+}
+
+
+class BearingCancelledError(SolverLibraryError):
+    """Cooperative cancellation returned by the additive B14 native ABI."""
+
+
+@dataclass(frozen=True)
+class BearingJobProgress:
+    stage_code: int
+    stage: str
+    iteration: int
+    max_iterations: int
+    completed_cases: int
+    total_cases: int
+    cancel_requested: bool
+
+    @property
+    def percent(self) -> float:
+        if self.stage_code >= 6:
+            return 100.0
+        if self.total_cases > 0 and self.completed_cases > 0:
+            local = self.completed_cases / self.total_cases
+        elif self.max_iterations > 0:
+            local = self.iteration / self.max_iterations
+        else:
+            local = 0.0
+        stage_fraction = {
+            0: 0.0, 1: 0.05, 2: 0.45, 3: 0.65, 4: 0.82, 5: 0.94
+        }.get(self.stage_code, 0.0)
+        span = {
+            0: 0.05, 1: 0.40, 2: 0.20, 3: 0.17, 4: 0.12, 5: 0.06
+        }.get(self.stage_code, 0.0)
+        return float(max(0.0, min(99.9, 100.0 * (stage_fraction + span * local))))
 
 
 @dataclass(frozen=True)
@@ -67,10 +109,58 @@ class AdvancedBearingBackend:
 
     @staticmethod
     def _status(status: int, operation: str) -> None:
+        if int(status) == 4:
+            raise BearingCancelledError(
+                f"native bearing {operation} cancelled cooperatively"
+            )
         if status:
             raise SolverLibraryError(
                 f"native bearing {operation} returned status={status}"
             )
+
+    def reset_job_control(self) -> None:
+        self._status(self.lib.rb_job_reset_c(), "job reset")
+
+    def request_cancel(self) -> None:
+        self._status(self.lib.rb_job_request_cancel_c(), "job cancel request")
+
+    def job_progress(self) -> BearingJobProgress:
+        values = [ct.c_int() for _ in range(6)]
+        self._status(
+            self.lib.rb_job_progress_c(*(ct.byref(v) for v in values)),
+            "job progress",
+        )
+        stage, iteration, maximum, completed, total, cancelled = (
+            int(v.value) for v in values
+        )
+        return BearingJobProgress(
+            stage,
+            _JOB_STAGE.get(stage, f"stage_{stage}"),
+            iteration,
+            maximum,
+            completed,
+            total,
+            bool(cancelled),
+        )
+
+    @staticmethod
+    def _field_coordinates(bearing, nx: int, nz: int):
+        theta = []
+        axial = []
+        for pivot, arc, offset, length in zip(
+            bearing.pivot_angle_rad,
+            bearing.pad_arc_rad,
+            bearing.offset,
+            bearing.pad_axial_length_m,
+        ):
+            lead = float(pivot) - float(arc) * float(offset)
+            theta.append(np.linspace(lead, lead + float(arc), nx + 1))
+            axial.append(np.linspace(-0.5 * float(length), 0.5 * float(length), nz + 1))
+        return (
+            np.asarray(theta, dtype=float),
+            np.asarray(axial, dtype=float),
+            np.arange(1, len(theta) + 1, dtype=int),
+        )
 
     def _interp1(self, axis, values, query, method):
         x = np.ascontiguousarray(axis, dtype=np.float64)
@@ -299,20 +389,23 @@ class AdvancedBearingBackend:
         K = np.empty(4, dtype=np.float64)
         C = np.empty(4, dtype=np.float64)
         summary = np.empty(9, dtype=np.float64)
-        pressure = temperature = deformation = None
+        pressure = temperature = deformation = film = pad_load = None
         if with_fields:
             nx, nz = int(icfg[2]), int(icfg[3])
             nn = (nx + 1) * (nz + 1)
             pressure = np.empty(n * nn, dtype=np.float64)
             temperature = np.empty(n * nn, dtype=np.float64)
             deformation = np.empty(n * (nx + 1), dtype=np.float64)
-            status = self.lib.rb_plain_journal_multiphysics_fields_pack_c(
+            film = np.empty(n * nn, dtype=np.float64)
+            pad_load = np.empty(n, dtype=np.float64)
+            status = self.lib.rb_plain_journal_multiphysics_fields_v2_pack_c(
                 n,
                 self._ptr(rcfg),
                 icfg.ctypes.data_as(ct.POINTER(ct.c_int)),
                 *(self._ptr(a) for a in arrays),
                 self._ptr(K), self._ptr(C), self._ptr(summary),
                 self._ptr(pressure), self._ptr(temperature), self._ptr(deformation),
+                self._ptr(film), self._ptr(pad_load),
             )
         else:
             status = self.lib.rb_plain_journal_multiphysics_pack_c(
@@ -354,11 +447,27 @@ class AdvancedBearingBackend:
         )
         if not with_fields:
             return evaluation
+        theta, axial, pad_index = self._field_coordinates(bearing, nx, nz)
+        progress = self.job_progress()
+        evaluation.details["field_contract"] = "B14-v2"
         return {
             "evaluation": evaluation,
             "pressure_field_pa": pressure.reshape((n, nx + 1, nz + 1)),
             "temperature_field_k": temperature.reshape((n, nx + 1, nz + 1)),
+            "film_thickness_field_m": film.reshape((n, nx + 1, nz + 1)),
             "deformation_field_m": deformation.reshape((n, nx + 1)),
+            "theta_rad": theta,
+            "axial_position_m": axial,
+            "pad_index": pad_index,
+            "pad_load_n": pad_load.copy(),
+            "convergence": {
+                "stage": progress.stage,
+                "iteration": progress.iteration,
+                "max_iterations": progress.max_iterations,
+                "completed_cases": progress.completed_cases,
+                "total_cases": progress.total_cases,
+                "percent": progress.percent,
+            },
         }
 
     def _plain_journal_physics(
@@ -436,20 +545,23 @@ class AdvancedBearingBackend:
         K = np.empty(4, dtype=np.float64)
         C = np.empty(4, dtype=np.float64)
         summary = np.empty(9, dtype=np.float64)
-        pressure = temperature = deformation = None
+        pressure = temperature = deformation = film = pad_load = None
         if with_fields:
             nx, nz = int(icfg[2]), int(icfg[3])
             nn = (nx + 1) * (nz + 1)
             pressure = np.empty(n * nn, dtype=np.float64)
             temperature = np.empty(n * nn, dtype=np.float64)
             deformation = np.empty(n * (nx + 1), dtype=np.float64)
-            status = self.lib.rb_tilting_pad_multiphysics_fields_pack_c(
+            film = np.empty(n * nn, dtype=np.float64)
+            pad_load = np.empty(n, dtype=np.float64)
+            status = self.lib.rb_tilting_pad_multiphysics_fields_v2_pack_c(
                 n,
                 self._ptr(rcfg),
                 icfg.ctypes.data_as(ct.POINTER(ct.c_int)),
                 *(self._ptr(a) for a in arrays),
                 self._ptr(tilt), self._ptr(K), self._ptr(C), self._ptr(summary),
                 self._ptr(pressure), self._ptr(temperature), self._ptr(deformation),
+                self._ptr(film), self._ptr(pad_load),
             )
         else:
             status = self.lib.rb_tilting_pad_multiphysics_pack_c(
@@ -492,11 +604,27 @@ class AdvancedBearingBackend:
         )
         if not with_fields:
             return evaluation
+        theta, axial, pad_index = self._field_coordinates(bearing, nx, nz)
+        progress = self.job_progress()
+        evaluation.details["field_contract"] = "B14-v2"
         return {
             "evaluation": evaluation,
             "pressure_field_pa": pressure.reshape((n, nx + 1, nz + 1)),
             "temperature_field_k": temperature.reshape((n, nx + 1, nz + 1)),
+            "film_thickness_field_m": film.reshape((n, nx + 1, nz + 1)),
             "deformation_field_m": deformation.reshape((n, nx + 1)),
+            "theta_rad": theta,
+            "axial_position_m": axial,
+            "pad_index": pad_index,
+            "pad_load_n": pad_load.copy(),
+            "convergence": {
+                "stage": progress.stage,
+                "iteration": progress.iteration,
+                "max_iterations": progress.max_iterations,
+                "completed_cases": progress.completed_cases,
+                "total_cases": progress.total_cases,
+                "percent": progress.percent,
+            },
         }
 
     def _tilting_pad_physics(
@@ -813,8 +941,12 @@ class AdvancedBearingBackend:
         bearing: AdvancedBearing,
         speed_rad_s: float,
         frequency_rad_s: float | None = None,
+        *,
+        reset_job_control: bool = True,
     ) -> BearingEvaluation:
         validate_advanced_bearing(bearing)
+        if reset_job_control:
+            self.reset_job_control()
         speed = float(speed_rad_s)
         frequency = speed if frequency_rad_s is None else float(frequency_rad_s)
         if not np.isfinite(speed) or not np.isfinite(frequency):
@@ -841,6 +973,8 @@ class AdvancedBearingBackend:
         bearing: AdvancedBearing,
         speed_rad_s: float,
         frequency_rad_s: float | None = None,
+        *,
+        reset_job_control: bool = True,
     ) -> dict:
         """Explicit Bearing Performance solve with native field outputs.
 
@@ -849,6 +983,8 @@ class AdvancedBearingBackend:
         return their coefficient evaluation with no field arrays.
         """
         validate_advanced_bearing(bearing)
+        if reset_job_control:
+            self.reset_job_control()
         speed = float(speed_rad_s)
         frequency = speed if frequency_rad_s is None else float(frequency_rad_s)
         if not np.isfinite(speed) or not np.isfinite(frequency):
@@ -860,10 +996,18 @@ class AdvancedBearingBackend:
                 bearing, speed, frequency, with_fields=True
             )
         return {
-            "evaluation": self.evaluate(bearing, speed, frequency),
+            "evaluation": self.evaluate(
+                bearing, speed, frequency, reset_job_control=False
+            ),
             "pressure_field_pa": None,
             "temperature_field_k": None,
+            "film_thickness_field_m": None,
             "deformation_field_m": None,
+            "theta_rad": None,
+            "axial_position_m": None,
+            "pad_index": None,
+            "pad_load_n": None,
+            "convergence": None,
         }
 
     def as_legacy_bearing(
