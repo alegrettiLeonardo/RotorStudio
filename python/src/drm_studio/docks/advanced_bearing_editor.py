@@ -99,7 +99,7 @@ def _set_text(edit: QLineEdit, value: Any, scale: float = 1.0, offset: float = 0
     if value is None:
         edit.setText("")
         return
-    edit.setText(f"{(float(value) * scale + offset):.15g}")
+    edit.setText(f"{(float(value) * scale + offset):.17g}")
 
 
 def _parse_json_numeric(text: str, name: str):
@@ -131,7 +131,7 @@ def _data_text(value) -> str:
     if value is None:
         return ""
     if isinstance(value, (int, float)):
-        return f"{float(value):.15g}"
+        return f"{float(value):.17g}"
     return json.dumps(value, separators=(", ", ": "))
 
 
@@ -146,7 +146,7 @@ def _axis_from_text(edit: QLineEdit, name: str) -> tuple[float, ...]:
 
 
 def _axis_text(axis) -> str:
-    return ", ".join(f"{float(x):.15g}" for x in axis)
+    return ", ".join(f"{float(x):.17g}" for x in axis)
 
 
 def _readonly(text: str = "") -> QLineEdit:
@@ -392,7 +392,7 @@ class AdvancedBearingEditor(QDialog):
         n_editable = self.pads.columnCount() - 1
         for col in range(n_editable):
             value = default[col] if col < len(default) else 0.0
-            self.pads.setItem(row, col + 1, QTableWidgetItem(f"{float(value):.15g}"))
+            self.pads.setItem(row, col + 1, QTableWidgetItem(f"{float(value):.17g}"))
 
     def remove_selected_pad(self):
         row = self.pads.currentRow()
