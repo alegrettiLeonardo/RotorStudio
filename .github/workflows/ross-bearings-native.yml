@@ -105,7 +105,7 @@ jobs:
             echo "Implemented gates: BF1 BF2 BF3 BF5 BF6 BF7 B10 B11 B12"
             echo "RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_NATIVE_PHYSICS_AND_COEFFICIENT_PROVIDER"
             echo "Advanced native families: Ball Roller Cylindrical SFD PlainJournal TiltingPad"
-            echo "Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface\n          PlainJournal/TiltingPad rotor bridge: B12-qualified type-5 adapter enabled"
+            echo "Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface"\n            echo "PlainJournal/TiltingPad rotor bridge: B12-qualified type-5 adapter enabled"
             echo "B12: frozen ROSS numerical parity QUALIFIED for PlainJournal and TiltingPad; ThrustPad/run-up/transient/coaxial/asymmetric remain out of scope"
           } > validation/reports/ross_bearings_native/linux/status.txt
 
