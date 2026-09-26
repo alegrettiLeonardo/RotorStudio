@@ -137,3 +137,185 @@ class EditBearingCommand(QUndoCommand):
 
     def redo(self):self._assign(self.new_bearing)
     def undo(self):self._assign(self.old_bearing)
+
+# ---------------------------------------------------------------------------
+# B13 — advanced bearing transactional CRUD
+# ---------------------------------------------------------------------------
+
+def _advanced_ref(index: int):
+    from drm_studio.application.session import EntityRef
+    return EntityRef("advanced_bearing", int(index))
+
+
+def _validate_advanced_candidate(model) -> None:
+    # CRUD validates the stationary model without relaxing the existing
+    # fail-closed coaxial/rotating/run-up gates.
+    validate_model(model, analysis="stationary")
+
+
+class AddAdvancedBearingCommand(QUndoCommand):
+    """Insert one complete, pre-validated advanced-bearing domain object."""
+
+    def __init__(self, session, bearing, index: int | None = None, text: str | None = None):
+        self.session = session
+        self.bearing = copy.deepcopy(bearing)
+        self.index = (
+            len(session.project.model.advanced_bearings)
+            if index is None else int(index)
+        )
+        if not 0 <= self.index <= len(session.project.model.advanced_bearings):
+            raise IndexError(
+                f"advanced bearing insertion index {self.index} is out of range"
+            )
+        self.previous_selection = session.selection
+
+        candidate = copy.deepcopy(session.project.model)
+        candidate.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
+        _validate_advanced_candidate(candidate)
+
+        tag = (
+            getattr(self.bearing, "tag", "")
+            or getattr(self.bearing, "model_family", "advanced bearing")
+        )
+        super().__init__(text or f"Add advanced bearing {tag}")
+
+    def redo(self):
+        self.session.project.model.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
+        self.session.notify_model_changed()
+        self.session.set_selection(_advanced_ref(self.index))
+
+    def undo(self):
+        current = self.session.project.model.advanced_bearings
+        if not 0 <= self.index < len(current):
+            raise IndexError("advanced bearing added by command is no longer present")
+        current.pop(self.index)
+        self.session.notify_model_changed()
+        self.session.set_selection(self.previous_selection)
+
+
+class EditAdvancedBearingCommand(QUndoCommand):
+    """Replace an advanced bearing atomically; undo restores the exact old object."""
+
+    def __init__(self, session, index: int, new_bearing, text: str | None = None):
+        self.session = session
+        self.index = int(index)
+        current = session.project.model.advanced_bearings
+        if not 0 <= self.index < len(current):
+            raise IndexError(f"advanced bearing index {self.index} is out of range")
+
+        self.old_bearing = copy.deepcopy(current[self.index])
+        self.new_bearing = copy.deepcopy(new_bearing)
+        if type(self.old_bearing) is not type(self.new_bearing):
+            raise ValueError(
+                "B13 Edit does not convert bearing family; create a separate bearing instead"
+            )
+
+        candidate = copy.deepcopy(session.project.model)
+        candidate.advanced_bearings[self.index] = copy.deepcopy(self.new_bearing)
+        _validate_advanced_candidate(candidate)
+        super().__init__(text or f"Edit advanced bearing {self.index + 1}")
+
+    def _assign(self, bearing):
+        self.session.project.model.advanced_bearings[self.index] = copy.deepcopy(
+            bearing
+        )
+        self.session.notify_model_changed()
+        self.session.set_selection(_advanced_ref(self.index))
+
+    def redo(self):
+        self._assign(self.new_bearing)
+
+    def undo(self):
+        self._assign(self.old_bearing)
+
+
+class DeleteAdvancedBearingCommand(QUndoCommand):
+    """Delete one advanced bearing and restore its original position on undo."""
+
+    def __init__(self, session, index: int, text: str | None = None):
+        self.session = session
+        self.index = int(index)
+        current = session.project.model.advanced_bearings
+        if not 0 <= self.index < len(current):
+            raise IndexError(f"advanced bearing index {self.index} is out of range")
+
+        self.bearing = copy.deepcopy(current[self.index])
+        self.previous_selection = session.selection
+
+        candidate = copy.deepcopy(session.project.model)
+        candidate.advanced_bearings.pop(self.index)
+        _validate_advanced_candidate(candidate)
+        super().__init__(text or f"Delete advanced bearing {self.index + 1}")
+
+    def redo(self):
+        current = self.session.project.model.advanced_bearings
+        if not 0 <= self.index < len(current):
+            raise IndexError("advanced bearing to delete is no longer present")
+        current.pop(self.index)
+        self.session.notify_model_changed()
+        if current:
+            self.session.set_selection(
+                _advanced_ref(min(self.index, len(current) - 1))
+            )
+        else:
+            self.session.set_selection(None)
+
+    def undo(self):
+        self.session.project.model.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
+        self.session.notify_model_changed()
+        self.session.set_selection(_advanced_ref(self.index))
+
+
+class DuplicateAdvancedBearingCommand(QUndoCommand):
+    """Create an independent copy while preserving every physical parameter."""
+
+    def __init__(self, session, source_index: int, text: str | None = None):
+        self.session = session
+        self.source_index = int(source_index)
+        current = session.project.model.advanced_bearings
+        if not 0 <= self.source_index < len(current):
+            raise IndexError(
+                f"advanced bearing index {self.source_index} is out of range"
+            )
+
+        source = copy.deepcopy(current[self.source_index])
+        old_tag = str(getattr(source, "tag", ""))
+        tag = (
+            f"{old_tag} copy"
+            if old_tag
+            else f"{getattr(source, 'model_family', 'advanced bearing')} copy"
+        )
+        self.bearing = copy.deepcopy(replace(source, tag=tag))
+        self.index = self.source_index + 1
+        self.previous_selection = session.selection
+
+        candidate = copy.deepcopy(session.project.model)
+        candidate.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
+        _validate_advanced_candidate(candidate)
+        super().__init__(
+            text or f"Duplicate advanced bearing {self.source_index + 1}"
+        )
+
+    def redo(self):
+        self.session.project.model.advanced_bearings.insert(
+            self.index, copy.deepcopy(self.bearing)
+        )
+        self.session.notify_model_changed()
+        self.session.set_selection(_advanced_ref(self.index))
+
+    def undo(self):
+        current = self.session.project.model.advanced_bearings
+        if not 0 <= self.index < len(current):
+            raise IndexError("duplicated advanced bearing is no longer present")
+        current.pop(self.index)
+        self.session.notify_model_changed()
+        self.session.set_selection(self.previous_selection)
+

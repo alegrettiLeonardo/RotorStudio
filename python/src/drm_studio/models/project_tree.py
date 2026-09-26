@@ -15,9 +15,17 @@ class _TreeNode:
     icon_name: str | None = None
     parent: "_TreeNode | None" = None
     children: list["_TreeNode"] = field(default_factory=list)
+    context: str | None = None
 
-    def add(self, label: str, ref: EntityRef | None = None, icon_name: str | None = None) -> "_TreeNode":
-        child = _TreeNode(label, ref, icon_name, self)
+    def add(
+        self,
+        label: str,
+        ref: EntityRef | None = None,
+        icon_name: str | None = None,
+        *,
+        context: str | None = None,
+    ) -> "_TreeNode":
+        child = _TreeNode(label, ref, icon_name, self, context=context)
         self.children.append(child)
         return child
 
@@ -28,6 +36,7 @@ class _TreeNode:
 
 class ProjectTreeModel(QAbstractItemModel):
     EntityRole = Qt.UserRole + 1
+    ContextRole = Qt.UserRole + 2
 
     def __init__(self, session, parent=None):
         super().__init__(parent)
@@ -67,14 +76,21 @@ class ProjectTreeModel(QAbstractItemModel):
             b = m.bearings[i]
             self._add_ref(bearings, f"Bearing {j}  (Type {b.bearing_type}, Node {b.node})", EntityRef("bearing", i), "bearing")
 
-        advanced = model.add(f"Advanced Bearings ({len(m.advanced_bearings)})", icon_name="bearing")
+        advanced = model.add(
+            f"Advanced Bearings ({len(m.advanced_bearings)})",
+            icon_name="bearing",
+            context="advanced_bearings_root",
+        )
         for i, b in enumerate(m.advanced_bearings):
             family = str(getattr(b, "model_family", type(b).__name__))
+            tag = str(getattr(b, "tag", "")).strip()
+            prefix = f"{family} — {tag}" if tag else family
             self._add_ref(
                 advanced,
-                f"{family}  (Node {b.node})",
+                f"{prefix}  (Node {b.node})",
                 EntityRef("advanced_bearing", i),
                 "bearing",
+                context="advanced_bearing",
             )
 
         seals = model.add(f"Seals ({len(seal_indices)})", icon_name="seal")
@@ -130,8 +146,16 @@ class ProjectTreeModel(QAbstractItemModel):
 
         self.endResetModel()
 
-    def _add_ref(self, parent: _TreeNode, label: str, ref: EntityRef, icon_name: str | None = None):
-        node = parent.add(label, ref, icon_name)
+    def _add_ref(
+        self,
+        parent: _TreeNode,
+        label: str,
+        ref: EntityRef,
+        icon_name: str | None = None,
+        *,
+        context: str | None = None,
+    ):
+        node = parent.add(label, ref, icon_name, context=context)
         self._ref_to_node[ref] = node
 
     def columnCount(self, parent=QModelIndex()):
@@ -168,6 +192,8 @@ class ProjectTreeModel(QAbstractItemModel):
             return studio_icon(node.icon_name)
         if role == self.EntityRole:
             return node.ref
+        if role == self.ContextRole:
+            return node.context
         return None
 
     def flags(self, index):
