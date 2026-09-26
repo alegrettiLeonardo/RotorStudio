@@ -94,6 +94,8 @@ contains
        size(speed_axis)<2.or.size(Ktab,1)/=4.or.size(Ctab,1)/=4.or. &
        size(Ktab,2)/=size(speed_axis).or.size(Ctab,2)/=size(speed_axis).or. &
        size(Ktab,3)/=size(map_nodes).or.size(Ctab,3)/=size(map_nodes))then
+      write(*,*) 'B18_DIAG input-shape',size(force_complex,1),size(force_complex,2),ndof, &
+        size(speed_axis),size(Ktab,1),size(Ktab,2),size(Ktab,3),size(map_nodes)
       status=RD_ERR_INPUT;return
     endif
     nc=count(.not.is_zero);if(nc<1)then;status=RD_ERR_INPUT;return;endif
@@ -105,9 +107,9 @@ contains
     allocate(map_i(size(map_nodes)),map_j(size(map_nodes)))
     do i=1,size(map_nodes)
       node=int(map_nodes(i))
-      if(node<1.or.4*node>ndof)then;status=RD_ERR_INPUT;return;endif
+      if(node<1.or.4*node>ndof)then;write(*,*) 'B18_DIAG invalid-node',node,ndof;status=RD_ERR_INPUT;return;endif
       map_i(i)=int(orig_to_red(4*node-3),ik);map_j(i)=int(orig_to_red(4*node-2),ik)
-      if(map_i(i)<1.or.map_j(i)<1)then;status=RD_ERR_INPUT;return;endif
+      if(map_i(i)<1.or.map_j(i)<1)then;write(*,*) 'B18_DIAG constrained-map-dof',map_i(i),map_j(i);status=RD_ERR_INPUT;return;endif
     enddo
     allocate(Mr(nc,nc),Cr(nc,nc),C1r(nc,nc),Kr(nc,nc))
     Mr=M(keep,keep);Cr=C(keep,keep);C1r=C1(keep,keep);Kr=K(keep,keep)
@@ -123,7 +125,11 @@ contains
     nstate=2*nc;allocate(y0(nstate),yout(nstate,max_out));y0=0._rk
     call dp45_runup_coeffmap_span(XK,XC,XC1,Minv,map_i,map_j,speed_axis,Ktab,Ctab,interp,BFre(:,1),BFim(:,1), &
       alpha,t0,tf,y0,rtol,atol,h_init,h_max,max_out,time,yout,nout,naccept,nreject,status)
-    if(status/=RD_OK)return
+    if(status/=RD_OK)then
+      write(*,*) 'B18_DIAG dp45-status',status,' nout=',nout,' accepted=',naccept,' rejected=',nreject, &
+        ' axis=',speed_axis(1),speed_axis(size(speed_axis))
+      return
+    endif
     a2=alpha(1);a1=alpha(2)
     do j=1,nout
       response(keep,j)=yout(1:nc,j);speed(j)=2._rk*a2*time(j)+a1
