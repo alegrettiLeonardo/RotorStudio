@@ -103,9 +103,9 @@ jobs:
             echo "ROSS authority: 6320eab9f890f1b3cc1710d508b446fe063ca68d"
             echo "Native head: $GITHUB_SHA"
             echo "Implemented gates: BF1 BF2 BF3 BF5 BF6 BF7 B10 B11 B12"
-            echo "RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_COEFFICIENT_PROVIDER"
+            echo "RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_NATIVE_PHYSICS_AND_COEFFICIENT_PROVIDER"
             echo "Advanced native families: Ball Roller Cylindrical SFD PlainJournal TiltingPad"
-            echo "Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface"
+            echo "Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface\n          PlainJournal/TiltingPad rotor bridge: B12-qualified type-5 adapter enabled"
             echo "B12: frozen ROSS numerical parity QUALIFIED for PlainJournal and TiltingPad; ThrustPad/run-up/transient/coaxial/asymmetric remain out of scope"
           } > validation/reports/ross_bearings_native/linux/status.txt
 
@@ -222,8 +222,8 @@ jobs:
           ROSS authority: 6320eab9f890f1b3cc1710d508b446fe063ca68d
           Native head: $env:GITHUB_SHA
           Implemented gates: BF1 BF2 BF3 BF5 BF6 BF7 B10 B11 B12
-          RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_COEFFICIENT_PROVIDER
-          Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface
+          RotorStudio runtime integration: STATIONARY_MODAL_FRF_CRITICAL_SPEED_NATIVE_PHYSICS_AND_COEFFICIENT_PROVIDER
+          Packed ABI: PlainJournal + TiltingPad, including field-export qualification surface\n          PlainJournal/TiltingPad rotor bridge: B12-qualified type-5 adapter enabled
           Python qualification: Stage1 57 + advanced-bearing suite
           B12: frozen ROSS numerical parity QUALIFIED for PlainJournal and TiltingPad
           Out of scope: ThrustPad/run-up/transient/coaxial/asymmetric advanced-bearing coupling
