@@ -324,6 +324,24 @@ def advanced_bearing_from_dict(payload: dict[str, Any]) -> AdvancedBearing:
     for key in tuple_fields:
         if key in data and data[key] is not None:
             data[key] = tuple(float(x) for x in data[key])
+
+    # JSON persistence turns tuple-based coefficient vectors/grids into lists.
+    # Restore their immutable tuple representation as part of the typed-domain
+    # round trip. This is representation normalization only; no coefficient,
+    # interpolation, physics, or B12 solver contract is changed.
+    if issubclass(cls, CoefficientBearing):
+        def restore_coeff(value):
+            if isinstance(value, list):
+                return tuple(restore_coeff(x) for x in value)
+            return float(value) if isinstance(value, (int, float)) else value
+
+        for key in (
+            "kxx", "kxy", "kyx", "kyy",
+            "cxx", "cxy", "cyx", "cyy",
+            "mxx", "mxy", "myx", "myy",
+        ):
+            if key in data and data[key] is not None:
+                data[key] = restore_coeff(data[key])
     return cls(**data)
 
 
@@ -443,10 +461,12 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
             raise ValueError("TiltingPad weight/diameter/clearance/viscosity/thickness must be > 0 and density >= 0")
         if any(x <= 0 for x in bearing.pad_arc_rad) or any(x <= 0 for x in bearing.pad_axial_length_m):
             raise ValueError("TiltingPad pad arc and axial length must be > 0")
-        if any(not 0 <= x < 1 for x in bearing.preload):
-            raise ValueError("TiltingPad preload must satisfy 0 <= preload < 1")
-        if any(not 0 < x < 1 for x in bearing.offset):
-            raise ValueError("TiltingPad offset must satisfy 0 < offset < 1")
+        invalid_preload = next((x for x in bearing.preload if not 0 <= x < 1), None)
+        if invalid_preload is not None:
+            raise ValueError(f"TiltingPad preload received {invalid_preload}; expected 0 <= preload < 1")
+        invalid_offset = next((x for x in bearing.offset if not 0 < x < 1), None)
+        if invalid_offset is not None:
+            raise ValueError(f"TiltingPad offset received {invalid_offset}; expected 0 < offset < 1")
         if bearing.total_e_x_film < 2 or bearing.total_e_x_film % 2 or bearing.total_e_z_film < 2 or bearing.total_e_z_film % 2:
             raise ValueError("TiltingPad Reynolds element counts must be even and >= 2")
         if bearing.total_e_y_pad < 2 or bearing.total_e_y_pad % 2:
@@ -507,10 +527,12 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
             raise ValueError("PlainJournal weight/diameter/clearance/viscosity must be > 0")
         if any(x <= 0 for x in bearing.pad_arc_rad) or any(x <= 0 for x in bearing.pad_axial_length_m):
             raise ValueError("PlainJournal pad arc and axial length must be > 0")
-        if any(not 0 <= x < 1 for x in bearing.preload):
-            raise ValueError("PlainJournal preload must satisfy 0 <= preload < 1")
-        if any(not 0 <= x <= 1 for x in bearing.offset):
-            raise ValueError("PlainJournal offset must satisfy 0 <= offset <= 1")
+        invalid_preload = next((x for x in bearing.preload if not 0 <= x < 1), None)
+        if invalid_preload is not None:
+            raise ValueError(f"PlainJournal preload received {invalid_preload}; expected 0 <= preload < 1")
+        invalid_offset = next((x for x in bearing.offset if not 0 <= x <= 1), None)
+        if invalid_offset is not None:
+            raise ValueError(f"PlainJournal offset received {invalid_offset}; expected 0 <= offset <= 1")
         if bearing.total_e_x_film < 2 or bearing.total_e_x_film % 2 or bearing.total_e_z_film < 2 or bearing.total_e_z_film % 2:
             raise ValueError("PlainJournal Reynolds element counts must be even and >= 2")
         if bearing.thermal_type not in {None, "adiabatic", "full"}:

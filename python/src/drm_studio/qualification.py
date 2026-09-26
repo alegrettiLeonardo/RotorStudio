@@ -34,6 +34,7 @@ class PackagedQualification(QObject):
         self.records = []
         self.bearing_smoke = None
         self.fluidfilm_smoke = None
+        self.b13_crud_smoke = None
         self._connect_window(window)
 
     def _connect_window(self, window):
@@ -45,6 +46,14 @@ class PackagedQualification(QObject):
 
     def start(self):
         try:
+            # B13 qualification starts with the real PySide6 engineering
+            # editor/command/persistence chain. Reading or editing these
+            # entities does not run Reynolds/THD/TEHD.
+            from .b13_qualification import run_b13_frozen_crud_smoke
+            self.b13_crud_smoke = run_b13_frozen_crud_smoke(
+                self.window, self.output_dir
+            )
+
             # Prove that the separately packaged advanced-bearing library can
             # be loaded from a clean frozen extraction before any rotor solve.
             bearing = BallBearing(
@@ -215,6 +224,7 @@ class PackagedQualification(QObject):
                     "steps": [
                         "launch",
                         "open packaged example",
+                        "B13 advanced-bearing GUI CRUD + save/reopen",
                         "native advanced-bearing load/oracle",
                         "real modal",
                         "real Campbell",
@@ -226,6 +236,7 @@ class PackagedQualification(QObject):
                     ],
                     "result_count": len(self.records),
                     "advanced_bearing": self.bearing_smoke,
+                    "b13_advanced_bearing_crud": self.b13_crud_smoke,
                     "native_fluidfilm_bearing": self.fluidfilm_smoke,
                     "saved_project": str(self.output_dir / "packaged_saved_project.rds"),
                     "screenshot": str(screenshot),
