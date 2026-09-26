@@ -233,7 +233,9 @@ class AdvancedBearingBackend:
             },
         )
 
-    def _plain_journal_physics(self, bearing: PlainJournalPhysicsBearing, speed):
+    def _plain_multiphysics(
+        self, bearing: PlainJournalPhysicsBearing, speed: float, *, with_fields: bool
+    ):
         arrays = [
             np.ascontiguousarray(v, dtype=np.float64)
             for v in (
@@ -244,6 +246,7 @@ class AdvancedBearingBackend:
                 bearing.offset,
             )
         ]
+        n = len(arrays[0])
         supply = float(bearing.oil_supply_temperature_k or 300.0)
         pad_thickness = float(
             bearing.pad_thickness_m
@@ -296,18 +299,32 @@ class AdvancedBearingBackend:
         K = np.empty(4, dtype=np.float64)
         C = np.empty(4, dtype=np.float64)
         summary = np.empty(9, dtype=np.float64)
-        status = self.lib.rb_plain_journal_multiphysics_pack_c(
-            len(arrays[0]),
-            self._ptr(rcfg),
-            icfg.ctypes.data_as(ct.POINTER(ct.c_int)),
-            *(self._ptr(a) for a in arrays),
-            self._ptr(K),
-            self._ptr(C),
-            self._ptr(summary),
-        )
+        pressure = temperature = deformation = None
+        if with_fields:
+            nx, nz = int(icfg[2]), int(icfg[3])
+            nn = (nx + 1) * (nz + 1)
+            pressure = np.empty(n * nn, dtype=np.float64)
+            temperature = np.empty(n * nn, dtype=np.float64)
+            deformation = np.empty(n * (nx + 1), dtype=np.float64)
+            status = self.lib.rb_plain_journal_multiphysics_fields_pack_c(
+                n,
+                self._ptr(rcfg),
+                icfg.ctypes.data_as(ct.POINTER(ct.c_int)),
+                *(self._ptr(a) for a in arrays),
+                self._ptr(K), self._ptr(C), self._ptr(summary),
+                self._ptr(pressure), self._ptr(temperature), self._ptr(deformation),
+            )
+        else:
+            status = self.lib.rb_plain_journal_multiphysics_pack_c(
+                n,
+                self._ptr(rcfg),
+                icfg.ctypes.data_as(ct.POINTER(ct.c_int)),
+                *(self._ptr(a) for a in arrays),
+                self._ptr(K), self._ptr(C), self._ptr(summary),
+            )
         self._status(status, "PlainJournal native multiphysics")
         xr, yr, fx, fy, pmax, tmax, tout, deform, iterations = summary
-        return BearingEvaluation(
+        evaluation = BearingEvaluation(
             K.reshape((2, 2), order="F"),
             C.reshape((2, 2), order="F"),
             np.zeros((2, 2)),
@@ -315,6 +332,7 @@ class AdvancedBearingBackend:
             {
                 "native": True,
                 "physics_provider": "Fortran Reynolds + equilibrium + THD/TEHD",
+                "speed_rad_s": float(speed),
                 "xj_ratio": float(xr),
                 "yj_ratio": float(yr),
                 "eccentricity_ratio": float(np.hypot(xr, yr)),
@@ -334,10 +352,28 @@ class AdvancedBearingBackend:
                 "rotor_coupling_qualified": True,
             },
         )
+        if not with_fields:
+            return evaluation
+        return {
+            "evaluation": evaluation,
+            "pressure_field_pa": pressure.reshape((n, nx + 1, nz + 1)),
+            "temperature_field_k": temperature.reshape((n, nx + 1, nz + 1)),
+            "deformation_field_m": deformation.reshape((n, nx + 1)),
+        }
 
-    def _tilting_pad_physics(
-        self, bearing: TiltingPadPhysicsBearing, speed: float, frequency: float
+    def _plain_journal_physics(
+        self, bearing: PlainJournalPhysicsBearing, speed: float
     ) -> BearingEvaluation:
+        return self._plain_multiphysics(bearing, speed, with_fields=False)
+
+    def _tilting_multiphysics(
+        self,
+        bearing: TiltingPadPhysicsBearing,
+        speed: float,
+        frequency: float,
+        *,
+        with_fields: bool,
+    ):
         arrays = [
             np.ascontiguousarray(v, dtype=np.float64)
             for v in (
@@ -353,13 +389,9 @@ class AdvancedBearingBackend:
         supply = float(bearing.oil_supply_temperature_k or 300.0)
         rcfg = np.ascontiguousarray(
             [
-                speed,
-                frequency,
-                bearing.weight_n,
-                bearing.fxs_load_n,
-                bearing.fys_load_n,
-                bearing.journal_diameter_m,
-                bearing.radial_clearance_m,
+                speed, frequency,
+                bearing.weight_n, bearing.fxs_load_n, bearing.fys_load_n,
+                bearing.journal_diameter_m, bearing.radial_clearance_m,
                 bearing.oil_viscosity_pa_s,
                 bearing.viscosity2_pa_s or bearing.oil_viscosity_pa_s,
                 bearing.temperature1_k or 300.0,
@@ -367,8 +399,7 @@ class AdvancedBearingBackend:
                 bearing.lubricant_density_kg_m3 or 1.0,
                 bearing.lubricant_cp_j_kgk or 1.0,
                 bearing.lubricant_conductivity_w_mk or 1.0,
-                bearing.pad_thickness_m,
-                bearing.pad_density_kg_m3,
+                bearing.pad_thickness_m, bearing.pad_density_kg_m3,
                 bearing.pad_conductivity_w_mk or 1.0,
                 bearing.pad_young_pa or 1.0,
                 bearing.pad_poisson if bearing.pad_poisson is not None else 0.3,
@@ -378,12 +409,9 @@ class AdvancedBearingBackend:
                 bearing.temperature_ambient_k or supply,
                 bearing.convection_edges_w_m2k,
                 bearing.convection_back_w_m2k,
-                bearing.xj_ratio_initial,
-                bearing.yj_ratio_initial,
-                bearing.relax_p,
-                bearing.relax_temperature,
-                bearing.force_tolerance,
-                bearing.field_tolerance,
+                bearing.xj_ratio_initial, bearing.yj_ratio_initial,
+                bearing.relax_p, bearing.relax_temperature,
+                bearing.force_tolerance, bearing.field_tolerance,
                 bearing.temperature_reference_k or supply,
                 bearing.ambient_pressure_1_pa,
                 bearing.ambient_pressure_2_pa,
@@ -408,28 +436,39 @@ class AdvancedBearingBackend:
         K = np.empty(4, dtype=np.float64)
         C = np.empty(4, dtype=np.float64)
         summary = np.empty(9, dtype=np.float64)
-        status = self.lib.rb_tilting_pad_multiphysics_pack_c(
-            n,
-            self._ptr(rcfg),
-            icfg.ctypes.data_as(ct.POINTER(ct.c_int)),
-            *(self._ptr(a) for a in arrays),
-            self._ptr(tilt),
-            self._ptr(K),
-            self._ptr(C),
-            self._ptr(summary),
-        )
+        pressure = temperature = deformation = None
+        if with_fields:
+            nx, nz = int(icfg[2]), int(icfg[3])
+            nn = (nx + 1) * (nz + 1)
+            pressure = np.empty(n * nn, dtype=np.float64)
+            temperature = np.empty(n * nn, dtype=np.float64)
+            deformation = np.empty(n * (nx + 1), dtype=np.float64)
+            status = self.lib.rb_tilting_pad_multiphysics_fields_pack_c(
+                n,
+                self._ptr(rcfg),
+                icfg.ctypes.data_as(ct.POINTER(ct.c_int)),
+                *(self._ptr(a) for a in arrays),
+                self._ptr(tilt), self._ptr(K), self._ptr(C), self._ptr(summary),
+                self._ptr(pressure), self._ptr(temperature), self._ptr(deformation),
+            )
+        else:
+            status = self.lib.rb_tilting_pad_multiphysics_pack_c(
+                n,
+                self._ptr(rcfg),
+                icfg.ctypes.data_as(ct.POINTER(ct.c_int)),
+                *(self._ptr(a) for a in arrays),
+                self._ptr(tilt), self._ptr(K), self._ptr(C), self._ptr(summary),
+            )
         self._status(status, "TiltingPad native multiphysics")
         xr, yr, fx, fy, pmax, tmax, tout, deform, iterations = summary
-        return BearingEvaluation(
+        evaluation = BearingEvaluation(
             K.reshape((2, 2), order="F"),
             C.reshape((2, 2), order="F"),
             np.zeros((2, 2)),
             bearing.model_family,
             {
                 "native": True,
-                "physics_provider": (
-                    "Fortran Reynolds + equilibrium + THD/TEHD + pad-DOF condensation"
-                ),
+                "physics_provider": "Fortran Reynolds + equilibrium + THD/TEHD + pad-DOF condensation",
                 "speed_rad_s": float(speed),
                 "excitation_frequency_rad_s": float(frequency),
                 "xj_ratio": float(xr),
@@ -450,6 +489,21 @@ class AdvancedBearingBackend:
                 "ross_authority_sha": _ROSS_B12_SHA,
                 "rotor_coupling_qualified": True,
             },
+        )
+        if not with_fields:
+            return evaluation
+        return {
+            "evaluation": evaluation,
+            "pressure_field_pa": pressure.reshape((n, nx + 1, nz + 1)),
+            "temperature_field_k": temperature.reshape((n, nx + 1, nz + 1)),
+            "deformation_field_m": deformation.reshape((n, nx + 1)),
+        }
+
+    def _tilting_pad_physics(
+        self, bearing: TiltingPadPhysicsBearing, speed: float, frequency: float
+    ) -> BearingEvaluation:
+        return self._tilting_multiphysics(
+            bearing, speed, frequency, with_fields=False
         )
 
     def _sfd(self, bearing: SqueezeFilmDamper, frequency):
@@ -781,6 +835,36 @@ class AdvancedBearingBackend:
         if isinstance(bearing, SqueezeFilmDamper):
             return self._sfd(bearing, frequency)
         raise TypeError(f"unsupported advanced bearing {type(bearing).__name__}")
+
+    def evaluate_fields(
+        self,
+        bearing: AdvancedBearing,
+        speed_rad_s: float,
+        frequency_rad_s: float | None = None,
+    ) -> dict:
+        """Explicit Bearing Performance solve with native field outputs.
+
+        Field generation is opt-in so GUI refresh/painting never triggers an
+        expensive Reynolds/THD/TEHD solve.  Non-fluid-film advanced bearings
+        return their coefficient evaluation with no field arrays.
+        """
+        validate_advanced_bearing(bearing)
+        speed = float(speed_rad_s)
+        frequency = speed if frequency_rad_s is None else float(frequency_rad_s)
+        if not np.isfinite(speed) or not np.isfinite(frequency):
+            raise ValueError("bearing speed and excitation frequency must be finite")
+        if isinstance(bearing, PlainJournalPhysicsBearing):
+            return self._plain_multiphysics(bearing, speed, with_fields=True)
+        if isinstance(bearing, TiltingPadPhysicsBearing):
+            return self._tilting_multiphysics(
+                bearing, speed, frequency, with_fields=True
+            )
+        return {
+            "evaluation": self.evaluate(bearing, speed, frequency),
+            "pressure_field_pa": None,
+            "temperature_field_k": None,
+            "deformation_field_m": None,
+        }
 
     def as_legacy_bearing(
         self,
