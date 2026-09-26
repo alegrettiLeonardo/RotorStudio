@@ -149,11 +149,18 @@ def _qualify_case(label,bearing,rs,convert):
     rcamp=ross.run_campbell(speeds,frequencies=8,matched_whirl=True,whirl_rtol=1e-3,whirl_max_iter=30)
     for speed,point in zip(speeds,rs_points):
         rpoint=rcamp.modal_results[float(speed)]
-        np.testing.assert_allclose(
-            np.sort(np.abs(np.imag(point.eigenvalues))),
-            np.sort(np.abs(np.asarray(rpoint.wd))),
-            rtol=5e-4,atol=8e-3,
-        )
+        rs_wd=np.sort(np.abs(np.imag(point.eigenvalues)))
+        ross_wd=np.sort(np.abs(np.asarray(rpoint.wd,dtype=float)))
+        # ROSS Campbell may retain coincident forward/backward branches as
+        # duplicate rows. Compare the unique physical frequencies; duplicate
+        # multiplicity is a result-container convention, not rotor physics.
+        ross_unique=[]
+        for value in ross_wd:
+            if not ross_unique or abs(float(value)-ross_unique[-1]) > 1e-7*max(1.0,abs(float(value))):
+                ross_unique.append(float(value))
+        ross_unique=np.asarray(ross_unique,dtype=float)
+        assert len(ross_unique)==len(rs_wd),(label,speed,rs_wd,ross_wd)
+        np.testing.assert_allclose(rs_wd,ross_unique,rtol=5e-4,atol=8e-3)
     return {
         "case":label,"fixed_modes":len(fixed.eigenvalues),"matched_modes":len(matched.eigenvalues),
         "minimum_inner_mac":min(float(d["last_mac"]) for d in matched.metadata["matched_whirl"]),
