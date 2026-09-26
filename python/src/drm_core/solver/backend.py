@@ -81,6 +81,48 @@ class FortranBackend:
         status=self.lib.rd_modal_legacy_vectors(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),float(speed_rad_s),nout,self._ptr(er),self._ptr(ei),self._ptr(vr),self._ptr(vi),self._ptr(ecc))
         if status: raise SolverLibraryError(f"Fortran rd_modal_legacy_vectors returned status={status}")
         return er+1j*ei,vr+1j*vi,ecc
+    def modal_eigenvalues_at_frequency(self,m:RotorModel,speed_rad_s:float,frequency_rad_s:float)->np.ndarray:
+        """Stationary modal solve with bearing coefficients at (Omega, omega).
+
+        The rotor/gyroscopic speed passed to Fortran remains speed_rad_s.
+        Only the advanced-bearing coefficient evaluation uses frequency_rad_s.
+        """
+        n,z,sh,di,be=self._arrays(
+            m,speed_rad_s=float(speed_rad_s),frequency_rad_s=float(frequency_rad_s)
+        )
+        ndof=4*n;nout=2*(ndof-self._nzero(m));er=np.empty(nout);ei=np.empty(nout)
+        status=self.lib.rd_modal_legacy(
+            n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),
+            be.shape[1],self._ptr(be),float(speed_rad_s),nout,self._ptr(er),self._ptr(ei)
+        )
+        if status:
+            raise SolverLibraryError(
+                f"Fortran rd_modal_legacy returned status={status} at "
+                f"rotor speed={speed_rad_s}, whirl frequency={frequency_rad_s}"
+            )
+        return er+1j*ei
+
+    def modal_eigensystem_at_frequency(self,m:RotorModel,speed_rad_s:float,frequency_rad_s:float):
+        """Eigenpairs with Omega kept on the gyroscopic term and omega on bearings."""
+        n,z,sh,di,be=self._arrays(
+            m,speed_rad_s=float(speed_rad_s),frequency_rad_s=float(frequency_rad_s)
+        )
+        ndof=4*n;nout=2*(ndof-self._nzero(m))
+        er=np.empty(nout);ei=np.empty(nout)
+        vr=np.empty((ndof,nout),dtype=np.float64,order='F');vi=np.empty_like(vr,order='F')
+        ecc=np.empty(be.shape[1],dtype=np.float64)
+        status=self.lib.rd_modal_legacy_vectors(
+            n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),
+            be.shape[1],self._ptr(be),float(speed_rad_s),nout,self._ptr(er),self._ptr(ei),
+            self._ptr(vr),self._ptr(vi),self._ptr(ecc)
+        )
+        if status:
+            raise SolverLibraryError(
+                f"Fortran rd_modal_legacy_vectors returned status={status} at "
+                f"rotor speed={speed_rad_s}, whirl frequency={frequency_rad_s}"
+            )
+        return er+1j*ei,vr+1j*vi,ecc
+
     def assemble_matrices(self,m:RotorModel,speed_rad_s:float):
         n,z,sh,di,be=self._arrays(m,speed_rad_s=speed_rad_s,frequency_rad_s=speed_rad_s);nd=4*n; outs=[np.empty((nd,nd),order='F') for _ in range(4)]
         status=self.lib.rd_assemble_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),float(speed_rad_s),*(self._ptr(x) for x in outs))
