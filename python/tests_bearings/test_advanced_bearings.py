@@ -644,3 +644,16 @@ def test_b12_qualified_native_fluidfilm_promotes_to_rotor_type5_bridge(factory):
     for actual, expected in zip(advanced_mats, manual_mats):
         np.testing.assert_allclose(actual, expected, rtol=1e-13, atol=1e-9)
 
+def test_bearing_performance_field_surface_uses_qualified_native_solver():
+    speed = 94.24777960769379
+    payload = AdvancedBearingBackend().evaluate_fields(
+        _plain_physics(1), speed_rad_s=speed, frequency_rad_s=speed
+    )
+    evaluation = payload["evaluation"]
+    assert evaluation.details["qualification"] == "ROSS_PARITY_PASS_B12"
+    assert payload["pressure_field_pa"].shape == (2, 21, 11)
+    assert payload["temperature_field_k"].shape == (2, 21, 11)
+    assert payload["deformation_field_m"].shape == (2, 21)
+    assert np.isfinite(payload["pressure_field_pa"]).all()
+    assert np.isfinite(payload["temperature_field_k"]).all()
+
