@@ -250,7 +250,7 @@ contains
      Mb(:,:),Cb(:,:),Kb(:,:),M(:,:),C(:,:),K(:,:),fc(:,:),axis(:),kt(:,:,:),ct(:,:,:),tt(:),resp(:,:),ss(:)
    integer(ik),allocatable::nodes(:)
    logical,allocatable::iz(:)
-   integer::i,j,k,b,node,ftype,ndof;real(rk)::mag,phase,qr,qi
+   integer::i,j,flat_index,b,node,ftype,ndof;real(rk)::mag,phase,qr,qi
    integer(ik)::st,no,nru,na,nrj
    rd_runup_coeffmap_legacy=RD_ERR_INPUT
    if(nnode<=0.or.max_out<2.or.nmap<1.or.nspeed<2)return
@@ -265,8 +265,8 @@ contains
    do i=1,nmap;nodes(i)=int(map_nodes(i),ik);enddo
    do i=1,nspeed;axis(i)=map_speed(i);enddo
    do b=1,nmap;do j=1,nspeed;do i=1,4
-     k=(b-1)*4*nspeed+(j-1)*4+i
-     kt(i,j,b)=map_k(k);ct(i,j,b)=map_c(k)
+     flat_index=(b-1)*4*nspeed+(j-1)*4+i
+     kt(i,j,b)=map_k(flat_index);ct(i,j,b)=map_c(flat_index)
    enddo;enddo;enddo
    allocate(M0(ndof,ndof),C0(ndof,ndof),C1(ndof,ndof),K0(ndof,ndof),K1(ndof,ndof),Mb(ndof,ndof),Cb(ndof,ndof), &
      Kb(ndof,ndof),M(ndof,ndof),C(ndof,ndof),K(ndof,ndof),iz(ndof),fc(ndof,2),tt(max_out),resp(ndof,max_out),ss(max_out));fc=0
