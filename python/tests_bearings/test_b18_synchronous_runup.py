@@ -175,7 +175,12 @@ def test_b18_b16_synchronous_physical_maps_run_without_physical_provider_in_ode(
     operating=generate_operating_map(factory(),axis,interpolation="linear",backend=provider)
     mapped=operating.to_coefficient_bearing(tag="B18 synchronous physical map")
     model=_base_model();model.advanced_bearings=[mapped]
-    result=run_runup(model,_alpha(),[0.0,0.1],nr=0,rtol=1e-5,atol=1e-8,h_max=5e-3,max_points=200000)
+    # Physical B16 maps can be substantially stiffer than the synthetic
+    # qualification rotor. Sweep the same 40->80 rad/s operating range in a
+    # shorter wall-clock interval so the explicit full-order integrator is
+    # tested without turning accepted-step storage into the limiting factor.
+    fast_alpha=np.asarray([2000.0,40.0,0.0])
+    result=run_runup(model,fast_alpha,[0.0,0.01],nr=0,rtol=1e-5,atol=1e-8,h_max=5e-4,max_points=200000)
     assert result.metadata["map_points"]==len(axis)
     assert result.metadata["advanced_bearing_scope"].endswith("NO_TEHD_IN_ODE")
     assert np.isfinite(result.response).all()
