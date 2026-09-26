@@ -1,0 +1,285 @@
+{
+  "authority": {
+    "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "fixture": "tilt_5pad_full",
+    "payload_sha256": "f1b43e445ee79882c4c87d86ba5db56b08cd1fee6ba636288bf23a59a280f0e1",
+    "repository": "petrobras/ross"
+  },
+  "case": {
+    "bearing_type": "conventional_tilting_pad",
+    "deform_type": null,
+    "overrides": {
+      "deform_type": null,
+      "excit_ratios": 1.0
+    },
+    "spin_rad_s": 94.24777960769379,
+    "thermal_type": "full",
+    "whirl_rad_s": 94.24777960769379
+  },
+  "field_file": "tilting_pad_synchronous_thd.npz",
+  "field_shapes": {
+    "axial_grid_m": [
+      5,
+      21,
+      11
+    ],
+    "film_thickness_field_m": [
+      5,
+      21,
+      11
+    ],
+    "pressure_field_pa": [
+      5,
+      21,
+      11
+    ],
+    "temperature_field_k": [
+      5,
+      21,
+      11
+    ],
+    "theta_grid_rad": [
+      5,
+      21,
+      11
+    ]
+  },
+  "inputs": {
+    "ambient_pressure_1": 100001.55978011394,
+    "ambient_pressure_2": 100001.55978011394,
+    "bearing_type": "conventional_tilting_pad",
+    "cavitation_pressure": 0.0,
+    "crush_fit": 0.0,
+    "deform_type": null,
+    "edges_convection": 73.59030318060637,
+    "environment_convection": 73.59030318060637,
+    "environment_temperature": 294.2611111111111,
+    "equilibrium_type": "match_load",
+    "excit_ratios": 1.0,
+    "frequency": [
+      94.24777960769379
+    ],
+    "fxs_load": 0.0,
+    "fys_load": 0.0,
+    "hot_oil_lambda": 0.8,
+    "house_diameter": 0.0,
+    "journal_diameter": 0.39999919999999994,
+    "journal_expansion": 1.1699999999999998e-05,
+    "journal_temperature": 322.0388888888889,
+    "k_rotate": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "lube_conduct": 0.1499998037782677,
+    "lube_cp": 1951.5014953944717,
+    "lube_density": 854.9516142561059,
+    "offset": [
+      0.5,
+      0.5,
+      0.5,
+      0.5,
+      0.5
+    ],
+    "oil_flow_v": 0.0016666663363380798,
+    "oil_supply_pressure": 0.0,
+    "oil_supply_temperature": 323.0,
+    "operating_type": "regular_flooded",
+    "pad_arc": [
+      1.0471975511965976,
+      1.0471975511965976,
+      1.0471975511965976,
+      1.0471975511965976,
+      1.0471975511965976
+    ],
+    "pad_axial_length": [
+      0.263144,
+      0.263144,
+      0.263144,
+      0.263144,
+      0.263144
+    ],
+    "pad_conductivity": 50.09439118110236,
+    "pad_convection": [
+      735.9030318060637,
+      735.9030318060637,
+      735.9030318060637,
+      735.9030318060637,
+      735.9030318060637
+    ],
+    "pad_density": 7835.631544657211,
+    "pad_expansion": 1.1699999999999998e-05,
+    "pad_poisson": 0.3,
+    "pad_thickness": 0.149614636,
+    "pad_young": 206842718795.0509,
+    "pivot_angle": [
+      0.9424777960769379,
+      2.199114857512855,
+      3.4557519189487724,
+      4.71238898038469,
+      5.969026041820607
+    ],
+    "pivot_diameter": 0.0,
+    "pivot_stiffness": 0.0,
+    "pivot_type": "rocker_back",
+    "pocket_arc": 0.0,
+    "pocket_axial_length": 0.0,
+    "preload": [
+      0.3,
+      0.3,
+      0.3,
+      0.3,
+      0.3
+    ],
+    "probe_pad_number": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "probe_theta": [
+      80,
+      80,
+      80,
+      80,
+      80
+    ],
+    "r_location": [
+      0.000999998,
+      0.000999998,
+      0.000999998,
+      0.000999998,
+      0.000999998
+    ],
+    "radial_clearance": 0.000194564,
+    "re_lower": 500,
+    "re_upper": 1000,
+    "reference_temperature": 297.0388888888889,
+    "reichardt_delta": 8.8,
+    "reichardt_kappa": 0.4,
+    "relax_d": 1,
+    "relax_p": 0.5,
+    "relax_pivot": 1,
+    "relax_t": 1,
+    "shell_expansion": 1.1699999999999998e-05,
+    "shell_id": 0.0254,
+    "shell_od": 0.0508,
+    "starve_number": 2,
+    "sump_convect_area": 0.0,
+    "sump_type": "supply_temperature",
+    "t_ambient": 130,
+    "ta_type": 0,
+    "taper_arc_le": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "taper_arc_te": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "taper_depth_le": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "taper_depth_te": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "temp1": 322.98333333333335,
+    "temp2": 352.98333333333335,
+    "temp_j_type": "averaged_film_temperature",
+    "thermal_type": "full",
+    "total_e_x_film": 20,
+    "total_e_y_film": 10,
+    "total_e_y_pad": 10,
+    "total_e_z_film": 10,
+    "track_arc": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "track_axial_length": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "track_depth": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "turb_scal_fac_exp": 0.125,
+    "viscosity1": 0.01901574061455835,
+    "viscosity2": 0.007715233411055399,
+    "weight": 112814.90696191376,
+    "weight_e": 0,
+    "weight_h": 0,
+    "xj": 0.15,
+    "yj": -0.2
+  },
+  "outputs": {
+    "C_n_s_m": [
+      [
+        4771977.146797198,
+        -148.33824306358224
+      ],
+      [
+        -3381.2158571924997,
+        19086080.734763782
+      ]
+    ],
+    "K_n_m": [
+      [
+        304885236.0005657,
+        -81964.65763092041
+      ],
+      [
+        454631.7428379059,
+        2967686452.9482336
+      ]
+    ],
+    "deformation_max_m": 0.0,
+    "fx_hydro_n": -0.9522547452152139,
+    "fy_hydro_n": 112710.78999560935,
+    "p_max_pa": 4823186.303350751,
+    "t_max_k": 338.3216641359573,
+    "t_out_bulk_by_pad_k": [
+      327.94550599206644,
+      328.3161880219315,
+      331.1690593156677,
+      336.2437254712968,
+      330.7990081035233
+    ],
+    "t_out_bulk_k": 330.8946973808971,
+    "tilt_angle_rad": [
+      0.00021583376894621922,
+      -0.00021779154535503625,
+      -0.00014278115371166913,
+      0.00021105892781526523,
+      0.000559123386868329
+    ],
+    "xj_ratio": -0.0021754228960225164,
+    "yj_ratio": -0.6631842309072619
+  }
+}

@@ -1,5 +1,6 @@
 from drm_core.domain.model import RotorModel,ShaftElement,TaperedShaftElement,AsymmetricShaftElement
 from drm_core.validation.contracts import validate_bearing_contract
+from drm_core.domain.bearings import validate_advanced_bearing
 class ModelValidationError(ValueError): pass
 
 def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
@@ -37,6 +38,15 @@ def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
             if not b.properties: raise ModelValidationError(f"Bearing[{i}] type 20: missing second node and coupling coefficients")
             node2=int(round(b.properties[0]))
             if node2 not in z: raise ModelValidationError(f"Bearing[{i}] type 20: received node2={node2}; expected existing node")
+    for i,b in enumerate(m.advanced_bearings,1):
+        if b.node not in z: raise ModelValidationError(f"AdvancedBearing[{i}]: received node={b.node}; expected existing node; correct node")
+        try: validate_advanced_bearing(b)
+        except ValueError as exc: raise ModelValidationError(f"AdvancedBearing[{i}] {type(b).__name__}: {exc}") from exc
+    if m.advanced_bearings and analysis in {"rotating","coaxial"}:
+        raise ModelValidationError(
+            f"advanced ROSS-derived bearings are not yet qualified for {analysis} assembly; "
+            "use stationary-frame modal/FRF/critical-speed analyses or the legacy bearing path"
+        )
     if analysis=="coaxial":
         if not m.rotors: raise ModelValidationError("RotorModel.rotors: received empty list; coaxial analysis requires RotorDefinition rows")
         covered=set()

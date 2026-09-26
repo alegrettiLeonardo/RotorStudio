@@ -67,6 +67,16 @@ class ProjectTreeModel(QAbstractItemModel):
             b = m.bearings[i]
             self._add_ref(bearings, f"Bearing {j}  (Type {b.bearing_type}, Node {b.node})", EntityRef("bearing", i), "bearing")
 
+        advanced = model.add(f"Advanced Bearings ({len(m.advanced_bearings)})", icon_name="bearing")
+        for i, b in enumerate(m.advanced_bearings):
+            family = str(getattr(b, "model_family", type(b).__name__))
+            self._add_ref(
+                advanced,
+                f"{family}  (Node {b.node})",
+                EntityRef("advanced_bearing", i),
+                "bearing",
+            )
+
         seals = model.add(f"Seals ({len(seal_indices)})", icon_name="seal")
         for j, i in enumerate(seal_indices, 1):
             b = m.bearings[i]

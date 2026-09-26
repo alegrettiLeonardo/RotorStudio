@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import Union
 import hashlib, json
 from numbers import Real
+from .bearings import AdvancedBearing
 
 @dataclass(frozen=True)
 class Node:
@@ -73,6 +74,7 @@ class RotorModel:
     forces:list[Force]=field(default_factory=list)
     bend:list[BendPoint]=field(default_factory=list)
     rotors:list[RotorDefinition]=field(default_factory=list)
+    advanced_bearings:list[AdvancedBearing]=field(default_factory=list)
     @classmethod
     def from_legacy_arrays(cls,node,shaft,disc,bearing,force=None,bend=None,rotors=None)->"RotorModel":
         nodes=[Node(int(r[0]),float(r[1])) for r in node]
@@ -111,6 +113,12 @@ class RotorModel:
                 return [norm(x) for x in v]
             return v
         def d(x): return norm(vars(x))
-        return {"nodes":[d(x) for x in self.nodes],"shafts":[d(x) for x in self.shafts],"disks":[d(x) for x in self.disks],"bearings":[d(x) for x in self.bearings],"forces":[d(x) for x in self.forces],"bend":[d(x) for x in self.bend],"rotors":[d(x) for x in self.rotors]}
+        payload={"nodes":[d(x) for x in self.nodes],"shafts":[d(x) for x in self.shafts],"disks":[d(x) for x in self.disks],"bearings":[d(x) for x in self.bearings],"forces":[d(x) for x in self.forces],"bend":[d(x) for x in self.bend],"rotors":[d(x) for x in self.rotors]}
+        # Preserve the frozen Stage-1 model hash byte-for-byte for legacy
+        # models.  The new key only participates once an advanced bearing is
+        # actually present.
+        if self.advanced_bearings:
+            payload["advanced_bearings"]=[d(x) for x in self.advanced_bearings]
+        return payload
     def model_hash(self)->str:
         return hashlib.sha256(json.dumps(self.canonical_dict(),sort_keys=True,separators=(",",":"),default=list).encode()).hexdigest()

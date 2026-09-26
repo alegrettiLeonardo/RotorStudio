@@ -1,0 +1,225 @@
+{
+  "authority": {
+    "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "fixture": "fixed_deform_pad_thermal",
+    "payload_sha256": "7295d0b1200e448d3da01b5726165bf79cec52d87af71dfff561a67f81d89e31",
+    "repository": "petrobras/ross"
+  },
+  "case": {
+    "bearing_type": "fixed_geometry",
+    "deform_type": "pad_mechanical_thermal",
+    "overrides": {},
+    "spin_rad_s": 94.24777960769379,
+    "thermal_type": "full",
+    "whirl_rad_s": 94.24777960769379
+  },
+  "field_file": "plain_journal_tehd.npz",
+  "field_shapes": {
+    "axial_grid_m": [
+      2,
+      21,
+      11
+    ],
+    "film_thickness_field_m": [
+      2,
+      21,
+      11
+    ],
+    "pressure_field_pa": [
+      2,
+      21,
+      11
+    ],
+    "temperature_field_k": [
+      2,
+      21,
+      11
+    ],
+    "theta_grid_rad": [
+      2,
+      21,
+      11
+    ]
+  },
+  "inputs": {
+    "ambient_pressure_1": 100001.55978011394,
+    "ambient_pressure_2": 100001.55978011394,
+    "bearing_type": "fixed_geometry",
+    "cavitation_pressure": 0.0,
+    "crush_fit": 0.0,
+    "deform_type": "pad_mechanical_thermal",
+    "edges_convection": 73.59030318060637,
+    "environment_convection": 73.59030318060637,
+    "environment_temperature": 294.2611111111111,
+    "equilibrium_type": "match_load",
+    "excit_ratios": 1,
+    "frequency": [
+      94.24777960769379
+    ],
+    "fxs_load": 0.0,
+    "fys_load": 0.0,
+    "hot_oil_lambda": 0.8,
+    "house_diameter": 0.0,
+    "journal_diameter": 0.39999919999999994,
+    "journal_expansion": 1.1699999999999998e-05,
+    "journal_temperature": 322.0388888888889,
+    "k_rotate": [
+      0,
+      0
+    ],
+    "lube_conduct": 0.1499998037782677,
+    "lube_cp": 1951.5014953944717,
+    "lube_density": 854.9516142561059,
+    "offset": [
+      0.5,
+      0.5
+    ],
+    "oil_flow_v": 0.0016666663363380798,
+    "oil_supply_pressure": 0.0,
+    "oil_supply_temperature": 323.0,
+    "operating_type": "regular_flooded",
+    "pad_arc": [
+      3.07177948351002,
+      3.07177948351002
+    ],
+    "pad_axial_length": [
+      0.263144,
+      0.263144
+    ],
+    "pad_conductivity": 50.09439118110236,
+    "pad_convection": [
+      735.9030318060637,
+      735.9030318060637
+    ],
+    "pad_density": 7835.631544657211,
+    "pad_expansion": 1.1699999999999998e-05,
+    "pad_poisson": 0.3,
+    "pad_thickness": 0.149614636,
+    "pad_young": 206842718795.0509,
+    "pivot_angle": [
+      1.5707963267948966,
+      4.71238898038469
+    ],
+    "pivot_diameter": 0.0,
+    "pivot_stiffness": 0.0,
+    "pivot_type": "rocker_back",
+    "pocket_arc": 0.0,
+    "pocket_axial_length": 0.0,
+    "preload": [
+      0,
+      0
+    ],
+    "probe_pad_number": [
+      1,
+      2
+    ],
+    "probe_theta": [
+      80,
+      80
+    ],
+    "r_location": [
+      0.000999998,
+      0.000999998
+    ],
+    "radial_clearance": 0.000194564,
+    "re_lower": 500,
+    "re_upper": 1000,
+    "reference_temperature": 297.0388888888889,
+    "reichardt_delta": 8.8,
+    "reichardt_kappa": 0.4,
+    "relax_d": 1,
+    "relax_p": 0.5,
+    "relax_pivot": 1,
+    "relax_t": 1,
+    "shell_expansion": 1.1699999999999998e-05,
+    "shell_id": 0.0254,
+    "shell_od": 0.0508,
+    "starve_number": 2,
+    "sump_convect_area": 0.0,
+    "sump_type": "supply_temperature",
+    "t_ambient": 130,
+    "ta_type": 0,
+    "taper_arc_le": [
+      0.0,
+      0.0
+    ],
+    "taper_arc_te": [
+      0.0,
+      0.0
+    ],
+    "taper_depth_le": [
+      0.0,
+      0.0
+    ],
+    "taper_depth_te": [
+      0.0,
+      0.0
+    ],
+    "temp1": 322.98333333333335,
+    "temp2": 352.98333333333335,
+    "temp_j_type": "averaged_film_temperature",
+    "thermal_type": "full",
+    "total_e_x_film": 20,
+    "total_e_y_film": 10,
+    "total_e_y_pad": 10,
+    "total_e_z_film": 10,
+    "track_arc": [
+      0.0,
+      0.0
+    ],
+    "track_axial_length": [
+      0.0,
+      0.0
+    ],
+    "track_depth": [
+      0.0,
+      0.0
+    ],
+    "turb_scal_fac_exp": 0.125,
+    "viscosity1": 0.01901574061455835,
+    "viscosity2": 0.007715233411055399,
+    "weight": 112814.90696191376,
+    "weight_e": 0,
+    "weight_h": 0,
+    "xj": 0.15,
+    "yj": -0.2
+  },
+  "outputs": {
+    "C_n_s_m": [
+      [
+        9981511.630537907,
+        -9890763.185083333
+      ],
+      [
+        -9890763.185083339,
+        38060137.77796337
+      ]
+    ],
+    "K_n_m": [
+      [
+        890531333.2692578,
+        138090872.75650048
+      ],
+      [
+        -1921614393.9926271,
+        2013586819.6301506
+      ]
+    ],
+    "deformation_max_m": 1.1542462526003867e-06,
+    "fx_hydro_n": 6.253895089404235,
+    "fy_hydro_n": 112686.36991475437,
+    "p_max_pa": 2832489.6745534358,
+    "t_max_k": 342.94111201932105,
+    "t_out_bulk_by_pad_k": [
+      338.2401776388516,
+      341.5420272118422
+    ],
+    "t_out_bulk_k": 339.8911024253469,
+    "tilt_angle_rad": [
+      0.0,
+      0.0
+    ],
+    "xj_ratio": 0.43868194583938847,
+    "yj_ratio": -0.4512346733782875
+  }
+}

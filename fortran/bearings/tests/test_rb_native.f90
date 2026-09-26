@@ -1,0 +1,461 @@
+program test_ross_bearings_native
+  use rb_kinds, only: rk, ik
+  use rb_status, only: RB_OK, RB_ERR_INPUT
+  use rb_interpolation, only: rb_interp1, rb_interp2, RB_INTERP_PCHIP, RB_INTERP_LINEAR
+  use rb_rolling, only: rb_ball_coefficients, rb_roller_coefficients
+  use rb_cylindrical, only: rb_cylindrical_coefficients
+  use rb_squeeze_film_damper, only: rb_sfd_coefficients, RB_SFD_GROOVE_END_SEALS
+  use rb_fixed_geometry, only: rb_partial_arc_geometry, rb_elliptical_geometry, rb_offset_halves_geometry, &
+                               rb_multi_lobe_geometry, rb_pressure_dam_geometry, rb_plain_journal_geometry
+  use rb_tilting_pad_config, only: rb_tilting_pad_prepare, RB_TP_CONVENTIONAL, RB_TP_MATCH_LOAD
+  use rb_reynolds_element, only: rb_reynolds_q4_element
+  use rb_reynolds_banded, only: rb_lu_factor_band, rb_lu_solve_band_cavitating
+  use rb_reynolds_mesh, only: rb_reynolds_mesh_smooth
+  use rb_film_thickness, only: rb_film_thickness_baseline
+  use rb_dynamic_reduction, only: rb_dynamic_reduce_tilts
+  use rb_pressure_isoviscous, only: rb_pressure_smooth_isoviscous
+  use rb_plain_journal_physics, only: rb_plain_journal_isoviscous
+  use rb_thermal, only: rb_viscosity_temperature, rb_thermal_adiabatic_pad, rb_thermal_full_pad
+  use rb_pad_deformation, only: rb_pad_surface_deformation
+  use rb_native_multiphysics, only: rb_plain_journal_multiphysics, rb_tilting_pad_multiphysics
+  use rb_tilting_pad_physics, only: rb_tilting_pad_isoviscous
+  implicit none(type, external)
+
+  integer(ik) :: st
+  real(rk) :: yq, kxx, kyy, cxx, cyy
+  real(rk) :: K(2,2), C(2,2), ms, som, ecc, att
+  real(rk) :: k_sfd, c_sfd, theta, pmax
+  real(rk), parameter :: pi_ = acos(-1._rk)
+
+  call test_interpolation()
+  call test_rolling()
+  call test_cylindrical()
+  call test_fixed_geometry()
+  call test_tilting_pad_config()
+  call test_reynolds_element()
+  call test_reynolds_banded()
+  call test_reynolds_mesh()
+  call test_film_thickness()
+  call test_pressure_isoviscous()
+  call test_dynamic_reduction()
+  call test_plain_journal_physics()
+  call test_tilting_pad_physics()
+  call test_sfd()
+
+  print *, 'PASS standalone ROSS bearing native gates:'
+  print *, 'BF1 BF2 BF3 BF4 BF5a BF5band BF5mesh BF5film BF5press BF5cond BF5cfg BF5plain BF7'
+
+contains
+
+  logical function close_rel(a, b, rtol, atol)
+    real(rk), intent(in) :: a, b, rtol, atol
+    close_rel = abs(a-b) <= atol + rtol*abs(b)
+  end function close_rel
+
+  subroutine assert_close(a, b, rtol, atol, code)
+    real(rk), intent(in) :: a, b, rtol, atol
+    integer, intent(in) :: code
+    if (.not.close_rel(a,b,rtol,atol)) then
+      print *, 'assert_close failed', code, a, b, abs(a-b)
+      error stop code
+    end if
+  end subroutine assert_close
+
+  subroutine test_interpolation()
+    real(rk) :: x2(2), y2(2)
+    real(rk) :: speed(5), damping(5), v
+    real(rk) :: freq(5), table(5,5)
+    integer :: i, j
+
+    x2 = [100._rk, 300._rk]
+    y2 = [1.0e6_rk, 3.0e6_rk]
+    call rb_interp1(2_ik, x2, y2, 200._rk, RB_INTERP_PCHIP, yq, st)
+    if (st /= RB_OK) error stop 101
+    call assert_close(yq, 2.0e6_rk, 1e-14_rk, 1e-9_rk, 102)
+
+    call rb_interp1(2_ik, x2, y2, 400._rk, RB_INTERP_PCHIP, yq, st)
+    if (st /= RB_OK) error stop 103
+    call assert_close(yq, 4.0e6_rk, 1e-14_rk, 1e-9_rk, 104)
+
+    speed = [100._rk, 200._rk, 300._rk, 400._rk, 500._rk]
+    damping = [30._rk, 12._rk, 7._rk, 5.5_rk, 5._rk]
+    do i = 1, 5
+      call rb_interp1(5_ik, speed, damping, speed(i), RB_INTERP_PCHIP, v, st)
+      if (st /= RB_OK) error stop 105
+      call assert_close(v, damping(i), 1e-14_rk, 1e-13_rk, 106)
+    end do
+
+    ! ROSS grid interpolation is separable: speed first, then frequency.
+    freq = [10._rk, 20._rk, 30._rk, 40._rk, 50._rk]
+    do i = 1, 5
+      do j = 1, 5
+        table(i,j) = speed(i)*freq(j)
+      end do
+    end do
+
+    call rb_interp2(5_ik, speed, 5_ik, freq, table, 250._rk, 25._rk, RB_INTERP_LINEAR, yq, st)
+    if (st /= RB_OK) error stop 107
+    call assert_close(yq, 6250._rk, 1e-14_rk, 1e-12_rk, 108)
+
+    call rb_interp2(5_ik, speed, 5_ik, freq, table, 250._rk, 25._rk, RB_INTERP_PCHIP, yq, st)
+    if (st /= RB_OK) error stop 109
+    call assert_close(yq, 6250._rk, 1e-12_rk, 1e-10_rk, 110)
+  end subroutine test_interpolation
+
+  subroutine test_rolling()
+    call rb_ball_coefficients(8._rk, 0.03_rk, 500._rk, pi_/6._rk, &
+                              .false., 0._rk, .false., 0._rk, kxx, kyy, cxx, cyy, st)
+    if (st /= RB_OK) error stop 201
+    ! ROSS upstream tests use numpy.assert_allclose defaults (rtol=1e-7).
+    ! Their published fixture values are rounded, so match the same oracle tolerance.
+    call assert_close(kxx, 4.64168838e7_rk, 1e-7_rk, 1e-2_rk, 202)
+    call assert_close(kyy, 1.00906269e8_rk, 1e-7_rk, 1e-2_rk, 203)
+    call assert_close(cxx, 580.2110481_rk, 1e-7_rk, 1e-6_rk, 204)
+    call assert_close(cyy, 1261.32836543_rk, 1e-7_rk, 1e-6_rk, 205)
+
+    call rb_roller_coefficients(8._rk, 0.03_rk, 500._rk, pi_/6._rk, &
+                                .false., 0._rk, .false., 0._rk, kxx, kyy, cxx, cyy, st)
+    if (st /= RB_OK) error stop 206
+    call assert_close(kxx, 2.72821927e8_rk, 1e-7_rk, 1e-1_rk, 207)
+    call assert_close(kyy, 5.56779444e8_rk, 1e-7_rk, 1e-1_rk, 208)
+    call assert_close(cxx, 3410.27409251_rk, 1e-7_rk, 1e-5_rk, 209)
+    call assert_close(cyy, 6959.74304593_rk, 1e-7_rk, 1e-5_rk, 210)
+  end subroutine test_rolling
+
+  subroutine test_cylindrical()
+    real(rk) :: speed
+
+    speed = 1500._rk * 2._rk*pi_/60._rk
+    call rb_cylindrical_coefficients(speed, 525._rk, 0.03_rk, 0.1_rk, 0.0001_rk, 0.1_rk, &
+                                     ms, som, ecc, att, K, C, st)
+    if (st /= RB_OK) error stop 301
+
+    call assert_close(ms, 1.009798_rk, 2e-6_rk, 2e-7_rk, 302)
+    call assert_close(som, 3.571429_rk, 2e-6_rk, 2e-7_rk, 303)
+    call assert_close(ecc, 0.266298_rk, 2e-5_rk, 2e-7_rk, 304)
+    call assert_close(att, 0.198931_rk, 2e-5_rk, 2e-7_rk, 305)
+
+    call assert_close(K(1,1)/1e6_rk, 12.80796_rk, 2e-6_rk, 2e-5_rk, 306)
+    call assert_close(K(1,2)/1e6_rk, 16.393593_rk, 2e-6_rk, 2e-5_rk, 307)
+    call assert_close(K(2,1)/1e6_rk, -25.060393_rk, 2e-6_rk, 2e-5_rk, 308)
+    call assert_close(K(2,2)/1e6_rk, 8.815303_rk, 2e-6_rk, 2e-5_rk, 309)
+
+    call assert_close(C(1,1)/1e3_rk, 232.89693_rk, 2e-6_rk, 2e-5_rk, 310)
+    call assert_close(C(1,2)/1e3_rk, -81.924371_rk, 2e-6_rk, 2e-5_rk, 311)
+    call assert_close(C(2,1)/1e3_rk, -81.924371_rk, 2e-6_rk, 2e-5_rk, 312)
+    call assert_close(C(2,2)/1e3_rk, 294.911619_rk, 2e-6_rk, 2e-5_rk, 313)
+
+    call rb_cylindrical_coefficients(0._rk, 525._rk, 0.03_rk, 0.1_rk, 0.0001_rk, 0.1_rk, &
+                                     ms, som, ecc, att, K, C, st)
+    if (st /= RB_ERR_INPUT) error stop 314
+  end subroutine test_cylindrical
+
+  subroutine test_fixed_geometry()
+    integer(ik) :: np
+    real(rk) :: pivot2(2), arc2(2), pre2(2), off2(2)
+    real(rk) :: track_arc(2), track_len(2), track_depth(2)
+    real(rk) :: pre3_in(3), off3_in(3), pre3(3), off3(3), pivot3(3), arc3(3)
+    real(rk) :: p1(1), a1(1), pr1(1), o1(1)
+    real(rk) :: pj_pivot(4), pj_arc(4), pj_pre(4), pj_off(4), pj_len(4), pj_thick
+
+    call rb_partial_arc_geometry(pi_/2._rk, 3._rk*pi_/2._rk, 0._rk, 0.5_rk, &
+                                 np, p1, a1, pr1, o1, st)
+    if (st /= RB_OK .or. np /= 1) error stop 351
+    call assert_close(p1(1), 3._rk*pi_/2._rk, 1e-14_rk, 1e-14_rk, 352)
+
+    call rb_elliptical_geometry(150._rk*pi_/180._rk, 0.5_rk, np, pivot2, arc2, pre2, off2, st)
+    if (st /= RB_OK .or. np /= 2) error stop 353
+    call assert_close(pivot2(1), pi_/2._rk, 1e-14_rk, 1e-14_rk, 354)
+    call assert_close(pivot2(2), 3._rk*pi_/2._rk, 1e-14_rk, 1e-14_rk, 355)
+    call assert_close(pre2(1), 0.5_rk, 1e-14_rk, 1e-14_rk, 356)
+    call assert_close(off2(2), 0.5_rk, 1e-14_rk, 1e-14_rk, 357)
+
+    call rb_offset_halves_geometry(150._rk*pi_/180._rk, 0.4_rk, 0.6_rk, np, &
+                                   pivot2, arc2, pre2, off2, st)
+    if (st /= RB_OK .or. np /= 2) error stop 358
+    call assert_close(off2(1), 0.6_rk, 1e-14_rk, 1e-14_rk, 359)
+
+    pre3_in = [0.3_rk, 0.4_rk, 0.5_rk]
+    off3_in = [0.45_rk, 0.5_rk, 0.55_rk]
+    call rb_multi_lobe_geometry(3_ik, 100._rk*pi_/180._rk, pre3_in, off3_in, 0._rk, .false., &
+                                pivot3, arc3, pre3, off3, st)
+    if (st /= RB_OK) error stop 360
+    call assert_close(pivot3(1), pi_/3._rk, 1e-14_rk, 1e-14_rk, 361)
+    call assert_close(pivot3(2), pi_, 1e-14_rk, 1e-14_rk, 362)
+    call assert_close(pivot3(3), 5._rk*pi_/3._rk, 1e-14_rk, 1e-14_rk, 363)
+
+    call rb_pressure_dam_geometry(150._rk*pi_/180._rk, pi_/2._rk, 0.1_rk, 250e-6_rk, &
+                                  .true., .false., 0._rk, np, pivot2, arc2, pre2, off2, &
+                                  track_arc, track_len, track_depth, st)
+    if (st /= RB_OK .or. np /= 2) error stop 364
+    call assert_close(track_arc(1), pi_/2._rk, 1e-14_rk, 1e-14_rk, 365)
+    call assert_close(track_arc(2), 0._rk, 1e-14_rk, 1e-14_rk, 366)
+
+    call rb_plain_journal_geometry(4_ik, 80._rk*pi_/180._rk, 0.1_rk, 0.05_rk, 0.2_rk, &
+                                   0._rk, .false., pj_pivot, pj_arc, pj_pre, pj_off, pj_len, pj_thick, st)
+    if (st /= RB_OK) error stop 367
+    call assert_close(pj_pivot(1), pi_/4._rk, 1e-14_rk, 1e-14_rk, 368)
+    call assert_close(pj_pivot(4), 7._rk*pi_/4._rk, 1e-14_rk, 1e-14_rk, 369)
+    call assert_close(pj_thick, 0.05_rk, 1e-14_rk, 1e-14_rk, 370)
+  end subroutine test_fixed_geometry
+
+  subroutine test_tilting_pad_config()
+    real(rk) :: pivot(5), arc(5), plen(5), pre(5), off(5), pos(2)
+
+    pivot = [18._rk,90._rk,162._rk,234._rk,306._rk] * pi_/180._rk
+    arc = 60._rk*pi_/180._rk
+    plen = 50.8e-3_rk
+    pre = 0.5_rk
+    off = 0.5_rk
+
+    call rb_tilting_pad_prepare(5_ik,101.6e-3_rk,74.9e-6_rk,12.7e-3_rk, &
+                                pivot,arc,plen,pre,off,RB_TP_CONVENTIONAL,RB_TP_MATCH_LOAD, &
+                                0.3_rk,3._rk*pi_/2._rk,.false.,0._rk,0._rk,20_ik,10_ik,10_ik,pos,st)
+    if (st /= RB_OK) error stop 371
+    call assert_close(pos(1), 0._rk, 1e-14_rk, 1e-14_rk, 372)
+    call assert_close(pos(2), -0.3_rk, 1e-14_rk, 1e-14_rk, 373)
+
+    call rb_tilting_pad_prepare(5_ik,101.6e-3_rk,74.9e-6_rk,12.7e-3_rk, &
+                                pivot,arc,plen,pre,off,RB_TP_CONVENTIONAL,RB_TP_MATCH_LOAD, &
+                                0.3_rk,3._rk*pi_/2._rk,.true.,0.12_rk,-0.21_rk,20_ik,10_ik,10_ik,pos,st)
+    if (st /= RB_OK) error stop 374
+    call assert_close(pos(1), 0.12_rk, 1e-14_rk, 1e-14_rk, 375)
+    call assert_close(pos(2), -0.21_rk, 1e-14_rk, 1e-14_rk, 376)
+
+    call rb_tilting_pad_prepare(5_ik,101.6e-3_rk,74.9e-6_rk,12.7e-3_rk, &
+                                pivot,arc,plen,pre,off,RB_TP_CONVENTIONAL,RB_TP_MATCH_LOAD, &
+                                0.3_rk,3._rk*pi_/2._rk,.false.,0._rk,0._rk,21_ik,10_ik,10_ik,pos,st)
+    if (st /= RB_ERR_INPUT) error stop 377
+  end subroutine test_tilting_pad_config
+
+  subroutine test_reynolds_element()
+    real(rk) :: em(4,4), ec(4)
+
+    call rb_reynolds_q4_element(2._rk,3._rk,5._rk,0.4_rk,0.2_rk,em,ec,st)
+    if (st /= RB_OK) error stop 381
+    call assert_close(em(1,1), 7._rk/3._rk, 1e-14_rk, 1e-14_rk, 382)
+    call assert_close(em(1,2), 2._rk/3._rk, 1e-14_rk, 1e-14_rk, 383)
+    call assert_close(em(1,3), -7._rk/6._rk, 1e-14_rk, 1e-14_rk, 384)
+    call assert_close(em(1,4), -11._rk/6._rk, 1e-14_rk, 1e-14_rk, 385)
+    call assert_close(em(2,1), em(1,2), 1e-14_rk, 1e-14_rk, 386)
+    call assert_close(em(4,4), em(1,1), 1e-14_rk, 1e-14_rk, 387)
+    call assert_close(ec(1), 0.1_rk, 1e-14_rk, 1e-14_rk, 388)
+    call assert_close(ec(4), 0.1_rk, 1e-14_rk, 1e-14_rk, 389)
+
+    call rb_reynolds_q4_element(2._rk,3._rk,5._rk,0._rk,0.2_rk,em,ec,st)
+    if (st /= RB_ERR_INPUT) error stop 390
+  end subroutine test_reynolds_element
+
+  subroutine test_reynolds_banded()
+    real(rk) :: a(3,3), al(3,1), bvec(3)
+    integer(ik) :: piv(3)
+
+    ! Symmetric tridiagonal system in ROSS band storage, diagonal at column 2:
+    ! [4 1 0; 1 4 1; 0 1 3] * x = [6 6 4].
+    a = 0._rk
+    a(1,2) = 4._rk; a(1,3) = 1._rk
+    a(2,1) = 1._rk; a(2,2) = 4._rk; a(2,3) = 1._rk
+    a(3,1) = 1._rk; a(3,2) = 3._rk
+    bvec = [6._rk,6._rk,4._rk]
+
+    call rb_lu_factor_band(a,3_ik,2_ik,al,piv,st)
+    if (st /= RB_OK) error stop 391
+    call rb_lu_solve_band_cavitating(a,3_ik,2_ik,al,piv,bvec,0._rk,st)
+    if (st /= RB_OK) error stop 392
+    call assert_close(bvec(1),52._rk/41._rk,1e-13_rk,1e-13_rk,393)
+    call assert_close(bvec(2),38._rk/41._rk,1e-13_rk,1e-13_rk,394)
+    call assert_close(bvec(3),42._rk/41._rk,1e-13_rk,1e-13_rk,395)
+  end subroutine test_reynolds_banded
+
+  subroutine test_reynolds_mesh()
+    real(rk) :: x(6), xr(6), z(6), el(2), ew(2), dxm(2,4), dzm(2,4)
+    integer(ik) :: ni(2), nj(2), nk(2), nl(2), bw
+
+    call rb_reynolds_mesh_smooth(1_ik,2_ik,pi_/2._rk,0.1_rk,0.06_rk, &
+                                 x,xr,z,ni,nj,nk,nl,el,ew,dxm,dzm,bw,st)
+    if (st /= RB_OK) error stop 401
+    if (bw /= 5_ik) error stop 402
+
+    call assert_close(x(1),0._rk,1e-14_rk,1e-14_rk,403)
+    call assert_close(x(4),0.1_rk,1e-14_rk,1e-14_rk,404)
+    call assert_close(xr(4),pi_/2._rk,1e-14_rk,1e-14_rk,408)
+    call assert_close(z(2),0.03_rk,1e-14_rk,1e-14_rk,409)
+    if (ni(1)/=0_ik .or. nj(1)/=3_ik .or. nk(1)/=4_ik .or. nl(1)/=1_ik) error stop 410
+    if (ni(2)/=1_ik .or. nj(2)/=4_ik .or. nk(2)/=5_ik .or. nl(2)/=2_ik) error stop 411
+    call assert_close(el(1),0.1_rk,1e-14_rk,1e-14_rk,412)
+    call assert_close(ew(1),0.03_rk,1e-14_rk,1e-14_rk,413)
+    call assert_close(dxm(1,1),-5._rk,1e-14_rk,1e-14_rk,414)
+    call assert_close(dzm(1,1),-1._rk/0.06_rk,1e-14_rk,1e-14_rk,415)
+  end subroutine test_reynolds_mesh
+
+  subroutine test_film_thickness()
+    integer(ik) :: idx0(4)
+    real(rk) :: x(4), xr(4), dh(4), h(4), dhdx(4), hmin, xhmin
+    logical :: fullcav
+
+    idx0 = [0_ik,1_ik,2_ik,3_ik]
+    x = [0._rk,0._rk,1._rk,1._rk]
+    xr = [0._rk,0._rk,pi_/2._rk,pi_/2._rk]
+    dh = 0._rk
+
+    call rb_film_thickness_baseline(1_ik,0._rk,1._rk,0._rk,0._rk, &
+                                    1._rk,0._rk,0.2_rk,0._rk,4_ik,idx0,x,xr,dh, &
+                                    h,dhdx,hmin,xhmin,fullcav,st)
+    if (st /= RB_OK) error stop 396
+    call assert_close(h(1),0.8_rk,1e-14_rk,1e-14_rk,397)
+    call assert_close(h(3),1._rk,1e-14_rk,1e-14_rk,398)
+    call assert_close(hmin,0.8_rk,1e-14_rk,1e-14_rk,399)
+    call assert_close(xhmin,0._rk,1e-14_rk,1e-14_rk,400)
+    call assert_close(dhdx(1),0.2_rk,1e-14_rk,1e-14_rk,405)
+    call assert_close(dhdx(4),0.2_rk,1e-14_rk,1e-14_rk,406)
+    if (.not.fullcav) error stop 407
+  end subroutine test_film_thickness
+
+  subroutine test_pressure_isoviscous()
+    real(rk) :: h(9), p(9)
+
+    ! 2x2 smooth-pad Reynolds mesh. Film decreases linearly by x station:
+    ! h=[1.0,0.8,0.6]. All edge pressures are prescribed to zero, leaving
+    ! one interior node. The FE equation therefore has the closed-form
+    ! interior solution p=225/536 for mu=U=L=W=1.
+    h = [1._rk,1._rk,1._rk, 0.8_rk,0.8_rk,0.8_rk, 0.6_rk,0.6_rk,0.6_rk]
+    call rb_pressure_smooth_isoviscous(2_ik,2_ik,pi_/2._rk,1._rk,1._rk, &
+                                       h,1._rk,1._rk,0._rk,p,st)
+    if (st /= RB_OK) error stop 416
+    call assert_close(p(5),225._rk/536._rk,1e-12_rk,1e-12_rk,417)
+    call assert_close(p(1),0._rk,1e-14_rk,1e-14_rk,418)
+    call assert_close(p(9),0._rk,1e-14_rk,1e-14_rk,419)
+    if (minval(p) < -1e-14_rk) error stop 420
+  end subroutine test_pressure_isoviscous
+
+  subroutine test_dynamic_reduction()
+    integer(ik), parameter :: n=1_ik
+    real(rk) :: kj(2,2), cj(2,2), kr(2,2), cr(2,2), ip1(1)
+    real(rk) :: z(1), plen(1), alen(1), krot(1)
+    real(rk) :: kdx(1), kdy(1), kxd(1), kyd(1), kdd(1)
+    real(rk) :: cdx(1), cdy(1), cxd(1), cyd(1), cdd(1)
+    complex(rk) :: d00, den, a10, a40
+    real(rk) :: omega, expected_k, expected_c
+
+    kj = reshape([10._rk,1._rk,2._rk,20._rk],[2,2])
+    cj = reshape([3._rk,0.5_rk,0.5_rk,6._rk],[2,2])
+    z = 0._rk
+    plen = 1._rk; alen = 1._rk; krot = 0._rk
+    omega = 377._rk
+
+    call rb_dynamic_reduce_tilts(n,kj,cj,z,z,z,z,z,z,z,z,z,z,plen,0.1_rk,alen,0.3_rk, &
+                                 omega,krot,kr,cr,ip1,st)
+    if (st /= RB_OK) error stop 408
+    call assert_close(kr(1,1),10._rk,1e-14_rk,1e-14_rk,409)
+    call assert_close(kr(2,2),20._rk,1e-14_rk,1e-14_rk,410)
+    call assert_close(cr(1,1),3._rk,1e-14_rk,1e-14_rk,411)
+    call assert_close(cr(2,2),6._rk,1e-14_rk,1e-14_rk,412)
+
+    ! Non-zero single-pad coupling: compare to the literal complex
+    ! Schur-complement expression used by current ROSS.
+    kdx=[4._rk]; kdy=[5._rk]; kxd=[6._rk]; kyd=[7._rk]; kdd=[1000._rk]
+    cdx=[0.4_rk]; cdy=[0.5_rk]; cxd=[0.6_rk]; cyd=[0.7_rk]; cdd=[2._rk]
+    krot=[50._rk]
+    call rb_dynamic_reduce_tilts(n,kj,cj,kdx,kdy,kxd,kyd,kdd,cdx,cdy,cxd,cyd,cdd, &
+                                 plen,0.1_rk,alen,0.3_rk,omega,krot,kr,cr,ip1,st)
+    if (st /= RB_OK) error stop 413
+    den = cmplx(1000._rk+50._rk-omega**2*ip1(1),omega*2._rk,kind=rk)
+    a10 = cmplx(6._rk,omega*0.6_rk,kind=rk)
+    a40 = cmplx(4._rk,omega*0.4_rk,kind=rk)
+    d00 = cmplx(10._rk,omega*3._rk,kind=rk) - a10*a40/den
+    expected_k = real(d00,kind=rk)
+    expected_c = aimag(d00)/omega
+    call assert_close(kr(1,1),expected_k,1e-13_rk,1e-13_rk,414)
+    call assert_close(cr(1,1),expected_c,1e-13_rk,1e-13_rk,415)
+  end subroutine test_dynamic_reduction
+
+  subroutine test_plain_journal_physics()
+    real(rk) :: piv(2), arcs(2), lens(2), pre(2), off(2)
+    real(rk) :: xr, yr, kp(2,2), cp(2,2), fx, fy, pm
+    integer(ik) :: nit
+
+    ! Current ROSS fixed_isoviscous reference case (900 rpm, two 176-deg
+    ! fixed pads).  This exercises native Reynolds + cavitation + load
+    ! equilibrium + static tangent + damping perturbation end-to-end.
+    piv = [pi_/2._rk, 3._rk*pi_/2._rk]
+    arcs = 3.07177948351002_rk
+    lens = 0.263144_rk
+    pre = 0._rk
+    off = 0.5_rk
+
+    call rb_plain_journal_isoviscous(94.24777960769379_rk,112814.90696191376_rk,0._rk,0._rk, &
+                                     0.3999992_rk,0.000194564_rk,0.01901574061455835_rk,2_ik, &
+                                     piv,arcs,lens,pre,off,20_ik,10_ik,0.15_rk,-0.2_rk,0.5_rk, &
+                                     80_ik,5e-3_rk,xr,yr,kp,cp,fx,fy,pm,nit,st)
+    if (st /= RB_OK) then
+      print *, 'PlainJournal status/iterations', st, nit
+      error stop 421
+    end if
+
+    print *, 'PlainJournal oracle diagnostic xj,yj=',xr,yr
+    print *, 'PlainJournal K=',kp
+    print *, 'PlainJournal C=',cp
+    print *, 'PlainJournal F/Pmax=',fx,fy,pm
+
+    ! Equilibrium must be close to the pinned ROSS case before tighter
+    ! coefficient parity is admitted as a gate.
+    call assert_close(xr,0.40412769773157853_rk,8e-2_rk,2e-2_rk,422)
+    call assert_close(yr,-0.35964988360804134_rk,8e-2_rk,2e-2_rk,423)
+    if (kp(1,1) <= 0._rk .or. kp(2,2) <= 0._rk) error stop 424
+    if (cp(1,1) <= 0._rk .or. cp(2,2) <= 0._rk) error stop 425
+    if (pm <= 0._rk) error stop 426
+  end subroutine test_plain_journal_physics
+
+  subroutine test_tilting_pad_physics()
+    real(rk) :: piv(5), arcs(5), lens(5), pre(5), off(5), krot(5), tilt(5)
+    real(rk) :: xr, yr, kt(2,2), ct(2,2), fx, fy, pm
+    integer(ik) :: nit
+
+    piv=[0.9424777960769379_rk,2.199114857512855_rk,3.4557519189487724_rk, &
+         4.71238898038469_rk,5.969026041820607_rk]
+    arcs=1.0471975511965976_rk
+    lens=0.263144_rk
+    pre=0.3_rk
+    off=0.5_rk
+    krot=0._rk
+
+    call rb_tilting_pad_isoviscous(94.24777960769379_rk,94.24777960769379_rk, &
+                                    112814.90696191376_rk,0._rk,0._rk,0.3999992_rk,0.000194564_rk, &
+                                    0.01901574061455835_rk,0.149614636_rk,7835.631544657211_rk,5_ik, &
+                                    piv,arcs,lens,pre,off,krot,20_ik,10_ik,0.15_rk,-0.2_rk,0.5_rk, &
+                                    80_ik,5e-3_rk,xr,yr,tilt,kt,ct,fx,fy,pm,nit,st)
+    if(st/=RB_OK)then
+      print *,'TiltingPad status/iterations',st,nit
+      error stop 427
+    end if
+    print *,'TiltingPad oracle diagnostic xj,yj=',xr,yr
+    print *,'TiltingPad tilt=',tilt
+    print *,'TiltingPad K=',kt
+    print *,'TiltingPad C=',ct
+    print *,'TiltingPad F/Pmax=',fx,fy,pm
+
+    call assert_close(xr,0.00043866240037811227_rk,2e-1_rk,2e-2_rk,428)
+    call assert_close(yr,-0.6180219519234674_rk,1e-1_rk,3e-2_rk,429)
+    if(kt(1,1)<=0._rk .or. kt(2,2)<=0._rk)error stop 430
+    if(ct(1,1)<=0._rk .or. ct(2,2)<=0._rk)error stop 431
+  end subroutine test_tilting_pad_physics
+
+  subroutine test_sfd()
+    real(rk), parameter :: reyn_to_pas = 6894.757293168_rk
+    real(rk) :: frequency, viscosity
+
+    frequency = 18600._rk * 2._rk*pi_/60._rk
+    viscosity = 4.05640e-6_rk * reyn_to_pas
+
+    call rb_sfd_coefficients(frequency, 0.9_rk*0.0254_rk, 5.1_rk*0.0254_rk, &
+                             0.003_rk*0.0254_rk, 0.5_rk, viscosity, &
+                             RB_SFD_GROOVE_END_SEALS, .true., &
+                             k_sfd, c_sfd, theta, pmax, st)
+    if (st /= RB_OK) error stop 401
+
+    call assert_close(k_sfd, 1.69362187e8_rk, 1e-4_rk, 1e1_rk, 402)
+    call assert_close(c_sfd, 118283.83590277865_rk, 1e-4_rk, 1e-2_rk, 403)
+    call assert_close(pmax, 10248075.8971382_rk, 1e-4_rk, 1._rk, 404)
+  end subroutine test_sfd
+
+end program test_ross_bearings_native

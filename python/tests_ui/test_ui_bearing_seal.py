@@ -7,10 +7,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from drm_core import AnalysisCase, RotorProject, Bearing
+from drm_core import (
+    AnalysisCase, RotorProject, Bearing, RotorModel, Node, ShaftElement,
+    TiltingPadPhysicsBearing,
+)
 from drm_core.units import rpm_to_rad_s
 from drm_studio.application.session import ProjectSession, EntityRef
 from drm_studio.main_window import MainWindow
+from drm_studio.widgets.bearing_performance import BearingPerformancePage
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -61,3 +65,68 @@ def test_bearing_edit_then_modal_real_fortran(qtbot):
     with qtbot.waitSignal(session.resultAdded,timeout=60000) as signal:assert window.run_analysis(case)
     assert signal.args[0].execution.build_metadata["backend"]=="Fortran2018/ctypes"
     assert np.isfinite(signal.args[0].execution.result.eigenvalues).all()
+
+@pytest.mark.skipif(
+    not os.environ.get("DRMBEARINGS_LIB"),
+    reason="real native advanced-bearing library required",
+)
+def test_bearing_performance_runs_qualified_native_tilting_pad(qtbot):
+    bearing = TiltingPadPhysicsBearing(
+        node=1,
+        weight_n=112814.90696191376,
+        journal_diameter_m=0.3999992,
+        radial_clearance_m=0.000194564,
+        oil_viscosity_pa_s=0.01901574061455835,
+        pad_thickness_m=0.149614636,
+        pad_density_kg_m3=7835.631544657211,
+        pivot_angle_rad=(
+            0.9424777960769379,
+            2.199114857512855,
+            3.4557519189487724,
+            4.71238898038469,
+            5.969026041820607,
+        ),
+        pad_arc_rad=(1.0471975511965976,) * 5,
+        pad_axial_length_m=(0.263144,) * 5,
+        preload=(0.3,) * 5,
+        offset=(0.5,) * 5,
+        k_rotate_nm_rad=(0.0,) * 5,
+        total_e_x_film=20,
+        total_e_z_film=10,
+        xj_ratio_initial=0.15,
+        yj_ratio_initial=-0.2,
+        force_tolerance=5e-3,
+    )
+    model = RotorModel(
+        nodes=[Node(1, 0.0), Node(2, 1.0)],
+        shafts=[
+            ShaftElement(
+                2, 1, 2, 0.05, 0.0, 7810.0, 211e9, 81.2e9, 0.0, 0.0, 0.0
+            )
+        ],
+        advanced_bearings=[bearing],
+    )
+    session = ProjectSession(RotorProject("native-bearing-performance", model))
+    page = BearingPerformancePage(session)
+    qtbot.addWidget(page)
+    page.show()
+
+    session.set_selection(EntityRef("advanced_bearing", 0))
+    assert page.advanced_group.isVisible()
+    assert page.evaluate_button.isEnabled()
+    assert "6320eab9" in page.coefficient_note.toPlainText()
+
+    page.speed_field.setValue(94.24777960769379)
+    page.frequency_field.setValue(94.24777960769379)
+    page._evaluate_advanced()
+
+    text = page.coefficient_note.toPlainText()
+    assert "ROSS_PARITY_PASS_B12" in text
+    assert "K [N/m]" in text and "C [N·s/m]" in text
+    assert page.lower_tabs.isTabEnabled(1)
+    assert page.lower_tabs.isTabEnabled(2)
+    assert "Native pressure field" in page.pressure_note.toPlainText()
+    assert "Native film temperature field" in page.temperature_note.toPlainText()
+    assert page._last_payload is not None
+    assert np.isfinite(page._last_payload["evaluation"].K).all()
+

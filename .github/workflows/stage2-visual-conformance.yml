@@ -22,6 +22,7 @@ jobs:
       QT_QPA_PLATFORM: offscreen
       PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
       DRMROTOR_LIB: ${{ github.workspace }}/build-stage21/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-stage21/libdrmbearings.so
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,11 +44,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e './python[test,studio,ui-test]'
 
-      - name: Assert Stage 2.1 does not modify Fortran
+      - name: Assert Stage 2.1 does not modify qualified legacy Fortran core
         run: |
           mkdir -p validation/reports/stage21
-          git diff --stat a20385319f550761e62c02ca5f5f6a21923b610e -- fortran | tee validation/reports/stage21/fortran_diff.txt
-          test -z "$(git diff --name-only a20385319f550761e62c02ca5f5f6a21923b610e -- fortran)"
+          git diff --stat a20385319f550761e62c02ca5f5f6a21923b610e -- fortran/src fortran/tests | tee validation/reports/stage21/legacy_fortran_core_diff.txt
+          test -z "$(git diff --name-only a20385319f550761e62c02ca5f5f6a21923b610e -- fortran/src fortran/tests)"
+          echo "Additive fortran/bearings is outside the frozen Stage 2.1 legacy-core boundary and has its own qualification." | tee validation/reports/stage21/additive_bearings_note.txt
 
       - name: Build qualified Fortran core
         run: |
@@ -86,7 +88,8 @@ jobs:
           payload={
             "status":"PASS",
             "head_sha":os.environ["GITHUB_SHA"],
-            "fortran_diff":"ZERO",
+            "legacy_fortran_core_diff":"ZERO",
+            "advanced_bearing_fortran":"QUALIFIED_SEPARATELY",
             "stage1":"57/57 PASS",
             "visual_tests":"PASS",
             "screenshots":{p.name:p.stat().st_size for p in sorted(outdir.glob("*.png"))},
