@@ -3,6 +3,7 @@ import ctypes as ct
 import numpy as np
 from .ffi import load_library, configure, SolverLibraryError
 from drm_core.domain.model import RotorModel
+from drm_core.domain.bearings import CoefficientBearing
 from drm_core.validation.model import validate_model
 class FortranBackend:
     def __init__(self,library_path=None):
@@ -277,8 +278,104 @@ class FortranBackend:
         status=self.lib.rd_time_fdn_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),float(rotor_speed_rad_s),self._ptr(amp),pulse,float(dt),int(npts),int(nr),float(rtol),float(atol),float(h_init),float(h_max),self._ptr(resp),self._ptr(force),self._ptr(time),self._iptr(nru),self._ptr(maxf),self._iptr(na),self._iptr(nrj))
         if status: raise SolverLibraryError(f"Fortran rd_time_fdn_legacy returned status={status}")
         return time,resp,force,{"nr_used":int(nru[0]),"max_reduced_frequency_hz":float(maxf[0]),"accepted_steps":int(na[0]),"rejected_steps":int(nrj[0]),"rtol":rtol,"atol":atol}
+    def _advanced_runup_map(self,m:RotorModel,alpha,tspan):
+        aa=np.ascontiguousarray(alpha,dtype=np.float64);ts=np.asarray(tspan,dtype=float)
+        if aa.shape!=(3,): raise ValueError("alpha must have exactly 3 coefficients [a2,a1,a0]")
+        if ts.size!=2: raise ValueError("tspan must contain [t0,tf]")
+        omega=np.asarray([2.0*aa[0]*ts[0]+aa[1],2.0*aa[0]*ts[1]+aa[1]],dtype=float)
+        lo=float(np.min(omega));hi=float(np.max(omega))
+        if not np.isfinite(omega).all() or lo<0.0:
+            raise SolverLibraryError("B18 synchronous advanced-bearing run-up requires finite nonnegative rotor speed over the full time span")
+        mapped=[]
+        methods=set();reference_axis=None
+        provider=self._bearing_provider()
+        for bearing in m.advanced_bearings:
+            if type(bearing) is not CoefficientBearing:
+                raise SolverLibraryError(
+                    f"{type(bearing).__name__}: B18 does not execute physical Reynolds/THD/TEHD in the ODE; "
+                    "generate a B16 synchronous operating map and use its CoefficientBearing"
+                )
+            if bearing.frequency_rad_s:
+                raise SolverLibraryError(
+                    f"{bearing.tag or type(bearing).__name__}: B18 requires a synchronous 1-D map with an empty "
+                    "frequency axis; asynchronous 2-D maps are not accepted by the initial run-up scope"
+                )
+            if np.max(np.abs(provider.evaluate(bearing,max(lo,0.0),max(lo,0.0)).M))>1e-14:
+                raise SolverLibraryError("B18 cannot silently discard nonzero advanced-bearing M")
+            axis=np.asarray(bearing.speed_rad_s,dtype=float)
+            if axis.size:
+                if axis.size<2:
+                    raise SolverLibraryError("B18 speed-dependent coefficient maps require at least two speed points")
+                tol=64*np.finfo(float).eps*max(1.0,abs(float(axis[0])),abs(float(axis[-1])))
+                if lo<float(axis[0])-tol or hi>float(axis[-1])+tol:
+                    raise SolverLibraryError(
+                        f"B18 synchronous map coverage [{axis[0]}, {axis[-1]}] rad/s does not cover "
+                        f"run-up speed range [{lo}, {hi}] rad/s; extrapolation is not allowed"
+                    )
+                if reference_axis is None:
+                    reference_axis=axis.copy()
+                elif axis.shape!=reference_axis.shape or not np.allclose(axis,reference_axis,rtol=0.0,atol=1e-12):
+                    raise SolverLibraryError("B18 initial native ABI requires all nonconstant advanced-bearing maps to share the same speed axis")
+                methods.add(bearing.interpolation)
+            mapped.append(bearing)
+        if reference_axis is None:
+            if hi<=lo:
+                reference_axis=np.asarray([lo,max(lo+1.0,1.0)],dtype=float)
+            else:
+                reference_axis=np.asarray([lo,hi],dtype=float)
+            methods.add("linear")
+        if len(methods)>1:
+            raise SolverLibraryError("B18 initial native ABI requires one interpolation policy shared by all advanced-bearing maps")
+        method=next(iter(methods)) if methods else "linear"
+        # Constant bearings are expanded onto the shared map axis. Map-backed
+        # bearings are evaluated only at their existing tabulated points here;
+        # no physical solver is called in the ODE.
+        nmap=len(mapped);ns=len(reference_axis)
+        kt=np.empty((4,ns,nmap),dtype=np.float64,order="F")
+        ct_=np.empty((4,ns,nmap),dtype=np.float64,order="F")
+        nodes=np.empty(nmap,dtype=np.int32)
+        for bidx,bearing in enumerate(mapped):
+            nodes[bidx]=int(bearing.node)
+            for j,w in enumerate(reference_axis):
+                evaluation=provider.evaluate(bearing,float(w),float(w))
+                if np.max(np.abs(evaluation.M))>1e-14:
+                    raise SolverLibraryError("B18 cannot silently discard nonzero advanced-bearing M")
+                K=evaluation.K;C=evaluation.C
+                kt[:,j,bidx]=[K[0,0],K[1,0],K[0,1],K[1,1]]
+                ct_[:,j,bidx]=[C[0,0],C[1,0],C[0,1],C[1,1]]
+        return aa,ts,nodes,np.ascontiguousarray(reference_axis),kt,ct_,(1 if method=="pchip" else 2),lo,hi,method
+
     def runup(self,m:RotorModel,alpha,tspan,nr:int=0,rtol:float=1e-3,atol:float=1e-6,h_init:float=0.0,h_max:float=0.0,max_points:int=200000):
-        if m.advanced_bearings: raise SolverLibraryError("advanced-bearing run-up requires a separately qualified time-varying coefficient update policy; it is intentionally blocked")
+        if m.advanced_bearings:
+            if int(nr)!=0:
+                raise SolverLibraryError("advanced-bearing run-up reduced-order path is not qualified; set nr=0 for B18 FULL_ORDER")
+            aa,ts,nodes,axis,kt,ct_,method,lo,hi,method_name=self._advanced_runup_map(m,alpha,tspan)
+            # Build only the historical model arrays here. Advanced bearings
+            # travel through the additive coefficient-map ABI, never type-5
+            # adaptation and never a Python callback from the ODE.
+            legacy=RotorModel(nodes=m.nodes,shafts=m.shafts,disks=m.disks,bearings=m.bearings,forces=m.forces,bend=m.bend,rotors=m.rotors)
+            n,z,sh,di,be=self._arrays(legacy);nd=4*n;fo=self._forces(m)
+            time=np.empty(max_points,dtype=np.float64);speed=np.empty(max_points,dtype=np.float64);resp=np.empty((nd,max_points),dtype=np.float64,order='F')
+            nout=np.zeros(1,dtype=np.int32);nru=np.zeros(1,dtype=np.int32);na=np.zeros(1,dtype=np.int32);nrj=np.zeros(1,dtype=np.int32)
+            kflat=np.ascontiguousarray(np.asfortranarray(kt).ravel(order="F"))
+            cflat=np.ascontiguousarray(np.asfortranarray(ct_).ravel(order="F"))
+            status=self.lib.rd_runup_coeffmap_legacy(
+                n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),
+                fo.shape[1],self._ptr(fo),len(nodes),self._iptr(nodes),len(axis),self._ptr(axis),self._ptr(kflat),self._ptr(cflat),
+                int(method),self._ptr(aa),float(ts[0]),float(ts[1]),float(rtol),float(atol),float(h_init),float(h_max),int(max_points),
+                self._ptr(time),self._ptr(resp),self._ptr(speed),self._iptr(nout),self._iptr(nru),self._iptr(na),self._iptr(nrj)
+            )
+            if status:
+                raise SolverLibraryError(f"Fortran rd_runup_coeffmap_legacy returned status={status}")
+            k=int(nout[0])
+            return time[:k].copy(),resp[:,:k].copy(order='F'),speed[:k].copy(),{
+                "nr_used":int(nru[0]),"max_reduced_frequency_hz":0.0,
+                "accepted_steps":int(na[0]),"rejected_steps":int(nrj[0]),"rtol":rtol,"atol":atol,
+                "advanced_bearing_scope":"FULL_ORDER|SYNCHRONOUS_COEFFICIENT_POLICY|MAP_BASED|NO_TEHD_IN_ODE",
+                "map_speed_min_rad_s":float(axis[0]),"map_speed_max_rad_s":float(axis[-1]),
+                "runup_speed_min_rad_s":lo,"runup_speed_max_rad_s":hi,
+                "map_points":int(len(axis)),"map_interpolation":method_name,"native_abi":"rd_runup_coeffmap_legacy",
+            }
         n,z,sh,di,be=self._arrays(m);nd=4*n;fo=self._forces(m);aa=np.ascontiguousarray(alpha,dtype=np.float64);ts=np.asarray(tspan,dtype=float)
         if aa.shape!=(3,): raise ValueError("alpha must have exactly 3 coefficients [a2,a1,a0]")
         if ts.size!=2: raise ValueError("tspan must contain [t0,tf]")
