@@ -48,14 +48,6 @@ contains
     if(tf<t0.or.size(y0)<1.or.max_out<1.or.rtol<=0._rk.or.atol<=0._rk)then;status=RD_ERR_INPUT;return;endif
     allocate(y(size(y0)),yn(size(y0)));y=y0;t=t0;nout=1;tout(1)=t;yout(:,1)=y
     if(tf<=t0)return
-    ! max_out is an output-storage contract, not an integration-step limit.
-    ! The adaptive solver may require many more accepted full-order steps for
-    ! stiff physical-bearing maps. Sample accepted states onto a bounded,
-    ! deterministic time envelope while retaining every step in the numerical
-    ! integration itself.
-    sample_dt=(tf-t0)/real(max_out-1,rk)
-    next_sample=t0+sample_dt
-    store_tol=64._rk*epsilon(1._rk)*max(1._rk,abs(tf))
     h=initial_step(h_init,h_max,tf-t0);guard=0
     do while(t<tf)
       guard=guard+1;if(guard>10000000)then;status=RD_ERR_INPUT;return;endif
@@ -63,21 +55,8 @@ contains
       call step_runup(XK,XC,XC1,BFre,BFim,alpha,t,y,h,rtol,atol,yn,errn,accepted)
       if(accepted)then
         t=t+h;y=yn;naccept=naccept+1
-        if(t>=next_sample-store_tol .or. t>=tf-store_tol)then
-          if(nout<max_out)then
-            nout=nout+1;tout(nout)=t;yout(:,nout)=y
-          else
-            ! Rounding can place the terminal accepted step infinitesimally
-            ! beyond the nominal last sample. Preserve the terminal state
-            ! instead of converting output-buffer bookkeeping into solver
-            ! failure.
-            tout(max_out)=t;yout(:,max_out)=y
-          endif
-          do while(next_sample<=t+store_tol)
-            next_sample=next_sample+sample_dt
-          enddo
-        endif
-        fac=step_factor(errn,.true.);h=h*fac
+        if(nout>=max_out)then;status=RD_ERR_INPUT;return;endif
+        nout=nout+1;tout(nout)=t;yout(:,nout)=y;fac=step_factor(errn,.true.);h=h*fac
       else
         nreject=nreject+1;fac=step_factor(errn,.false.);h=h*fac
       endif
@@ -158,6 +137,12 @@ contains
     endif
     allocate(y(size(y0)),yn(size(y0)));y=y0;t=t0;nout=1;tout(1)=t;yout(:,1)=y
     if(tf<=t0)return
+    ! B18-specific output decimation: preserve every accepted internal DP45
+    ! step for integration, but store at most max_out representative states.
+    ! The historical dp45_runup_span above remains byte-for-byte unchanged.
+    sample_dt=(tf-t0)/real(max_out-1,rk)
+    next_sample=t0+sample_dt
+    store_tol=64._rk*epsilon(1._rk)*max(1._rk,abs(tf))
     h=initial_step(h_init,h_max,tf-t0);guard=0
     do while(t<tf)
       guard=guard+1;if(guard>10000000)then;status=RD_ERR_INPUT;return;endif
@@ -167,8 +152,17 @@ contains
       if(status/=RD_OK)return
       if(accepted)then
         t=t+h;y=yn;naccept=naccept+1
-        if(nout>=max_out)then;status=RD_ERR_INPUT;return;endif
-        nout=nout+1;tout(nout)=t;yout(:,nout)=y;fac=step_factor(errn,.true.);h=h*fac
+        if(t>=next_sample-store_tol .or. t>=tf-store_tol)then
+          if(nout<max_out)then
+            nout=nout+1;tout(nout)=t;yout(:,nout)=y
+          else
+            tout(max_out)=t;yout(:,max_out)=y
+          endif
+          do while(next_sample<=t+store_tol)
+            next_sample=next_sample+sample_dt
+          enddo
+        endif
+        fac=step_factor(errn,.true.);h=h*fac
       else
         nreject=nreject+1;fac=step_factor(errn,.false.);h=h*fac
       endif
