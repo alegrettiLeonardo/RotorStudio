@@ -27,3 +27,10 @@ class SolverFacade:
     def asymmetric_frequency_response(self,model,speeds_rad_s): return self.backend.asymmetric_frequency_response(model,speeds_rad_s)
     def foundation_time_response(self,model,rotor_speed_rad_s,dt,npts,**kwargs): return self.backend.foundation_time_response(model,rotor_speed_rad_s,dt,npts,**kwargs)
     def runup(self,model,alpha,tspan,**kwargs): return self.backend.runup(model,alpha,tspan,**kwargs)
+
+    def generate_bearing_operating_map(self,bearing,speed_rad_s,frequency_rad_s=None,**kwargs):
+        from .bearing_maps import generate_operating_map
+        return generate_operating_map(
+            bearing, speed_rad_s, frequency_rad_s,
+            backend=self.backend._bearing_provider(), **kwargs
+        )

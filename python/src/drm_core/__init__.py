@@ -21,3 +21,14 @@ from .importers import (
     parse_coefficient_table,
     parse_irdin_coefficient_table,
 )
+
+from .solver.bearing_maps import (
+    BearingOperatingMap,
+    BearingMapCache,
+    MapCacheResult,
+    BearingMapError,
+    BearingMapCancelled,
+    BearingMapCacheCorruption,
+    generate_operating_map,
+    canonical_bearing_hash,
+)
