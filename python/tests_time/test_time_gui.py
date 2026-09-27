@@ -30,3 +30,10 @@ def test_gui_inputs_and_import(app,tmp_path):
 
 def test_gui_worker_persistence_exports(app,tmp_path):
     assert run_general_time_gui_smoke(tmp_path)['status']=='PASS'
+
+
+def test_dfft_grid_classification_is_scale_invariant():
+    values=np.array([0.,1.,2.,3.])
+    for scale in (1e-15,1.,1e15):
+        assert dfft(scale*np.array([0.,1.,3.,6.]),values) is None
+        assert dfft(scale*np.arange(4),values) is not None

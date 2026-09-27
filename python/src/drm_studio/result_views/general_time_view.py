@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QLabel,QComboBox
 def dfft(time,values):
     """One-sided unwindowed amplitude spectrum; never resample a nonuniform grid."""
     t=np.asarray(time);v=np.asarray(values);dt=np.diff(t)
-    if len(t)<2 or np.any(dt<=0) or not np.allclose(dt,dt[0],rtol=1e-9,atol=1e-14):return None
+    if len(t)<2 or np.any(dt<=0) or not np.allclose(dt,dt[0],rtol=1e-9,atol=0.0):return None
     amplitude=abs(np.fft.rfft(v))/len(v);amplitude[1:]*=2
     if len(v)%2==0:amplitude[-1]/=2
     return np.fft.rfftfreq(len(v),dt[0]),amplitude
