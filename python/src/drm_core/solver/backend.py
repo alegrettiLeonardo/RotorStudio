@@ -10,6 +10,10 @@ class FortranBackend:
         self.library_path=library_path
         self.lib=configure(load_library(library_path))
         self._advanced_bearing_backend=None
+    def forced_response(self,model,frequency_rad_s,force_real,force_imag,speed=None):
+        from .forced_response_backend import execute
+        return execute(self,model,frequency_rad_s,force_real,force_imag,speed)
+
     def general_frf(self,model,frequencies,speed=None,free_free=False):
         from .general_frf_backend import execute
         return execute(self,model,frequencies,speed,free_free)

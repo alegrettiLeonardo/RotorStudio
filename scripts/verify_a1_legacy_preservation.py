@@ -14,5 +14,7 @@ for path in paths:
             assert n==1,'Missing or malformed additive ABI: '+symbol
     assert after==before,f'Promoted legacy source changed: {path}'
 extra=set(git('ls-files','--cached','--others','--exclude-standard','fortran/src','fortran/tests').decode().splitlines())-set(paths)
-assert extra=={'fortran/src/rd_dynamic_stiffness.f90','fortran/src/rd_frf_general.f90','fortran/tests/test_frf_general.f90'},extra
-print('PASS: legacy source and tests unchanged; A1 unchanged; only A2 modules/ABIs/test added')
+assert extra=={'fortran/src/rd_dynamic_stiffness.f90','fortran/src/rd_frf_general.f90','fortran/tests/test_frf_general.f90','fortran/src/rd_forced_response.f90','fortran/src/rd_forced_response_c_api.f90','fortran/tests/test_forced_response.f90'},extra
+print('PASS: legacy source and tests unchanged; A1 unchanged; only additive A2/A3 modules/ABIs/tests added')
+
+exec(Path("scripts/verify_a2_preservation.py").read_text())

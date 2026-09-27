@@ -48,6 +48,10 @@ jobs:
         run: |
           python validation/ross_parity/generate_frf_reference.py --ross-root _ross_authority --out _ross_frf_candidate
           python validation/ross_parity/verify_reference.py validation/ross_parity/frf --candidate _ross_frf_candidate
+      - name: Reproduce immutable 4-DOF A3 authorities
+        run: |
+          python validation/ross_parity/generate_forced_reference.py --ross-root _ross_authority --out _ross_forced_candidate
+          python validation/ross_parity/verify_reference.py validation/ross_parity/forced --candidate _ross_forced_candidate
       - uses: actions/upload-artifact@v4
         if: always()
         with:

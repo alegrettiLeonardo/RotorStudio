@@ -7,13 +7,14 @@ from .ffi import configure_general_frf,SolverLibraryError
 
 POLICIES={'synchronous':0,'fixed':1,'free_free':2}
 
-def prepare(backend,model,frequencies,speed=None,free_free=False):
+def prepare(backend,model,frequencies,speed=None,free_free=False,*,vector_response=False):
     configure_general_frf(backend.lib)
     f=np.ascontiguousarray(frequencies,dtype=np.float64)
     nn=len(model.nodes);nf=f.size;n=4*nn
     if f.ndim!=1 or nf<1 or nf>10000 or not np.isfinite(f).all() or np.any(f<0):
         raise ValueError('General FRF frequency axis: expected 1..10000 finite nonnegative rad/s values; supply a valid sweep.')
-    if nn<2 or nn>128 or 192*n*n*nf+160*n*n>512*1024**2:
+    budget=(320*n*nf if vector_response else 192*n*n*nf)+160*n*n
+    if nn<2 or nn>128 or budget>512*1024**2:
         raise ValueError('General FRF full matrices exceed the 512 MiB budget or 2..128 node range; reduce nodes/frequencies.')
     if [x.number for x in model.nodes]!=list(range(1,nn+1)) or len(model.shafts)!=nn-1:
         raise ValueError('General FRF requires an ordered consecutive one-based shaft chain.')

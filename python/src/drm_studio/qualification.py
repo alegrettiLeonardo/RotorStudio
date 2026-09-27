@@ -52,6 +52,8 @@ class PackagedQualification(QObject):
             self.static_smoke = run_static_gui_smoke(self.output_dir)
             from .general_frf_qualification import run_general_frf_gui_smoke
             self.general_frf_smoke = run_general_frf_gui_smoke(self.output_dir)
+            from .forced_response_qualification import run_forced_response_gui_smoke
+            self.forced_response_smoke = run_forced_response_gui_smoke(self.output_dir)
             # B13 qualification starts with the real PySide6 engineering
             # editor/command/persistence chain. Reading or editing these
             # entities does not run Reynolds/THD/TEHD.
@@ -268,6 +270,7 @@ class PackagedQualification(QObject):
                     "b15_b18_integrated": self.b15_b18_integrated_smoke,
                     "static_analysis": self.static_smoke,
                     "general_frf": self.general_frf_smoke,
+                    "forced_response": self.forced_response_smoke,
                     "native_fluidfilm_bearing": self.fluidfilm_smoke,
                     "saved_project": str(self.output_dir / "packaged_saved_project.rds"),
                     "screenshot": str(screenshot),
