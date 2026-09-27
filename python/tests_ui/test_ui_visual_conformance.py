@@ -63,9 +63,24 @@ def test_mockup_toolbar_and_workspace_structure(qtbot):
     assert isinstance(window.bearing_page, BearingPerformancePage)
     assert window.workspace.currentWidget() is window.bearing_page
     assert window.property_dock.windowTitle() == "Results - Bearing Performance"
-    assert window.bearing_page.lower_tabs.tabText(0) == "Dynamic Coefficients"
-    assert not window.bearing_page.lower_tabs.isTabEnabled(1)
-    assert not window.bearing_page.lower_tabs.isTabEnabled(2)
+    # B14 intentionally expanded Bearing Performance to a Summary-first
+    # engineering workspace followed by K/C and real native field tabs.
+    assert [window.bearing_page.lower_tabs.tabText(i) for i in range(8)] == [
+        "Summary",
+        "Dynamic Coefficients",
+        "Pressure",
+        "Temperature",
+        "Film Thickness",
+        "Deformation",
+        "Pads",
+        "Convergence",
+    ]
+    assert window.bearing_page.lower_tabs.isTabEnabled(0)
+    assert window.bearing_page.lower_tabs.isTabEnabled(1)
+    assert all(
+        not window.bearing_page.lower_tabs.isTabEnabled(index)
+        for index in range(2, 8)
+    )
 
 
 @pytest.mark.skipif(

@@ -1,0 +1,254 @@
+name: B13-B18 Integrated Product Qualification
+
+on:
+  push:
+    branches:
+      - qa/b13-b18-integrated-qualification-20260927
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: b13-b18-integrated-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-integrated:
+    name: Linux B13-B18 source + frozen integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+      DRMROTOR_LIB: ${{ github.workspace }}/build-integrated/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-integrated/libdrmbearings.so
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify promoted B18 ancestry
+        run: |
+          git merge-base --is-ancestor ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 HEAD
+          git rev-parse HEAD
+      - name: Install native and GUI dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: Install qualification dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test,studio,ui-test,package]'
+      - name: Build Release and native tests
+        run: |
+          cmake -S fortran -B build-integrated -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-integrated -j2
+          ctest --test-dir build-integrated --output-on-failure
+      - name: Stage 1 exactly 57
+        run: |
+          set -o pipefail
+          mkdir -p validation/reports/b13_b18_integrated/linux
+          collection="$(python -m pytest python/tests --collect-only -q)"
+          echo "$collection" | tee validation/reports/b13_b18_integrated/linux/stage1_collection.txt
+          echo "$collection" | grep -Eq '57 tests collected|57 collected'
+          python -m pytest python/tests -q | tee validation/reports/b13_b18_integrated/linux/stage1.txt
+      - name: B13-B18 source qualification matrix
+        run: |
+          set -o pipefail
+          python -m pytest             python/tests_bearings/test_b13_advanced_bearing_crud.py             python/tests_ui/test_ui_b13_advanced_bearing_crud.py             python/tests_bearings/test_b14_async_fields.py             python/tests_ui/test_ui_b14_async_fields.py             python/tests_bearings/test_b15_irdin_coefficient_import.py             python/tests_ui/test_core_irdin_import.py             python/tests_bearings/test_b16_operating_map_cache.py             python/tests_ui/test_ui_b16_operating_map.py             python/tests_bearings/test_b17_matched_whirl.py             python/tests_ui/test_ui_b17_matched_whirl.py             python/tests_bearings/test_b18_synchronous_runup.py             python/tests_ui/test_ui_b18_synchronous_runup.py             python/tests_bearings/test_b13_b18_integrated_chain.py             -q -s | tee validation/reports/b13_b18_integrated/linux/source_matrix.txt
+      - name: B12 regression
+        run: |
+          set -o pipefail
+          python -m pytest             python/tests_bearings/test_advanced_bearings.py             python/tests_bearings/test_advanced_bearings_parity.py             -q | tee validation/reports/b13_b18_integrated/linux/b12_regression.txt
+      - name: Checkout frozen ROSS authority
+        uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross_integrated
+          fetch-depth: 1
+      - name: Install frozen ROSS authority
+        run: python -m pip install -e ./_ross_integrated
+      - name: Re-run B17 frozen ROSS comparison
+        run: |
+          set -o pipefail
+          python scripts/qualify_b17_ross.py --ross-root ./_ross_integrated | tee validation/reports/b13_b18_integrated/linux/ross_b17.txt
+      - name: Build Linux frozen application
+        run: |
+          ID="$(git rev-parse --short=12 HEAD)"
+          python scripts/package_stage2.py             --solver "$DRMROTOR_LIB"             --bearing-solver "$DRMBEARINGS_LIB"             --dist-dir dist/integrated             --work-dir build-integrated-pyinstaller             --id "$ID"
+      - name: Linux clean frozen B13-B18 smoke
+        run: |
+          ZIP="$(ls dist/integrated/RotorDynamicsStudio-linux-*.zip | head -1)"
+          CLEAN="$RUNNER_TEMP/rotorstudio-integrated-linux-clean"
+          SMOKE="$RUNNER_TEMP/rotorstudio-integrated-linux-smoke"
+          rm -rf "$CLEAN" "$SMOKE"
+          mkdir -p "$CLEAN" "$SMOKE"
+          unzip -q "$ZIP" -d "$CLEAN"
+          cd "$CLEAN"
+          unset PYTHONPATH DRMROTOR_LIB DRMROTOR_DLL_DIRS DRMBEARINGS_LIB DRMBEARINGS_DLL_DIRS
+          set +e
+          ./RotorDynamicsStudio/RotorDynamicsStudio --qualification-smoke "$SMOKE"
+          RC=$?
+          if [ -f "$SMOKE/PACKAGED_SMOKE.json" ]; then cat "$SMOKE/PACKAGED_SMOKE.json"; fi
+          set -e
+          test "$RC" -eq 0
+          python - <<PY
+          import json, pathlib
+          p=pathlib.Path(r"$SMOKE/PACKAGED_SMOKE.json")
+          d=json.loads(p.read_text())
+          assert d["status"]=="PASS", d
+          assert d["b13_advanced_bearing_crud"]["status"]=="PASS", d
+          assert d["b14_async_fields"]["status"]=="PASS", d
+          chain=d["b15_b18_integrated"]
+          assert chain["status"]=="PASS", chain
+          assert chain["b16"]["warm_source"]=="L1", chain
+          assert chain["b17"]["all_converged"] is True, chain
+          assert chain["b18"]["native_abi"]=="rd_runup_coeffmap_legacy", chain
+          print(json.dumps(chain,indent=2,sort_keys=True))
+          PY
+          mkdir -p "$GITHUB_WORKSPACE/validation/reports/b13_b18_integrated/linux/frozen"
+          cp -r "$SMOKE"/* "$GITHUB_WORKSPACE/validation/reports/b13_b18_integrated/linux/frozen/"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b13-b18-integrated-linux-${{ github.sha }}
+          path: |
+            validation/reports/b13_b18_integrated/linux/
+            dist/integrated/
+          if-no-files-found: error
+          retention-days: 90
+
+  windows-integrated:
+    name: Windows B13-B18 source + frozen integration
+    runs-on: windows-2025
+    timeout-minutes: 150
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify promoted B18 ancestry
+        shell: pwsh
+        run: |
+          git merge-base --is-ancestor ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 HEAD
+          if ($LASTEXITCODE -ne 0) { throw "B18 promoted ancestry missing" }
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc-fortran
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-openblas
+      - name: Record UCRT64 runtime
+        shell: msys2 {0}
+        run: echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: python/pyproject.toml
+      - name: Install qualification dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e './python[test,studio,ui-test,package]'
+      - name: Build Release and native tests
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-integrated -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-integrated --parallel
+          ctest --test-dir build-integrated --output-on-failure
+      - name: Locate native DLLs
+        shell: pwsh
+        run: |
+          $rotor=Get-ChildItem ./build-integrated -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear=Get-ChildItem ./build-integrated -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          if (-not $rotor -or -not $bear) { throw "native DLL missing" }
+          $root=(Get-Location).Path
+          "DRMROTOR_LIB=$($rotor.FullName)" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_LIB=$($bear.FullName)" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMROTOR_DLL_DIRS=$env:UCRT64_BIN" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "DRMBEARINGS_DLL_DIRS=$env:UCRT64_BIN" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+          "PYTHONPATH=$root/python/src;$root" | Out-File $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Stage 1 and B13-B18 source matrix
+        shell: pwsh
+        run: |
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          New-Item -ItemType Directory -Force validation/reports/b13_b18_integrated/windows | Out-Null
+          $collection=python -m pytest python/tests --collect-only -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $collection | Tee-Object validation/reports/b13_b18_integrated/windows/stage1_collection.txt
+          if (-not ($collection -match '57 tests collected|57 collected')) { throw "Stage 1 collection is not 57" }
+          python -m pytest python/tests -q | Tee-Object validation/reports/b13_b18_integrated/windows/stage1.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest python/tests_bearings/test_b13_advanced_bearing_crud.py python/tests_ui/test_ui_b13_advanced_bearing_crud.py python/tests_bearings/test_b14_async_fields.py python/tests_ui/test_ui_b14_async_fields.py python/tests_bearings/test_b15_irdin_coefficient_import.py python/tests_ui/test_core_irdin_import.py python/tests_bearings/test_b16_operating_map_cache.py python/tests_ui/test_ui_b16_operating_map.py python/tests_bearings/test_b17_matched_whirl.py python/tests_ui/test_ui_b17_matched_whirl.py python/tests_bearings/test_b18_synchronous_runup.py python/tests_ui/test_ui_b18_synchronous_runup.py python/tests_bearings/test_b13_b18_integrated_chain.py -q -s | Tee-Object validation/reports/b13_b18_integrated/windows/source_matrix.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest python/tests_bearings/test_advanced_bearings.py python/tests_bearings/test_advanced_bearings_parity.py -q | Tee-Object validation/reports/b13_b18_integrated/windows/b12_regression.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build Windows frozen application
+        shell: pwsh
+        run: |
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          $id=$env:GITHUB_SHA.Substring(0,12)
+          python scripts/package_stage2.py --solver "$env:DRMROTOR_LIB" --bearing-solver "$env:DRMBEARINGS_LIB" --dist-dir dist/integrated --work-dir build-integrated-pyinstaller --id "$id"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Windows clean frozen B13-B18 smoke
+        shell: pwsh
+        run: |
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          $zip=Get-ChildItem dist/integrated/RotorDynamicsStudio-win32-*.zip | Select-Object -First 1
+          if (-not $zip) { throw "Windows integrated package not found" }
+          $clean=Join-Path $env:RUNNER_TEMP "rotorstudio-integrated-windows-clean"
+          $smoke=Join-Path $env:RUNNER_TEMP "rotorstudio-integrated-windows-smoke"
+          Remove-Item $clean,$smoke -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $clean,$smoke | Out-Null
+          Expand-Archive -Path $zip.FullName -DestinationPath $clean
+          Remove-Item Env:PYTHONPATH,Env:DRMROTOR_LIB,Env:DRMROTOR_DLL_DIRS,Env:DRMBEARINGS_LIB,Env:DRMBEARINGS_DLL_DIRS -ErrorAction SilentlyContinue
+          $exe=Join-Path $clean "RotorDynamicsStudio/RotorDynamicsStudio.exe"
+          $proc=Start-Process -FilePath $exe -ArgumentList @("--qualification-smoke",$smoke) -Wait -PassThru
+          $smokeJson=Join-Path $smoke "PACKAGED_SMOKE.json"
+          if (Test-Path $smokeJson) { Get-Content $smokeJson }
+          if ($proc.ExitCode -ne 0) { throw "integrated frozen smoke exit code $($proc.ExitCode)" }
+          $d=Get-Content $smokeJson | ConvertFrom-Json
+          if ($d.status -ne "PASS") { throw "integrated packaged smoke failed" }
+          if ($d.b13_advanced_bearing_crud.status -ne "PASS") { throw "B13 packaged smoke failed" }
+          if ($d.b14_async_fields.status -ne "PASS") { throw "B14 packaged smoke failed" }
+          if ($d.b15_b18_integrated.status -ne "PASS") { throw "B15-B18 integrated packaged smoke failed" }
+          if ($d.b15_b18_integrated.b18.native_abi -ne "rd_runup_coeffmap_legacy") { throw "B18 packaged ABI mismatch" }
+          Copy-Item $smoke validation/reports/b13_b18_integrated/windows/frozen -Recurse
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b13-b18-integrated-windows-${{ github.sha }}
+          path: |
+            validation/reports/b13_b18_integrated/windows/
+            dist/integrated/
+          if-no-files-found: error
+          retention-days: 90
+
+  integrated-gate:
+    name: B13-B18 integrated aggregate gate
+    needs: [linux-integrated, windows-integrated]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require Linux and Windows
+        env:
+          LINUX_RESULT: ${{ needs.linux-integrated.result }}
+          WINDOWS_RESULT: ${{ needs.windows-integrated.result }}
+        run: |
+          test "$LINUX_RESULT" = "success"
+          test "$WINDOWS_RESULT" = "success"
+      - name: Final integrated label
+        run: |
+          echo "B13_B18_INTEGRATED_PRODUCT_QUALIFICATION = PASS"
+          echo "HEAD = $GITHUB_SHA"

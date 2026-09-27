@@ -44,20 +44,20 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e './python[test,studio,ui-test]'
 
-      - name: Assert legacy Fortran core remains frozen
+      - name: Assert promoted B18 Fortran core remains frozen
         run: |
           mkdir -p validation/reports/dyrobes_sketch
           {
-            echo "DyRoBeS legacy freeze baseline: 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7"
-            echo "Exception: fortran/bearings/** and the libdrmbearings CMake target are intentionally outside this legacy gate."
+            echo "DyRoBeS promoted B18 freeze baseline: ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111"
+            echo "The freeze baseline already contains the qualified B12-B18 rotor-core changes; fortran/bearings/** remains qualified by the dedicated bearing workflows."
             echo
-            echo "Legacy fortran/src diff:"
-            git diff --stat 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7 -- fortran/src
+            echo "Post-B18 fortran/src diff:"
+            git diff --stat ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src
             echo
-            echo "Legacy fortran/tests diff:"
-            git diff --stat 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7 -- fortran/tests
+            echo "Post-B18 fortran/tests diff:"
+            git diff --stat ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/tests
           } | tee validation/reports/dyrobes_sketch/fortran_diff.txt
-          test -z "$(git diff --name-only 9f9f6616fb5bfac8894235ae27d4e58fe97e23e7 -- fortran/src fortran/tests)"
+          test -z "$(git diff --name-only ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests)"
 
       - name: Build qualified Fortran core
         run: |
@@ -100,7 +100,7 @@ jobs:
               "status": "PASS",
               "head_sha": os.environ["GITHUB_SHA"],
               "stage1": "57/57 PASS",
-              "fortran_diff": "LEGACY_CORE_ZERO; fortran/bearings exception documented",
+              "fortran_diff": "POST_B18_ROTOR_CORE_ZERO; fortran/bearings qualified separately",
               "real_fixture": "EST-12735185-CRYOSTAR_V2.txt",
               "sketch_style": "DyRoBeS reference",
               "numerical_status": "BLOCKED_FOR_NUMERICAL_ANALYSIS by design",

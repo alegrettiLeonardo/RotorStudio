@@ -36,6 +36,7 @@ class PackagedQualification(QObject):
         self.fluidfilm_smoke = None
         self.b13_crud_smoke = None
         self.b14_field_smoke = None
+        self.b15_b18_integrated_smoke = None
         self._connect_window(window)
 
     def _connect_window(self, window):
@@ -61,6 +62,14 @@ class PackagedQualification(QObject):
             from .b14_qualification import run_b14_frozen_field_smoke
             self.b14_field_smoke = run_b14_frozen_field_smoke(
                 self.window, self.output_dir
+            )
+
+            # Final B13-B18 chain smoke: real Cryostar iRdin import -> B16
+            # synchronous map/cache -> B17 matched-whirl -> native B18 run-up.
+            # This runs inside the same clean frozen process as B13/B14.
+            from .b13_b18_qualification import run_b15_b18_integrated_smoke
+            self.b15_b18_integrated_smoke = run_b15_b18_integrated_smoke(
+                self.output_dir
             )
 
             # Prove that the separately packaged advanced-bearing library can
@@ -235,6 +244,10 @@ class PackagedQualification(QObject):
                         "open packaged example",
                         "B13 advanced-bearing GUI CRUD + save/reopen",
                         "B14 asynchronous native bearing fields + visualization",
+                        "B15 real iRdin coefficient-table import",
+                        "B16 synchronous operating map + warm cache",
+                        "B17 matched-whirl on the B16 map",
+                        "B18 native synchronous full-order run-up",
                         "native advanced-bearing load/oracle",
                         "real modal",
                         "real Campbell",
@@ -248,6 +261,7 @@ class PackagedQualification(QObject):
                     "advanced_bearing": self.bearing_smoke,
                     "b13_advanced_bearing_crud": self.b13_crud_smoke,
                     "b14_async_fields": self.b14_field_smoke,
+                    "b15_b18_integrated": self.b15_b18_integrated_smoke,
                     "native_fluidfilm_bearing": self.fluidfilm_smoke,
                     "saved_project": str(self.output_dir / "packaged_saved_project.rds"),
                     "screenshot": str(screenshot),

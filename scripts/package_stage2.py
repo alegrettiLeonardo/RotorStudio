@@ -145,6 +145,7 @@ def main():
         "--collect-all", "qtawesome",
         "--add-binary", f"{solver}{os.pathsep}.",
         "--add-data", f"{smoke}{os.pathsep}examples",
+        "--add-data", f"{ROOT / 'examples' / 'legacy' / 'EST-12735185-CRYOSTAR_V2.txt'}{os.pathsep}examples",
     ]
     if bearing_solver is not None:
         pyinstaller.extend(["--add-binary", f"{bearing_solver}{os.pathsep}."])
