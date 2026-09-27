@@ -234,17 +234,42 @@ class FortranBackend:
         if status: raise SolverLibraryError(f"Fortran rd_crit_spd_legacy_ex returned status={status}")
         return (out,it,cv.astype(bool)) if return_diagnostics else out
     def coaxial_modal(self,m:RotorModel,speed_rad_s:float):
-        if m.advanced_bearings: raise SolverLibraryError("advanced bearings are not yet qualified for coaxial rotor assembly")
-        n,z,sh,di,be=self._arrays(m,"coaxial");ro=self._rotors(m);nd=4*n;nout=2*(nd-self._nzero(m));er=np.empty(nout);ei=np.empty(nout);vr=np.empty((nd,nout),order='F');vi=np.empty_like(vr,order='F')
+        # B20 keeps the Rotor_Software_v2 coaxial convention: speed-dependent
+        # bearings are evaluated at the reference/base rotor speed. Individual
+        # rotor speed factors remain solely in the coaxial gyro/excitation
+        # equations inside rd_coaxial_solver.
+        n,z,sh,di,be=self._arrays(
+            m,"coaxial",speed_rad_s=float(speed_rad_s),frequency_rad_s=float(speed_rad_s)
+        );ro=self._rotors(m);nd=4*n;nout=2*(nd-self._nzero(m));er=np.empty(nout);ei=np.empty(nout);vr=np.empty((nd,nout),order='F');vi=np.empty_like(vr,order='F')
         status=self.lib.rd_coax_modal_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),ro.shape[1],self._ptr(ro),float(speed_rad_s),nout,self._ptr(er),self._ptr(ei),self._ptr(vr),self._ptr(vi))
         if status: raise SolverLibraryError(f"Fortran rd_coax_modal_legacy returned status={status}")
         return er+1j*ei,vr+1j*vi
     def coaxial_frequency_response(self,m:RotorModel,speeds_rad_s):
-        if m.advanced_bearings: raise SolverLibraryError("advanced bearings are not yet qualified for coaxial rotor assembly")
-        n,z,sh,di,be=self._arrays(m,"coaxial");ro=self._rotors(m);fo=self._forces(m);sp=np.ascontiguousarray(speeds_rad_s,dtype=np.float64);nd=4*n;rr=np.empty((nd,len(sp)),order='F');ri=np.empty_like(rr,order='F')
-        status=self.lib.rd_coax_freq_rsp_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),ro.shape[1],self._ptr(ro),fo.shape[1],self._ptr(fo),len(sp),self._ptr(sp),self._ptr(rr),self._ptr(ri))
-        if status: raise SolverLibraryError(f"Fortran rd_coax_freq_rsp_legacy returned status={status}")
-        return rr+1j*ri
+        sp=np.ascontiguousarray(speeds_rad_s,dtype=np.float64);ro=self._rotors(m);fo=self._forces(m);nd=4*len(m.nodes)
+        if not m.advanced_bearings:
+            n,z,sh,di,be=self._arrays(m,"coaxial");rr=np.empty((nd,len(sp)),order='F');ri=np.empty_like(rr,order='F')
+            status=self.lib.rd_coax_freq_rsp_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),ro.shape[1],self._ptr(ro),fo.shape[1],self._ptr(fo),len(sp),self._ptr(sp),self._ptr(rr),self._ptr(ri))
+            if status: raise SolverLibraryError(f"Fortran rd_coax_freq_rsp_legacy returned status={status}")
+            return rr+1j*ri
+        response=np.empty((nd,len(sp)),dtype=np.complex128)
+        for j,speed in enumerate(sp):
+            n,z,sh,di,be=self._arrays(
+                m,"coaxial",speed_rad_s=float(speed),frequency_rad_s=float(speed)
+            )
+            one=np.ascontiguousarray([speed],dtype=np.float64)
+            rr=np.empty((nd,1),order='F');ri=np.empty_like(rr,order='F')
+            status=self.lib.rd_coax_freq_rsp_legacy(
+                n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),
+                be.shape[1],self._ptr(be),ro.shape[1],self._ptr(ro),fo.shape[1],
+                self._ptr(fo),1,self._ptr(one),self._ptr(rr),self._ptr(ri)
+            )
+            if status:
+                raise SolverLibraryError(
+                    f"Fortran rd_coax_freq_rsp_legacy returned status={status} "
+                    f"at reference speed={speed}"
+                )
+            response[:,j]=rr[:,0]+1j*ri[:,0]
+        return response
     def asymmetric_assemble(self,m:RotorModel):
         n,z,sh,di,_=self._arrays(m,"rotating");nd=4*n;outs=[np.empty((nd,nd),order='F') for _ in range(6)]
         status=self.lib.rd_asym_assemble_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),*(self._ptr(x) for x in outs))

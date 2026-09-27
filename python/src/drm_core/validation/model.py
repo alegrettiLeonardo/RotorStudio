@@ -28,7 +28,7 @@ def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
     for i,d in enumerate(m.disks,1):
         if d.node not in z: raise ModelValidationError(f"Disk[{i}]: received node={d.node}; expected existing node; correct node")
         if d.disk_type not in allowed_disks: raise ModelValidationError(f"Disk[{i}]: received type={d.disk_type}; expected {sorted(allowed_disks)} for {analysis} analysis")
-    allowed_bear={1,2,3,4} if analysis=="rotating" else ({1,2,3,4,5,6,7,8,20} if analysis=="coaxial" else {1,2,3,4,5,6,7,8,9})
+    allowed_bear={1,2,3,4} if analysis=="rotating" else ({1,2,3,4,5,6,7,8,9,20} if analysis=="coaxial" else {1,2,3,4,5,6,7,8,9})
     for i,b in enumerate(m.bearings,1):
         if b.node not in z: raise ModelValidationError(f"Bearing[{i}]: received node={b.node}; expected existing node; correct node")
         if b.bearing_type not in allowed_bear: raise ModelValidationError(f"Bearing[{i}]: received type={b.bearing_type}; expected {sorted(allowed_bear)} for {analysis} analysis")
@@ -42,10 +42,10 @@ def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
         if b.node not in z: raise ModelValidationError(f"AdvancedBearing[{i}]: received node={b.node}; expected existing node; correct node")
         try: validate_advanced_bearing(b)
         except ValueError as exc: raise ModelValidationError(f"AdvancedBearing[{i}] {type(b).__name__}: {exc}") from exc
-    if m.advanced_bearings and analysis in {"rotating","coaxial"}:
+    if m.advanced_bearings and analysis=="rotating":
         raise ModelValidationError(
-            f"advanced ROSS-derived bearings are not yet qualified for {analysis} assembly; "
-            "use stationary-frame modal/FRF/critical-speed analyses or the legacy bearing path"
+            "advanced ROSS-derived bearings are not yet qualified for rotating assembly; "
+            "use stationary/coaxial analyses or the legacy rotating-bearing path"
         )
     if analysis=="coaxial":
         if not m.rotors: raise ModelValidationError("RotorModel.rotors: received empty list; coaxial analysis requires RotorDefinition rows")
