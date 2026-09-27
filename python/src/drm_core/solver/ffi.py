@@ -120,3 +120,18 @@ def configure(lib):
     ]
     lib.rd_runup_coeffmap_legacy.restype=ct.c_int
     return lib
+
+
+def configure_static(lib):
+    """Additive ABI: old libraries remain usable for legacy analyses only."""
+    try:
+        fn=lib.rd_static_v1
+    except AttributeError as exc:
+        raise SolverLibraryError(
+            'Static: native rd_static_v1 is unavailable; expected an A1-capable drmrotor library. '
+            'Rebuild/install the qualified native library; no Python fallback is available.'
+        ) from exc
+    dptr=ct.POINTER(ct.c_double)
+    fn.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr]+[dptr]*8
+    fn.restype=ct.c_int
+    return fn

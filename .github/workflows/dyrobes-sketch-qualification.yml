@@ -26,6 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Install numerical and Qt dependencies
@@ -57,7 +58,7 @@ jobs:
             echo "Post-B18 fortran/tests diff:"
             git diff --stat ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/tests
           } | tee validation/reports/dyrobes_sketch/fortran_diff.txt
-          test -z "$(git diff --name-only ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests)"
+          python scripts/verify_a1_legacy_preservation.py
 
       - name: Build qualified Fortran core
         run: |

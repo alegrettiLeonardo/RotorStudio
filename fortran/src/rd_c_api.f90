@@ -1,5 +1,6 @@
 module rd_c_api
  use, intrinsic::iso_c_binding, only:c_int,c_double
+ use rd_static, only: static_solve
  use rd_kinds,only:rk,ik
  use rd_status,only:RD_OK,RD_ERR_INPUT,RD_ERR_UNSUPPORTED
  use rd_assembly_stationary,only:assemble_rotor,assemble_bearings
@@ -19,7 +20,18 @@ module rd_c_api
  public::rd_freq_aux_legacy,rd_freq_fdn_legacy,rd_time_fdn_legacy,rd_runup_legacy,rd_runup_coeffmap_legacy
  public::rd_element_circular_legacy,rd_element_tapered_legacy,rd_element_asymmetric_legacy
  public::rd_coax_modal_legacy,rd_coax_freq_rsp_legacy,rd_asym_assemble_legacy,rd_bearasym_legacy,rd_asym_modal_legacy,rd_asym_freq_rsp_legacy,rd_version
+ public :: rd_static_v1
 contains
+ integer(c_int) function rd_static_v1(nn,z,ns,shaft,nd,disk,nb,bearing,q,reaction,sw,dw,shear,bending,station,diagnostics) bind(C,name='rd_static_v1')
+   integer(c_int),value::nn,ns,nd,nb
+   real(c_double),intent(in)::z(nn),shaft(11,ns),disk(6,nd),bearing(34,nb)
+   real(c_double),intent(out)::q(4*nn),reaction(nn),sw(ns),dw(nd),shear(2*ns),bending(2*ns),station(2*ns),diagnostics(3)
+   if(nn<2.or.ns/=nn-1.or.nd<0.or.nb<1)then
+     rd_static_v1=RD_ERR_INPUT;return
+   endif
+   call static_solve(nn,z,ns,shaft,nd,disk,nb,bearing,q,reaction,sw,dw,shear,bending,station,diagnostics,rd_static_v1)
+ end function
+
  integer(c_int) function rd_version(major,minor,patch) bind(C,name='rd_version')
    integer(c_int),intent(out)::major,minor,patch;major=0;minor=5;patch=0;rd_version=0
  end function

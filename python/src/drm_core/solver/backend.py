@@ -10,6 +10,33 @@ class FortranBackend:
         self.library_path=library_path
         self.lib=configure(load_library(library_path))
         self._advanced_bearing_backend=None
+    def static(self,model):
+        from .ffi import configure_static
+        from drm_core.domain.model import ShaftElement
+        fn=configure_static(self.lib)
+        if model.rotors or model.advanced_bearings or model.bend:
+            raise SolverLibraryError("Static received coaxial/advanced-bearing/pre-bend data; expected a single circular shaft with legacy radial supports. Use the declared A1 scope; linked and advanced support semantics are not qualified.")
+        if not 2<=len(model.nodes)<=1000 or [n.number for n in model.nodes]!=list(range(1,len(model.nodes)+1)):
+            raise SolverLibraryError("Static nodes: expected 2..1000 consecutive one-based nodes in increasing axial order; renumber/reorder the model.")
+        if len(model.shafts)!=len(model.nodes)-1 or any(not isinstance(s,ShaftElement) or (s.node1,s.node2)!=(i+1,i+2) or s.axial_force_n!=0 or s.torque_nm!=0 for i,s in enumerate(model.shafts)):
+            raise SolverLibraryError("Static shaft: expected an ordered circular element chain (types 1..8), zero axial preload and torque; tapered/asymmetric/branched/preloaded shafts are outside A1 scope.")
+        n,z,sh,di,be=self._arrays(model)
+        if not all(np.isfinite(a).all() for a in (z,sh,di,be)):
+            raise SolverLibraryError("Static input contains NaN/Inf; expected finite SI geometry, material, mass and support values. Correct the input before solving.")
+        outputs=[np.zeros(size,dtype=np.float64) for size in (4*n,n,sh.shape[1],di.shape[1],2*sh.shape[1],2*sh.shape[1],2*sh.shape[1],3)]
+        status=fn(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),*(self._ptr(a) for a in outputs))
+        if status:
+            reason={10:"invalid geometry/mass or no non-seal support",20:"unsupported topology or element",30:"singular system or numerical solve failure"}.get(status,"native failure")
+            raise SolverLibraryError(f"Static rd_static_v1 returned status={status}: {reason}. Expected a connected shaft and at least two distinct non-seal radial supports; correct supports/inputs and retry.")
+        if not all(np.isfinite(a).all() for a in outputs):
+            raise SolverLibraryError("Static native output is nonfinite; analysis rejected.")
+        version=[ct.c_int() for _ in range(3)]
+        self.lib.rd_version.argtypes=[ct.POINTER(ct.c_int)]*3
+        self.lib.rd_version.restype=ct.c_int
+        if self.lib.rd_version(*(ct.byref(v) for v in version)):
+            raise SolverLibraryError("Cannot read native solver version")
+        return (*outputs,'.'.join(str(v.value) for v in version))
+
     def _bearing_provider(self):
         if self._advanced_bearing_backend is None:
             from .bearings_backend import AdvancedBearingBackend

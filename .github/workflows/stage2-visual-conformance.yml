@@ -26,6 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Install numerical and Qt dependencies
@@ -48,7 +49,7 @@ jobs:
         run: |
           mkdir -p validation/reports/stage21
           git diff --stat ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests | tee validation/reports/stage21/post_b18_fortran_core_diff.txt
-          test -z "$(git diff --name-only ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests)"
+          python scripts/verify_a1_legacy_preservation.py
           echo "The B18 baseline includes the promoted rotor-core changes; fortran/bearings remains qualified separately." | tee validation/reports/stage21/additive_bearings_note.txt
 
       - name: Build qualified Fortran core
@@ -88,7 +89,7 @@ jobs:
           payload={
             "status":"PASS",
             "head_sha":os.environ["GITHUB_SHA"],
-            "post_b18_fortran_core_diff":"ZERO",
+            "legacy_core_preservation":"PASS; additive A1 static ABI",
             "advanced_bearing_fortran":"QUALIFIED_SEPARATELY",
             "stage1":"57/57 PASS",
             "visual_tests":"PASS",

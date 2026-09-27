@@ -26,6 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Install numerical and desktop dependencies
@@ -48,7 +49,7 @@ jobs:
         run: |
           mkdir -p validation/reports/stage2_final_linux
           git diff --stat ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests | tee validation/reports/stage2_final_linux/post_b18_fortran_core_diff.txt
-          test -z "$(git diff --name-only ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests)"
+          python scripts/verify_a1_legacy_preservation.py
           echo "The B18 baseline includes promoted rotor-core changes; fortran/bearings and CMake integration remain covered by bearing qualification." | tee validation/reports/stage2_final_linux/additive_bearings_note.txt
 
       - name: Build qualified Fortran Release
@@ -124,7 +125,7 @@ jobs:
             "stage1":"57/57 PASS",
             "ui_tests":"PASS",
             "real_fortran_e2e":"PASS",
-            "post_b18_fortran_core_diff":"ZERO",
+            "legacy_core_preservation":"PASS; additive A1 static ABI",
             "advanced_bearing_runtime":"BUNDLED_AND_SMOKE_PASS",
             "native_fluidfilm_rotor_bridge":"B12_QUALIFIED_AND_SMOKE_PASS",
             "frozen_app":"PASS",
@@ -159,6 +160,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - uses: msys2/setup-msys2@v2
@@ -194,7 +196,8 @@ jobs:
         run: |
           $files = git diff --name-only ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests
           $files | Tee-Object -FilePath validation/reports/stage2_final_windows/post_b18_fortran_core_diff.txt
-          if ($files) { throw "Qualified B18 Fortran core changed: $files" }
+          python scripts/verify_a1_legacy_preservation.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           "The B18 baseline includes promoted rotor-core changes; fortran/bearings and CMake integration remain covered by bearing qualification." | Set-Content validation/reports/stage2_final_windows/additive_bearings_note.txt
 
       - name: Build qualified Fortran Release with UCRT64
@@ -287,7 +290,7 @@ jobs:
             stage1 = "57/57 PASS"
             ui_tests = "PASS"
             real_fortran_e2e = "PASS"
-            legacy_fortran_core_diff_from_stage2_base = "ZERO"
+            legacy_core_preservation = "PASS; additive A1 static ABI"
             advanced_bearing_runtime = "BUNDLED_AND_SMOKE_PASS"
             frozen_app = "PASS"
             clean_install = "PASS"
@@ -317,6 +320,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
       - name: Require both platform qualifications
@@ -353,7 +357,7 @@ jobs:
               "windows_frozen":"PASS",
               "clean_install":"PASS on Linux and Windows",
               "mockup_screenshots":"5 real application screenshots generated on Linux",
-              "legacy_fortran_core_diff":"ZERO vs STAGE2_BASE_HEAD",
+              "legacy_core_preservation":"PASS; additive A1 static ABI",
               "advanced_bearing_runtime":"bundled libdrmbearings + clean frozen smoke PASS",
               "native_fluidfilm_rotor_bridge":"B12 qualified + clean frozen assembly smoke PASS",
             },

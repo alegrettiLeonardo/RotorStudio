@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
+import json
+from drm_core.analysis.static import StaticResult
 
 from drm_core import (
     ModalResult, CriticalSpeedResult, FrequencyResponseResult, TransientResult,
@@ -32,6 +34,13 @@ def _complex_response_rows(axis, response):
 def record_data_table(record):
     """Map qualified result objects to explicit numeric columns without recalculating physics."""
     result = record.execution.result
+    if isinstance(result, StaticResult):
+        rows=[];r=result;nan=float('nan')
+        for i,x in enumerate(r.node_positions):rows.append([1,i+1,x,r.displacement_y[i],r.reactions[i],nan,nan,nan])
+        for i,x in enumerate(r.station_positions):rows.append([2,i+1,x,nan,nan,r.shear[i],r.bending_moment[i],nan])
+        for i,w in enumerate(r.shaft_weights):rows.append([3,i+1,(r.node_positions[i]+r.node_positions[i+1])/2,nan,nan,nan,nan,w])
+        for i,w in enumerate(r.disk_loads):rows.append([4,i+1,r.node_positions[r.disk_nodes[i]-1],nan,nan,nan,nan,w])
+        return ['entity','index','position_m','displacement_y_m','reaction_N','shear_N','bending_Nm','weight_N'],np.asarray(rows)
     if isinstance(result, ModalResult):
         eig = np.asarray(result.eigenvalues)
         data = np.column_stack([
@@ -125,6 +134,10 @@ def export_record_csv(record, path):
 
 
 def export_record_native(record, path):
+    if isinstance(record.execution.result, StaticResult):
+        r=record.execution.result
+        arrays={key:value for key,value in vars(r).items() if isinstance(value,np.ndarray)}
+        return export_npz(path,**arrays,metadata_json=np.asarray(json.dumps(r.metadata,sort_keys=True)),analysis_hash=np.asarray(record.execution.analysis_hash),build_metadata_json=np.asarray(json.dumps(record.execution.build_metadata,sort_keys=True)))
     header, data = record_data_table(record)
     return export_npz(
         path,
