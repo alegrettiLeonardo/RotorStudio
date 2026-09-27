@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - qa/b13-b18-integrated-qualification-20260927
+      - qa/post-b18-release-hardening-20260927
+      - main
   pull_request:
     branches:
       - main
