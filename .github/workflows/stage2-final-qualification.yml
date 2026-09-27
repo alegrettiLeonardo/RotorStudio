@@ -44,12 +44,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e './python[test,studio,ui-test,package]'
 
-      - name: UI1 verify qualified B18 Fortran core is unchanged
+      - name: UI1 verify qualified B19 Fortran core is unchanged
         run: |
           mkdir -p validation/reports/stage2_final_linux
-          git diff --stat ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests | tee validation/reports/stage2_final_linux/post_b18_fortran_core_diff.txt
-          test -z "$(git diff --name-only ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests)"
-          echo "The B18 baseline includes promoted rotor-core changes; fortran/bearings and CMake integration remain covered by bearing qualification." | tee validation/reports/stage2_final_linux/additive_bearings_note.txt
+          git diff --stat c5cb86ab03b73a18ee5ea4c410231fc635e39d55 -- fortran/src fortran/tests | tee validation/reports/stage2_final_linux/post_b19_fortran_core_diff.txt
+          test -z "$(git diff --name-only c5cb86ab03b73a18ee5ea4c410231fc635e39d55 -- fortran/src fortran/tests)"
+          echo "The B19 baseline includes promoted rotor-core changes; fortran/bearings and CMake integration remain covered by bearing qualification." | tee validation/reports/stage2_final_linux/additive_bearings_note.txt
 
       - name: Build qualified Fortran Release
         run: |
@@ -124,7 +124,7 @@ jobs:
             "stage1":"57/57 PASS",
             "ui_tests":"PASS",
             "real_fortran_e2e":"PASS",
-            "post_b18_fortran_core_diff":"ZERO",
+            "post_b19_fortran_core_diff":"ZERO",
             "advanced_bearing_runtime":"BUNDLED_AND_SMOKE_PASS",
             "native_fluidfilm_rotor_bridge":"B12_QUALIFIED_AND_SMOKE_PASS",
             "frozen_app":"PASS",
@@ -189,13 +189,13 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e "./python[test,studio,ui-test,package]"
 
-      - name: UI1 verify qualified B18 Fortran core is unchanged
+      - name: UI1 verify qualified B19 Fortran core is unchanged
         shell: pwsh
         run: |
-          $files = git diff --name-only ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests
-          $files | Tee-Object -FilePath validation/reports/stage2_final_windows/post_b18_fortran_core_diff.txt
+          $files = git diff --name-only c5cb86ab03b73a18ee5ea4c410231fc635e39d55 -- fortran/src fortran/tests
+          $files | Tee-Object -FilePath validation/reports/stage2_final_windows/post_b19_fortran_core_diff.txt
           if ($files) { throw "Qualified B18 Fortran core changed: $files" }
-          "The B18 baseline includes promoted rotor-core changes; fortran/bearings and CMake integration remain covered by bearing qualification." | Set-Content validation/reports/stage2_final_windows/additive_bearings_note.txt
+          "The B19 baseline includes promoted rotor-core changes; fortran/bearings and CMake integration remain covered by bearing qualification." | Set-Content validation/reports/stage2_final_windows/additive_bearings_note.txt
 
       - name: Build qualified Fortran Release with UCRT64
         shell: msys2 {0}
@@ -343,7 +343,7 @@ jobs:
             "schema_version":1,
             "status":"PASS",
             "stage2_status":"COMPLETE",
-            "stage2_base_head":"ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111",
+            "stage2_base_head":"c5cb86ab03b73a18ee5ea4c410231fc635e39d55",
             "head_sha":os.environ["GITHUB_SHA"],
             "gates":gates,
             "required_evidence":{

@@ -44,12 +44,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e './python[test,studio,ui-test]'
 
-      - name: Assert Stage 2.1 does not modify qualified B18 Fortran core
+      - name: Assert Stage 2.1 does not modify qualified B19 Fortran core
         run: |
           mkdir -p validation/reports/stage21
-          git diff --stat ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests | tee validation/reports/stage21/post_b18_fortran_core_diff.txt
-          test -z "$(git diff --name-only ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 -- fortran/src fortran/tests)"
-          echo "The B18 baseline includes the promoted rotor-core changes; fortran/bearings remains qualified separately." | tee validation/reports/stage21/additive_bearings_note.txt
+          git diff --stat c5cb86ab03b73a18ee5ea4c410231fc635e39d55 -- fortran/src fortran/tests | tee validation/reports/stage21/post_b19_fortran_core_diff.txt
+          test -z "$(git diff --name-only c5cb86ab03b73a18ee5ea4c410231fc635e39d55 -- fortran/src fortran/tests)"
+          echo "The B19 baseline includes the promoted rotor-core changes; fortran/bearings remains qualified separately." | tee validation/reports/stage21/additive_bearings_note.txt
 
       - name: Build qualified Fortran core
         run: |
@@ -88,7 +88,7 @@ jobs:
           payload={
             "status":"PASS",
             "head_sha":os.environ["GITHUB_SHA"],
-            "post_b18_fortran_core_diff":"ZERO",
+            "post_b19_fortran_core_diff":"ZERO",
             "advanced_bearing_fortran":"QUALIFIED_SEPARATELY",
             "stage1":"57/57 PASS",
             "visual_tests":"PASS",
