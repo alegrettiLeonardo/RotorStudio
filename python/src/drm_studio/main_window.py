@@ -11,6 +11,9 @@ from PySide6.QtWidgets import (
 
 from drm_core import AnalysisService
 from drm_core.analysis.static import StaticResult
+from drm_core.analysis.general_frf import FrequencyResponseMatrixResult
+from .analysis_pages.general_frf_setup import GeneralFrfSetupDialog
+from .result_views.general_frf_view import GeneralFrfResultView
 from .analysis_pages.static_setup import StaticSetupDialog
 from .result_views.static_view import StaticResultView
 from drm_core.analysis.modal import ModalResult
@@ -83,6 +86,8 @@ class MainWindow(QMainWindow):
         self.undo_action.setShortcut(QKeySequence.Undo)
         self.redo_action.setShortcut(QKeySequence.Redo)
 
+        self.general_frf_action = QAction("General FRF — Matrix", self)
+        self.general_frf_action.triggered.connect(self._configure_general_frf)
         self.static_action = QAction("Static Analysis", self)
         self.static_action.triggered.connect(self._configure_static)
         self.modal_action = QAction(studio_icon("modal"), "Modal / Characteristic Roots", self)
@@ -161,6 +166,7 @@ class MainWindow(QMainWindow):
         model.addActions([self.undo_action, self.redo_action])
 
         self.analysis_menu = bar.addMenu("Analysis")
+        self.analysis_menu.addAction(self.general_frf_action)
         self.analysis_menu.addAction(self.static_action)
         self.analysis_menu.addAction(self.modal_action)
         self.analysis_menu.addAction(self.campbell_action)
@@ -397,6 +403,10 @@ class MainWindow(QMainWindow):
             except Exception as exc:
                 QMessageBox.critical(self, "Save project failed", str(exc))
 
+    def _configure_general_frf(self):
+        dialog=GeneralFrfSetupDialog(self.session.project.model,self)
+        if dialog.exec()==QDialog.Accepted:self.run_analysis(dialog.analysis_case())
+
     def _configure_static(self):
         dialog = StaticSetupDialog(self)
         if dialog.exec() == QDialog.Accepted:
@@ -565,7 +575,10 @@ class MainWindow(QMainWindow):
         result = record.execution.result
         view = None
         prefix = "Result"
-        if isinstance(result, StaticResult):
+        if isinstance(result, FrequencyResponseMatrixResult):
+            view=GeneralFrfResultView(record)
+            prefix="General FRF"
+        elif isinstance(result, StaticResult):
             view = StaticResultView(record)
             prefix = "Static"
         elif isinstance(result, ModalResult):

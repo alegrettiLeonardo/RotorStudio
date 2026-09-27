@@ -33,3 +33,5 @@ from .solver.bearing_maps import (
     generate_operating_map,
     canonical_bearing_hash,
 )
+
+from .analysis.general_frf import FrequencyResponseMatrixResult,run_general_frf

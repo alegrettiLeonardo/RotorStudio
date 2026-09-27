@@ -1,6 +1,8 @@
 module rd_c_api
  use, intrinsic::iso_c_binding, only:c_int,c_double
  use rd_static, only: static_solve
+ use rd_dynamic_stiffness, only: build_dynamic_stiffness
+ use rd_frf_general, only: general_frf,frf_size_valid
  use rd_kinds,only:rk,ik
  use rd_status,only:RD_OK,RD_ERR_INPUT,RD_ERR_UNSUPPORTED
  use rd_assembly_stationary,only:assemble_rotor,assemble_bearings
@@ -21,7 +23,34 @@ module rd_c_api
  public::rd_element_circular_legacy,rd_element_tapered_legacy,rd_element_asymmetric_legacy
  public::rd_coax_modal_legacy,rd_coax_freq_rsp_legacy,rd_asym_assemble_legacy,rd_bearasym_legacy,rd_asym_modal_legacy,rd_asym_freq_rsp_legacy,rd_version
  public :: rd_static_v1
+ public :: rd_frf_general_v1,rd_dynamic_stiffness_v1
 contains
+ integer(c_int) function rd_frf_general_v1(nn,z,ns,sh,nd,di,nb,nodes,nf,freq,policy,fixed,coeff,hr,hi,vr,vi,ar,ai,residual) bind(C,name='rd_frf_general_v1')
+ integer(c_int),value::nn,ns,nd,nb,nf,policy
+ integer(c_int),intent(in)::nodes(nb)
+ real(c_double),value::fixed
+ real(c_double),intent(in)::z(nn),sh(11,ns),di(6,nd),freq(nf),coeff(12,nb,nf)
+ real(c_double),intent(out)::hr(4*nn,4*nn,nf),hi(4*nn,4*nn,nf),vr(4*nn,4*nn,nf),vi(4*nn,4*nn,nf),ar(4*nn,4*nn,nf),ai(4*nn,4*nn,nf),residual(nf)
+ rd_frf_general_v1=RD_ERR_INPUT
+ if(.not.frf_size_valid(nn,nf))return
+ call general_frf(nn,z,ns,sh,nd,di,nb,nodes,nf,freq,policy,fixed,coeff,hr,hi,vr,vi,ar,ai,residual,rd_frf_general_v1)
+ end function
+
+ integer(c_int) function rd_dynamic_stiffness_v1(nn,z,ns,sh,nd,di,nb,nodes,coeff,speed,w,M,C,G,K,Mb,Cb,Kb,dr,diout) bind(C,name='rd_dynamic_stiffness_v1')
+ integer(c_int),value::nn,ns,nd,nb
+ integer(c_int),intent(in)::nodes(nb)
+ real(c_double),value::speed,w
+ real(c_double),intent(in)::z(nn),sh(11,ns),di(6,nd),coeff(12,nb)
+ real(c_double),intent(out)::M(4*nn,4*nn),C(4*nn,4*nn),G(4*nn,4*nn),K(4*nn,4*nn),Mb(4*nn,4*nn),Cb(4*nn,4*nn),Kb(4*nn,4*nn),dr(4*nn,4*nn),diout(4*nn,4*nn)
+ complex(rk),allocatable::D(:,:)
+ rd_dynamic_stiffness_v1=RD_ERR_INPUT
+ if(nn<2.or.nn>128.or.ns/=nn-1.or.nd<0.or.nb<0)return
+ allocate(D(4*nn,4*nn))
+ call build_dynamic_stiffness(nn,z,ns,sh,nd,di,nb,nodes,coeff,speed,w,M,C,G,K,Mb,Cb,Kb,D,rd_dynamic_stiffness_v1)
+ if(rd_dynamic_stiffness_v1/=RD_OK)return
+ dr=real(D);diout=aimag(D)
+ end function
+
  integer(c_int) function rd_static_v1(nn,z,ns,shaft,nd,disk,nb,bearing,q,reaction,sw,dw,shear,bending,station,diagnostics) bind(C,name='rd_static_v1')
    integer(c_int),value::nn,ns,nd,nb
    real(c_double),intent(in)::z(nn),shaft(11,ns),disk(6,nd),bearing(34,nb)
