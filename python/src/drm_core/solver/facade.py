@@ -24,7 +24,7 @@ class SolverFacade:
     def coaxial_modal(self,model,speed_rad_s): return self.backend.coaxial_modal(model,speed_rad_s)
     def coaxial_frequency_response(self,model,speeds_rad_s): return self.backend.coaxial_frequency_response(model,speeds_rad_s)
     def asymmetric_assemble(self,model): return self.backend.asymmetric_assemble(model)
-    def asymmetric_bearings(self,model): return self.backend.asymmetric_bearings(model)
+    def asymmetric_bearings(self,model,speed_rad_s=0.0): return self.backend.asymmetric_bearings(model,speed_rad_s)
     def asymmetric_modal(self,model,speed_rad_s,want_vectors=False): return self.backend.asymmetric_modal(model,speed_rad_s,want_vectors)
     def asymmetric_frequency_response(self,model,speeds_rad_s): return self.backend.asymmetric_frequency_response(model,speeds_rad_s)
     def foundation_time_response(self,model,rotor_speed_rad_s,dt,npts,**kwargs): return self.backend.foundation_time_response(model,rotor_speed_rad_s,dt,npts,**kwargs)

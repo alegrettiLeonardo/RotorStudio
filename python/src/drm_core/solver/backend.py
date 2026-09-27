@@ -34,10 +34,16 @@ class FortranBackend:
                 )
             frequency_rad_s=float(speed_rad_s) if frequency_rad_s is None else float(frequency_rad_s)
             provider=self._bearing_provider()
-            bearings.extend(
-                provider.as_legacy_bearing(b,float(speed_rad_s),frequency_rad_s)
-                for b in m.advanced_bearings
-            )
+            if analysis=="rotating":
+                bearings.extend(
+                    provider.as_rotating_bearing(b,float(speed_rad_s),frequency_rad_s)
+                    for b in m.advanced_bearings
+                )
+            else:
+                bearings.extend(
+                    provider.as_legacy_bearing(b,float(speed_rad_s),frequency_rad_s)
+                    for b in m.advanced_bearings
+                )
         be=np.zeros((34,len(bearings)),dtype=np.float64,order='F')
         for j,b in enumerate(bearings):
             vals=[b.bearing_type,b.node,*b.properties];be[:min(34,len(vals)),j]=vals[:34]
@@ -275,21 +281,37 @@ class FortranBackend:
         status=self.lib.rd_asym_assemble_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),*(self._ptr(x) for x in outs))
         if status: raise SolverLibraryError(f"Fortran rd_asym_assemble_legacy returned status={status}")
         return tuple(outs)
-    def asymmetric_bearings(self,m:RotorModel):
-        n,_,_,_,be=self._arrays(m,"rotating");nd=4*n;outs=[np.empty((nd,nd),order='F') for _ in range(3)];mask=np.empty(nd,dtype=np.int32)
-        status=self.lib.rd_bearasym_legacy(n,be.shape[1],self._ptr(be),*(self._ptr(x) for x in outs),self._iptr(mask))
-        if status: raise SolverLibraryError(f"Fortran rd_bearasym_legacy returned status={status}")
+    def asymmetric_bearings(self,m:RotorModel,speed_rad_s:float=0.0):
+        n,_,_,_,be=self._arrays(m,"rotating",speed_rad_s=float(speed_rad_s),frequency_rad_s=float(speed_rad_s));nd=4*n
+        if not m.advanced_bearings:
+            outs=[np.empty((nd,nd),order='F') for _ in range(3)];mask=np.empty(nd,dtype=np.int32)
+            status=self.lib.rd_bearasym_legacy(n,be.shape[1],self._ptr(be),*(self._ptr(x) for x in outs),self._iptr(mask))
+            if status: raise SolverLibraryError(f"Fortran rd_bearasym_legacy returned status={status}")
+            return (*outs,mask.astype(bool))
+        outs=[np.empty((nd,nd),order='F') for _ in range(7)];mask=np.empty(nd,dtype=np.int32)
+        status=self.lib.rd_bearasym_adv_legacy(n,be.shape[1],self._ptr(be),*(self._ptr(x) for x in outs),self._iptr(mask))
+        if status: raise SolverLibraryError(f"Fortran rd_bearasym_adv_legacy returned status={status}")
         return (*outs,mask.astype(bool))
     def asymmetric_modal(self,m:RotorModel,speed_rad_s:float,want_vectors=False):
-        n,z,sh,di,be=self._arrays(m,"rotating");nd=4*n;nout=2*(nd-self._nzero(m));er=np.empty(nout);ei=np.empty(nout);vr=np.empty((nd,nout),order='F');vi=np.empty_like(vr,order='F')
+        n,z,sh,di,be=self._arrays(m,"rotating",speed_rad_s=float(speed_rad_s),frequency_rad_s=float(speed_rad_s));nd=4*n;nout=2*(nd-self._nzero(m));er=np.empty(nout);ei=np.empty(nout);vr=np.empty((nd,nout),order='F');vi=np.empty_like(vr,order='F')
         status=self.lib.rd_asym_modal_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),float(speed_rad_s),int(bool(want_vectors)),nout,self._ptr(er),self._ptr(ei),self._ptr(vr),self._ptr(vi))
         if status: raise SolverLibraryError(f"Fortran rd_asym_modal_legacy returned status={status}")
         return er+1j*ei,vr+1j*vi
     def asymmetric_frequency_response(self,m:RotorModel,speeds_rad_s):
-        n,z,sh,di,be=self._arrays(m,"rotating");fo=self._forces(m);sp=np.ascontiguousarray(speeds_rad_s,dtype=np.float64);nd=4*n;resp=np.empty((nd,len(sp)),order='F')
-        status=self.lib.rd_asym_freq_rsp_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),fo.shape[1],self._ptr(fo),len(sp),self._ptr(sp),self._ptr(resp))
-        if status: raise SolverLibraryError(f"Fortran rd_asym_freq_rsp_legacy returned status={status}")
-        return resp
+        sp=np.ascontiguousarray(speeds_rad_s,dtype=np.float64);fo=self._forces(m);nd=4*len(m.nodes)
+        if not m.advanced_bearings:
+            n,z,sh,di,be=self._arrays(m,"rotating");resp=np.empty((nd,len(sp)),order='F')
+            status=self.lib.rd_asym_freq_rsp_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),fo.shape[1],self._ptr(fo),len(sp),self._ptr(sp),self._ptr(resp))
+            if status: raise SolverLibraryError(f"Fortran rd_asym_freq_rsp_legacy returned status={status}")
+            return resp
+        response=np.empty((nd,len(sp)),dtype=np.float64)
+        for j,speed in enumerate(sp):
+            n,z,sh,di,be=self._arrays(m,"rotating",speed_rad_s=float(speed),frequency_rad_s=float(speed))
+            one=np.ascontiguousarray([speed],dtype=np.float64);rr=np.empty((nd,1),dtype=np.float64,order='F')
+            status=self.lib.rd_asym_freq_rsp_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),fo.shape[1],self._ptr(fo),1,self._ptr(one),self._ptr(rr))
+            if status: raise SolverLibraryError(f"Fortran rd_asym_freq_rsp_legacy returned status={status} at speed={speed}")
+            response[:,j]=rr[:,0]
+        return response
     def foundation_time_response(self,m:RotorModel,rotor_speed_rad_s:float,dt:float,npts:int,nr:int=0,rtol:float=1e-3,atol:float=1e-6,h_init:float=0.0,h_max:float=0.0):
         if m.advanced_bearings: raise SolverLibraryError("advanced-bearing time-domain foundation response is not qualified yet; use a prequalified constant legacy bearing or frequency-domain analysis")
         n,z,sh,di,be=self._arrays(m);nd=4*n
