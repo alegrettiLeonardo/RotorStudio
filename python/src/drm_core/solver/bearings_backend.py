@@ -936,6 +936,40 @@ class AdvancedBearingBackend:
             ip.copy(),
         )
 
+    @staticmethod
+    def _require_rotating_invariant(matrix: np.ndarray, label: str, bearing) -> None:
+        A = np.asarray(matrix, dtype=float).reshape(2, 2)
+        J = np.array([[0.0, -1.0], [1.0, 0.0]])
+        residual = A @ J - J @ A
+        scale = max(1.0, float(np.linalg.norm(A, ord=np.inf)))
+        if float(np.linalg.norm(residual, ord=np.inf)) > 5e-11 * scale:
+            raise SolverLibraryError(
+                f"{type(bearing).__name__} {label} is not rotation-invariant; "
+                "a general fixed-frame advanced bearing produces 2*Omega-periodic "
+                "coefficients in the rotating frame and requires a Floquet/time-periodic "
+                "solver. B21 only qualifies matrices commuting with planar rotation."
+            )
+
+    def as_rotating_bearing(
+        self,
+        bearing: AdvancedBearing,
+        speed_rad_s: float,
+        frequency_rad_s: float | None = None,
+    ) -> Bearing:
+        result = self.evaluate(bearing, speed_rad_s, frequency_rad_s)
+        for label, matrix in (("K", result.K), ("C", result.C), ("M", result.M)):
+            self._require_rotating_invariant(matrix, label, bearing)
+        K, C, M = result.K, result.C, result.M
+        return Bearing(
+            10,
+            int(bearing.node),
+            (
+                float(K[0,0]), float(K[0,1]), float(K[1,0]), float(K[1,1]),
+                float(C[0,0]), float(C[0,1]), float(C[1,0]), float(C[1,1]),
+                float(M[0,0]), float(M[0,1]), float(M[1,0]), float(M[1,1]),
+            ),
+        )
+
     def evaluate(
         self,
         bearing: AdvancedBearing,
