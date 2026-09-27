@@ -67,15 +67,18 @@ contains
     enddo
   end subroutine
 
-  subroutine assemble_bearings_rotating(nnode,nbear,bear,Cb,Kb,K1b,is_zero,status)
+  subroutine assemble_bearings_rotating(nnode,nbear,bear,Mb,Cb,C1b,Kb,K1b,K1adv,K2b,is_zero,status)
     integer(ik),intent(in)::nnode,nbear;real(rk),intent(in)::bear(34,nbear)
-    real(rk),intent(out)::Cb(4*nnode,4*nnode),Kb(4*nnode,4*nnode),K1b(4*nnode,4*nnode)
+    real(rk),intent(out)::Mb(4*nnode,4*nnode),Cb(4*nnode,4*nnode),C1b(4*nnode,4*nnode), &
+      Kb(4*nnode,4*nnode),K1b(4*nnode,4*nnode),K1adv(4*nnode,4*nnode),K2b(4*nnode,4*nnode)
     logical,intent(out)::is_zero(4*nnode);integer(ik),intent(out)::status
-    integer::i,j,t,n,d(4);real(rk)::cl(4,4),kl(4,4),k1l(4,4)
-    Cb=0;Kb=0;K1b=0;is_zero=.false.;status=RD_OK
+    integer::i,j,t,n,d(4)
+    real(rk)::ml(4,4),cl(4,4),c1l(4,4),kl(4,4),k1l(4,4),k1al(4,4),k2l(4,4),J4(4,4)
+    Mb=0;Cb=0;C1b=0;Kb=0;K1b=0;K1adv=0;K2b=0;is_zero=.false.;status=RD_OK
+    J4=0;J4(1,2)=-1._rk;J4(2,1)=1._rk
     do i=1,nbear
       t=nint(bear(1,i));n=nint(bear(2,i));if(n<1.or.n>nnode)then;status=RD_ERR_INPUT;return;endif
-      d=[4*n-3,4*n-2,4*n-1,4*n];cl=0;kl=0;k1l=0
+      d=[4*n-3,4*n-2,4*n-1,4*n];ml=0;cl=0;c1l=0;kl=0;k1l=0;k1al=0;k2l=0
       select case(t)
       case(1);is_zero(d(1:2))=.true.
       case(2);is_zero(d)=.true.
@@ -86,11 +89,22 @@ contains
         do j=1,4;kl(j,j)=bear(2+j,i);cl(j,j)=bear(6+j,i);enddo
         k1l(1,2)=-bear(7,i);k1l(2,1)=bear(7,i)
         k1l(3,4)=-bear(9,i)
-        ! Preserve Rotor_Software_v2 bearasym.m defect exactly: line writes (2,1), not (4,3).
+        ! Preserve Rotor_Software_v2 bearasym.m defect exactly.
         k1l(2,1)=bear(9,i)
+      case(10)
+        ! B21 exact rotating-coordinate image for an advanced bearing whose
+        ! 2x2 K/C/M commute with planar rotation.
+        kl(1,1)=bear(3,i);kl(1,2)=bear(4,i);kl(2,1)=bear(5,i);kl(2,2)=bear(6,i)
+        cl(1,1)=bear(7,i);cl(1,2)=bear(8,i);cl(2,1)=bear(9,i);cl(2,2)=bear(10,i)
+        ml(1,1)=bear(11,i);ml(1,2)=bear(12,i);ml(2,1)=bear(13,i);ml(2,2)=bear(14,i)
+        c1l=2._rk*matmul(ml,J4)
+        k1al=matmul(cl,J4)
+        k2l=-ml
       case default;status=RD_ERR_UNSUPPORTED;return
       end select
-      Kb(d,d)=Kb(d,d)+kl;Cb(d,d)=Cb(d,d)+cl;K1b(d,d)=K1b(d,d)+k1l
+      Mb(d,d)=Mb(d,d)+ml;Cb(d,d)=Cb(d,d)+cl;C1b(d,d)=C1b(d,d)+c1l
+      Kb(d,d)=Kb(d,d)+kl;K1b(d,d)=K1b(d,d)+k1l
+      K1adv(d,d)=K1adv(d,d)+k1al;K2b(d,d)=K2b(d,d)+k2l
     enddo
   end subroutine
 end module rd_assembly_rotating
