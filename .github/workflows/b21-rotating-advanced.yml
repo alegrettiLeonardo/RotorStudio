@@ -1,0 +1,73 @@
+name: B21 Rotating Advanced Bearings
+on:
+  push:
+    branches: [feature/b19-b23-advanced-bearing-extensions-20260927]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: b21-rotating-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  linux-b21:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+      DRMROTOR_LIB: ${{ github.workspace }}/build-b21/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-b21/libdrmbearings.so
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m pip install -e './python[test]'
+      - run: |
+          cmake -S fortran -B build-b21 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-b21 -j2
+          ctest --test-dir build-b21 --output-on-failure
+      - run: |
+          python -m pytest python/tests_bearings/test_b21_rotating_advanced.py python/tests/test_asymmetric_source_oracle.py -q -s
+          python -m pytest python/tests_bearings/test_b19_nonzero_bearing_mass.py python/tests_bearings/test_b20_coaxial_advanced.py -q
+  windows-b21:
+    runs-on: windows-2025
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-openblas
+      - name: Runtime path
+        shell: msys2 {0}
+        run: echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - shell: pwsh
+        run: python -m pip install -e './python[test]'
+      - shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-b21 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-b21 --parallel
+          ctest --test-dir build-b21 --output-on-failure
+      - shell: pwsh
+        run: |
+          $rotor=Get-ChildItem ./build-b21 -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear=Get-ChildItem ./build-b21 -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          $root=(Get-Location).Path;$env:DRMROTOR_LIB=$rotor.FullName;$env:DRMBEARINGS_LIB=$bear.FullName
+          $env:DRMROTOR_DLL_DIRS=$env:UCRT64_BIN;$env:DRMBEARINGS_DLL_DIRS=$env:UCRT64_BIN;$env:PATH="$env:UCRT64_BIN;$env:PATH";$env:PYTHONPATH="$root/python/src;$root"
+          python -m pytest python/tests_bearings/test_b21_rotating_advanced.py python/tests/test_asymmetric_source_oracle.py -q -s
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  b21-gate:
+    needs: [linux-b21,windows-b21]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - run: |
+          test "${{ needs.linux-b21.result }}" = success
+          test "${{ needs.windows-b21.result }}" = success
+          echo "B21_ROTATING_INVARIANT_ADVANCED_BEARINGS = PASS"
