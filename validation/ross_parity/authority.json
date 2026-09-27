@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/petrobras/ross",
+  "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "rotorstudio_baseline": "e2a8b57003edf4b407ea089e92160ce86b30c35c",
+  "license": "Apache-2.0",
+  "status": "BLOCKED",
+  "status_reason": "Reference execution and same-head CI evidence are required; this file is a pin, not a qualification result.",
+  "generation_environment": null,
+  "source_files": [
+    "ross/rotor_assembly.py",
+    "ross/shaft_element.py",
+    "ross/disk_element.py",
+    "ross/bearing_seal_element.py",
+    "ross/results.py",
+    "ross/utils.py",
+    "ross/materials.py",
+    "ross/point_mass.py",
+    "ross/units.py",
+    "LICENSE.md"
+  ],
+  "phase1_methods": ["run_static", "run_freq_response", "run_forced_response", "run_time_response", "run_ucs", "run_level1", "api617_unbalance", "run_clearance_analysis"]
+}
