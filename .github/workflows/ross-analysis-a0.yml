@@ -1,9 +1,6 @@
 name: ROSS Analysis A0 Infrastructure
 
 on:
-  push:
-    branches:
-      - feature/ross-analysis-a0-20260927
   pull_request:
     branches:
       - main
@@ -15,7 +12,7 @@ concurrency:
 
 jobs:
   linux-b17:
-    name: Linux B17 matched-whirl qualification
+    name: Linux native regression for A0
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
@@ -26,6 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - name: Verify audited expansion baseline ancestry
         run: git merge-base --is-ancestor e2a8b57003edf4b407ea089e92160ce86b30c35c HEAD
@@ -80,7 +78,7 @@ jobs:
           if-no-files-found: error
 
   windows-b17:
-    name: Windows B17 matched-whirl qualification
+    name: Windows native regression for A0
     runs-on: windows-2025
     timeout-minutes: 120
     env:
@@ -88,6 +86,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - name: Verify audited expansion baseline ancestry
         shell: pwsh
@@ -186,6 +185,8 @@ jobs:
       OMP_NUM_THREADS: '1'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/checkout@v4
         with:
           repository: petrobras/ross
@@ -218,6 +219,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
