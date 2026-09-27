@@ -88,7 +88,7 @@ All methods below are in `ross/rotor_assembly.py` at the frozen SHA.
 | A1 | run_static; gravitational_force; utils.remove_dofs; results.StaticResults | seals excluded; housing bearings removed; supports replaced by 1e20; g=-9.8065; lateral reduction |
 | A2 | run_freq_response; _run_freq_response; transfer_matrix | fixed spin is distinct from excitation; displacement/velocity/acceleration |
 | A3 | run_forced_response; results.ForcedResponseResults | arbitrary complex DOF force vector |
-| A4 | run_time_response; time_response; utils.Newmark | force history, integration semantics and initial state need dedicated audit |
+| A4 | run_time_response; time_response; utils.newmark | force history, integration semantics and initial state need dedicated audit |
 | A5 | run_ucs; utils.intersection; convert_6dof_to_4dof | remove shaft damping and seals; stiffness log sweep; intersections |
 | A6 | run_level1; results.ModalResults | cross-coupled stiffness; exclude backward modes |
 | A7 | api617_unbalance; results.Shape/Orbit | static loads, whirl, lobes and antinodes |

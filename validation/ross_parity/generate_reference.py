@@ -26,7 +26,7 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 def json_write(path, value):
-    with Path(path).open('x', encoding='utf-8') as stream:
+    with Path(path).open('x', encoding='utf-8', newline='\n') as stream:
         json.dump(value, stream, sort_keys=True, indent=2, allow_nan=False)
         stream.write('\n')
 

@@ -6,3 +6,8 @@ validation/equivalence/*.py text eol=lf
 validation/equivalence/*.json text eol=lf
 validation/equivalence/matlab/*.m text eol=lf
 .github/workflows/*.yml text eol=lf
+
+# ROSS golden manifests are hashed as exact bytes.
+validation/ross_parity/**/*.json text eol=lf
+validation/ross_parity/*.json text eol=lf
+validation/ross_parity/**/*.npz binary

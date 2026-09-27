@@ -11,7 +11,7 @@ validation/ross_parity/static/authority.json. This is not a production ROSS depe
 | A1 | rotor_assembly.py / run_static | rd_static.f90 | rd_static_v1 | thin ffi/backend/facade + service; golden static | BLOCKED by A0 |
 | A2 | rotor_assembly.py / run_freq_response, transfer_matrix | rd_dynamic_stiffness, rd_frf_general | rd_frf_general_v1 | not implemented | BLOCKED |
 | A3 | rotor_assembly.py / run_forced_response | rd_forced_response | rd_forced_response_v1 | not implemented | BLOCKED |
-| A4 | rotor_assembly.py / run_time_response; utils.py / Newmark | rd_newmark, rd_time_response, rd_force_provider | rd_time_response_v1 | not implemented | BLOCKED |
+| A4 | rotor_assembly.py / run_time_response; utils.py / newmark | rd_newmark, rd_time_response, rd_force_provider | rd_time_response_v1 | not implemented | BLOCKED |
 | A5 | rotor_assembly.py / run_ucs | rd_ucs, rd_intersections | to specify | not implemented | BLOCKED |
 | A6 | rotor_assembly.py / run_level1 | rd_level1 | to specify | not implemented | BLOCKED |
 | A7 | rotor_assembly.py / api617_unbalance | rd_orbit, rd_antinode, rd_api617 | to specify | not implemented | BLOCKED |
