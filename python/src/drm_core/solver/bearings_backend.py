@@ -1010,40 +1010,30 @@ class AdvancedBearingBackend:
             "convergence": None,
         }
 
+    @staticmethod
+    def legacy_bearing_from_evaluation(
+        bearing: AdvancedBearing, result: BearingEvaluation
+    ) -> Bearing:
+        """Adapt one already-evaluated advanced bearing to the internal row ABI."""
+        K, C, M = result.K, result.C, result.M
+        kc = (
+            float(K[0, 0]), float(K[0, 1]), float(K[1, 0]), float(K[1, 1]),
+            float(C[0, 0]), float(C[0, 1]), float(C[1, 0]), float(C[1, 1]),
+        )
+        if np.max(np.abs(M)) <= 1e-14:
+            return Bearing(5, int(bearing.node), kc)
+        mass = (
+            float(M[0, 0]), float(M[0, 1]), float(M[1, 0]), float(M[1, 1]),
+        )
+        return Bearing(9, int(bearing.node), kc + mass)
+
     def as_legacy_bearing(
         self,
         bearing: AdvancedBearing,
         speed_rad_s: float,
         frequency_rad_s: float | None = None,
     ) -> Bearing:
-        # B12 parity against the frozen ROSS authority qualifies the native
-        # PlainJournal/TiltingPad providers for the existing 2x2 translational
-        # type-5 bridge.  The historical type 1-8 / 20 implementation remains
-        # untouched; only the evaluated K/C row is adapted at the requested
-        # (Omega, omega) operating point.
+        # B12/B19 internal bridge.  Historical persisted bearing types remain
+        # unchanged; type 9 exists only after validated advanced evaluation.
         result = self.evaluate(bearing, speed_rad_s, frequency_rad_s)
-        K, C, M = result.K, result.C, result.M
-        kc = (
-            float(K[0, 0]),
-            float(K[0, 1]),
-            float(K[1, 0]),
-            float(K[1, 1]),
-            float(C[0, 0]),
-            float(C[0, 1]),
-            float(C[1, 0]),
-            float(C[1, 1]),
-        )
-        if np.max(np.abs(M)) <= 1e-14:
-            # Preserve the B12-qualified type-5 K/C bridge byte-for-byte for
-            # zero-mass advanced bearings.
-            return Bearing(5, int(bearing.node), kc)
-        # B19 uses an internal-only type 9 row.  The historical persisted
-        # bearing contract remains types 1-8/20; type 9 is produced only after
-        # model validation and carries evaluated translational K/C/M.
-        mass = (
-            float(M[0, 0]),
-            float(M[0, 1]),
-            float(M[1, 0]),
-            float(M[1, 1]),
-        )
-        return Bearing(9, int(bearing.node), kc + mass)
+        return self.legacy_bearing_from_evaluation(bearing, result)
