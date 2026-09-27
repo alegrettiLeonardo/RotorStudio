@@ -2,7 +2,7 @@
 
 BASE_HEAD = 111320fbfa80dbbcba8754dbf5bd09d9c4a8ceec
 B14_GATE = B14_ASYNC_FIELD_VISUALIZATION PASS at workflow run 36247948328
-STATUS = AWAITING_SAME_HEAD_QUALIFICATION
+STATUS = PASS
 
 ## Scope
 
@@ -58,3 +58,12 @@ evaluation, save/reopen typed persistence, malformed-input rejection and
 granular blocker preservation. B12/B14 regression gates remain mandatory.
 
 The status above is changed only after same-HEAD CI evidence is complete.
+
+
+## Final qualification record
+
+B15 passed Linux/Windows source gates with the real Cryostar fixture and was
+revalidated inside the promoted integrated B13-B18 chain. The source contract
+remains rpm -> rad/s only, with no hidden K/C sign transformation.
+
+`B15_IRDIN_COEFFICIENT_BEARING_IMPORT = PASS`
