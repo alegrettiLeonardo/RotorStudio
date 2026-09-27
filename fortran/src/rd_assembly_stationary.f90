@@ -82,6 +82,13 @@ contains
       case(5)
         kl(1,1)=bear(3,i);kl(1,2)=bear(4,i);kl(2,1)=bear(5,i);kl(2,2)=bear(6,i)
         cl(1,1)=bear(7,i);cl(1,2)=bear(8,i);cl(2,1)=bear(9,i);cl(2,2)=bear(10,i)
+      case(9)
+        ! RotorStudio-internal advanced-bearing bridge.  Type 9 is not a
+        ! historical user bearing type; it carries evaluated translational
+        ! K/C/M without discarding the ROSS BearingElement mass matrix.
+        kl(1,1)=bear(3,i);kl(1,2)=bear(4,i);kl(2,1)=bear(5,i);kl(2,2)=bear(6,i)
+        cl(1,1)=bear(7,i);cl(1,2)=bear(8,i);cl(2,1)=bear(9,i);cl(2,2)=bear(10,i)
+        ml(1,1)=bear(11,i);ml(1,2)=bear(12,i);ml(2,1)=bear(13,i);ml(2,2)=bear(14,i)
       case(6)
         do j=1,4;do k=1,4;kl(j,k)=bear(2+(j-1)*4+k,i);cl(j,k)=bear(18+(j-1)*4+k,i);enddo;enddo
       case(7)

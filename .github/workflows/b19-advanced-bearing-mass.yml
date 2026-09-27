@@ -1,0 +1,143 @@
+name: B19 Advanced Bearing Mass
+
+on:
+  push:
+    branches:
+      - feature/b19-advanced-bearing-mass-20260927
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: b19-bearing-mass-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-b19:
+    name: Linux B19 nonzero-M qualification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+      DRMROTOR_LIB: ${{ github.workspace }}/build-b19/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-b19/libdrmbearings.so
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Verify B18 promoted ancestry
+        run: git merge-base --is-ancestor ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111 HEAD
+      - name: Install native dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m pip install -e './python[test,studio,ui-test]'
+      - name: Build Release and native regressions
+        run: |
+          cmake -S fortran -B build-b19 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-b19 -j2
+          ctest --test-dir build-b19 --output-on-failure
+      - name: Stage 1 exactly 57 and B19 source gates
+        run: |
+          set -o pipefail
+          mkdir -p validation/reports/b19/linux
+          collection="$(python -m pytest python/tests --collect-only -q)"
+          echo "$collection" | tee validation/reports/b19/linux/stage1_collection.txt
+          echo "$collection" | grep -Eq '57 tests collected|57 collected'
+          python -m pytest python/tests -q | tee validation/reports/b19/linux/stage1.txt
+          python -m pytest python/tests_bearings/test_b19_advanced_bearing_mass.py -q -s | tee validation/reports/b19/linux/b19.txt
+          python -m pytest python/tests_bearings/test_advanced_bearings.py python/tests_bearings/test_advanced_bearings_parity.py python/tests_bearings/test_b13_b18_integrated_chain.py -q | tee validation/reports/b19/linux/regression.txt
+      - name: Checkout frozen ROSS authority
+        uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross_b19
+          fetch-depth: 1
+      - run: python -m pip install -e ./_ross_b19
+      - name: Frozen ROSS B19 parity
+        run: python scripts/qualify_b19_ross.py --ross-root ./_ross_b19 | tee validation/reports/b19/linux/ross.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b19-linux-${{ github.sha }}
+          path: validation/reports/b19/linux/
+          if-no-files-found: error
+
+  windows-b19:
+    name: Windows B19 nonzero-M qualification
+    runs-on: windows-2025
+    timeout-minutes: 120
+    env: {QT_QPA_PLATFORM: offscreen}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc-fortran
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-openblas
+      - name: Record runtime
+        shell: msys2 {0}
+        run: echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - shell: pwsh
+        run: python -m pip install -e './python[test,studio,ui-test]'
+      - name: Build Release
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-b19 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-b19 --parallel
+          ctest --test-dir build-b19 --output-on-failure
+      - name: Locate DLLs and run B19
+        shell: pwsh
+        run: |
+          $rotor=Get-ChildItem ./build-b19 -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear=Get-ChildItem ./build-b19 -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          if (-not $rotor -or -not $bear) { throw "native DLL missing" }
+          $root=(Get-Location).Path
+          $env:DRMROTOR_LIB=$rotor.FullName
+          $env:DRMBEARINGS_LIB=$bear.FullName
+          $env:DRMROTOR_DLL_DIRS=$env:UCRT64_BIN
+          $env:DRMBEARINGS_DLL_DIRS=$env:UCRT64_BIN
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          $env:PYTHONPATH="$root/python/src;$root"
+          New-Item -ItemType Directory -Force validation/reports/b19/windows | Out-Null
+          $collection=python -m pytest python/tests --collect-only -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $collection | Tee-Object validation/reports/b19/windows/stage1_collection.txt
+          if (-not ($collection -match '57 tests collected|57 collected')) { throw "Stage 1 collection is not 57" }
+          python -m pytest python/tests -q | Tee-Object validation/reports/b19/windows/stage1.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest python/tests_bearings/test_b19_advanced_bearing_mass.py -q -s | Tee-Object validation/reports/b19/windows/b19.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b19-windows-${{ github.sha }}
+          path: validation/reports/b19/windows/
+          if-no-files-found: error
+
+  b19-gate:
+    name: B19 aggregate gate
+    needs: [linux-b19, windows-b19]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          LINUX: ${{ needs.linux-b19.result }}
+          WINDOWS: ${{ needs.windows-b19.result }}
+        run: |
+          test "$LINUX" = success
+          test "$WINDOWS" = success
+      - run: |
+          echo "B19_NONZERO_ADVANCED_BEARING_MASS = PASS"
+          echo "HEAD = $GITHUB_SHA"
