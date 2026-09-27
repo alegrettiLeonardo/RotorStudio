@@ -18,7 +18,7 @@ module rd_c_api
  public::rd_modal_legacy,rd_modal_legacy_vectors,rd_assemble_legacy,rd_bearings_legacy,rd_freq_rsp_legacy,rd_crit_spd_legacy,rd_crit_spd_legacy_ex
  public::rd_freq_aux_legacy,rd_freq_fdn_legacy,rd_time_fdn_legacy,rd_runup_legacy,rd_runup_coeffmap_legacy
  public::rd_element_circular_legacy,rd_element_tapered_legacy,rd_element_asymmetric_legacy
- public::rd_coax_modal_legacy,rd_coax_freq_rsp_legacy,rd_asym_assemble_legacy,rd_bearasym_legacy,rd_asym_modal_legacy,rd_asym_freq_rsp_legacy,rd_version
+ public::rd_coax_modal_legacy,rd_coax_freq_rsp_legacy,rd_asym_assemble_legacy,rd_bearasym_legacy,rd_bearasym_adv_legacy,rd_asym_modal_legacy,rd_asym_freq_rsp_legacy,rd_version
 contains
  integer(c_int) function rd_version(major,minor,patch) bind(C,name='rd_version')
    integer(c_int),intent(out)::major,minor,patch;major=0;minor=5;patch=0;rd_version=0
@@ -343,10 +343,28 @@ contains
 
  integer(c_int) function rd_bearasym_legacy(nnode,nbear,bear,Cout,Kout,K1out,zero_mask) bind(C,name='rd_bearasym_legacy')
    integer(c_int),value::nnode,nbear;real(c_double),intent(in)::bear(*);real(c_double),intent(out)::Cout(*),Kout(*),K1out(*);integer(c_int),intent(out)::zero_mask(*)
-   real(rk),allocatable::be(:,:),C(:,:),K(:,:),K1(:,:);logical,allocatable::iz(:);integer::i,j,ndof;integer(ik)::st
-   rd_bearasym_legacy=RD_ERR_INPUT;if(nnode<=0)return;ndof=4*nnode;allocate(be(34,nbear),C(ndof,ndof),K(ndof,ndof),K1(ndof,ndof),iz(ndof));do j=1,nbear;do i=1,34;be(i,j)=bear((j-1)*34+i);enddo;enddo
-   call assemble_bearings_rotating(nnode,nbear,be,C,K,K1,iz,st);if(st/=RD_OK)then;rd_bearasym_legacy=st;return;endif
-   do j=1,ndof;do i=1,ndof;Cout((j-1)*ndof+i)=C(i,j);Kout((j-1)*ndof+i)=K(i,j);K1out((j-1)*ndof+i)=K1(i,j);enddo;enddo;do i=1,ndof;zero_mask(i)=merge(1,0,iz(i));enddo;rd_bearasym_legacy=RD_OK
+   real(rk),allocatable::be(:,:),M(:,:),C(:,:),C1(:,:),K(:,:),K1(:,:),K1a(:,:),K2(:,:);logical,allocatable::iz(:);integer::i,j,ndof;integer(ik)::st
+   rd_bearasym_legacy=RD_ERR_INPUT;if(nnode<=0)return;ndof=4*nnode
+   allocate(be(34,nbear),M(ndof,ndof),C(ndof,ndof),C1(ndof,ndof),K(ndof,ndof),K1(ndof,ndof),K1a(ndof,ndof),K2(ndof,ndof),iz(ndof))
+   do j=1,nbear;do i=1,34;be(i,j)=bear((j-1)*34+i);enddo;enddo
+   call assemble_bearings_rotating(nnode,nbear,be,M,C,C1,K,K1,K1a,K2,iz,st);if(st/=RD_OK)then;rd_bearasym_legacy=st;return;endif
+   do j=1,ndof;do i=1,ndof;Cout((j-1)*ndof+i)=C(i,j);Kout((j-1)*ndof+i)=K(i,j);K1out((j-1)*ndof+i)=K1(i,j);enddo;enddo
+   do i=1,ndof;zero_mask(i)=merge(1,0,iz(i));enddo;rd_bearasym_legacy=RD_OK
+ end function
+
+ integer(c_int) function rd_bearasym_adv_legacy(nnode,nbear,bear,Mout,Cout,C1out,Kout,K1out,K1advout,K2out,zero_mask) bind(C,name='rd_bearasym_adv_legacy')
+   integer(c_int),value::nnode,nbear;real(c_double),intent(in)::bear(*)
+   real(c_double),intent(out)::Mout(*),Cout(*),C1out(*),Kout(*),K1out(*),K1advout(*),K2out(*);integer(c_int),intent(out)::zero_mask(*)
+   real(rk),allocatable::be(:,:),M(:,:),C(:,:),C1(:,:),K(:,:),K1(:,:),K1a(:,:),K2(:,:);logical,allocatable::iz(:);integer::i,j,ndof;integer(ik)::st
+   rd_bearasym_adv_legacy=RD_ERR_INPUT;if(nnode<=0)return;ndof=4*nnode
+   allocate(be(34,nbear),M(ndof,ndof),C(ndof,ndof),C1(ndof,ndof),K(ndof,ndof),K1(ndof,ndof),K1a(ndof,ndof),K2(ndof,ndof),iz(ndof))
+   do j=1,nbear;do i=1,34;be(i,j)=bear((j-1)*34+i);enddo;enddo
+   call assemble_bearings_rotating(nnode,nbear,be,M,C,C1,K,K1,K1a,K2,iz,st);if(st/=RD_OK)then;rd_bearasym_adv_legacy=st;return;endif
+   do j=1,ndof;do i=1,ndof
+     Mout((j-1)*ndof+i)=M(i,j);Cout((j-1)*ndof+i)=C(i,j);C1out((j-1)*ndof+i)=C1(i,j)
+     Kout((j-1)*ndof+i)=K(i,j);K1out((j-1)*ndof+i)=K1(i,j);K1advout((j-1)*ndof+i)=K1a(i,j);K2out((j-1)*ndof+i)=K2(i,j)
+   enddo;enddo
+   do i=1,ndof;zero_mask(i)=merge(1,0,iz(i));enddo;rd_bearasym_adv_legacy=RD_OK
  end function
 
  integer(c_int) function rd_asym_modal_legacy(nnode,z,nshaft,shaft,ndisc,disc,nbear,bear,speed,want_vectors,nout,er,ei,vr,vi) bind(C,name='rd_asym_modal_legacy')
