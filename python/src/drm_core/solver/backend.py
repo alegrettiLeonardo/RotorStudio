@@ -10,6 +10,10 @@ class FortranBackend:
         self.library_path=library_path
         self.lib=configure(load_library(library_path))
         self._advanced_bearing_backend=None
+    def general_frf(self,model,frequencies,speed=None,free_free=False):
+        from .general_frf_backend import execute
+        return execute(self,model,frequencies,speed,free_free)
+
     def static(self,model):
         from .ffi import configure_static
         from drm_core.domain.model import ShaftElement

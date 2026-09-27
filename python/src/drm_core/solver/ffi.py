@@ -135,3 +135,14 @@ def configure_static(lib):
     fn.argtypes=[ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr,ct.c_int,dptr]+[dptr]*8
     fn.restype=ct.c_int
     return fn
+
+def configure_general_frf(lib):
+    import ctypes as ct
+    try:
+        frf=lib.rd_frf_general_v1;matrix=lib.rd_dynamic_stiffness_v1
+    except AttributeError as exc:
+        raise SolverLibraryError('General FRF requires rd_frf_general_v1 and rd_dynamic_stiffness_v1; rebuild the native solver. No fallback is available.') from exc
+    I=ct.c_int;D=ct.c_double;P=ct.POINTER(D);IP=ct.POINTER(I)
+    frf.argtypes=[I,P,I,P,I,P,I,IP,I,P,I,D,P]+[P]*7;frf.restype=I
+    matrix.argtypes=[I,P,I,P,I,P,I,IP,P,D,D]+[P]*9;matrix.restype=I
+    return frf,matrix

@@ -1,6 +1,8 @@
 from .backend import FortranBackend
 class SolverFacade:
     def __init__(self,library_path=None): self.backend=FortranBackend(library_path)
+    def general_frf(self,model,frequencies,speed=None,free_free=False):
+        return self.backend.general_frf(model,frequencies,speed,free_free)
     def static(self,model): return self.backend.static(model)
     def modal(self,model,speed_rad_s): return self.backend.modal_eigenvalues(model,speed_rad_s)
     def modal_eigensystem(self,model,speed_rad_s): return self.backend.modal_eigensystem(model,speed_rad_s)

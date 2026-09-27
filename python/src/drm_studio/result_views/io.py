@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import json
 from drm_core.analysis.static import StaticResult
+from drm_core.analysis.general_frf import FrequencyResponseMatrixResult
 
 from drm_core import (
     ModalResult, CriticalSpeedResult, FrequencyResponseResult, TransientResult,
@@ -34,6 +35,11 @@ def _complex_response_rows(axis, response):
 def record_data_table(record):
     """Map qualified result objects to explicit numeric columns without recalculating physics."""
     result = record.execution.result
+    if isinstance(result, FrequencyResponseMatrixResult):
+        selection=getattr(record,'frf_selection',record.execution.case.options)
+        inp=selection.get('input_dof',0);out=selection.get('output_dof',0);kind=selection.get('response','displacement')
+        h=getattr(result,{'displacement':'H_disp','velocity':'H_vel','acceleration':'H_acc'}[kind])[out,inp,:]
+        return ['excitation_rad_s','rotor_speed_rad_s','input_dof_zero_based','output_dof_zero_based',kind+'_real',kind+'_imag','magnitude','phase_rad'],np.column_stack([result.frequency_rad_s,result.rotor_speed_rad_s,np.full(len(h),inp),np.full(len(h),out),h.real,h.imag,abs(h),np.angle(h)])
     if isinstance(result, StaticResult):
         rows=[];r=result;nan=float('nan')
         for i,x in enumerate(r.node_positions):rows.append([1,i+1,x,r.displacement_y[i],r.reactions[i],nan,nan,nan])
@@ -134,6 +140,10 @@ def export_record_csv(record, path):
 
 
 def export_record_native(record, path):
+    if isinstance(record.execution.result, FrequencyResponseMatrixResult):
+        r=record.execution.result
+        arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
+        return export_npz(path,**arrays,metadata_json=np.asarray(json.dumps(r.metadata,sort_keys=True)),selection_json=np.asarray(json.dumps(getattr(record,'frf_selection',record.execution.case.options),sort_keys=True)),analysis_hash=np.asarray(record.execution.analysis_hash),build_metadata_json=np.asarray(json.dumps(record.execution.build_metadata,sort_keys=True)))
     if isinstance(record.execution.result, StaticResult):
         r=record.execution.result
         arrays={key:value for key,value in vars(r).items() if isinstance(value,np.ndarray)}

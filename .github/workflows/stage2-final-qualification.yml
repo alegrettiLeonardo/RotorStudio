@@ -103,6 +103,8 @@ jobs:
           p=pathlib.Path(r"$SMOKE/PACKAGED_SMOKE.json")
           d=json.loads(p.read_text())
           assert d["status"]=="PASS", d
+          assert d["general_frf"]["status"]=="PASS", d
+          assert d["static_analysis"]["status"]=="PASS", d
           assert d["backend"]=="Fortran2018/ctypes", d
           assert d["advanced_bearing"]["status"]=="PASS", d
           assert d["advanced_bearing"]["family"]=="ball", d
@@ -125,7 +127,7 @@ jobs:
             "stage1":"57/57 PASS",
             "ui_tests":"PASS",
             "real_fortran_e2e":"PASS",
-            "legacy_core_preservation":"PASS; additive A1 static ABI",
+            "legacy_core_preservation":"PASS; additive A1/A2 ABIs",
             "advanced_bearing_runtime":"BUNDLED_AND_SMOKE_PASS",
             "native_fluidfilm_rotor_bridge":"B12_QUALIFIED_AND_SMOKE_PASS",
             "frozen_app":"PASS",
@@ -271,6 +273,9 @@ jobs:
           if ($proc.ExitCode -ne 0) { throw "packaged app smoke exit code $($proc.ExitCode)" }
           $payload = Get-Content (Join-Path $smoke "PACKAGED_SMOKE.json") | ConvertFrom-Json
           if ($payload.status -ne "PASS") { throw "packaged smoke failed" }
+          if ($payload.general_frf.status -ne "PASS") { throw "General FRF packaged smoke failed" }
+          if ($payload.static_analysis.status -ne "PASS") { throw "Static packaged smoke failed" }
+          $payload | ConvertTo-Json -Depth 20
           if ($payload.advanced_bearing.status -ne "PASS") { throw "packaged advanced-bearing smoke failed" }
           if ($payload.advanced_bearing.family -ne "ball") { throw "unexpected packaged advanced-bearing family" }
           if ($payload.native_fluidfilm_bearing.status -ne "PASS") { throw "packaged native fluid-film smoke failed" }
@@ -290,7 +295,7 @@ jobs:
             stage1 = "57/57 PASS"
             ui_tests = "PASS"
             real_fortran_e2e = "PASS"
-            legacy_core_preservation = "PASS; additive A1 static ABI"
+            legacy_core_preservation = "PASS; additive A1/A2 ABIs"
             advanced_bearing_runtime = "BUNDLED_AND_SMOKE_PASS"
             frozen_app = "PASS"
             clean_install = "PASS"
@@ -357,7 +362,7 @@ jobs:
               "windows_frozen":"PASS",
               "clean_install":"PASS on Linux and Windows",
               "mockup_screenshots":"5 real application screenshots generated on Linux",
-              "legacy_core_preservation":"PASS; additive A1 static ABI",
+              "legacy_core_preservation":"PASS; additive A1/A2 ABIs",
               "advanced_bearing_runtime":"bundled libdrmbearings + clean frozen smoke PASS",
               "native_fluidfilm_rotor_bridge":"B12 qualified + clean frozen assembly smoke PASS",
             },
