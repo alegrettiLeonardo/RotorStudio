@@ -1,0 +1,133 @@
+name: B20 Coaxial Advanced Bearings
+
+on:
+  push:
+    branches:
+      - feature/b20-coaxial-advanced-bearings-20260927
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: b20-coaxial-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-b20:
+    name: Linux B20 coaxial qualification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+      DRMROTOR_LIB: ${{ github.workspace }}/build-b20/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-b20/libdrmbearings.so
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Verify B19 ancestry
+        run: git merge-base --is-ancestor c5cb86ab03b73a18ee5ea4c410231fc635e39d55 HEAD
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m pip install -e './python[test,studio,ui-test]'
+      - name: Build and native regression
+        run: |
+          cmake -S fortran -B build-b20 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-b20 -j2
+          ctest --test-dir build-b20 --output-on-failure
+      - name: Stage 1 and B20
+        run: |
+          set -o pipefail
+          mkdir -p validation/reports/b20/linux
+          collection="$(python -m pytest python/tests --collect-only -q)"
+          echo "$collection" | tee validation/reports/b20/linux/stage1_collection.txt
+          echo "$collection" | grep -Eq '57 tests collected|57 collected'
+          python -m pytest python/tests -q | tee validation/reports/b20/linux/stage1.txt
+          python -m pytest python/tests_bearings/test_b20_coaxial_advanced.py python/tests/test_coaxial_source_oracle.py -q -s | tee validation/reports/b20/linux/b20.txt
+          python -m pytest python/tests_bearings/test_b19_advanced_bearing_mass.py python/tests_bearings/test_b13_b18_integrated_chain.py -q | tee validation/reports/b20/linux/regression.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b20-linux-${{ github.sha }}
+          path: validation/reports/b20/linux/
+          if-no-files-found: error
+
+  windows-b20:
+    name: Windows B20 coaxial qualification
+    runs-on: windows-2025
+    timeout-minutes: 120
+    env: {QT_QPA_PLATFORM: offscreen}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc-fortran
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-openblas
+      - name: Record runtime
+        shell: msys2 {0}
+        run: echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - shell: pwsh
+        run: python -m pip install -e './python[test,studio,ui-test]'
+      - name: Build Release
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-b20 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-b20 --parallel
+          ctest --test-dir build-b20 --output-on-failure
+      - name: Run B20 source gates
+        shell: pwsh
+        run: |
+          $rotor=Get-ChildItem ./build-b20 -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear=Get-ChildItem ./build-b20 -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          if (-not $rotor -or -not $bear) { throw "native DLL missing" }
+          $root=(Get-Location).Path
+          $env:DRMROTOR_LIB=$rotor.FullName
+          $env:DRMBEARINGS_LIB=$bear.FullName
+          $env:DRMROTOR_DLL_DIRS=$env:UCRT64_BIN
+          $env:DRMBEARINGS_DLL_DIRS=$env:UCRT64_BIN
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          $env:PYTHONPATH="$root/python/src;$root"
+          New-Item -ItemType Directory -Force validation/reports/b20/windows | Out-Null
+          $collection=python -m pytest python/tests --collect-only -q
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $collection | Tee-Object validation/reports/b20/windows/stage1_collection.txt
+          if (-not ($collection -match '57 tests collected|57 collected')) { throw "Stage 1 collection is not 57" }
+          python -m pytest python/tests -q | Tee-Object validation/reports/b20/windows/stage1.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pytest python/tests_bearings/test_b20_coaxial_advanced.py python/tests/test_coaxial_source_oracle.py python/tests_bearings/test_b19_advanced_bearing_mass.py -q -s | Tee-Object validation/reports/b20/windows/b20.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b20-windows-${{ github.sha }}
+          path: validation/reports/b20/windows/
+          if-no-files-found: error
+
+  b20-gate:
+    name: B20 aggregate gate
+    needs: [linux-b20, windows-b20]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          LINUX: ${{ needs.linux-b20.result }}
+          WINDOWS: ${{ needs.windows-b20.result }}
+        run: |
+          test "$LINUX" = success
+          test "$WINDOWS" = success
+      - run: |
+          echo "B20_COAXIAL_ADVANCED_BEARINGS = PASS"
+          echo "HEAD = $GITHUB_SHA"

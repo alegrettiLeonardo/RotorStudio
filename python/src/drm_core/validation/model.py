@@ -42,10 +42,10 @@ def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
         if b.node not in z: raise ModelValidationError(f"AdvancedBearing[{i}]: received node={b.node}; expected existing node; correct node")
         try: validate_advanced_bearing(b)
         except ValueError as exc: raise ModelValidationError(f"AdvancedBearing[{i}] {type(b).__name__}: {exc}") from exc
-    if m.advanced_bearings and analysis in {"rotating","coaxial"}:
+    if m.advanced_bearings and analysis=="rotating":
         raise ModelValidationError(
-            f"advanced ROSS-derived bearings are not yet qualified for {analysis} assembly; "
-            "use stationary-frame modal/FRF/critical-speed analyses or the legacy bearing path"
+            "advanced ROSS-derived bearings are not yet qualified for rotating-frame assembly; "
+            "use stationary/coaxial analyses or the legacy rotating-bearing path"
         )
     if analysis=="coaxial":
         if not m.rotors: raise ModelValidationError("RotorModel.rotors: received empty list; coaxial analysis requires RotorDefinition rows")
