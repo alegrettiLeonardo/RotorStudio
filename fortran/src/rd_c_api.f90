@@ -3,7 +3,7 @@ module rd_c_api
  use rd_kinds,only:rk,ik
  use rd_status,only:RD_OK,RD_ERR_INPUT,RD_ERR_UNSUPPORTED
  use rd_assembly_stationary,only:assemble_rotor,assemble_bearings
- use rd_assembly_rotating,only:assemble_rotor_rotating,assemble_bearings_rotating
+ use rd_assembly_rotating,only:assemble_rotor_rotating,assemble_bearings_rotating,assemble_bearings_rotating_advanced
  use rd_eigensystem,only:stationary_eigs,second_order_eigs
  use rd_frequency_response,only:synchronous_response
  use rd_external_response,only:auxiliary_frequency_response,foundation_frequency_response
@@ -347,7 +347,7 @@ contains
    rd_bearasym_legacy=RD_ERR_INPUT;if(nnode<=0)return;ndof=4*nnode
    allocate(be(34,nbear),M(ndof,ndof),C(ndof,ndof),C1(ndof,ndof),K(ndof,ndof),K1(ndof,ndof),K1a(ndof,ndof),K2(ndof,ndof),iz(ndof))
    do j=1,nbear;do i=1,34;be(i,j)=bear((j-1)*34+i);enddo;enddo
-   call assemble_bearings_rotating(nnode,nbear,be,M,C,C1,K,K1,K1a,K2,iz,st);if(st/=RD_OK)then;rd_bearasym_legacy=st;return;endif
+   call assemble_bearings_rotating_advanced(nnode,nbear,be,M,C,C1,K,K1,K1a,K2,iz,st);if(st/=RD_OK)then;rd_bearasym_legacy=st;return;endif
    do j=1,ndof;do i=1,ndof;Cout((j-1)*ndof+i)=C(i,j);Kout((j-1)*ndof+i)=K(i,j);K1out((j-1)*ndof+i)=K1(i,j);enddo;enddo
    do i=1,ndof;zero_mask(i)=merge(1,0,iz(i));enddo;rd_bearasym_legacy=RD_OK
  end function
@@ -359,7 +359,7 @@ contains
    rd_bearasym_adv_legacy=RD_ERR_INPUT;if(nnode<=0)return;ndof=4*nnode
    allocate(be(34,nbear),M(ndof,ndof),C(ndof,ndof),C1(ndof,ndof),K(ndof,ndof),K1(ndof,ndof),K1a(ndof,ndof),K2(ndof,ndof),iz(ndof))
    do j=1,nbear;do i=1,34;be(i,j)=bear((j-1)*34+i);enddo;enddo
-   call assemble_bearings_rotating(nnode,nbear,be,M,C,C1,K,K1,K1a,K2,iz,st);if(st/=RD_OK)then;rd_bearasym_adv_legacy=st;return;endif
+   call assemble_bearings_rotating_advanced(nnode,nbear,be,M,C,C1,K,K1,K1a,K2,iz,st);if(st/=RD_OK)then;rd_bearasym_adv_legacy=st;return;endif
    do j=1,ndof;do i=1,ndof
      Mout((j-1)*ndof+i)=M(i,j);Cout((j-1)*ndof+i)=C(i,j);C1out((j-1)*ndof+i)=C1(i,j)
      Kout((j-1)*ndof+i)=K(i,j);K1out((j-1)*ndof+i)=K1(i,j);K1advout((j-1)*ndof+i)=K1a(i,j);K2out((j-1)*ndof+i)=K2(i,j)

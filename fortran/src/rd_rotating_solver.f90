@@ -1,7 +1,7 @@
 module rd_rotating_solver
   use rd_kinds,only:rk,ik
   use rd_status,only:RD_OK,RD_ERR_INPUT
-  use rd_assembly_rotating,only:assemble_rotor_rotating,assemble_bearings_rotating
+  use rd_assembly_rotating,only:assemble_rotor_rotating,assemble_bearings_rotating_advanced
   use rd_eigensystem,only:second_order_eigs
   use rd_lapack,only:solve_real
   implicit none(type,external);private
@@ -14,7 +14,7 @@ contains
     logical,allocatable::iz(:);integer,allocatable::keep(:);complex(rk),allocatable::Vr(:,:);integer::ndof,nc,i,j,idx
     ndof=4*nnode;allocate(M(ndof,ndof),Mb(ndof,ndof),C0(ndof,ndof),C1(ndof,ndof),Cb(ndof,ndof),C1b(ndof,ndof),K0(ndof,ndof),K1(ndof,ndof),K2(ndof,ndof),Kb(ndof,ndof),K1b(ndof,ndof),K1adv(ndof,ndof),K2b(ndof,ndof),iz(ndof))
     call assemble_rotor_rotating(nnode,z,nshaft,shaft,ndisc,disc,M,C0,C1,K0,K1,K2,status);if(status/=RD_OK)return
-    call assemble_bearings_rotating(nnode,nbear,bear,Mb,Cb,C1b,Kb,K1b,K1adv,K2b,iz,status);if(status/=RD_OK)return
+    call assemble_bearings_rotating_advanced(nnode,nbear,bear,Mb,Cb,C1b,Kb,K1b,K1adv,K2b,iz,status);if(status/=RD_OK)return
     nc=count(.not.iz);if(size(w)<2*nc.or.size(Vfull,1)<ndof.or.size(Vfull,2)<2*nc)then;status=RD_ERR_INPUT;return;endif
     allocate(keep(nc));idx=0;do i=1,ndof;if(.not.iz(i))then;idx=idx+1;keep(idx)=i;endif;enddo
     allocate(C(nc,nc),K(nc,nc),Vr(nc,2*nc))
@@ -39,7 +39,7 @@ contains
     logical,allocatable::iz(:);integer,allocatable::keep(:);integer::ndof,nc,i,j,ispeed,node,idx
     ndof=4*nnode;response=0;allocate(M(ndof,ndof),Mb(ndof,ndof),C0(ndof,ndof),C1(ndof,ndof),Cb(ndof,ndof),C1b(ndof,ndof),K0(ndof,ndof),K1(ndof,ndof),K2(ndof,ndof),Kb(ndof,ndof),K1b(ndof,ndof),K1adv(ndof,ndof),K2b(ndof,ndof),iz(ndof),ub(ndof));ub=0
     call assemble_rotor_rotating(nnode,z,nshaft,shaft,ndisc,disc,M,C0,C1,K0,K1,K2,status);if(status/=RD_OK)return
-    call assemble_bearings_rotating(nnode,nbear,bear,Mb,Cb,C1b,Kb,K1b,K1adv,K2b,iz,status);if(status/=RD_OK)return
+    call assemble_bearings_rotating_advanced(nnode,nbear,bear,Mb,Cb,C1b,Kb,K1b,K1adv,K2b,iz,status);if(status/=RD_OK)return
     do i=1,nforce
       node=nint(force(2,i));if(node<1.or.node>nnode)then;status=RD_ERR_INPUT;return;endif
       if(nint(force(1,i))==1)then
