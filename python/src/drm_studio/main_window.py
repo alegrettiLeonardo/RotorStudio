@@ -12,6 +12,9 @@ from PySide6.QtWidgets import (
 from drm_core import AnalysisService
 from drm_core.analysis.static import StaticResult
 from drm_core.analysis.forced_response import ForcedResponseResult
+from drm_core.analysis.general_time_response import GeneralTimeResponseResult
+from .analysis_pages.general_time_setup import GeneralTimeSetupDialog
+from .result_views.general_time_view import GeneralTimeResultView
 from .analysis_pages.forced_response_setup import ForcedResponseSetupDialog
 from .result_views.forced_response_view import ForcedResponseResultView
 from drm_core.analysis.general_frf import FrequencyResponseMatrixResult
@@ -89,6 +92,8 @@ class MainWindow(QMainWindow):
         self.undo_action.setShortcut(QKeySequence.Undo)
         self.redo_action.setShortcut(QKeySequence.Redo)
 
+        self.general_time_action = QAction("General Time Response F(t)", self)
+        self.general_time_action.triggered.connect(self._configure_general_time)
         self.forced_response_action = QAction("Forced Response", self)
         self.forced_response_action.triggered.connect(self._configure_forced_response)
         self.general_frf_action = QAction("General FRF — Matrix", self)
@@ -173,6 +178,7 @@ class MainWindow(QMainWindow):
         self.analysis_menu = bar.addMenu("Analysis")
         self.analysis_menu.addAction(self.general_frf_action)
         self.analysis_menu.addAction(self.forced_response_action)
+        self.analysis_menu.addAction(self.general_time_action)
         self.analysis_menu.addAction(self.static_action)
         self.analysis_menu.addAction(self.modal_action)
         self.analysis_menu.addAction(self.campbell_action)
@@ -409,6 +415,10 @@ class MainWindow(QMainWindow):
             except Exception as exc:
                 QMessageBox.critical(self, "Save project failed", str(exc))
 
+    def _configure_general_time(self):
+        dialog=GeneralTimeSetupDialog(self.session.project.model,self)
+        if dialog.exec()==QDialog.Accepted:self.run_analysis(dialog.analysis_case())
+
     def _configure_forced_response(self):
         dialog=ForcedResponseSetupDialog(self.session.project.model,self)
         if dialog.exec()==QDialog.Accepted:self.run_analysis(dialog.analysis_case())
@@ -585,7 +595,9 @@ class MainWindow(QMainWindow):
         result = record.execution.result
         view = None
         prefix = "Result"
-        if isinstance(result, ForcedResponseResult):
+        if isinstance(result, GeneralTimeResponseResult):
+            view=GeneralTimeResultView(record)
+        elif isinstance(result, ForcedResponseResult):
             view=ForcedResponseResultView(record)
             prefix="Forced Response"
         elif isinstance(result, FrequencyResponseMatrixResult):

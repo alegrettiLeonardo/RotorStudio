@@ -42,7 +42,7 @@ add_library(drmrotor SHARED
  src/rd_assembly_stationary.f90 src/rd_assembly_rotating.f90 src/rd_eigensystem.f90
  src/rd_frequency_response.f90 src/rd_external_response.f90 src/rd_critical_speed.f90
  src/rd_reduction.f90 src/rd_dp45.f90 src/rd_transient.f90
- src/rd_coaxial_solver.f90 src/rd_rotating_solver.f90 src/rd_dynamic_stiffness.f90 src/rd_frf_general.f90 src/rd_forced_response.f90 src/rd_forced_response_c_api.f90 src/rd_static.f90 src/rd_c_api.f90)
+ src/rd_coaxial_solver.f90 src/rd_rotating_solver.f90 src/rd_dynamic_stiffness.f90 src/rd_frf_general.f90 src/rd_newmark.f90 src/rd_transient_stiffness.f90 src/rd_time_response_general.f90 src/rd_time_response_c_api.f90 src/rd_forced_response.f90 src/rd_forced_response_c_api.f90 src/rd_static.f90 src/rd_c_api.f90)
 target_link_libraries(drmrotor PRIVATE LAPACK::LAPACK BLAS::BLAS)
 set_target_properties(drmrotor PROPERTIES OUTPUT_NAME drmrotor)
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
@@ -92,3 +92,16 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(test_forced_response PRIVATE -ffree-line-length-none)
 endif()
 add_test(NAME arbitrary_forced_response COMMAND test_forced_response)
+
+add_executable(test_newmark tests/test_newmark.f90)
+target_link_libraries(test_newmark PRIVATE drmrotor)
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_newmark PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME simple_newmark_analytic COMMAND test_newmark)
+
+add_executable(time_probe tests/time_probe.f90)
+target_link_libraries(time_probe PRIVATE drmrotor)
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(time_probe PRIVATE -ffree-line-length-none)
+endif()
