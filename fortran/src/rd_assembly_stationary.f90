@@ -88,6 +88,13 @@ contains
         call short_bearing_coefficients(bear(:,i),speed,kl,cl,ecc,status);if(status/=RD_OK)return
       case(8)
         call seal_coefficients(bear(:,i),speed,ml,cl,kl,status);if(status/=RD_OK)return
+      case(9)
+        ! B19 additive advanced-bearing bridge: arbitrary 2x2 translational
+        ! stiffness, damping and inertia evaluated at the requested operating
+        ! point. Historical types 1-8 and 20 are unchanged.
+        kl(1,1)=bear(3,i);kl(1,2)=bear(4,i);kl(2,1)=bear(5,i);kl(2,2)=bear(6,i)
+        cl(1,1)=bear(7,i);cl(1,2)=bear(8,i);cl(2,1)=bear(9,i);cl(2,2)=bear(10,i)
+        ml(1,1)=bear(11,i);ml(1,2)=bear(12,i);ml(2,1)=bear(13,i);ml(2,2)=bear(14,i)
       case(20)
         ! bearmtx.m accepts type 20 but contributes zero; coaxial coupling is assembled separately.
       case default; status=RD_ERR_UNSUPPORTED;return

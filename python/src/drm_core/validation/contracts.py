@@ -1,6 +1,6 @@
 import math
 import numpy as np
-_COUNTS={1:(0,),2:(0,),3:(4,),4:(8,),5:(8,),6:(32,),7:(5,6),8:(6,),20:(5,)}
+_COUNTS={1:(0,),2:(0,),3:(4,),4:(8,),5:(8,),6:(32,),7:(5,6),8:(6,),9:(12,),20:(5,)}
 def meaningful_properties(b):
     vals=tuple(float(x) for x in b.properties);allowed=_COUNTS.get(b.bearing_type)
     if allowed is None:return vals
@@ -17,6 +17,7 @@ def bearing_kc_matrices(b):
     elif t==4:K[np.diag_indices(4)]=p[:4];C[np.diag_indices(4)]=p[4:8]
     elif t==5:K[:2,:2]=np.asarray(p[:4]).reshape(2,2);C[:2,:2]=np.asarray(p[4:8]).reshape(2,2)
     elif t==6:K[:]=np.asarray(p[:16]).reshape(4,4);C[:]=np.asarray(p[16:32]).reshape(4,4)
+    elif t==9:K[:2,:2]=np.asarray(p[:4]).reshape(2,2);C[:2,:2]=np.asarray(p[4:8]).reshape(2,2)
     else:raise ValueError(f"type {t}: no constant single-node K/C contract")
     return K,C
 def validate_bearing_contract(b):
@@ -29,3 +30,17 @@ def validate_bearing_contract(b):
     if t==8:
         P,R,L,c,V,fric=p[:6]
         if P<0 or min(R,L,c,V,fric)<=0:raise ValueError("type 8 seal expects P>=0 and R,L,c,V,fric>0")
+
+
+def bearing_kcm_matrices(b):
+    """Return constant single-node K/C/M matrices.
+
+    Type 9 is the additive B19 translational K/C/M bridge. Existing legacy
+    bearing contracts remain unchanged.
+    """
+    p=meaningful_properties(b)
+    K,C=bearing_kc_matrices(b)
+    M=np.zeros((4,4))
+    if b.bearing_type==9:
+        M[:2,:2]=np.asarray(p[8:12]).reshape(2,2)
+    return K,C,M

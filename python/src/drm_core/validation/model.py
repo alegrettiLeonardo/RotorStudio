@@ -28,7 +28,7 @@ def validate_model(m:RotorModel, *, analysis:str="stationary")->None:
     for i,d in enumerate(m.disks,1):
         if d.node not in z: raise ModelValidationError(f"Disk[{i}]: received node={d.node}; expected existing node; correct node")
         if d.disk_type not in allowed_disks: raise ModelValidationError(f"Disk[{i}]: received type={d.disk_type}; expected {sorted(allowed_disks)} for {analysis} analysis")
-    allowed_bear={1,2,3,4} if analysis=="rotating" else ({1,2,3,4,5,6,7,8,20} if analysis=="coaxial" else {1,2,3,4,5,6,7,8})
+    allowed_bear={1,2,3,4} if analysis=="rotating" else ({1,2,3,4,5,6,7,8,20} if analysis=="coaxial" else {1,2,3,4,5,6,7,8,9})
     for i,b in enumerate(m.bearings,1):
         if b.node not in z: raise ModelValidationError(f"Bearing[{i}]: received node={b.node}; expected existing node; correct node")
         if b.bearing_type not in allowed_bear: raise ModelValidationError(f"Bearing[{i}]: received type={b.bearing_type}; expected {sorted(allowed_bear)} for {analysis} analysis")

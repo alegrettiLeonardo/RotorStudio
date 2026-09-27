@@ -1,0 +1,106 @@
+name: B19 Nonzero Advanced Bearing Mass
+
+on:
+  push:
+    branches:
+      - feature/b19-b23-advanced-bearing-extensions-20260927
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: b19-bearing-mass-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-b19:
+    name: Linux B19 mass qualification
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+      DRMROTOR_LIB: ${{ github.workspace }}/build-b19/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-b19/libdrmbearings.so
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Verify promoted baseline ancestry
+        run: git merge-base --is-ancestor e2a8b57003edf4b407ea089e92160ce86b30c35c HEAD
+      - run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m pip install -e './python[test]'
+      - name: Build and native regression
+        run: |
+          cmake -S fortran -B build-b19 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-b19 -j2
+          ctest --test-dir build-b19 --output-on-failure
+      - name: Stage 1 exactly 57
+        run: |
+          collection="$(python -m pytest python/tests --collect-only -q)"
+          echo "$collection"
+          echo "$collection" | grep -Eq '57 tests collected|57 collected'
+          python -m pytest python/tests -q
+      - name: B19 and B12-B18 regressions
+        run: |
+          python -m pytest python/tests_bearings/test_b19_nonzero_bearing_mass.py -q -s
+          python -m pytest python/tests_bearings/test_advanced_bearings.py python/tests_bearings/test_b18_synchronous_runup.py -q
+
+  windows-b19:
+    name: Windows B19 mass qualification
+    runs-on: windows-2025
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc-fortran
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-openblas
+      - name: Runtime path
+        shell: msys2 {0}
+        run: echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - shell: pwsh
+        run: python -m pip install -e './python[test]'
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-b19 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-b19 --parallel
+          ctest --test-dir build-b19 --output-on-failure
+      - name: Configure DLL environment and run B19
+        shell: pwsh
+        run: |
+          $rotor=Get-ChildItem ./build-b19 -Recurse -Filter "*drmrotor*.dll" | Select-Object -First 1
+          $bear=Get-ChildItem ./build-b19 -Recurse -Filter "*drmbearings*.dll" | Select-Object -First 1
+          $root=(Get-Location).Path
+          $env:DRMROTOR_LIB=$rotor.FullName
+          $env:DRMBEARINGS_LIB=$bear.FullName
+          $env:DRMROTOR_DLL_DIRS=$env:UCRT64_BIN
+          $env:DRMBEARINGS_DLL_DIRS=$env:UCRT64_BIN
+          $env:PYTHONPATH="$root/python/src;$root"
+          $env:PATH="$env:UCRT64_BIN;$env:PATH"
+          python -m pytest python/tests_bearings/test_b19_nonzero_bearing_mass.py -q -s
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+  b19-gate:
+    name: B19 aggregate gate
+    needs: [linux-b19, windows-b19]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - run: |
+          test "${{ needs.linux-b19.result }}" = "success"
+          test "${{ needs.windows-b19.result }}" = "success"
+          echo "B19_NONZERO_ADVANCED_BEARING_MASS = PASS"
+          echo "HEAD = $GITHUB_SHA"

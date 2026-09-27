@@ -1022,14 +1022,8 @@ class AdvancedBearingBackend:
         # untouched; only the evaluated K/C row is adapted at the requested
         # (Omega, omega) operating point.
         result = self.evaluate(bearing, speed_rad_s, frequency_rad_s)
-        if np.max(np.abs(result.M)) > 1e-14:
-            raise SolverLibraryError(
-                f"{type(bearing).__name__} evaluated a nonzero bearing mass matrix; "
-                "the qualified 4-DOF RotorStudio legacy assembly cannot silently "
-                "discard bearing mass. A dedicated rotor-assembly ABI is required."
-            )
-        K, C = result.K, result.C
-        props = (
+        K, C, M = result.K, result.C, result.M
+        kc = (
             float(K[0, 0]),
             float(K[0, 1]),
             float(K[1, 0]),
@@ -1039,5 +1033,17 @@ class AdvancedBearingBackend:
             float(C[1, 0]),
             float(C[1, 1]),
         )
-        # Legacy type 5 is the already-qualified full 2x2 translational K/C path.
-        return Bearing(5, int(bearing.node), props)
+        if np.max(np.abs(M)) <= 1e-14:
+            # Preserve the B12-qualified type-5 path byte-for-byte for zero-M
+            # advanced bearings.
+            return Bearing(5, int(bearing.node), kc)
+        # B19 additive type 9 is a single-node 2x2 translational K/C/M bridge.
+        # It does not reinterpret M as disk mass and does not discard
+        # cross-coupled bearing inertia.
+        mass = (
+            float(M[0, 0]),
+            float(M[0, 1]),
+            float(M[1, 0]),
+            float(M[1, 1]),
+        )
+        return Bearing(9, int(bearing.node), kc + mass)
