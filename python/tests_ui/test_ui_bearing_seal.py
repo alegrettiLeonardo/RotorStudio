@@ -118,15 +118,24 @@ def test_bearing_performance_runs_qualified_native_tilting_pad(qtbot):
 
     page.speed_field.setValue(94.24777960769379)
     page.frequency_field.setValue(94.24777960769379)
-    page._evaluate_advanced()
+    # B14 moved Reynolds/THD/TEHD off the Qt UI thread.  The legacy Stage 2
+    # test must observe the asynchronous completion contract instead of
+    # assuming the result is available synchronously after the button action.
+    with qtbot.waitSignal(page.jobs.completed, timeout=60000):
+        page._evaluate_advanced()
 
-    text = page.coefficient_note.toPlainText()
-    assert "ROSS_PARITY_PASS_B12" in text
-    assert "K [N/m]" in text and "C [N·s/m]" in text
-    assert page.lower_tabs.isTabEnabled(1)
-    assert page.lower_tabs.isTabEnabled(2)
-    assert "Native pressure field" in page.pressure_note.toPlainText()
-    assert "Native film temperature field" in page.temperature_note.toPlainText()
+    summary = page.summary_note.toPlainText()
+    coefficients = page.coefficient_note.toPlainText()
+    assert "ROSS_PARITY_PASS_B12" in summary
+    assert "6320eab9" in summary
+    assert "K [N/m]" in coefficients and "C [N·s/m]" in coefficients
+    assert page.lower_tabs.tabText(0) == "Summary"
+    assert page.lower_tabs.tabText(1) == "Dynamic Coefficients"
+    for index in range(2, 8):
+        assert page.lower_tabs.isTabEnabled(index)
     assert page._last_payload is not None
     assert np.isfinite(page._last_payload["evaluation"].K).all()
+    assert np.isfinite(page._last_payload["pressure_field_pa"]).all()
+    assert np.isfinite(page._last_payload["temperature_field_k"]).all()
+    assert np.isfinite(page._last_payload["film_thickness_field_m"]).all()
 
