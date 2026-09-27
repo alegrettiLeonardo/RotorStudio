@@ -4,7 +4,7 @@ module rd_assembly_rotating
   use rd_shaft_asymmetric, only: shaft_asymmetric_matrices
   implicit none(type, external)
   private
-  public :: assemble_rotor_rotating, assemble_bearings_rotating
+  public :: assemble_rotor_rotating, assemble_bearings_rotating, assemble_bearings_rotating_advanced
 contains
   subroutine assemble_rotor_rotating(nnode,z,nshaft,shaft,ndisc,disc,M0,C0,C1,K0,K1,K2,status)
     integer(ik),intent(in)::nnode,nshaft,ndisc
@@ -67,7 +67,7 @@ contains
     enddo
   end subroutine
 
-  subroutine assemble_bearings_rotating(nnode,nbear,bear,Mb,Cb,C1b,Kb,K1b,K1adv,K2b,is_zero,status)
+  subroutine assemble_bearings_rotating_advanced(nnode,nbear,bear,Mb,Cb,C1b,Kb,K1b,K1adv,K2b,is_zero,status)
     integer(ik),intent(in)::nnode,nbear;real(rk),intent(in)::bear(34,nbear)
     real(rk),intent(out)::Mb(4*nnode,4*nnode),Cb(4*nnode,4*nnode),C1b(4*nnode,4*nnode), &
       Kb(4*nnode,4*nnode),K1b(4*nnode,4*nnode),K1adv(4*nnode,4*nnode),K2b(4*nnode,4*nnode)
@@ -106,5 +106,19 @@ contains
       Kb(d,d)=Kb(d,d)+kl;K1b(d,d)=K1b(d,d)+k1l
       K1adv(d,d)=K1adv(d,d)+k1al;K2b(d,d)=K2b(d,d)+k2l
     enddo
-  end subroutine
+  end subroutine assemble_bearings_rotating_advanced
+
+  subroutine assemble_bearings_rotating(nnode,nbear,bear,Cb,Kb,K1b,is_zero,status)
+    integer(ik),intent(in)::nnode,nbear
+    real(rk),intent(in)::bear(34,nbear)
+    real(rk),intent(out)::Cb(4*nnode,4*nnode),Kb(4*nnode,4*nnode),K1b(4*nnode,4*nnode)
+    logical,intent(out)::is_zero(4*nnode)
+    integer(ik),intent(out)::status
+    real(rk),allocatable::Mb(:,:),C1b(:,:),K1adv(:,:),K2b(:,:)
+    integer::ndof
+    ndof=4*nnode
+    allocate(Mb(ndof,ndof),C1b(ndof,ndof),K1adv(ndof,ndof),K2b(ndof,ndof))
+    call assemble_bearings_rotating_advanced(nnode,nbear,bear,Mb,Cb,C1b,Kb,K1b,K1adv,K2b,is_zero,status)
+  end subroutine assemble_bearings_rotating
+
 end module rd_assembly_rotating
