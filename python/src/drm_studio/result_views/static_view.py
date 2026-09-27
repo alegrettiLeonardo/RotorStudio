@@ -1,6 +1,7 @@
+import numpy as np
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QLabel,QTableWidget,QTableWidgetItem
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QLabel,QTableWidget,QTableWidgetItem,QAbstractItemView
 from .io import record_data_table
 
 class StaticResultView(QWidget):
@@ -9,7 +10,7 @@ class StaticResultView(QWidget):
         super().__init__(parent);self.record=record;self.result=record.execution.result
         layout=QVBoxLayout(self);self.stale_label=QLabel();layout.addWidget(self.stale_label)
         self.figure=Figure(figsize=(10,7),tight_layout=True)
-        self.canvas=FigureCanvasQTAgg(self.figure);layout.addWidget(self.canvas,1)
+        self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(340);layout.addWidget(self.canvas,1)
         r=self.result
         a,b,c,d=self.figure.subplots(2,2).flat
         a.plot(r.node_positions,r.displacement_y,'o-');a.set(title='Deflected shaft',ylabel='y (m)',xlabel='Position (m)')
@@ -23,8 +24,10 @@ class StaticResultView(QWidget):
         columns,data=record_data_table(record)
         self.table=QTableWidget(len(data),len(columns));self.table.setHorizontalHeaderLabels(columns)
         for i,row in enumerate(data):
-            for j,value in enumerate(row):self.table.setItem(i,j,QTableWidgetItem(f'{value:.10g}'))
-        self.table.setMaximumHeight(220);layout.addWidget(self.table)
+            for j,value in enumerate(row):self.table.setItem(i,j,QTableWidgetItem('' if np.isnan(value) else f'{value:.10g}'))
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.resizeColumnsToContents()
+        self.table.setMaximumHeight(160);layout.addWidget(self.table)
         layout.addWidget(QLabel('Table entity: 1=node; 2=diagram station; 3=shaft element; 4=disk. Blank values are not applicable.'))
         self.refresh_stale()
     def refresh_stale(self):self.stale_label.setText('⚠ OUTDATED' if self.record.stale else 'CURRENT — Static gravity')
