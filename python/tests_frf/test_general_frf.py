@@ -89,3 +89,9 @@ def test_near_resonance_using_frozen_primitive_matrices():
             reference=np.linalg.solve(D,np.eye(len(D))) # independent validation only
             np.testing.assert_allclose(result.H_disp[:,:,i],reference,rtol=1e-9,atol=1e-13)
             assert result.residual[i]<1e-12
+
+@pytest.mark.parametrize('supports',[0,1])
+def test_rigid_body_numerical_singularity(supports):
+    m,_=case('fixed_speed');m.advanced_bearings=m.advanced_bearings[:supports]
+    with pytest.raises(SolverLibraryError,match='status=30'):
+        AnalysisService().execute(m,AnalysisCase('general_frf',dict(frequency_rad_s=[0.])))

@@ -85,7 +85,10 @@ qualification. Dynamic force definitions are not consumed; this is receptance, n
 ## Explicit engineering deviations and limitations
 
 ROSS transfer_matrix replaces NaN H with zeros. RotorStudio rejects singular/nonfinite
-systems with status, and explicitly rejects unrestrained zero-frequency rigid motion.
+systems with status, and explicitly rejects unrestrained zero-frequency rigid motion. ZGECON estimates
+reciprocal condition from the existing LU factors; rcond <= ndof*machine_epsilon
+is rejected as numerically singular. This catches rigid-body systems that ZGESV
+can accept because roundoff leaves tiny nonzero pivots.
 This is a deliberate engineering deviation, not strict invalid-case behavioral parity.
 An arbitrary near-singular model can still have a small backward error; the solver
 has no universal forward-error guarantee. No claim of undamped pole regularization.
@@ -152,7 +155,7 @@ complex component rows, conditions, phase/magnitude and independent residuals).
 ## Regression and platform gates
 
 Local 8/8 CTest. Stage 1 57 and existing UI 59 remain unchanged. A1 Static 28 tests
-pass on the A2 library. Dedicated A2 suite has 33 tests. The legacy-preservation gate
+pass on the A2 library. Dedicated A2 suite has 35 tests. The legacy-preservation gate
 now compares against promoted A1 and strips ONLY the two additive A2 ABI functions,
 proving every A1/legacy source and native test remains byte-identical.
 

@@ -41,6 +41,9 @@ program test_frf_general
  if(status/=0.or.any(old/=hr(:,:,2)))stop 9
  call general_frf(nn,z,2,sh,1,disk,2,nodes,nf,freq,0,0._rk,coeff,hr,hi,vr,vi,ar,ai,res,status)
  if(status/=0.or.maxval(abs(old-hr(:,:,2)))<1.e-12_rk)stop 10
+ coeff(:,2,:)=0
+ call general_frf(nn,z,2,sh,1,disk,2,nodes,nf,freq,0,0._rk,coeff,hr,hi,vr,vi,ar,ai,res,status)
+ if(status/=30)stop 14
  coeff=0
  call general_frf(nn,z,2,sh,1,disk,2,nodes,nf,freq,0,0._rk,coeff,hr,hi,vr,vi,ar,ai,res,status)
  if(status/=30)stop 11
