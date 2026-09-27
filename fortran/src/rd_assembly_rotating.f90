@@ -4,7 +4,7 @@ module rd_assembly_rotating
   use rd_shaft_asymmetric, only: shaft_asymmetric_matrices
   implicit none(type, external)
   private
-  public :: assemble_rotor_rotating, assemble_bearings_rotating
+  public :: assemble_rotor_rotating, assemble_bearings_rotating, assemble_bearings_rotating_advanced
 contains
   subroutine assemble_rotor_rotating(nnode,z,nshaft,shaft,ndisc,disc,M0,C0,C1,K0,K1,K2,status)
     integer(ik),intent(in)::nnode,nshaft,ndisc
@@ -91,6 +91,57 @@ contains
       case default;status=RD_ERR_UNSUPPORTED;return
       end select
       Kb(d,d)=Kb(d,d)+kl;Cb(d,d)=Cb(d,d)+cl;K1b(d,d)=K1b(d,d)+k1l
+    enddo
+  end subroutine
+
+  subroutine assemble_bearings_rotating_advanced(nnode,nbear,bear,Mb,Cb,C1ba,Kb,K1bl,K1ba,K2ba,is_zero,status)
+    integer(ik),intent(in)::nnode,nbear
+    real(rk),intent(in)::bear(34,nbear)
+    real(rk),intent(out)::Mb(4*nnode,4*nnode),Cb(4*nnode,4*nnode),C1ba(4*nnode,4*nnode), &
+      Kb(4*nnode,4*nnode),K1bl(4*nnode,4*nnode),K1ba(4*nnode,4*nnode),K2ba(4*nnode,4*nnode)
+    logical,intent(out)::is_zero(4*nnode)
+    integer(ik),intent(out)::status
+    integer::i,j,t,n,d(4)
+    real(rk)::ml(4,4),cl(4,4),kl(4,4),k1l(4,4),k1a(4,4),c1a(4,4),k2a(4,4)
+    real(rk)::J2(2,2),A2(2,2),comm(2,2),scale
+    Mb=0._rk;Cb=0._rk;C1ba=0._rk;Kb=0._rk;K1bl=0._rk;K1ba=0._rk;K2ba=0._rk
+    is_zero=.false.;status=RD_OK
+    J2=reshape([0._rk,1._rk,-1._rk,0._rk],[2,2])
+    do i=1,nbear
+      t=nint(bear(1,i));n=nint(bear(2,i))
+      if(n<1.or.n>nnode)then;status=RD_ERR_INPUT;return;endif
+      d=[4*n-3,4*n-2,4*n-1,4*n]
+      ml=0._rk;cl=0._rk;kl=0._rk;k1l=0._rk;k1a=0._rk;c1a=0._rk;k2a=0._rk
+      select case(t)
+      case(1)
+        is_zero(d(1:2))=.true.
+      case(2)
+        is_zero(d)=.true.
+      case(3)
+        kl(1,1)=bear(3,i);kl(2,2)=bear(4,i);cl(1,1)=bear(5,i);cl(2,2)=bear(6,i)
+        k1l(1,2)=-bear(5,i);k1l(2,1)=bear(5,i)
+      case(4)
+        do j=1,4;kl(j,j)=bear(2+j,i);cl(j,j)=bear(6+j,i);enddo
+        k1l(1,2)=-bear(7,i);k1l(2,1)=bear(7,i);k1l(3,4)=-bear(9,i)
+        k1l(2,1)=bear(9,i)
+      case(9)
+        kl(1,1)=bear(3,i);kl(1,2)=bear(4,i);kl(2,1)=bear(5,i);kl(2,2)=bear(6,i)
+        cl(1,1)=bear(7,i);cl(1,2)=bear(8,i);cl(2,1)=bear(9,i);cl(2,2)=bear(10,i)
+        ml(1,1)=bear(11,i);ml(1,2)=bear(12,i);ml(2,1)=bear(13,i);ml(2,2)=bear(14,i)
+        A2=kl(1:2,1:2);comm=matmul(A2,J2)-matmul(J2,A2);scale=max(1._rk,maxval(abs(A2)))
+        if(maxval(abs(comm))>1e-10_rk*scale)then;status=RD_ERR_UNSUPPORTED;return;endif
+        A2=cl(1:2,1:2);comm=matmul(A2,J2)-matmul(J2,A2);scale=max(1._rk,maxval(abs(A2)))
+        if(maxval(abs(comm))>1e-10_rk*scale)then;status=RD_ERR_UNSUPPORTED;return;endif
+        A2=ml(1:2,1:2);comm=matmul(A2,J2)-matmul(J2,A2);scale=max(1._rk,maxval(abs(A2)))
+        if(maxval(abs(comm))>1e-10_rk*scale)then;status=RD_ERR_UNSUPPORTED;return;endif
+        c1a(1:2,1:2)=2._rk*matmul(ml(1:2,1:2),J2)
+        k1a(1:2,1:2)=matmul(cl(1:2,1:2),J2)
+        k2a(1:2,1:2)=-ml(1:2,1:2)
+      case default
+        status=RD_ERR_UNSUPPORTED;return
+      end select
+      Mb(d,d)=Mb(d,d)+ml;Cb(d,d)=Cb(d,d)+cl;C1ba(d,d)=C1ba(d,d)+c1a
+      Kb(d,d)=Kb(d,d)+kl;K1bl(d,d)=K1bl(d,d)+k1l;K1ba(d,d)=K1ba(d,d)+k1a;K2ba(d,d)=K2ba(d,d)+k2a
     enddo
   end subroutine
 end module rd_assembly_rotating
