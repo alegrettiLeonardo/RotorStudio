@@ -1,0 +1,50 @@
+{
+  "E_Pa": 211000000000.0,
+  "G_Pa": 81200000000.0,
+  "disks": [
+    {
+      "Id_kg_m2": 0.04,
+      "Ip_kg_m2": 0.08,
+      "mass_kg": 12.3,
+      "node": 2
+    },
+    {
+      "Id_kg_m2": 0.04,
+      "Ip_kg_m2": 0.08,
+      "mass_kg": 9.7,
+      "node": 4
+    }
+  ],
+  "dof_order": [
+    "x",
+    "y",
+    "alpha",
+    "beta"
+  ],
+  "gravity_m_s2": -9.8065,
+  "gyroscopic": false,
+  "inner_diameter_m": 0.0,
+  "lengths_m": [
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25,
+    0.25
+  ],
+  "outer_diameters_m": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ],
+  "rho_kg_m3": 7810.0,
+  "rotary_inertia": false,
+  "shear_effects": false,
+  "supports": [
+    0,
+    6
+  ]
+}
