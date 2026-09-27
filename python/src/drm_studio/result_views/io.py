@@ -4,6 +4,7 @@ import numpy as np
 import json
 from drm_core.analysis.static import StaticResult
 from drm_core.analysis.general_frf import FrequencyResponseMatrixResult
+from drm_core.analysis.forced_response import ForcedResponseResult
 
 from drm_core import (
     ModalResult, CriticalSpeedResult, FrequencyResponseResult, TransientResult,
@@ -35,6 +36,11 @@ def _complex_response_rows(axis, response):
 def record_data_table(record):
     """Map qualified result objects to explicit numeric columns without recalculating physics."""
     result = record.execution.result
+    if isinstance(result, ForcedResponseResult):
+        selection=getattr(record,'forced_selection',record.execution.case.options);dof=selection.get('output_dof',0);kind=selection.get('response','displacement')
+        force=result.force_complex[dof];value=getattr(result,kind)[dof];q=result.displacement[dof];v=result.velocity[dof];a=result.acceleration[dof]
+        fu='N' if dof%4<2 else 'Nm';u='m' if dof%4<2 else 'rad';selected=u+{'displacement':'','velocity':'_per_s','acceleration':'_per_s2'}[kind]
+        return ['frequency_rad_s','rotor_speed_rad_s','response_dof_zero_based','force_at_response_dof_real_'+fu,'force_at_response_dof_imag_'+fu,'response_magnitude_'+selected,'response_phase_rad','q_real_'+u,'q_imag_'+u,'velocity_real_'+u+'_per_s','velocity_imag_'+u+'_per_s','acceleration_real_'+u+'_per_s2','acceleration_imag_'+u+'_per_s2'],np.column_stack([result.frequency_rad_s,result.rotor_speed_rad_s,np.full(len(value),dof),force.real,force.imag,abs(value),np.angle(value),q.real,q.imag,v.real,v.imag,a.real,a.imag])
     if isinstance(result, FrequencyResponseMatrixResult):
         selection=getattr(record,'frf_selection',record.execution.case.options)
         inp=selection.get('input_dof',0);out=selection.get('output_dof',0);kind=selection.get('response','displacement')
@@ -140,6 +146,11 @@ def export_record_csv(record, path):
 
 
 def export_record_native(record, path):
+    if isinstance(record.execution.result, ForcedResponseResult):
+        r=record.execution.result
+        arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
+        for name,value in [('F',r.force_complex),('q',r.displacement),('v',r.velocity),('a',r.acceleration)]:arrays.update({name+'_real':value.real,name+'_imag':value.imag})
+        return export_npz(path,**arrays,metadata_json=np.asarray(json.dumps(r.metadata,sort_keys=True)),selection_json=np.asarray(json.dumps(getattr(record,'forced_selection',record.execution.case.options),sort_keys=True)),analysis_hash=np.asarray(record.execution.analysis_hash),build_metadata_json=np.asarray(json.dumps(record.execution.build_metadata,sort_keys=True)))
     if isinstance(record.execution.result, FrequencyResponseMatrixResult):
         r=record.execution.result
         arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}

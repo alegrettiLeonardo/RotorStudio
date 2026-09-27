@@ -1,0 +1,1969 @@
+{
+  "atol_translation_rotation": {
+    "a": [
+      1e-08,
+      1e-07
+    ],
+    "q": [
+      1e-13,
+      1e-12
+    ],
+    "v": [
+      1e-11,
+      1e-10
+    ]
+  },
+  "cases": {
+    "anisotropic": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4663.862752342418,
+          "condition_estimate_1": 7182.549182163821,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 2.6912238363568803e-17,
+          "residual_native": 2.6912238363568803e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4663.8627532461305,
+          "condition_estimate_1": 7182.550568466419,
+          "frequency_rad_s": 0.01,
+          "residual_independent": 4.8885778695211194e-17,
+          "residual_native": 3.996395675293744e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4680.669999974552,
+          "condition_estimate_1": 7209.365249883199,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 4.525333512947751e-17,
+          "residual_native": 3.86291743059568e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4793.166441885908,
+          "condition_estimate_1": 7356.975398593521,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 3.300626733790854e-17,
+          "residual_native": 2.1440793025938563e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 5541.075192760205,
+          "condition_estimate_1": 8749.658113531374,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 4.005552513787943e-17,
+          "residual_native": 3.3520453295657594e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 8269.274780775328,
+          "condition_estimate_1": 12873.913427639063,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 1.199623724964664e-17,
+          "residual_native": 8.844779040412935e-18,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "cross_coupled": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4663.322320714848,
+          "condition_estimate_1": 7290.143315788993,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 3.3814827415978623e-17,
+          "residual_native": 3.40234341288413e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4663.32232161864,
+          "condition_estimate_1": 7290.143321660327,
+          "frequency_rad_s": 0.01,
+          "residual_independent": 7.889086957622492e-17,
+          "residual_native": 4.3565503349453756e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4680.128035013559,
+          "condition_estimate_1": 7311.8181552954575,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 3.005125006227795e-17,
+          "residual_native": 3.9365454989818885e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4792.611930015363,
+          "condition_estimate_1": 7454.042011810728,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 2.179711897589028e-17,
+          "residual_native": 1.0219436833273266e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 5540.117765361334,
+          "condition_estimate_1": 8874.287362407224,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 2.1158906675785012e-17,
+          "residual_native": 2.4709977681021637e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 8266.722419161704,
+          "condition_estimate_1": 13032.301731395699,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 3.5617491626922636e-17,
+          "residual_native": 2.4304208146384573e-17,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "fixed_speed": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4662.085165608935,
+          "condition_estimate_1": 7182.549182163821,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 2.3605196154074608e-17,
+          "residual_native": 2.3605196154074608e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4662.086584193912,
+          "condition_estimate_1": 7182.551371866166,
+          "frequency_rad_s": 0.01,
+          "residual_independent": 2.861083050071092e-17,
+          "residual_native": 3.076495876591742e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4685.022024250819,
+          "condition_estimate_1": 7212.857440710972,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 4.2550314793306636e-17,
+          "residual_native": 3.910451701341688e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4808.852508001477,
+          "condition_estimate_1": 7367.10768929106,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 3.2812084505078064e-17,
+          "residual_native": 2.1449465366827094e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 5590.252575367636,
+          "condition_estimate_1": 8778.32070952787,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 5.675477889195769e-17,
+          "residual_native": 5.4211512262489416e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 8509.058935301626,
+          "condition_estimate_1": 13076.466438408044,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 2.3221740678587203e-17,
+          "residual_native": 1.4255165100390455e-17,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "frequency_axis": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4663.322320714848,
+          "condition_estimate_1": 7290.143315788993,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 3.3814827415978623e-17,
+          "residual_native": 3.40234341288413e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4663.539615988318,
+          "condition_estimate_1": 7286.748094357376,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 3.372040057900243e-17,
+          "residual_native": 5.032684079822672e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4771.0647569261155,
+          "condition_estimate_1": 7422.07625794039,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 1.8526169182800082e-17,
+          "residual_native": 3.5971313864012365e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 5639.656792897709,
+          "condition_estimate_1": 9049.998347374938,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 6.142478314314838e-17,
+          "residual_native": 8.768018181806831e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 10346.933648211521,
+          "condition_estimate_1": 16247.807402575823,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 2.4633952279501956e-17,
+          "residual_native": 2.203327674058091e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 32729.247365547086,
+          "condition_estimate_1": 55195.03233037246,
+          "frequency_rad_s": 650.0,
+          "residual_independent": 1.5634988012631574e-17,
+          "residual_native": 9.510391924489716e-18,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "map_2d": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4448.170217246597,
+          "condition_estimate_1": 6963.699562466038,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 2.0868509672082855e-17,
+          "residual_native": 2.450882166117042e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4611.677457267105,
+          "condition_estimate_1": 7208.894335782036,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 1.777806578968662e-17,
+          "residual_native": 2.8010115825274215e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 18357.561256587673,
+          "condition_estimate_1": 28159.225003617703,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 1.0790817669922528e-16,
+          "residual_native": 4.949634552158585e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 1272.735454931985,
+          "condition_estimate_1": 2535.6017746252915,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 9.304947006869352e-18,
+          "residual_native": 8.586618508829649e-18,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 1396.8643320058611,
+          "condition_estimate_1": 2522.976168533818,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 3.5510359310743145e-18,
+          "residual_native": 1.8438155449237006e-18,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 1553.731583083366,
+          "condition_estimate_1": 2903.234303462727,
+          "frequency_rad_s": 650.0,
+          "residual_independent": 4.312507900455167e-18,
+          "residual_native": 3.2156668959860343e-18,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "multiple_dofs": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4662.085165608935,
+          "condition_estimate_1": 7182.549182163821,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 2.3605196154074608e-17,
+          "residual_native": 2.3605196154074608e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4662.086584193912,
+          "condition_estimate_1": 7182.551371866166,
+          "frequency_rad_s": 0.01,
+          "residual_independent": 2.861083050071092e-17,
+          "residual_native": 3.076495876591742e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4685.022024250819,
+          "condition_estimate_1": 7212.857440710972,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 4.2550314793306636e-17,
+          "residual_native": 3.910451701341688e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4808.852508001477,
+          "condition_estimate_1": 7367.10768929106,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 3.2812084505078064e-17,
+          "residual_native": 2.1449465366827094e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 5590.252575367636,
+          "condition_estimate_1": 8778.32070952787,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 5.675477889195769e-17,
+          "residual_native": 5.4211512262489416e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 8509.058935301626,
+          "condition_estimate_1": 13076.466438408044,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 2.3221740678587203e-17,
+          "residual_native": 1.4255165100390455e-17,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "multiple_nodes": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4662.085165608935,
+          "condition_estimate_1": 7182.549182163821,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 1.7030881143952456e-17,
+          "residual_native": 1.8126590947033562e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4662.086584193912,
+          "condition_estimate_1": 7182.551371866166,
+          "frequency_rad_s": 0.01,
+          "residual_independent": 3.6880620330355645e-17,
+          "residual_native": 3.315148615015e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4685.022024250819,
+          "condition_estimate_1": 7212.857440710972,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 2.4740207420583664e-17,
+          "residual_native": 2.0403503582366796e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4808.852508001477,
+          "condition_estimate_1": 7367.10768929106,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 2.5616864871932063e-17,
+          "residual_native": 3.756885658289797e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 5590.252575367636,
+          "condition_estimate_1": 8778.32070952787,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 5.960370580067005e-17,
+          "residual_native": 5.268273069437719e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 8509.058935301626,
+          "condition_estimate_1": 13076.466438408044,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 1.631386062658303e-17,
+          "residual_native": 1.6815942631251733e-17,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "near_resonance": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 14860.876664739671,
+          "condition_estimate_1": 23098.943781972772,
+          "frequency_rad_s": 329.75614625359367,
+          "residual_independent": 8.772811270096002e-17,
+          "residual_native": 1.401415849089362e-16,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 14814.969199641464,
+          "condition_estimate_1": 22941.49669072077,
+          "frequency_rad_s": 330.0862324860797,
+          "residual_independent": 9.171281739485019e-17,
+          "residual_native": 1.0211517663596648e-16,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 14743.44122626159,
+          "condition_estimate_1": 22859.059882287616,
+          "frequency_rad_s": 330.4163187185658,
+          "residual_independent": 1.2954942430448115e-16,
+          "residual_native": 1.1010121270183401e-16,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "phase_sentinel": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4662.085165608935,
+          "condition_estimate_1": 7182.549182163821,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 1.2122783251794091e-17,
+          "residual_native": 1.280991661837724e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4662.086584193912,
+          "condition_estimate_1": 7182.551371866166,
+          "frequency_rad_s": 0.01,
+          "residual_independent": 2.0230912262431592e-17,
+          "residual_native": 2.9491369047768626e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4685.022024250819,
+          "condition_estimate_1": 7212.857440710972,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 3.9285567289713234e-17,
+          "residual_native": 5.14715758302943e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4808.852508001477,
+          "condition_estimate_1": 7367.10768929106,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 4.0374863771318975e-17,
+          "residual_native": 3.9147269143841103e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 5590.252575367636,
+          "condition_estimate_1": 8778.32070952787,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 3.436762751805352e-17,
+          "residual_native": 3.0883846929328684e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 8509.058935301626,
+          "condition_estimate_1": 13076.466438408044,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 2.5153362440815795e-17,
+          "residual_native": 1.3939290430865457e-17,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "pure_moment": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4662.085165608935,
+          "condition_estimate_1": 7182.549182163821,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 8.148748116557909e-18,
+          "residual_native": 1.2884302063665117e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4662.086584193912,
+          "condition_estimate_1": 7182.551371866166,
+          "frequency_rad_s": 0.01,
+          "residual_independent": 1.1388221690375123e-17,
+          "residual_native": 2.4599448617751388e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4685.022024250819,
+          "condition_estimate_1": 7212.857440710972,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 1.4214225611198423e-17,
+          "residual_native": 1.2432168675250969e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4808.852508001477,
+          "condition_estimate_1": 7367.10768929106,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 1.8233237001136426e-17,
+          "residual_native": 1.6582640425954507e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 5590.252575367636,
+          "condition_estimate_1": 8778.32070952787,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 2.348651672615077e-17,
+          "residual_native": 1.333583473476923e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 8509.058935301626,
+          "condition_estimate_1": 13076.466438408044,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 2.2512754099531647e-17,
+          "residual_native": 2.865582463677418e-17,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "quadrature_xy": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4662.085165608935,
+          "condition_estimate_1": 7182.549182163821,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 2.687428445587845e-17,
+          "residual_native": 2.3514998898893643e-17,
+          "rotor_speed_rad_s": 0.0
+        },
+        {
+          "condition_2": 4662.085166589149,
+          "condition_estimate_1": 7182.549183405492,
+          "frequency_rad_s": 0.01,
+          "residual_independent": 8.062285335222513e-17,
+          "residual_native": 9.993874530125094e-17,
+          "rotor_speed_rad_s": 0.01
+        },
+        {
+          "condition_2": 4680.313885811082,
+          "condition_estimate_1": 7205.5935005750025,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 5.3560804013774526e-17,
+          "residual_native": 3.276477337933865e-17,
+          "rotor_speed_rad_s": 43.0
+        },
+        {
+          "condition_2": 4802.473842458746,
+          "condition_estimate_1": 7357.305909856612,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 7.848439492100604e-17,
+          "residual_native": 8.177222093735235e-17,
+          "rotor_speed_rad_s": 117.0
+        },
+        {
+          "condition_2": 5612.802793906252,
+          "condition_estimate_1": 8808.445517173554,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 6.286220755353529e-17,
+          "residual_native": 5.3645960628589656e-17,
+          "rotor_speed_rad_s": 261.0
+        },
+        {
+          "condition_2": 8988.512833960684,
+          "condition_estimate_1": 13811.849588890112,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 1.2802545073964926e-17,
+          "residual_native": 1.2589408148458297e-17,
+          "rotor_speed_rad_s": 503.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "single_x": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4662.085165608935,
+          "condition_estimate_1": 7182.549182163821,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 2.8784973052008427e-17,
+          "residual_native": 2.3921421027153683e-17,
+          "rotor_speed_rad_s": 0.0
+        },
+        {
+          "condition_2": 4662.085166589149,
+          "condition_estimate_1": 7182.549183405492,
+          "frequency_rad_s": 0.01,
+          "residual_independent": 3.218257823076556e-17,
+          "residual_native": 2.275651930304089e-17,
+          "rotor_speed_rad_s": 0.01
+        },
+        {
+          "condition_2": 4680.313885811082,
+          "condition_estimate_1": 7205.5935005750025,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 1.9235909942549044e-17,
+          "residual_native": 2.5345536785139015e-17,
+          "rotor_speed_rad_s": 43.0
+        },
+        {
+          "condition_2": 4802.473842458746,
+          "condition_estimate_1": 7357.305909856612,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 7.503888253174843e-17,
+          "residual_native": 6.882560170970611e-17,
+          "rotor_speed_rad_s": 117.0
+        },
+        {
+          "condition_2": 5612.802793906252,
+          "condition_estimate_1": 8808.445517173554,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 6.192643441486122e-17,
+          "residual_native": 2.5188243316299057e-17,
+          "rotor_speed_rad_s": 261.0
+        },
+        {
+          "condition_2": 8988.512833960684,
+          "condition_estimate_1": 13811.849588890112,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 1.1502925389671397e-17,
+          "residual_native": 1.1918326443157465e-17,
+          "rotor_speed_rad_s": 503.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    },
+    "speed_axis": {
+      "acceleration_identity": 0.0,
+      "points": [
+        {
+          "condition_2": 4448.170217246597,
+          "condition_estimate_1": 6963.699562466038,
+          "frequency_rad_s": 0.0,
+          "residual_independent": 2.0868509672082855e-17,
+          "residual_native": 2.450882166117042e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4468.396594339139,
+          "condition_estimate_1": 6990.807097010168,
+          "frequency_rad_s": 43.0,
+          "residual_independent": 4.8715447742301e-17,
+          "residual_native": 6.084151876229385e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 4604.254589304674,
+          "condition_estimate_1": 7170.18528498143,
+          "frequency_rad_s": 117.0,
+          "residual_independent": 3.3859649564460013e-17,
+          "residual_native": 3.172931014281583e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 5504.752303225647,
+          "condition_estimate_1": 8816.583788213717,
+          "frequency_rad_s": 261.0,
+          "residual_independent": 6.139972691164202e-17,
+          "residual_native": 8.604675442314856e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 10558.025686388,
+          "condition_estimate_1": 16525.985056561258,
+          "frequency_rad_s": 503.0,
+          "residual_independent": 1.844479359702477e-17,
+          "residual_native": 1.712556092302718e-17,
+          "rotor_speed_rad_s": 183.0
+        },
+        {
+          "condition_2": 35444.458221540124,
+          "condition_estimate_1": 58401.50138205732,
+          "frequency_rad_s": 650.0,
+          "residual_independent": 1.8806975594862882e-17,
+          "residual_native": 1.2939592578859371e-17,
+          "rotor_speed_rad_s": 183.0
+        }
+      ],
+      "status": "PASS",
+      "velocity_identity": 0.0
+    }
+  },
+  "comparison_rows": [
+    {
+      "authority": "ROSS",
+      "case": "anisotropic",
+      "max_abs": 1.0706496453294356e-17,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "anisotropic",
+      "max_abs": 1.3444106938820255e-17,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "anisotropic",
+      "max_abs": 7.047314121155779e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "anisotropic",
+      "max_abs": 5.421010862427522e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "anisotropic",
+      "max_abs": 6.827871601444713e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "anisotropic",
+      "max_abs": 5.259681579161679e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "anisotropic",
+      "max_abs": 2.220446049250313e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "anisotropic",
+      "max_abs": 3.469446951953614e-16,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "anisotropic",
+      "max_abs": 2.6361135496699717e-12,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "anisotropic",
+      "max_abs": 3.439026841078885e-12,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "anisotropic",
+      "max_abs": 1.8474111129762605e-13,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "anisotropic",
+      "max_abs": 1.1368683772161603e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "cross_coupled",
+      "max_abs": 1.6723818510588906e-17,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "cross_coupled",
+      "max_abs": 1.338989683019598e-17,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "cross_coupled",
+      "max_abs": 4.0657581468206416e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "cross_coupled",
+      "max_abs": 2.710505431213761e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "cross_coupled",
+      "max_abs": 4.829470157119431e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "cross_coupled",
+      "max_abs": 4.3680337125096e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "cross_coupled",
+      "max_abs": 1.3877787807814457e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "cross_coupled",
+      "max_abs": 2.0816681711721685e-16,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "cross_coupled",
+      "max_abs": 1.6626700016786344e-12,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "cross_coupled",
+      "max_abs": 2.4016344468691386e-12,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "cross_coupled",
+      "max_abs": 9.947598300641403e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "cross_coupled",
+      "max_abs": 9.947598300641403e-14,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "fixed_speed",
+      "max_abs": 6.151153262960729e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "fixed_speed",
+      "max_abs": 2.1521413123837263e-17,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "fixed_speed",
+      "max_abs": 1.6263032587282567e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "fixed_speed",
+      "max_abs": 5.421010862427522e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "fixed_speed",
+      "max_abs": 6.827871601444713e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "fixed_speed",
+      "max_abs": 1.6063539387545234e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "fixed_speed",
+      "max_abs": 3.3306690738754696e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "fixed_speed",
+      "max_abs": 4.7488055154865094e-17,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "fixed_speed",
+      "max_abs": 4.1966430330830917e-13,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "fixed_speed",
+      "max_abs": 3.453237695794087e-12,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "fixed_speed",
+      "max_abs": 2.19824158875781e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "fixed_speed",
+      "max_abs": 1.7053025658242404e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "frequency_axis",
+      "max_abs": 2.2551405187698492e-17,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "frequency_axis",
+      "max_abs": 1.745565497701662e-17,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "frequency_axis",
+      "max_abs": 1.0842021724855044e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "frequency_axis",
+      "max_abs": 5.421010862427522e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "frequency_axis",
+      "max_abs": 1.1546319456101628e-14,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "frequency_axis",
+      "max_abs": 1.4654943925052066e-14,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "frequency_axis",
+      "max_abs": 3.3306690738754696e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "frequency_axis",
+      "max_abs": 4.440892098500626e-16,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "frequency_axis",
+      "max_abs": 9.322320693172514e-12,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "frequency_axis",
+      "max_abs": 7.44648787076585e-12,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "frequency_axis",
+      "max_abs": 5.684341886080801e-13,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "frequency_axis",
+      "max_abs": 1.7053025658242404e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "map_2d",
+      "max_abs": 7.860465750519907e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "map_2d",
+      "max_abs": 1.089623183347932e-17,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "map_2d",
+      "max_abs": 2.168404344971009e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "map_2d",
+      "max_abs": 4.1335207826009857e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "map_2d",
+      "max_abs": 1.27675647831893e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "map_2d",
+      "max_abs": 9.298117831235686e-16,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "map_2d",
+      "max_abs": 1.249000902703301e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "map_2d",
+      "max_abs": 2.949029909160572e-17,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "map_2d",
+      "max_abs": 1.0835776720341528e-13,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "map_2d",
+      "max_abs": 1.4921397450962104e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "map_2d",
+      "max_abs": 2.1316282072803006e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "map_2d",
+      "max_abs": 8.526512829121202e-14,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_dofs",
+      "max_abs": 6.151153262960729e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_dofs",
+      "max_abs": 2.1521413123837263e-17,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_dofs",
+      "max_abs": 1.6263032587282567e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_dofs",
+      "max_abs": 5.421010862427522e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_dofs",
+      "max_abs": 6.827871601444713e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_dofs",
+      "max_abs": 1.6063539387545234e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_dofs",
+      "max_abs": 3.3306690738754696e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_dofs",
+      "max_abs": 4.7488055154865094e-17,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_dofs",
+      "max_abs": 4.1966430330830917e-13,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_dofs",
+      "max_abs": 3.453237695794087e-12,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_dofs",
+      "max_abs": 2.19824158875781e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_dofs",
+      "max_abs": 1.7053025658242404e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_nodes",
+      "max_abs": 8.72782748850831e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_nodes",
+      "max_abs": 8.416119363918728e-18,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_nodes",
+      "max_abs": 3.2526065174565133e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_nodes",
+      "max_abs": 1.9651164376299768e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_nodes",
+      "max_abs": 4.232725281383409e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_nodes",
+      "max_abs": 4.385380947269368e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_nodes",
+      "max_abs": 9.71445146547012e-17,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_nodes",
+      "max_abs": 1.6653345369377348e-16,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_nodes",
+      "max_abs": 2.2026824808563106e-12,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "multiple_nodes",
+      "max_abs": 2.1280754936015e-12,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_nodes",
+      "max_abs": 8.526512829121202e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "multiple_nodes",
+      "max_abs": 5.684341886080802e-14,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "near_resonance",
+      "max_abs": 7.340590808813108e-16,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "near_resonance",
+      "max_abs": 1.005516199817369e-15,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "near_resonance",
+      "max_abs": 6.505213034913027e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "near_resonance",
+      "max_abs": 8.673617379884035e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "near_resonance",
+      "max_abs": 3.322342401190781e-13,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "near_resonance",
+      "max_abs": 2.4205637494389975e-13,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "near_resonance",
+      "max_abs": 2.220446049250313e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "near_resonance",
+      "max_abs": 2.220446049250313e-16,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "near_resonance",
+      "max_abs": 7.981526550793205e-11,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "near_resonance",
+      "max_abs": 1.0977174724757788e-10,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "near_resonance",
+      "max_abs": 8.526512829121202e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "near_resonance",
+      "max_abs": 1.1368683772161603e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "phase_sentinel",
+      "max_abs": 9.920449878242366e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "phase_sentinel",
+      "max_abs": 2.0166160408230382e-17,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "phase_sentinel",
+      "max_abs": 3.6591823321385775e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "phase_sentinel",
+      "max_abs": 5.963111948670274e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "phase_sentinel",
+      "max_abs": 5.259681579161679e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "phase_sentinel",
+      "max_abs": 4.659467256473704e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "phase_sentinel",
+      "max_abs": 2.7755575615628914e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "phase_sentinel",
+      "max_abs": 1.700029006457271e-16,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "phase_sentinel",
+      "max_abs": 2.348343741687131e-12,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "phase_sentinel",
+      "max_abs": 2.5153212845907547e-12,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "phase_sentinel",
+      "max_abs": 9.592326932761353e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "phase_sentinel",
+      "max_abs": 1.5631940186722204e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "pure_moment",
+      "max_abs": 1.599198204416119e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "pure_moment",
+      "max_abs": 4.607859233063394e-18,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "pure_moment",
+      "max_abs": 1.3552527156068805e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "pure_moment",
+      "max_abs": 1.0842021724855044e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "pure_moment",
+      "max_abs": 1.2004286453759505e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "pure_moment",
+      "max_abs": 4.163336342344337e-16,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "pure_moment",
+      "max_abs": 8.326672684688674e-17,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "pure_moment",
+      "max_abs": 7.632783294297951e-17,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "pure_moment",
+      "max_abs": 1.092459456231154e-13,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "pure_moment",
+      "max_abs": 3.135269821541442e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "pure_moment",
+      "max_abs": 3.907985046680551e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "pure_moment",
+      "max_abs": 2.842170943040401e-14,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "quadrature_xy",
+      "max_abs": 5.990217002982412e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "quadrature_xy",
+      "max_abs": 2.6834003769016235e-18,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "quadrature_xy",
+      "max_abs": 1.8973538018496328e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "quadrature_xy",
+      "max_abs": 1.3552527156068805e-19,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "quadrature_xy",
+      "max_abs": 1.3461454173580023e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "quadrature_xy",
+      "max_abs": 1.5681900222830336e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "quadrature_xy",
+      "max_abs": 5.551115123125783e-17,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "quadrature_xy",
+      "max_abs": 9.71445146547012e-17,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "quadrature_xy",
+      "max_abs": 5.613287612504791e-13,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "quadrature_xy",
+      "max_abs": 6.821210263296962e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "quadrature_xy",
+      "max_abs": 5.684341886080802e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "quadrature_xy",
+      "max_abs": 3.552713678800501e-14,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "single_x",
+      "max_abs": 6.261267546103788e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "single_x",
+      "max_abs": 1.0570971181733668e-18,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "single_x",
+      "max_abs": 1.2197274440461925e-19,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "single_x",
+      "max_abs": 4.0657581468206416e-20,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "single_x",
+      "max_abs": 5.30825383648903e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "single_x",
+      "max_abs": 1.6375789613221059e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "single_x",
+      "max_abs": 6.938893903907228e-18,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "single_x",
+      "max_abs": 5.204170427930421e-17,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "single_x",
+      "max_abs": 5.400124791776761e-13,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "single_x",
+      "max_abs": 2.646771690706373e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "single_x",
+      "max_abs": 2.4868995751603507e-14,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "single_x",
+      "max_abs": 1.7763568394002505e-15,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "speed_axis",
+      "max_abs": 1.1926223897340549e-17,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "speed_axis",
+      "max_abs": 8.998878031629687e-18,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "speed_axis",
+      "max_abs": 2.168404344971009e-18,
+      "part": "real",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "speed_axis",
+      "max_abs": 1.0842021724855044e-18,
+      "part": "imag",
+      "quantity": "q",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "speed_axis",
+      "max_abs": 5.88418203051333e-15,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "speed_axis",
+      "max_abs": 7.66053886991358e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "speed_axis",
+      "max_abs": 7.771561172376096e-16,
+      "part": "real",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "speed_axis",
+      "max_abs": 1.3322676295501878e-15,
+      "part": "imag",
+      "quantity": "v",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "speed_axis",
+      "max_abs": 5.115907697472721e-12,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "ROSS",
+      "case": "speed_axis",
+      "max_abs": 3.808509063674137e-12,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "speed_axis",
+      "max_abs": 7.958078640513122e-13,
+      "part": "real",
+      "quantity": "a",
+      "status": "PASS"
+    },
+    {
+      "authority": "A2_HF",
+      "case": "speed_axis",
+      "max_abs": 3.979039320256561e-13,
+      "part": "imag",
+      "quantity": "a",
+      "status": "PASS"
+    }
+  ],
+  "head_sha": "7b87c422691153fc4be3c1d134af4ffcc0af1678",
+  "physics": {
+    "complex_scaling": "PASS",
+    "linearity": "PASS",
+    "phase_rotation": "PASS",
+    "zero_force": "PASS"
+  },
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "rtol": 1e-10,
+  "status": "PASS"
+}

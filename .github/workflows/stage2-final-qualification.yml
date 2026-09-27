@@ -13,6 +13,9 @@ concurrency:
   group: stage2-final-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  SOURCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
 jobs:
   linux-final:
     name: Linux UI1-UI17/UI19/UI20 qualification
@@ -104,6 +107,7 @@ jobs:
           d=json.loads(p.read_text())
           assert d["status"]=="PASS", d
           assert d["general_frf"]["status"]=="PASS", d
+          assert d["forced_response"]["status"]=="PASS", d
           assert d["static_analysis"]["status"]=="PASS", d
           assert d["backend"]=="Fortran2018/ctypes", d
           assert d["advanced_bearing"]["status"]=="PASS", d
@@ -122,7 +126,7 @@ jobs:
           zp=pathlib.Path(glob.glob('dist/stage2/RotorDynamicsStudio-linux-*.zip')[0])
           payload={
             "status":"PASS",
-            "head_sha":os.environ["GITHUB_SHA"],
+            "head_sha":os.environ["SOURCE_HEAD_SHA"],
             "platform":"ubuntu-24.04",
             "stage1":"57/57 PASS",
             "ui_tests":"PASS",
@@ -145,7 +149,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: stage2-final-linux-${{ github.sha }}
+          name: stage2-final-linux-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             dist/stage2/
             validation/reports/stage2_final_linux/
@@ -249,7 +253,7 @@ jobs:
         shell: pwsh
         run: |
           $env:PATH = "$env:UCRT64_BIN;$env:PATH"
-          $id = $env:GITHUB_SHA.Substring(0,12)
+          $id = $env:SOURCE_HEAD_SHA.Substring(0,12)
           python scripts\package_stage2.py --solver "$env:DRMROTOR_LIB" --bearing-solver "$env:DRMBEARINGS_LIB" --dist-dir dist\stage2 --work-dir build-stage2-pyinstaller --id "$id"
           Get-Content dist\stage2\PACKAGE_win32.json | Tee-Object -FilePath validation/reports/stage2_final_windows/package.json
 
@@ -274,6 +278,7 @@ jobs:
           $payload = Get-Content (Join-Path $smoke "PACKAGED_SMOKE.json") | ConvertFrom-Json
           if ($payload.status -ne "PASS") { throw "packaged smoke failed" }
           if ($payload.general_frf.status -ne "PASS") { throw "General FRF packaged smoke failed" }
+          if ($payload.forced_response.status -ne "PASS") { throw "Forced Response packaged smoke failed" }
           if ($payload.static_analysis.status -ne "PASS") { throw "Static packaged smoke failed" }
           $payload | ConvertTo-Json -Depth 20
           if ($payload.advanced_bearing.status -ne "PASS") { throw "packaged advanced-bearing smoke failed" }
@@ -290,7 +295,7 @@ jobs:
           $hash = (Get-FileHash $zip.FullName -Algorithm SHA256).Hash.ToLower()
           $payload = [ordered]@{
             status = "PASS"
-            head_sha = $env:GITHUB_SHA
+            head_sha = $env:SOURCE_HEAD_SHA
             platform = "windows-2025 / UCRT64"
             stage1 = "57/57 PASS"
             ui_tests = "PASS"
@@ -310,7 +315,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: stage2-final-windows-${{ github.sha }}
+          name: stage2-final-windows-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             dist/stage2/
             validation/reports/stage2_final_windows/
@@ -338,7 +343,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: stage2-final-*-${{ github.sha }}
+          pattern: stage2-final-*-${{ github.event.pull_request.head.sha || github.sha }}
           path: validation/reports/stage2_downloaded
           merge-multiple: true
 
@@ -353,7 +358,7 @@ jobs:
             "status":"PASS",
             "stage2_status":"COMPLETE",
             "stage2_base_head":"ebf2c2f938a9a5e3a797f9a1904a6c581b4ed111",
-            "head_sha":os.environ["GITHUB_SHA"],
+            "head_sha":os.environ["SOURCE_HEAD_SHA"],
             "gates":gates,
             "required_evidence":{
               "stage1_regression":"57/57 on Linux and Windows",
@@ -374,7 +379,7 @@ jobs:
       - name: Upload aggregate Stage 2 gate
         uses: actions/upload-artifact@v4
         with:
-          name: stage2-final-gate-${{ github.sha }}
+          name: stage2-final-gate-${{ github.event.pull_request.head.sha || github.sha }}
           path: validation/reports/STAGE2_FINAL_QUALIFICATION.json
           if-no-files-found: error
           retention-days: 90
