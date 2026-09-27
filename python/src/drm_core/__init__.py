@@ -2,6 +2,7 @@ from .domain.model import RotorModel,Node,ShaftElement,TaperedShaftElement,Asymm
 from .domain.seal import Seal
 from .domain.bearings import CoefficientBearing,PlainJournalBearing,PlainJournalPhysicsBearing,PartialArcBearing,EllipticalBearing,OffsetHalvesBearing,MultiLobeBearing,PressureDamBearing,TiltingPadBearing,TiltingPadPhysicsBearing,BallBearing,RollerBearing,CylindricalBearing,SqueezeFilmDamper
 from .stage1 import RotorProject,AnalysisCase,AnalysisService,AnalysisExecution,AnalysisCancelled,analysis_hash,collect_build_metadata,save_project,load_project,write_analysis_report
+from .analysis.static import StaticResult,run_static
 from .analysis.modal import ModalResult,run_modal
 from .analysis.frequency_response import FrequencyResponseResult,run_frequency_response,run_auxiliary_frequency_response,run_foundation_frequency_response
 from .analysis.critical_speed import CriticalSpeedResult,run_critical_speeds

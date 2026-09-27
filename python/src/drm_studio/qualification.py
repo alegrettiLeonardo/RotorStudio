@@ -48,6 +48,8 @@ class PackagedQualification(QObject):
 
     def start(self):
         try:
+            from .static_qualification import run_static_gui_smoke
+            self.static_smoke = run_static_gui_smoke(self.output_dir)
             # B13 qualification starts with the real PySide6 engineering
             # editor/command/persistence chain. Reading or editing these
             # entities does not run Reynolds/THD/TEHD.
@@ -262,6 +264,7 @@ class PackagedQualification(QObject):
                     "b13_advanced_bearing_crud": self.b13_crud_smoke,
                     "b14_async_fields": self.b14_field_smoke,
                     "b15_b18_integrated": self.b15_b18_integrated_smoke,
+                    "static_analysis": self.static_smoke,
                     "native_fluidfilm_bearing": self.fluidfilm_smoke,
                     "saved_project": str(self.output_dir / "packaged_saved_project.rds"),
                     "screenshot": str(screenshot),

@@ -10,6 +10,9 @@ from PySide6.QtWidgets import (
 )
 
 from drm_core import AnalysisService
+from drm_core.analysis.static import StaticResult
+from .analysis_pages.static_setup import StaticSetupDialog
+from .result_views.static_view import StaticResultView
 from drm_core.analysis.modal import ModalResult
 from drm_core.analysis.critical_speed import CriticalSpeedResult
 from drm_core.analysis.frequency_response import FrequencyResponseResult
@@ -80,6 +83,8 @@ class MainWindow(QMainWindow):
         self.undo_action.setShortcut(QKeySequence.Undo)
         self.redo_action.setShortcut(QKeySequence.Redo)
 
+        self.static_action = QAction("Static Analysis", self)
+        self.static_action.triggered.connect(self._configure_static)
         self.modal_action = QAction(studio_icon("modal"), "Modal / Characteristic Roots", self)
         self.campbell_action = QAction(studio_icon("campbell"), "Campbell Diagram", self)
         self.critical_action = QAction(studio_icon("critical"), "Critical Speeds", self)
@@ -156,6 +161,7 @@ class MainWindow(QMainWindow):
         model.addActions([self.undo_action, self.redo_action])
 
         self.analysis_menu = bar.addMenu("Analysis")
+        self.analysis_menu.addAction(self.static_action)
         self.analysis_menu.addAction(self.modal_action)
         self.analysis_menu.addAction(self.campbell_action)
         self.analysis_menu.addAction(self.critical_action)
@@ -391,6 +397,11 @@ class MainWindow(QMainWindow):
             except Exception as exc:
                 QMessageBox.critical(self, "Save project failed", str(exc))
 
+    def _configure_static(self):
+        dialog = StaticSetupDialog(self)
+        if dialog.exec() == QDialog.Accepted:
+            self.run_analysis(dialog.analysis_case())
+
     def _configure_modal(self):
         existing = next(
             (case for case in self.session.project.analyses if case.kind == "modal"),
@@ -554,7 +565,10 @@ class MainWindow(QMainWindow):
         result = record.execution.result
         view = None
         prefix = "Result"
-        if isinstance(result, ModalResult):
+        if isinstance(result, StaticResult):
+            view = StaticResultView(record)
+            prefix = "Static"
+        elif isinstance(result, ModalResult):
             view = ModalResultView(record)
             prefix = "Modal"
         elif (

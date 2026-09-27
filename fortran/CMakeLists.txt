@@ -42,7 +42,7 @@ add_library(drmrotor SHARED
  src/rd_assembly_stationary.f90 src/rd_assembly_rotating.f90 src/rd_eigensystem.f90
  src/rd_frequency_response.f90 src/rd_external_response.f90 src/rd_critical_speed.f90
  src/rd_reduction.f90 src/rd_dp45.f90 src/rd_transient.f90
- src/rd_coaxial_solver.f90 src/rd_rotating_solver.f90 src/rd_c_api.f90)
+ src/rd_coaxial_solver.f90 src/rd_rotating_solver.f90 src/rd_static.f90 src/rd_c_api.f90)
 target_link_libraries(drmrotor PRIVATE LAPACK::LAPACK BLAS::BLAS)
 set_target_properties(drmrotor PROPERTIES OUTPUT_NAME drmrotor)
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
@@ -72,3 +72,10 @@ add_test(NAME transient_dp45_reduction COMMAND test_transient)
 add_executable(test_ross_bearings_native bearings/tests/test_rb_native.f90)
 target_link_libraries(test_ross_bearings_native PRIVATE drmbearings)
 add_test(NAME ross_bearings_native_bf1_bf2_bf3_bf4_bf5a_bf5band_bf5mesh_bf5film_bf5press_bf5cond_bf5cfg_bf5plain_bf7 COMMAND test_ross_bearings_native)
+
+add_executable(test_static tests/test_static.f90)
+target_link_libraries(test_static PRIVATE drmrotor)
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_static PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME static_gravity_equilibrium COMMAND test_static)

@@ -40,6 +40,10 @@ jobs:
         run: python validation/ross_parity/generate_reference.py --ross-root _ross_authority --out _ross_candidate
       - name: Compare pinned ROSS reproduction
         run: python validation/ross_parity/verify_reference.py validation/ross_parity/static --candidate _ross_candidate
+      - name: Reproduce separate A1 authorities
+        run: |
+          python validation/ross_parity/generate_static_reference.py --ross-root _ross_authority --out _ross_static_candidate
+          python validation/ross_parity/verify_reference.py validation/ross_parity/static_extended --candidate _ross_static_candidate
       - uses: actions/upload-artifact@v4
         if: always()
         with:
