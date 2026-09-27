@@ -7,8 +7,8 @@ validation/ross_parity/static/authority.json. This is not a production ROSS depe
 
 | Feature | ROSS file / method | Planned Fortran | Planned ABI | Binding / tests | Status |
 |---|---|---|---|---|---|
-| A0 | rotor_assembly.py / Rotor.run_static | none (reference infrastructure) | none | validation/ross_parity/tests | BLOCKED: full CI pending |
-| A1 | rotor_assembly.py / run_static | rd_static.f90 | rd_static_v1 | thin ffi/backend/facade + service; golden static | BLOCKED by A0 |
+| A0 | rotor_assembly.py / Rotor.run_static | none (reference infrastructure) | none | validation/ross_parity/tests | PASS at f07dc86; closure HEAD requires fresh CI |
+| A1 | rotor_assembly.py / run_static | rd_static.f90 | rd_static_v1 | thin ffi/backend/facade + service; golden static | Not implemented; next after A0 promotion |
 | A2 | rotor_assembly.py / run_freq_response, transfer_matrix | rd_dynamic_stiffness, rd_frf_general | rd_frf_general_v1 | not implemented | BLOCKED |
 | A3 | rotor_assembly.py / run_forced_response | rd_forced_response | rd_forced_response_v1 | not implemented | BLOCKED |
 | A4 | rotor_assembly.py / run_time_response; utils.py / newmark | rd_newmark, rd_time_response, rd_force_provider | rd_time_response_v1 | not implemented | BLOCKED |
@@ -19,3 +19,7 @@ validation/ross_parity/static/authority.json. This is not a production ROSS depe
 
 Never infer a qualified Fortran feature from a generated ROSS reference.
 Full pre-implementation inventory, risks and acceptance: ROSS_ANALYSIS_EXPANSION_AUDIT.md.
+
+A0_ROSS_PARITY_INFRASTRUCTURE = PASS at the implementation SHA recorded in
+ROSS_ANALYSIS_A0_QUALIFICATION.md. Closure-head qualification is established only
+by the matching GitHub gate matrix; previous-head runs are not substituted.

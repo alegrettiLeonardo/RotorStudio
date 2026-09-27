@@ -13,5 +13,7 @@ missing gates. No modification to legacy physics merely to accommodate parity.
 No Python production solver or fallback. GUI availability requires numerical and
 platform qualification at the same source commit.
 
-Current next action: close A0 CI; A1 implementation is blocked until then.
+A0_ROSS_PARITY_INFRASTRUCTURE = PASS at f07dc86 (see
+ROSS_ANALYSIS_A0_QUALIFICATION.md). Requalify the documentation closure HEAD,
+promote A0, then branch A1 from main. No A1 code belongs in PR #22.
 A0's static golden scope is deliberately narrower than full future A1 scope.

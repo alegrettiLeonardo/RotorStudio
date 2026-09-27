@@ -171,8 +171,11 @@ until conditioning and platform evidence justify quantity-specific atol.
 
 ## Current verdict
 
-A0 qualification: BLOCKED pending CI and regression evidence.
-A1: BLOCKED by A0 gate; no solver implementation claimed.
+A0_ROSS_PARITY_INFRASTRUCTURE = PASS at implementation SHA
+`f07dc86b62652bb92cc3d2e0af20c972fec0b67e`. All mandatory workflows and
+platform aggregates were revalidated SUCCESS. See ROSS_ANALYSIS_A0_QUALIFICATION.md.
+The documentation closure commit requires fresh same-HEAD gates before promotion.
+A1 is next after A0 promotion to main; no static solver implementation claimed.
 A2 and all later features: BLOCKED by delivery order.
 Local toolchain installation failed (APT setgroups/seteuid restrictions).
 No workaround changes to production or permissions were made.
