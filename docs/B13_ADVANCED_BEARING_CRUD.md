@@ -6,10 +6,10 @@ B13 is stacked directly on the promoted B12 physical baseline:
 
 `4df7801d7c6d16cabd092ad6e2e802a6626873c8`
 
-PR #14 is still open, therefore the B13 branch is based on that exact commit rather
-than an arbitrary newer `main`. B12 physics remains frozen: this gate does not
-change the Reynolds, THD/TEHD, perturbation, dynamic-condensation, packed ABI, or
-stationary type-5 bridge equations.
+B12 was promoted to `main` through PR #14 with the exact qualified B12 head
+preserved in history. B13 was subsequently promoted through PR #15. B12 physics
+remains frozen: B13 does not change the Reynolds, THD/TEHD, perturbation,
+dynamic-condensation, packed ABI, or stationary type-5 bridge equations.
 
 Branch:
 
@@ -199,12 +199,16 @@ bearing regression, and clean frozen Linux/Windows B13 CRUD smoke.
 
 ## Qualification result
 
-Until all gates succeed on the same final commit:
+Qualified HEAD:
 
-`B13_ADVANCED_BEARING_CRUD = BLOCKED`
+`fe0d6c4b906c31a63bb569adfc07b12ddbdfde24`
 
-Blocker at implementation commit time: same-head Linux/Windows source and frozen
-GitHub Actions evidence has not yet completed.
+Dedicated workflow run:
 
-The exact qualified HEAD is written by the dedicated same-head workflow and will
-be recorded here only after the aggregate gate succeeds.
+`36240346802`
+
+Linux source + frozen, Windows source + frozen, Stage 1 exactly 57/57, B12
+regression, typed persistence, GUI CRUD and aggregate gate all passed on that
+exact head.
+
+`B13_ADVANCED_BEARING_CRUD = PASS`

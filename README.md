@@ -57,12 +57,35 @@ response probes. The real `EST-12735185-CRYOSTAR_V2.txt` rotor is included as
 a regression fixture.
 
 The import is deliberately conservative: shaft geometry/material are mapped
-exactly into `RotorModel`, while legacy distributed masses and speed-dependent
-bearing tables remain preserved as sketch metadata. Projects requiring those
-unmapped numerical semantics are explicitly
-`BLOCKED_FOR_NUMERICAL_ANALYSIS` rather than silently approximated.
+exactly into `RotorModel`. Valid inline iRdin `TABLE§...` speed-dependent
+bearing coefficients are promoted to typed `CoefficientBearing` objects with
+explicit rpm→rad/s conversion and no hidden K/C sign transform. Unsupported
+legacy entities such as distributed mass/package, flexible support and
+concentrated-mass records remain independent numerical-readiness blockers.
+Projects that still contain unsupported semantics remain
+`BLOCKED_FOR_NUMERICAL_ANALYSIS` rather than being silently approximated.
 
 See `docs/DYROBES_ROTOR_SKETCH.md`.
+
+### Advanced bearing productization — B13 to B18
+
+The promoted advanced-bearing engineering chain is qualified end-to-end:
+
+- **B13** — transactional engineering CRUD and typed persistence;
+- **B14** — asynchronous native bearing jobs, progress/cancel and field visualization;
+- **B15** — iRdin/Cryostar coefficient-table import;
+- **B16** — deterministic operating maps and L1/L2 coefficient cache;
+- **B17** — synchronous/fixed/matched-whirl modal and Campbell analysis with MAC tracking;
+- **B18** — synchronous map-backed full-order run-up through the native coefficient-map ABI.
+
+The integrated clean frozen qualification exercises:
+
+`Cryostar iRdin TABLE → CoefficientBearing → operating map/cache → matched-whirl → native run-up`
+
+on Linux and Windows. The B18 transient scope remains deliberately limited to
+`FULL_ORDER | SYNCHRONOUS_COEFFICIENT_POLICY | MAP_BASED | NO_TEHD_IN_ODE`.
+
+See `docs/B13_B18_INTEGRATED_QUALIFICATION.md`.
 
 ### Stage 2.1 — Visual Conformance
 

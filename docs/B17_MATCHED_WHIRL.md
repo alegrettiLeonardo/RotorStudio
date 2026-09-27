@@ -2,7 +2,7 @@
 
 BASE_HEAD = a40c4869059a1295779d37fc3f6617ab00981735
 ROSS_AUTHORITY = petrobras/ross@6320eab9f890f1b3cc1710d508b446fe063ca68d
-STATUS = AWAITING_SAME_HEAD_QUALIFICATION
+STATUS = PASS
 
 ## Policies
 
@@ -42,3 +42,13 @@ per-mode fixed point tracked by MAC with whirl_rtol/whirl_max_iter.
 
 Known exclusions remain unchanged: coaxial/rotating advanced bearings, general
 transient advanced bearings, nonzero bearing-M assembly and B18 run-up.
+
+
+## Final qualification record
+
+B17 fixed/matched-whirl and Campbell MAC tracking passed Linux/Windows gates and
+the frozen ROSS comparison against
+`petrobras/ross@6320eab9f890f1b3cc1710d508b446fe063ca68d`. The same chain was
+revalidated in the promoted integrated B13-B18 qualification.
+
+`B17_MATCHED_WHIRL_MODAL_CAMPBELL_ROSS_PARITY = PASS`

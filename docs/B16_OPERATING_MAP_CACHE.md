@@ -2,7 +2,7 @@
 
 BASE_HEAD = af165254866212d9c48f2bacd0473f3e487ebc7b
 B15_GATE = B15_IRDIN_COEFFICIENT_BEARING_IMPORT PASS at workflow run 36248681356
-STATUS = AWAITING_SAME_HEAD_QUALIFICATION
+STATUS = PASS
 
 ## Contract
 
@@ -54,3 +54,12 @@ cancellation/no-promotion, model-hash isolation and direct/cold/warm timing.
 Known exclusions remain: matched-whirl (B17), advanced-bearing run-up (B18),
 general transient advanced bearings, coaxial/rotating advanced bearings and
 nonzero bearing-M assembly.
+
+
+## Final qualification record
+
+B16 direct/map parity, synchronous and asynchronous map generation, L1/L2 cache,
+corruption rejection, cancellation/no-promotion and model-hash isolation passed
+again in the promoted B13-B18 integrated qualification.
+
+`B16_OPERATING_MAP_CACHE = PASS`

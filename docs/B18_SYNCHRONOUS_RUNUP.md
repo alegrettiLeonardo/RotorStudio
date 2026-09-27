@@ -1,7 +1,7 @@
 # B18 — Synchronous Advanced-Bearing Run-up
 
 BASE_HEAD = 5c0f76a11499f75b5ced0a3a893fbe0e835604f0
-STATUS = AWAITING_SAME_HEAD_QUALIFICATION
+STATUS = PASS
 
 ## Qualified design target
 
@@ -58,3 +58,15 @@ The B18 gate checks:
 7. Linux and Windows native builds and source tests.
 
 The document status changes to PASS only on a same-HEAD green qualification.
+
+
+## Final qualification record
+
+B18 was exercised through the promoted integrated chain
+iRdin -> B16 map/cache -> B17 matched-whirl -> B18 native run-up.
+
+Qualified scope remains exactly:
+
+`FULL_ORDER | SYNCHRONOUS_COEFFICIENT_POLICY | MAP_BASED | NO_TEHD_IN_ODE`
+
+`B18_SYNCHRONOUS_ADVANCED_BEARING_RUNUP = PASS`

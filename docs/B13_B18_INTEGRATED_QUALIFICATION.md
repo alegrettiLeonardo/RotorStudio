@@ -51,3 +51,20 @@ Linux additionally re-runs the B17 frozen ROSS authority comparison.
 
 No PASS is valid until both platform jobs and the aggregate gate succeed on the
 same commit SHA.
+
+
+## Promoted integrated baseline
+
+PR #17 was merged to `main` with merge commit:
+
+`6aee511024047ff8818f8b4268c82cc46204b5fe`
+
+The exact integrated qualification head preserved as an ancestor of `main` is:
+
+`551704a1d089c690e8f9e16dde711c05d494bc6b`
+
+The pull-request qualification matrix was fully green across B13, B14, B15,
+B16, B17, B18, ROSS Bearings Native, Stage 1, Stage 2, G14, DyRoBeS and visual
+conformance.
+
+`B13_B18_INTEGRATED_PRODUCT_QUALIFICATION = PASS`

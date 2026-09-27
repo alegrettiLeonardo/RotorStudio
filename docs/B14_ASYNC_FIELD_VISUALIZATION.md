@@ -2,7 +2,7 @@
 
 BASE_HEAD = fe0d6c4b906c31a63bb569adfc07b12ddbdfde24
 B12_PHYSICS_AUTHORITY = petrobras/ross@6320eab9f890f1b3cc1710d508b446fe063ca68d
-STATUS = AWAITING_SAME_HEAD_QUALIFICATION
+STATUS = PASS
 
 ## Scope
 
@@ -59,3 +59,16 @@ The status above is intentionally not changed to PASS until the exact commit
 containing this document has completed the dedicated Linux/Windows source gates
 and Linux/Windows clean-frozen smoke.  CI evidence, not this prose, is the
 qualification authority.
+
+
+## Final qualification record
+
+Qualified B14 implementation head:
+
+`111320fbfa80dbbcba8754dbf5bd09d9c4a8ceec`
+
+The full B13-B18 integrated product qualification was subsequently re-run and
+promoted through PR #17. Linux/Windows source, clean frozen and aggregate gates
+passed without reopening the B12 physical equations.
+
+`B14_ASYNC_FIELD_VISUALIZATION = PASS`
