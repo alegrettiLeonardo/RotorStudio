@@ -14,8 +14,8 @@ validation/ross_parity/static/authority.json. This is not a production ROSS depe
 | A4 | `run_time_response` / native Newmark/general time response | `rd_time_response_v1` | PASS / PROMOTED |
 | A5 | `run_ucs` / native UCS, intersections and Rouch logic | `rd_ucs_required_v1`, `rd_ucs_map_v1`, `rd_ucs_matrix_v1`, `rd_ucs_v1` | PASS / PROMOTED |
 | A6 | `run_level1` / native Level 1 sweep and whirl selection | `rd_level1_required_v1`, `rd_level1_matrix_v1`, `rd_level1_v1` | PASS / PROMOTED |
-| A7 | `api617_unbalance` / native modal-whirl-antinode-static-load placement | `rd_api617_unbalance_required_v1`, `rd_api617_unbalance_v1` | IMPLEMENTED; exact-head promotion gates pending |
-| A8 | `run_clearance_analysis` | to freeze after A7 promotion | to specify | BLOCKED BY A7 |
+| A7 | `api617_unbalance` / native modal-whirl-antinode-static-load placement | `rd_api617_unbalance_required_v1`, `rd_api617_unbalance_v1` | PASS / PROMOTED |
+| A8 | `run_clearance_analysis` / native synchronous response, probe scaling and clearance check | `rd_clearance_required_v1`, `rd_clearance_v1` | IMPLEMENTED; exact-head promotion gates pending |
 
 Never infer a qualified Fortran feature from a generated ROSS reference.
 Full pre-implementation inventory, risks and acceptance: ROSS_ANALYSIS_EXPANSION_AUDIT.md.
