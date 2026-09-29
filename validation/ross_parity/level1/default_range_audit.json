@@ -1,0 +1,21 @@
+{
+  "case": "default_range_audit_only",
+  "effective_stiffness_range": [
+    3.0,
+    4.5,
+    6.0,
+    7.5,
+    9.0
+  ],
+  "first_bearing_kxx_n_m": 1000000.0,
+  "integer_log10_k": 6,
+  "log_dec": [
+    0.024010533704021366,
+    0.02400869897708287,
+    0.024006864251351637,
+    0.02400502952665527,
+    0.02400319480447365
+  ],
+  "note": "audit-only frozen behavior; RotorStudio A6 requires explicit physical Q range",
+  "rated_w_rad_s": 400.0
+}
