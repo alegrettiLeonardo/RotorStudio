@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 from drm_core import (
-    Bearing,CoefficientBearing,Disk,Node,RotorModel,ShaftElement,run_clearance
+    Bearing,CoefficientBearing,Disk,Node,RotorModel,ShaftElement,run_clearance,
+    run_forced_response,
 )
 from drm_core.solver.ffi import SolverLibraryError
 
@@ -202,3 +203,36 @@ def test_clearance_fail_closed_inputs():
     bad=dict(kwargs);bad["unbalance_nodes"]=[4]
     with pytest.raises(ValueError,match="required"):
         run_clearance(m,**bad)
+
+
+def test_explicit_unbalance_force_a3_response_and_orbit_major_axis_reuse():
+    _,kwargs=args_for("explicit_20_gmm")
+    model=standard_model()
+    r=run_clearance(model,**kwargs)
+    w=np.asarray(r.speed_range_rad_s,float)
+    n=4*len(model.nodes)
+    fr=np.zeros((n,len(w)),float);fi=np.zeros_like(fr)
+    node=int(kwargs["unbalance_nodes"][0]);u=float(kwargs["unbalance_magnitude_kg_m"][0])
+    phase=float(kwargs["unbalance_phase_rad"][0]);ix=4*(node-1);iy=ix+1
+    ph=np.exp(1j*phase);force=u*w*w*ph
+    fr[ix]=force.real;fi[ix]=force.imag
+    yforce=-1j*force
+    fr[iy]=yforce.real;fi[iy]=yforce.imag
+
+    a3=run_forced_response(model,w,fr,fi,speed=None)
+    q=np.asarray(a3.displacement)
+
+    for j,(node,theta) in enumerate(zip(r.probe_nodes,r.probe_angles_rad)):
+        ix=4*(int(node)-1);proj=q[ix]*np.cos(theta)+q[ix+1]*np.sin(theta)
+        np.testing.assert_allclose(
+            r.probe_response_m_pp[j],2*np.abs(proj),rtol=2e-10,atol=2e-13
+        )
+
+    for j,node in enumerate(r.clearance_nodes):
+        ix=4*(int(node)-1);x=q[ix];y=q[ix+1]
+        h11=np.abs(x)**2;h22=np.abs(y)**2;h12=np.real(x*np.conj(y))
+        major=np.sqrt(np.maximum(0,.5*(h11+h22+np.sqrt((h11-h22)**2+4*h12*h12))))
+        expected=2*r.scale_factor*major
+        np.testing.assert_allclose(
+            r.clearance_response_m_pp[j],expected,rtol=2e-10,atol=2e-13
+        )
