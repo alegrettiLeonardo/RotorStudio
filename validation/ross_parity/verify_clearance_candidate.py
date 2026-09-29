@@ -49,7 +49,17 @@ def compare_result(name,side,a,b):
     close(a["clearance_limit"],b["clearance_limit"],2e-12,2e-15,f"{name}:{side}:limit")
     close(a["clearance_response"],b["clearance_response"],5e-7,5e-11,f"{name}:{side}:clearance response")
     close(a["max_clearance_response"],b["max_clearance_response"],5e-7,5e-11,f"{name}:{side}:max clearance")
-    close(a["speed_at_max_response"],b["speed_at_max_response"],0,2e-12,f"{name}:{side}:speed at max")
+    # The speed of an argmax is not reproducible when the entire location
+    # response is effectively numerical zero (conical nodal plane).
+    refmax=np.asarray(a["max_clearance_response"],dtype=float)
+    observable=refmax>1e-12
+    close(
+        np.asarray(a["speed_at_max_response"],dtype=float)[observable],
+        np.asarray(b["speed_at_max_response"],dtype=float)[observable],
+        0,2e-12,f"{name}:{side}:speed at max"
+    )
+    if np.any(np.asarray(b["max_clearance_response"],dtype=float)[~observable]>=1e-12):
+        raise AssertionError(f"{name}:{side}: zero-response location became observable")
     if a["mode_frequency"] is not None:
         close([a["mode_frequency"]],[b["mode_frequency"]],3e-8,3e-7,f"{name}:{side}:mode frequency")
 
