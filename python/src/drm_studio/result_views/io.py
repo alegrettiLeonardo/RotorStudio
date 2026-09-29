@@ -9,6 +9,7 @@ from drm_core.analysis.general_time_response import GeneralTimeResponseResult
 from drm_core.analysis.ucs import UCSResult
 from drm_core.analysis.level1 import Level1Result
 from drm_core.analysis.api617_unbalance import API617UnbalanceResult
+from drm_core.analysis.clearance import ClearanceResult
 
 from drm_core import (
     ModalResult, CriticalSpeedResult, FrequencyResponseResult, TransientResult,
@@ -40,6 +41,28 @@ def _complex_response_rows(axis, response):
 def record_data_table(record):
     """Map qualified result objects to explicit numeric columns without recalculating physics."""
     result = record.execution.result
+    if isinstance(result, ClearanceResult):
+        rows=[]
+        for i,node in enumerate(result.clearance_nodes):
+            rows.append((
+                i+1,int(node),float(result.clearance_positions_m[i]),
+                float(result.diametral_clearance_m[i]),
+                float(result.clearance_limit_m[i]),
+                float(result.max_clearance_response_m_pp[i]),
+                float(result.speed_at_max_response_rad_s[i]),
+                float(rad_s_to_rpm(result.speed_at_max_response_rad_s[i])),
+                float(result.percent_of_limit[i]),
+                1.0 if bool(result.passed[i]) else 0.0,
+                float(result.scale_factor),
+                float(result.vibration_limit_m_pp),
+                float(result.max_probe_amplitude_m_pp),
+            ))
+        return [
+            "location_index","node_one_based","position_m","diametral_clearance_m",
+            "limit_75pct_m_pp","max_scaled_response_m_pp","speed_at_max_rad_s",
+            "speed_at_max_rpm","percent_of_limit","passed_1_0","scale_factor",
+            "vibration_limit_m_pp","max_probe_amplitude_m_pp",
+        ],np.asarray(rows,dtype=float)
     if isinstance(result, API617UnbalanceResult):
         rows=[]
         rpm=float(rad_s_to_rpm(result.maximum_continuous_speed_rad_s))
@@ -226,10 +249,52 @@ def export_record_csv(record, path):
                     format(float(rad_s_to_rpm(r.intersection_speed_rad_s[i])),".17g"),
                 ])
         record.ucs_csv_intersections=ip
+    if isinstance(record.execution.result,ClearanceResult):
+        import csv
+        from pathlib import Path
+        r=record.execution.result;p=Path(path)
+        rp=p.with_name(p.stem+"_response.csv")
+        with rp.open("w",newline="",encoding="utf-8") as stream:
+            writer=csv.writer(stream)
+            writer.writerow([
+                "location_index","tag","node_one_based","speed_rad_s","speed_rpm",
+                "scaled_response_m_pp","limit_75pct_m_pp"
+            ])
+            for i,(tag,node) in enumerate(zip(r.clearance_tags,r.clearance_nodes)):
+                for j,speed in enumerate(r.speed_range_rad_s):
+                    writer.writerow([
+                        i+1,str(tag),int(node),format(float(speed),".17g"),
+                        format(float(rad_s_to_rpm(speed)),".17g"),
+                        format(float(r.clearance_response_m_pp[i,j]),".17g"),
+                        format(float(r.clearance_limit_m[i]),".17g"),
+                    ])
+        record.clearance_csv_response=rp
     return written
 
 
 def export_record_native(record, path):
+    if isinstance(record.execution.result,ClearanceResult):
+        r=record.execution.result
+        arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
+        return export_npz(
+            path,**arrays,
+            minimum_allowable_speed_rad_s=np.asarray([r.minimum_allowable_speed_rad_s]),
+            maximum_continuous_speed_rad_s=np.asarray([r.maximum_continuous_speed_rad_s]),
+            vibration_limit_m_pp=np.asarray([r.vibration_limit_m_pp]),
+            max_probe_amplitude_m_pp=np.asarray([r.max_probe_amplitude_m_pp]),
+            scale_factor=np.asarray([r.scale_factor]),
+            scale_factor_cap=np.asarray([np.nan if r.scale_factor_cap is None else r.scale_factor_cap]),
+            mode=np.asarray([-1 if r.mode is None else r.mode],dtype=np.int32),
+            mode_index=np.asarray([-1 if r.mode_index is None else r.mode_index],dtype=np.int32),
+            mode_frequency_rad_s=np.asarray([np.nan if r.mode_frequency_rad_s is None else r.mode_frequency_rad_s]),
+            probe_tags=np.asarray(r.probe_tags,dtype="U64"),
+            clearance_tags=np.asarray(r.clearance_tags,dtype="U64"),
+            bearing_evaluation_json=np.asarray(json.dumps(r.bearing_evaluation,sort_keys=True)),
+            metadata_json=np.asarray(json.dumps(r.metadata,sort_keys=True)),
+            selection_json=np.asarray(json.dumps(getattr(record,"clearance_selection",record.execution.case.options),sort_keys=True)),
+            analysis_hash=np.asarray(record.execution.analysis_hash),
+            build_metadata_json=np.asarray(json.dumps(record.execution.build_metadata,sort_keys=True)),
+        )
     if isinstance(record.execution.result,API617UnbalanceResult):
         r=record.execution.result
         arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
