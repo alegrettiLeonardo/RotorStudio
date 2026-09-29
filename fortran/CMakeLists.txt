@@ -40,7 +40,7 @@ add_library(drmrotor SHARED
  src/rd_kinds.f90 src/rd_status.f90 src/rd_lapack.f90
  src/rd_shaft_circular.f90 src/rd_shaft_tapered.f90 src/rd_shaft_asymmetric.f90
  src/rd_assembly_stationary.f90 src/rd_assembly_rotating.f90 src/rd_eigensystem.f90
- src/rd_frequency_response.f90 src/rd_external_response.f90 src/rd_critical_speed.f90
+ src/rd_frequency_response.f90 src/rd_external_response.f90 src/rd_critical_speed.f90 src/rd_intersections.f90 src/rd_rouch.f90 src/rd_ucs.f90 src/rd_ucs_c_api.f90
  src/rd_reduction.f90 src/rd_dp45.f90 src/rd_transient.f90
  src/rd_coaxial_solver.f90 src/rd_rotating_solver.f90 src/rd_dynamic_stiffness.f90 src/rd_frf_general.f90 src/rd_newmark.f90 src/rd_transient_stiffness.f90 src/rd_time_response_general.f90 src/rd_time_response_c_api.f90 src/rd_forced_response.f90 src/rd_forced_response_c_api.f90 src/rd_static.f90 src/rd_c_api.f90)
 target_link_libraries(drmrotor PRIVATE LAPACK::LAPACK BLAS::BLAS)
@@ -105,3 +105,11 @@ target_link_libraries(time_probe PRIVATE drmrotor)
 if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(time_probe PRIVATE -ffree-line-length-none)
 endif()
+
+
+add_executable(test_ucs tests/test_ucs.f90)
+target_link_libraries(test_ucs PRIVATE drmrotor)
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_ucs PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME ucs_native_contract COMMAND test_ucs)

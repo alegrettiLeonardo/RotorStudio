@@ -1,6 +1,11 @@
 from .backend import FortranBackend
 class SolverFacade:
     def __init__(self,library_path=None): self.backend=FortranBackend(library_path)
+    def ucs(self,model,stiffness_range_exponents,num=20,num_modes=16,bearing_speed_range=None,synchronous=False):
+        return self.backend.ucs(model,stiffness_range_exponents,num,num_modes,bearing_speed_range,synchronous)
+    def ucs_matrices(self,model,stiffness_n_m,synchronous=False):
+        return self.backend.ucs_matrices(model,stiffness_n_m,synchronous)
+
     def general_time_response(self,model,time_s,force_real,speed=0.,weight=False,gamma=.5,beta=.25,tol=1e-6):
         return self.backend.general_time_response(model,time_s,force_real,speed,weight,gamma,beta,tol)
 

@@ -146,3 +146,26 @@ def configure_general_frf(lib):
     frf.argtypes=[I,P,I,P,I,P,I,IP,I,P,I,D,P]+[P]*7;frf.restype=I
     matrix.argtypes=[I,P,I,P,I,P,I,IP,P,D,D]+[P]*9;matrix.restype=I
     return frf,matrix
+
+
+def configure_ucs(lib):
+    """A5 versioned UCS ABI. No legacy ABI is modified."""
+    try:
+        required=lib.rd_ucs_required_v1
+        map_fn=lib.rd_ucs_map_v1
+        matrix_fn=lib.rd_ucs_matrix_v1
+        full_fn=lib.rd_ucs_v1
+    except AttributeError as exc:
+        raise SolverLibraryError(
+            "UCS requires rd_ucs_required_v1/rd_ucs_map_v1/rd_ucs_matrix_v1/rd_ucs_v1; "
+            "rebuild the A5 native solver. No Python physics fallback is available."
+        ) from exc
+    I=ct.c_int;D=ct.c_double;P=ct.POINTER(D);IP=ct.POINTER(I)
+    required.argtypes=[I,I,I,I,IP,IP,IP];required.restype=I
+    map_fn.argtypes=[I,P,I,P,I,P,I,IP,D,D,I,I,I,I,P,P];map_fn.restype=I
+    matrix_fn.argtypes=[I,P,I,P,I,P,I,IP,D,I,P,P,P,P];matrix_fn.restype=I
+    full_fn.argtypes=[
+        I,P,I,P,I,P,I,IP,D,D,I,I,I,I,P,P,P,I,I,I,
+        P,P,IP,P,P,IP,IP,P,P,P,P,P,P
+    ];full_fn.restype=I
+    return required,map_fn,matrix_fn,full_fn

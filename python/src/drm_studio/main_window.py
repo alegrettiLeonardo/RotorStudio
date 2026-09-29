@@ -13,8 +13,11 @@ from drm_core import AnalysisService
 from drm_core.analysis.static import StaticResult
 from drm_core.analysis.forced_response import ForcedResponseResult
 from drm_core.analysis.general_time_response import GeneralTimeResponseResult
+from drm_core.analysis.ucs import UCSResult
 from .analysis_pages.general_time_setup import GeneralTimeSetupDialog
 from .result_views.general_time_view import GeneralTimeResultView
+from .analysis_pages.ucs_setup import UCSSetupDialog
+from .result_views.ucs_view import UCSResultView
 from .analysis_pages.forced_response_setup import ForcedResponseSetupDialog
 from .result_views.forced_response_view import ForcedResponseResultView
 from drm_core.analysis.general_frf import FrequencyResponseMatrixResult
@@ -94,6 +97,8 @@ class MainWindow(QMainWindow):
 
         self.general_time_action = QAction("General Time Response F(t)", self)
         self.general_time_action.triggered.connect(self._configure_general_time)
+        self.ucs_action = QAction("UCS / Undamped Critical Speed Map", self)
+        self.ucs_action.triggered.connect(self._configure_ucs)
         self.forced_response_action = QAction("Forced Response", self)
         self.forced_response_action.triggered.connect(self._configure_forced_response)
         self.general_frf_action = QAction("General FRF — Matrix", self)
@@ -179,6 +184,7 @@ class MainWindow(QMainWindow):
         self.analysis_menu.addAction(self.general_frf_action)
         self.analysis_menu.addAction(self.forced_response_action)
         self.analysis_menu.addAction(self.general_time_action)
+        self.analysis_menu.addAction(self.ucs_action)
         self.analysis_menu.addAction(self.static_action)
         self.analysis_menu.addAction(self.modal_action)
         self.analysis_menu.addAction(self.campbell_action)
@@ -419,6 +425,10 @@ class MainWindow(QMainWindow):
         dialog=GeneralTimeSetupDialog(self.session.project.model,self)
         if dialog.exec()==QDialog.Accepted:self.run_analysis(dialog.analysis_case())
 
+    def _configure_ucs(self):
+        dialog=UCSSetupDialog(self.session.project.model,self)
+        if dialog.exec()==QDialog.Accepted:self.run_analysis(dialog.analysis_case())
+
     def _configure_forced_response(self):
         dialog=ForcedResponseSetupDialog(self.session.project.model,self)
         if dialog.exec()==QDialog.Accepted:self.run_analysis(dialog.analysis_case())
@@ -595,7 +605,10 @@ class MainWindow(QMainWindow):
         result = record.execution.result
         view = None
         prefix = "Result"
-        if isinstance(result, GeneralTimeResponseResult):
+        if isinstance(result, UCSResult):
+            view=UCSResultView(record)
+            prefix="UCS"
+        elif isinstance(result, GeneralTimeResponseResult):
             view=GeneralTimeResultView(record)
         elif isinstance(result, ForcedResponseResult):
             view=ForcedResponseResultView(record)

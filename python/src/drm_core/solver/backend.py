@@ -10,6 +10,14 @@ class FortranBackend:
         self.library_path=library_path
         self.lib=configure(load_library(library_path))
         self._advanced_bearing_backend=None
+    def ucs(self,model,stiffness_range_exponents,num=20,num_modes=16,bearing_speed_range=None,synchronous=False):
+        from .ucs_backend import execute
+        return execute(self,model,stiffness_range_exponents,num,num_modes,bearing_speed_range,synchronous)
+
+    def ucs_matrices(self,model,stiffness_n_m,synchronous=False):
+        from .ucs_backend import matrices
+        return matrices(self,model,stiffness_n_m,synchronous)
+
     def general_time_response(self,model,time_s,force_real,speed=0.,weight=False,gamma=.5,beta=.25,tol=1e-6):
         from .general_time_backend import execute
         return execute(self,model,time_s,force_real,speed,weight,gamma,beta,tol)

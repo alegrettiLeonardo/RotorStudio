@@ -11,6 +11,7 @@ from .analysis.static import run_static
 from .analysis.general_frf import run_general_frf
 from .analysis.forced_response import run_forced_response
 from .analysis.general_time_response import run_general_time_response
+from .analysis.ucs import run_ucs
 from .analysis.modal import run_modal,track_modal_branches
 from .analysis.frequency_response import run_frequency_response,run_auxiliary_frequency_response,run_foundation_frequency_response
 from .analysis.critical_speed import run_critical_speeds
@@ -97,7 +98,8 @@ class AnalysisService:
                 )
         model=project.model if project is not None else model
         p=dict(case.parameters);k=case.kind.strip().lower();lib=self.library_path
-        if k=="general_time_response": result=run_general_time_response(model,library_path=lib,**p)
+        if k=="ucs": result=run_ucs(model,library_path=lib,**p)
+        elif k=="general_time_response": result=run_general_time_response(model,library_path=lib,**p)
         elif k=="forced_response": result=run_forced_response(model,library_path=lib,**p)
         elif k=="general_frf": result=run_general_frf(model,library_path=lib,**p)
         elif k=="static": result=run_static(model,library_path=lib,**p)
