@@ -8,6 +8,7 @@ bearing coefficients at Nmc and marshals arrays.
 from __future__ import annotations
 
 import ctypes as ct
+import warnings
 import numpy as np
 
 from drm_core.domain.model import ShaftElement
@@ -129,6 +130,13 @@ def execute(
         }.get(status,"native failure")
         raise SolverLibraryError(
             f"A7 rd_api617_unbalance_v1 returned status={status}: {reason}"
+        )
+    if not np.any(np.asarray(whirl_ratio)>0.25) and np.any(np.asarray(whirl_ratio)>0.0):
+        warnings.warn(
+            "No mode with predominantly forward orbits was found (all whirl "
+            "ratios are below 0.25); using the modes with positive whirl ratio instead.",
+            UserWarning,
+            stacklevel=2,
         )
     count=int(nout.value)
     if count<1 or count>max_out:
