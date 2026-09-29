@@ -5,6 +5,10 @@ class SolverFacade:
         return self.backend.ucs(model,stiffness_range_exponents,num,num_modes,bearing_speed_range,synchronous)
     def ucs_matrices(self,model,stiffness_n_m,synchronous=False):
         return self.backend.ucs_matrices(model,stiffness_n_m,synchronous)
+    def level1(self,model,rotor_speed_rad_s,cross_coupling_node,stiffness_range_n_m,num=5):
+        return self.backend.level1(model,rotor_speed_rad_s,cross_coupling_node,stiffness_range_n_m,num)
+    def level1_matrices(self,model,rotor_speed_rad_s,cross_coupling_node,Q_n_m):
+        return self.backend.level1_matrices(model,rotor_speed_rad_s,cross_coupling_node,Q_n_m)
 
     def general_time_response(self,model,time_s,force_real,speed=0.,weight=False,gamma=.5,beta=.25,tol=1e-6):
         return self.backend.general_time_response(model,time_s,force_real,speed,weight,gamma,beta,tol)
