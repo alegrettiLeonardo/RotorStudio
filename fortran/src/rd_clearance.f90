@@ -51,6 +51,7 @@ contains
  integer::i,j,k,dof,nphysical,imax
  status=RD_ERR_INPUT;nout=0;ub_nodes=0;ub_mag=0;ub_phase=0;mode_index=-1;mode_frequency=0
  if(.not.forced_size_valid(nn,nf).or.ns/=nn-1.or.nb<1.or.nprobe<1.or.nclear<1)return
+ if(num_modes<4.or.mod(num_modes,2)/=0.or.num_modes/2>4*nn.or.mode<0)return
  if(.not.ieee_is_finite(nma).or..not.ieee_is_finite(nmc).or.nma<0.or.nmc<=0.or.nma>nmc)return
  if(.not.all(ieee_is_finite(speed)).or.any(speed<0).or.any(speed(2:nf)<=speed(1:nf-1)))return
  if(.not.all(ieee_is_finite(probe_angles)).or..not.all(ieee_is_finite(radial_clearance)).or.any(radial_clearance<=0))return
