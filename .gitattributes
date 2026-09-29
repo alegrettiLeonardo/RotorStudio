@@ -11,3 +11,7 @@ validation/equivalence/matlab/*.m text eol=lf
 validation/ross_parity/**/*.json text eol=lf
 validation/ross_parity/*.json text eol=lf
 validation/ross_parity/**/*.npz binary
+
+# Additive A5 authority generator and fixture source are byte-hashed.
+validation/ross_parity/generate_ucs_bearing_order_reference.py text eol=lf
+validation/ross_parity/ucs_bearing_order_cases.py text eol=lf

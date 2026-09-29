@@ -112,7 +112,9 @@ jobs:
             python validation/ross_parity/verify_reference.py "validation/ross_parity/$name"
           done
       - name: Preservation scripts
+        shell: bash
         run: |
+          set -euo pipefail
           python scripts/verify_a1_legacy_preservation.py
           python scripts/verify_a2_preservation.py
           python scripts/verify_a3_preservation.py
