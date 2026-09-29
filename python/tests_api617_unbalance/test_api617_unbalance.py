@@ -164,7 +164,11 @@ def test_api617_boundary_switch_is_exactly_25000_rpm():
     )
     np.testing.assert_allclose(rlo.unbalance_magnitude_kg_m,lo["ross_adapted_4dof"]["result"]["unbalance_magnitude"],rtol=2e-9)
     np.testing.assert_allclose(rhi.unbalance_magnitude_kg_m,hi["ross_adapted_4dof"]["result"]["unbalance_magnitude"],rtol=2e-9)
-    assert not np.isclose(rlo.unbalance_magnitude_kg_m[0],rhi.unbalance_magnitude_kg_m[0],rtol=1e-3)
+    wlo=float(rlo.static_load_kg[0]);whi=float(rhi.static_load_kg[0])
+    expected_lo=2.0*6350.0*wlo/24999.0*1e-6
+    expected_hi=2.0*(whi/3.937)*1e-6
+    np.testing.assert_allclose(rlo.unbalance_magnitude_kg_m[0],expected_lo,rtol=2e-12,atol=2e-15)
+    np.testing.assert_allclose(rhi.unbalance_magnitude_kg_m[0],expected_hi,rtol=2e-12,atol=2e-15)
 
 
 def test_api617_mode_not_available_and_scope_fail_closed():
