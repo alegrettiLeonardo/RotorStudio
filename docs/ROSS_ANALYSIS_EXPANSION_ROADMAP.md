@@ -13,7 +13,21 @@ missing gates. No modification to legacy physics merely to accommodate parity.
 No Python production solver or fallback. GUI availability requires numerical and
 platform qualification at the same source commit.
 
-A0_ROSS_PARITY_INFRASTRUCTURE = PASS at f07dc86 (see
-ROSS_ANALYSIS_A0_QUALIFICATION.md). Requalify the documentation closure HEAD,
-promote A0, then branch A1 from main. No A1 code belongs in PR #22.
-A0's static golden scope is deliberately narrower than full future A1 scope.
+A0–A6 are promoted and preserved.
+
+Promoted checkpoints:
+
+- A5 UCS qualified HEAD `fa0827e2233620d68a422edf1dc99f6471dc45f3`;
+  promoted main `799dd97583425915a2c9e5ec4b823468780e4146`.
+- A6 Level 1 qualified HEAD `e7906b6329bab06d6a5a7ea53170485a31869679`;
+  promoted main `bae1adf745ffd66742a14c956dbd090524f5737e`.
+
+Current campaign stage: **A7 API 617 unbalance placement** on
+`feature/ross-analysis-a7-api617-unbalance`, branched from the exact A6
+promoted main. A7 implementation and immutable frozen-ROSS authority are in
+place; promotion remains contingent on exact-head Linux/Windows parity,
+preservation/regression and clean frozen application gates.
+
+A8 close-clearance analysis remains blocked until A7 is promoted. B1 and later
+6-DOF platform work remain blocked until the A-series reaches its planned
+boundary.
