@@ -1,0 +1,90 @@
+name: ROSS Analysis A8 Clearance Qualification
+
+on:
+  push:
+    branches: [feature/ross-analysis-a8-clearance]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-clearance:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 100
+    env:
+      QT_QPA_PLATFORM: offscreen
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python dependencies
+        run: python -m pip install -e "./python[test,studio,ui-test]"
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -qq && sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-openblas
+      - name: Linux Release
+        if: runner.os == 'Linux'
+        run: |
+          cmake -S fortran -B build-a8 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-a8 -j2
+          ctest --test-dir build-a8 --output-on-failure
+          echo "DRMROTOR_LIB=$PWD/build-a8/libdrmrotor.so" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_LIB=$PWD/build-a8/libdrmbearings.so" >> "$GITHUB_ENV"
+          echo "PYTHONPATH=$PWD/python/src:$PWD" >> "$GITHUB_ENV"
+      - name: Windows Release
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-a8 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-a8 --parallel
+          ctest --test-dir build-a8 --output-on-failure
+          echo "DRMROTOR_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - name: Windows library paths
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dll = Get-ChildItem build-a8 -Recurse -Filter '*drmrotor*.dll' | Select-Object -First 1
+          $bearing = Get-ChildItem build-a8 -Recurse -Filter '*drmbearings*.dll' | Select-Object -First 1
+          "DRMROTOR_LIB=$($dll.FullName)" >> $env:GITHUB_ENV
+          "DRMBEARINGS_LIB=$($bearing.FullName)" >> $env:GITHUB_ENV
+          "PYTHONPATH=$PWD\python\src;$PWD" >> $env:GITHUB_ENV
+      - name: Immutable A0-A8 authorities present
+        shell: bash
+        run: |
+          test -f validation/ross_parity/clearance/authority.json
+          grep -q 6320eab9f890f1b3cc1710d508b446fe063ca68d validation/ross_parity/clearance/authority.json
+          test -f validation/ross_parity/api617_unbalance/authority.json
+          test -f validation/ross_parity/level1/authority.json
+          test -f validation/ross_parity/ucs/authority.json
+          test -f validation/ross_parity/time_response/authority.json
+          test -f validation/ross_parity/forced/authority.json
+          test -f validation/ross_parity/frf/authority.json
+          test -f validation/ross_parity/static/authority.json
+      - name: Preserve A1-A7 and legacy native paths
+        run: python scripts/verify_a1_legacy_preservation.py
+      - name: A8 clearance frozen ROSS parity
+        run: python -m pytest python/tests_clearance -q
+      - name: A0-A7 and Stage 1 regression
+        run: python -m pytest python/tests_api617_unbalance python/tests_level1 python/tests_ucs python/tests_time python/tests_forced python/tests_frf python/tests_static python/tests -q
+      - name: Bearing foundation regression
+        run: python -m pytest python/tests_bearings -q
