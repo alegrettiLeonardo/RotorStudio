@@ -1,0 +1,22 @@
+name: Flet toolchain bootstrap (not qualification)
+on:
+  push:
+    branches: [feat/flet-mockup-interface-20260929]
+    paths: [.github/workflows/flet-toolchain-bootstrap.yml]
+permissions:
+  contents: read
+jobs:
+  toolchain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Build dependency wheels (no project tests in this bootstrap)
+        run: python -m pip wheel --wheel-dir wheelhouse 'flet[desktop,web]==1.0.0'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flet-1.0.0-toolchain-py313-linux
+          path: wheelhouse
+          retention-days: 7
