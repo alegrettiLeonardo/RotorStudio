@@ -40,19 +40,19 @@ contains
  status=RD_OK
  end subroutine
 
- subroutine support_stiffness(nnode,nsupport,support_nodes,k,K,status)
+ subroutine support_stiffness(nnode,nsupport,support_nodes,ks,Kmat,status)
  integer(ik),intent(in)::nnode,nsupport,support_nodes(nsupport)
- real(rk),intent(in)::k
- real(rk),intent(inout)::K(4*nnode,4*nnode)
+ real(rk),intent(in)::ks
+ real(rk),intent(inout)::Kmat(4*nnode,4*nnode)
  integer(ik),intent(out)::status
  integer::i,n,x,y
  status=RD_ERR_INPUT
- if(nsupport<1.or..not.ieee_is_finite(k).or.k<=0)return
+ if(nsupport<1.or..not.ieee_is_finite(ks).or.ks<=0)return
  do i=1,nsupport
    n=support_nodes(i)
    if(n<1.or.n>nnode)return
    x=4*n-3;y=4*n-2
-   K(x,x)=K(x,x)+k;K(y,y)=K(y,y)+k
+   Kmat(x,x)=Kmat(x,x)+ks;Kmat(y,y)=Kmat(y,y)+ks
  enddo
  status=RD_OK
  end subroutine
@@ -69,27 +69,27 @@ contains
  enddo
  end subroutine
 
- subroutine build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,k,synchronous,M,C,G,K,status)
+ subroutine build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,ks,synchronous,Mmat,Cmat,Gmat,Kmat,status)
  integer(ik),intent(in)::nnode,ns,nd,nsupport,support_nodes(nsupport),synchronous
- real(rk),intent(in)::z(nnode),sh(11,ns),di(6,nd),k
- real(rk),intent(out)::M(4*nnode,4*nnode),C(4*nnode,4*nnode),G(4*nnode,4*nnode),K(4*nnode,4*nnode)
+ real(rk),intent(in)::z(nnode),sh(11,ns),di(6,nd),ks
+ real(rk),intent(out)::Mmat(4*nnode,4*nnode),Cmat(4*nnode,4*nnode),Gmat(4*nnode,4*nnode),Kmat(4*nnode,4*nnode)
  integer(ik),intent(out)::status
  real(rk),allocatable::sh0(:,:),M0(:,:),C0(:,:),K1(:,:),Ms(:,:)
  if(synchronous/=0.and.synchronous/=1)then;status=RD_ERR_INPUT;return;endif
  allocate(sh0(11,ns));call zero_damping_shaft(ns,sh,sh0)
  allocate(M0(4*nnode,4*nnode),C0(4*nnode,4*nnode),K1(4*nnode,4*nnode),Ms(4*nnode,4*nnode))
- call assemble_rotor(nnode,z,ns,sh0,nd,di,M0,C0,G,K,K1,status);if(status/=RD_OK)return
+ call assemble_rotor(nnode,z,ns,sh0,nd,di,M0,C0,Gmat,Kmat,K1,status);if(status/=RD_OK)return
  ! UCS temporary rotor has no seals, no bearing damping, and zero shaft
  ! proportional damping. The only support contribution is isotropic K.
- C=0._rk
- call support_stiffness(nnode,nsupport,support_nodes,k,K,status);if(status/=RD_OK)return
+ Cmat=0._rk
+ call support_stiffness(nnode,nsupport,support_nodes,ks,Kmat,status);if(status/=RD_OK)return
  if(synchronous==1)then
-   call rouch_mass(nnode,M0,G,Ms,status);if(status/=RD_OK)return
-   M=Ms
+   call rouch_mass(nnode,M0,Gmat,Ms,status);if(status/=RD_OK)return
+   Mmat=Ms
  else
-   M=M0
+   Mmat=M0
  endif
- if(.not.all(ieee_is_finite(M)).or..not.all(ieee_is_finite(K)).or..not.all(ieee_is_finite(G)))then
+ if(.not.all(ieee_is_finite(Mmat)).or..not.all(ieee_is_finite(Kmat)).or..not.all(ieee_is_finite(Gmat)))then
    status=RD_ERR_INPUT;return
  endif
  status=RD_OK
@@ -109,8 +109,9 @@ contains
  ! ROSS _index puts positive-imaginary modes first and orders them by wd.
  do i=1,2*n-1
    do j=i+1,2*n
-     if((aimag(w(j))>0._rk.and.aimag(w(i))<=0._rk).or. &
-        ((aimag(w(j))>0._rk.eqv.aimag(w(i))>0._rk).and.aimag(w(j))<aimag(w(i))))then
+     if(aimag(w(j))>0._rk.and.aimag(w(i))<=0._rk)then
+       tw=w(i);w(i)=w(j);w(j)=tw
+     elseif(aimag(w(j))>0._rk.and.aimag(w(i))>0._rk.and.aimag(w(j))<aimag(w(i)))then
        tw=w(i);w(i)=w(j);w(j)=tw
      endif
    enddo
@@ -140,7 +141,7 @@ contains
  need=num_modes/2
  if(nnode<2.or.ns/=nnode-1.or.nd<0.or.nsupport<1.or.nk<2.or.num_modes<4.or.num_modes/4<1)then;status=RD_ERR_INPUT;return;endif
  call ucs_logspace(start_exp,stop_exp,nk,grid,status);if(status/=RD_OK)return
- allocate(M(4*nnode,4*nnode),C(4*nnode,4*nnode),G(4*nnode,4*nnode),K(4*nnode,4*nnode))
+ allocate(Mmat(4*nnode,4*nnode),Cmat(4*nnode,4*nnode),Gmat(4*nnode,4*nnode),Kmat(4*nnode,4*nnode))
  allocate(wr(need),wi(need),wn(need),wd(need),ze(need),ld(need));rotor_wn=0
  do i=1,nk
    call build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,grid(i),synchronous,M,C,G,K,status);if(status/=RD_OK)return
@@ -153,12 +154,12 @@ contains
  status=RD_OK
  end subroutine
 
- subroutine ucs_matrix(nnode,z,ns,sh,nd,di,nsupport,support_nodes,k,synchronous,M,C,G,K,status)
+ subroutine ucs_matrix(nnode,z,ns,sh,nd,di,nsupport,support_nodes,ks,synchronous,Mmat,Cmat,Gmat,Kmat,status)
  integer(ik),intent(in)::nnode,ns,nd,nsupport,support_nodes(nsupport),synchronous
- real(rk),intent(in)::z(nnode),sh(11,ns),di(6,nd),k
- real(rk),intent(out)::M(4*nnode,4*nnode),C(4*nnode,4*nnode),G(4*nnode,4*nnode),K(4*nnode,4*nnode)
+ real(rk),intent(in)::z(nnode),sh(11,ns),di(6,nd),ks
+ real(rk),intent(out)::Mmat(4*nnode,4*nnode),Cmat(4*nnode,4*nnode),Gmat(4*nnode,4*nnode),Kmat(4*nnode,4*nnode)
  integer(ik),intent(out)::status
- call build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,k,synchronous,M,C,G,K,status)
+ call build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,ks,synchronous,Mmat,Cmat,Gmat,Kmat,status)
  end subroutine
 
  subroutine ucs_full(nnode,z,ns,sh,nd,di,nsupport,support_nodes,start_exp,stop_exp,nk,num_modes,synchronous, &
@@ -169,8 +170,8 @@ contains
  real(rk),intent(out)::grid(nk),rotor_wn(num_modes/4,nk),ikcrit(maxint),ispeed(maxint)
  integer(ik),intent(out)::nint,imode(maxint),isource(maxint),status
  real(rk),intent(out)::cer(6,maxint),cei(6,maxint),cwn(6,maxint),cwd(6,maxint),czeta(6,maxint),clogdec(6,maxint)
- integer::m,c,q,got,room,nfound
- real(rk),allocatable::tx(:),ty(:),M(:,:),C(:,:),G(:,:),K(:,:),wr(:),wi(:),wn(:),wd(:),ze(:),ld(:)
+ integer::im,ic,q,got,room,nfound
+ real(rk),allocatable::tx(:),ty(:),Mmat(:,:),Cmat(:,:),Gmat(:,:),Kmat(:,:),wr(:),wi(:),wn(:),wd(:),ze(:),ld(:)
  if(ncoeff<1.or.ncoeff>2.or.maxint<0.or.nbspeed<2)then;status=RD_ERR_INPUT;return;endif
  if(any(.not.ieee_is_finite(bearing_speed)).or.any(.not.ieee_is_finite(kxx)).or.any(.not.ieee_is_finite(kyy)))then;status=RD_ERR_INPUT;return;endif
  if(any(bearing_speed(2:)<bearing_speed(:nbspeed-1)))then;status=RD_ERR_INPUT;return;endif
@@ -179,24 +180,24 @@ contains
  allocate(tx(max(1,(nk-1)*(nbspeed-1))),ty(max(1,(nk-1)*(nbspeed-1))))
  allocate(M(4*nnode,4*nnode),C(4*nnode,4*nnode),G(4*nnode,4*nnode),K(4*nnode,4*nnode))
  allocate(wr(6),wi(6),wn(6),wd(6),ze(6),ld(6))
- do m=1,num_modes/4
-   do c=1,ncoeff
+ do im=1,num_modes/4
+   do ic=1,ncoeff
      room=maxint-nint
      if(room<0)then;status=RD_ERR_INPUT;return;endif
-     if(c==1)then
-       call curve_intersections(nk,grid,rotor_wn(m,:),nbspeed,kxx,bearing_speed,size(tx),got,tx,ty,status)
+     if(ic==1)then
+       call curve_intersections(nk,grid,rotor_wn(im,:),nbspeed,kxx,bearing_speed,size(tx),got,tx,ty,status)
      else
-       call curve_intersections(nk,grid,rotor_wn(m,:),nbspeed,kyy,bearing_speed,size(tx),got,tx,ty,status)
+       call curve_intersections(nk,grid,rotor_wn(im,:),nbspeed,kyy,bearing_speed,size(tx),got,tx,ty,status)
      endif
      if(status/=RD_OK)return
      if(got>room)then;status=RD_ERR_INPUT;return;endif
      do q=1,got
-       nint=nint+1;ikcrit(nint)=tx(q);ispeed(nint)=ty(q);imode(nint)=m;isource(nint)=c
+       nint=nint+1;ikcrit(nint)=tx(q);ispeed(nint)=ty(q);imode(nint)=im;isource(nint)=ic
        ! Frozen ROSS critical point solve is standard non-Rouch even when the
        ! map was generated with synchronous=True.
-       call build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,tx(q),0_ik,M,C,G,K,status);if(status/=RD_OK)return
-       C=ty(q)*G
-       call positive_modes(M,C,K,6_ik,wr,wi,wn,wd,ze,ld,nfound,status);if(status/=RD_OK)return
+       call build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,tx(q),0_ik,Mmat,Cmat,Gmat,Kmat,status);if(status/=RD_OK)return
+       Cmat=ty(q)*Gmat
+       call positive_modes(Mmat,Cmat,Kmat,6_ik,wr,wi,wn,wd,ze,ld,nfound,status);if(status/=RD_OK)return
        if(nfound<6)then;status=RD_ERR_UNSUPPORTED;return;endif
        cer(:,nint)=wr;cei(:,nint)=wi;cwn(:,nint)=wn;cwd(:,nint)=wd;czeta(:,nint)=ze;clogdec(:,nint)=ld
      enddo
