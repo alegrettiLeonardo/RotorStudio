@@ -8,6 +8,15 @@ from drm_core.solver.backend import FortranBackend
 ROOT=Path(__file__).resolve().parents[2]
 GOLD=ROOT/"validation"/"ross_parity"/"ucs"
 
+# A5 tolerances are frozen independently from A1-A4.  The default constant-
+# bearing speed axis is an affine transform of rotor_wn, so its ROSS parity
+# tolerance must inherit the already-declared modal parity tolerance rather
+# than demand bitwise agreement between ARPACK and the native LAPACK solve.
+WN_RTOL=2e-8
+WN_ATOL=2e-6
+AXIS_RTOL=2e-12
+AXIS_ATOL=1e-9
+
 def model_with(bearing):
     z=[0.0,0.21,0.48,0.67]
     shafts=[]
@@ -30,8 +39,27 @@ def golden(name):
 def assert_result(name,model,**kwargs):
     g=golden(name);r=run_ucs(model,library_path=None,**kwargs)
     np.testing.assert_allclose(r.stiffness_log_n_m,g["stiffness_log"],rtol=2e-12,atol=1e-8)
-    np.testing.assert_allclose(r.natural_frequency_rad_s,g["rotor_wn"],rtol=2e-8,atol=2e-6)
-    np.testing.assert_allclose(r.bearing_speed_rad_s,g["bearing_speed_range"],rtol=2e-12,atol=1e-9)
+    np.testing.assert_allclose(r.natural_frequency_rad_s,g["rotor_wn"],rtol=WN_RTOL,atol=WN_ATOL)
+    if r.bearing_speed_policy=="constant_10_point_rotor_wn_margin":
+        # Exact Rotor.run_ucs semantic gate in the native-result space:
+        # linspace(min(wn)-0.1*min(wn), max(wn)+0.1*min(wn), 10).
+        margin=float(r.natural_frequency_rad_s.min())*0.1
+        expected=np.linspace(
+            float(r.natural_frequency_rad_s.min()-margin),
+            float(r.natural_frequency_rad_s.max()+margin),10
+        )
+        np.testing.assert_array_equal(r.bearing_speed_rad_s,expected)
+        # ROSS derives the same axis from its ARPACK modal values, therefore
+        # comparison to the immutable authority inherits the wn tolerance.
+        np.testing.assert_allclose(
+            r.bearing_speed_rad_s,g["bearing_speed_range"],
+            rtol=WN_RTOL,atol=WN_ATOL
+        )
+    else:
+        np.testing.assert_allclose(
+            r.bearing_speed_rad_s,g["bearing_speed_range"],
+            rtol=AXIS_RTOL,atol=AXIS_ATOL
+        )
     np.testing.assert_allclose(r.bearing_kxx_n_m,g["bearing_kxx"],rtol=2e-10,atol=1e-5)
     np.testing.assert_allclose(r.bearing_kyy_n_m,g["bearing_kyy"],rtol=2e-10,atol=1e-5)
     np.testing.assert_allclose(r.intersection_stiffness_n_m,g["intersection_x"],rtol=2e-7,atol=2e-2)
@@ -87,7 +115,7 @@ def test_speed_frequency_and_2d_curve_policies():
                   stiffness_range_exponents=(6,10),num=7,num_modes=16)
     gx=((3.6e6,4.2e6,5.1e6,6.3e6,7.8e6),(5.1e6,5.9e6,7.0e6,8.5e6,1.03e7),(7.4e6,8.4e6,9.8e6,1.17e7,1.39e7),(1.04e7,1.17e7,1.35e7,1.58e7,1.86e7),(1.47e7,1.63e7,1.86e7,2.15e7,2.50e7))
     gy=tuple(tuple(1.18*x+2e5 for x in row) for row in gx)
-    assert_result("map_2d",model_with(CoefficientBearing(1,gx,0.,gy,0.,speed_rad_s=speed,frequency_rad_s=freq,interpolation="linear")),
+    assert_result("map_2d",model_with(CoefficientBearing(1,gx,0.,gy,0.,speed_rad_s=speed,frequency_rad_s=freq,interpolation="pchip")),
                   stiffness_range_exponents=(6,10),num=7,num_modes=16)
 
 def test_explicit_bearing_range_is_exactly_30_points():
