@@ -212,3 +212,27 @@ def configure_api617_unbalance(lib):
     ]
     full.restype=I
     return required,full
+
+
+def configure_clearance(lib):
+    """A8 versioned close-clearance ABI."""
+    try:
+        required=lib.rd_clearance_required_v1
+        full=lib.rd_clearance_v1
+    except AttributeError as exc:
+        raise SolverLibraryError(
+            "Clearance analysis requires rd_clearance_required_v1/rd_clearance_v1; "
+            "rebuild the A8 native solver. No Python physics fallback is available."
+        ) from exc
+    I=ct.c_int;D=ct.c_double;P=ct.POINTER(D);IP=ct.POINTER(I)
+    required.argtypes=[I,I,I,I,IP];required.restype=I
+    full.argtypes=[
+        I,P,I,P,I,P,I,IP,P,P,I,P,D,D,
+        I,IP,P,I,IP,P,
+        I,I,IP,P,P,I,I,I,D,I,
+        IP,IP,P,P,IP,P,
+        P,ct.POINTER(D),ct.POINTER(D),ct.POINTER(D),
+        P,P,P,P,IP,
+    ]
+    full.restype=I
+    return required,full
