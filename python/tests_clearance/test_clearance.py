@@ -123,7 +123,18 @@ def test_clearance_frozen_ross_4dof_parity(name):
     np.testing.assert_allclose(r.clearance_limit_m,ref["clearance_limit"],rtol=2e-12,atol=2e-15)
     np.testing.assert_allclose(r.clearance_response_m_pp,ref["clearance_response"],**TOL["response"])
     np.testing.assert_allclose(r.max_clearance_response_m_pp,ref["max_clearance_response"],**TOL["response"])
-    np.testing.assert_allclose(r.speed_at_max_response_rad_s,ref["speed_at_max_response"],**TOL["speed"])
+    # An argmax speed is not an observable for an effectively zero response.
+    # In the conical authority the center antinode node is a numerical node
+    # (max ~1e-19 m pp); LAPACK/platform roundoff can move that meaningless
+    # argmax anywhere without changing the physical response.
+    ref_max=np.asarray(ref["max_clearance_response"],float)
+    observable=ref_max>1e-12
+    np.testing.assert_allclose(
+        r.speed_at_max_response_rad_s[observable],
+        np.asarray(ref["speed_at_max_response"],float)[observable],
+        **TOL["speed"],
+    )
+    assert np.all(r.max_clearance_response_m_pp[~observable]<1e-12)
     np.testing.assert_array_equal(r.passed,np.asarray(ref["passed"],bool))
 
     if ref["mode"] is None:
