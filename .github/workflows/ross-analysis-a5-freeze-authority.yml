@@ -36,7 +36,12 @@ jobs:
           test "$(git -C _ross_authority rev-parse HEAD)" = "6320eab9f890f1b3cc1710d508b446fe063ca68d"
       - name: Install frozen ROSS
         if: steps.gate.outputs.freeze_needed == 'true'
-        run: python -m pip install -e ./_ross_authority
+        shell: bash
+        run: |
+          python -m pip install -e ./_ross_authority
+          # The frozen ROSS authority predates NumPy 2.0 removal of np.Inf.
+          # Pin the validation environment only; the authority source is not patched.
+          python -m pip install "numpy==1.26.4" "scipy==1.14.1"
       - name: Generate immutable A5 goldens
         if: steps.gate.outputs.freeze_needed == 'true'
         run: python validation/ross_parity/generate_ucs_reference.py --ross-root _ross_authority --out validation/ross_parity/ucs
