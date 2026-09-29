@@ -450,3 +450,8 @@ class FortranBackend:
     def api617_unbalance(self,m:RotorModel,mode:int,maximum_continuous_speed_rad_s:float,num_modes:int=12):
         from .api617_unbalance_backend import execute
         return execute(self,m,mode,maximum_continuous_speed_rad_s,num_modes)
+
+
+    def clearance(self,m:RotorModel,**kwargs):
+        from .clearance_backend import execute
+        return execute(self,m,**kwargs)
