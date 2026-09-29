@@ -47,7 +47,9 @@ jobs:
         if: steps.gate.outputs.freeze_needed == 'false'
         run: |
           python validation/ross_parity/generate_ucs_reference.py --ross-root _ross_authority --out _a5_ucs_candidate
-          python validation/ross_parity/verify_reference.py validation/ross_parity/ucs --candidate _a5_ucs_candidate
+          python validation/ross_parity/verify_reference.py validation/ross_parity/ucs
+          python validation/ross_parity/verify_reference.py _a5_ucs_candidate
+          python validation/ross_parity/verify_ucs_candidate.py validation/ross_parity/ucs _a5_ucs_candidate
       - name: Commit immutable A5 goldens
         if: steps.gate.outputs.freeze_needed == 'true'
         shell: bash
