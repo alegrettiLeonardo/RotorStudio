@@ -65,16 +65,38 @@ jobs:
           "DRMROTOR_LIB=$($dll.FullName)" >> $env:GITHUB_ENV
           "DRMBEARINGS_LIB=$($bearing.FullName)" >> $env:GITHUB_ENV
           "PYTHONPATH=$PWD\python\src;$PWD" >> $env:GITHUB_ENV
-      - name: Immutable A0-A5 authorities present
+      - name: Immutable A0-A5 authorities
         shell: bash
         run: |
-          test -f validation/ross_parity/static/authority.json
-          test -f validation/ross_parity/static_extended/authority.json
-          test -f validation/ross_parity/frf/authority.json
-          test -f validation/ross_parity/forced/authority.json
-          test -f validation/ross_parity/time_response/authority.json
-          test -f validation/ross_parity/ucs/authority.json
+          python validation/ross_parity/verify_reference.py validation/ross_parity/static
+          python validation/ross_parity/verify_reference.py validation/ross_parity/static_extended
+          python validation/ross_parity/verify_reference.py validation/ross_parity/frf
+          python validation/ross_parity/verify_reference.py validation/ross_parity/forced
+          python validation/ross_parity/verify_reference.py validation/ross_parity/time_response
+          python validation/ross_parity/verify_reference.py validation/ross_parity/ucs
           grep -q 6320eab9f890f1b3cc1710d508b446fe063ca68d validation/ross_parity/ucs/authority.json
 
-      - name: A5 UCS Python/native parity
+      - name: Preserve A1-A4 and legacy native paths
+        run: |
+          python scripts/verify_a1_legacy_preservation.py
+          python scripts/verify_a3_preservation.py
+
+      - name: A5 UCS Python/native parity, GUI, persistence and exports
         run: python -m pytest python/tests_ucs -q
+
+      - name: A5 matrix-first and independent physics qualifier
+        run: python validation/ross_parity/qualify_ucs.py --out validation/reports/a5_ucs_ci.json
+
+      - name: A1-A4 and Stage 1 regression
+        run: python -m pytest python/tests_time python/tests_forced python/tests_frf python/tests_static python/tests -q
+
+      - name: Bearing foundation regression
+        run: python -m pytest python/tests_bearings -q
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a5-ucs-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            validation/reports/a5_ucs_ci.json
+          if-no-files-found: error
