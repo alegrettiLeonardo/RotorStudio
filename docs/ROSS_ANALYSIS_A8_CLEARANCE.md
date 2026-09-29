@@ -204,6 +204,137 @@ A7: PASS / PROMOTED.
 
 A8 frozen-source audit: complete.
 
-Immutable A8 authority: pending one-time freeze.
+Immutable A8 authority: complete under `validation/ross_parity/clearance/`.
 
-Production A8 implementation: not started at this commit.
+Native Fortran / versioned ABI / thin Python binding / AnalysisService / GUI /
+persistence / exports: implemented for the declared scope.
+
+Exact-head promotion qualification: pending. A8 is not promoted until the final
+source SHA passes Linux/Windows A8 parity, immutable-authority reproduction,
+A0-A7 preservation/regression and clean frozen product gates.
+
+
+## Implemented native boundary
+
+Production A8 physics is native Fortran 2018:
+
+- `fortran/src/rd_clearance.f90`;
+- `fortran/src/rd_clearance_c_api.f90`.
+
+Versioned ABI:
+
+- `rd_clearance_required_v1`;
+- `rd_clearance_v1`.
+
+The native path constructs synchronous unbalance forces, calls the promoted A3
+full-order forced-response solver, projects radial probes, evaluates Amax/Avl/Scc,
+computes x-y orbit major axes, scales peak-to-peak close-clearance response and
+applies the strict 75% diametral-clearance check. For the automatic-unbalance
+path it calls the promoted A7 native placement implementation at Nmc.
+
+Python performs only scope checks, exact NumPy `union1d` speed-axis semantics,
+already-qualified bearing map materialization, ABI marshaling, result objects,
+units, plotting, persistence and exports.
+
+## Immutable A8 reference set
+
+The frozen reference set contains:
+
+- `baseline_mode0`;
+- `conical_mode1`;
+- `high_speed_limit`;
+- `cap_6`;
+- `operating_speed_insertion`;
+- `explicit_20_gmm`;
+- `explicit_80_gmm`;
+- `map_2d`.
+
+The explicit 20 and 80 g·mm cases independently qualify the uncapped scaling
+invariance: multiplying the explicit unbalance by four multiplies Amax by four,
+divides Scc by four and leaves the final scaled clearance response unchanged.
+An additional native/validation gate exercises an actually active cap below the
+uncapped Scc; the `cap_6` golden preserves the common API 617 cap input even
+when that particular response does not reach the cap.
+
+After the one-time freeze, every A8 head regenerates a candidate from the exact
+ROSS SHA and compares it numerically without rewriting the immutable directory.
+
+## Fixed A8 numerical gates
+
+A8 tolerances are independent from A7:
+
+- speed axis: rtol 0, atol `2e-12 rad/s`;
+- A7-generated / explicit unbalance magnitude: rtol `2e-9`, atol
+  `2e-13 kg·m`;
+- probe and clearance response: rtol `5e-7`, atol `5e-11 m pk-pk`;
+- Avl and geometric clearances: near-machine precision;
+- Amax: rtol `5e-7`, atol `5e-11 m pk-pk`;
+- Scc: rtol `5e-7`, atol `5e-9`;
+- A7 selected mode frequency: rtol `3e-8`, atol `3e-7 rad/s`;
+- placement nodes, probe nodes, clearance nodes and PASS flags: exact.
+
+For a close-clearance location whose entire conical-mode response is effectively
+a numerical node (reference max below `1e-12 m pk-pk`), the argmax speed is not
+a physical observable. ARPACK/LAPACK/platform roundoff can move the index of
+that ~zero maximum while the response remains zero. A8 therefore gates the
+near-zero maximum itself and omits only that meaningless argmax-speed equality.
+All observable locations retain direct speed-at-maximum parity.
+
+Validation also reconstructs the explicit synchronous unbalance force outside
+the production A8 solver, runs it through the independently promoted A3 forced
+response, and compares both radial probe projections and an independently
+calculated orbit-major-axis clearance response. This separates the A8
+post-processing gate from the native solve that it consumes.
+
+## Desktop product integration
+
+The GUI exposes **API 617 Close-Clearance Analysis** with:
+
+- speed sweep start/stop/point count;
+- explicit Nma and Nmc;
+- one-based radial probe nodes and angles;
+- one-based close-clearance nodes and radial running clearances;
+- forward-mode selection for A7 automatic placement;
+- optional explicit unbalance override;
+- optional explicit scale-factor cap.
+
+The result workspace shows scaled peak-to-peak clearance response versus rotor
+speed, the 75% diametral-clearance limit, the Nma–Nmc operating region and the
+sampled maximum. Its engineering summary reports radial/diametral clearance,
+limit, maximum response, speed at maximum, Avl, Amax and Scc.
+
+The product qualification chain is:
+
+`GUI -> AnalysisCase("clearance") -> SolverJobManager -> AnalysisService ->
+rd_clearance_v1 -> Fortran -> ClearanceResult -> plot/export -> save -> close ->
+reopen -> recompute -> exact arrays/hash -> staleness`.
+
+Exports include:
+
+- summary CSV, one row per close-clearance location;
+- companion long-form `*_response.csv` over location × speed;
+- complete NPZ arrays/metadata;
+- generic analysis report;
+- PNG/SVG/PDF result plot.
+
+The clean frozen Stage 2 Linux and Windows application smoke requires
+`rd_clearance_v1`.
+
+## Frozen source hashes
+
+The A8 authority records exact SHA-256 values for:
+
+- `ross/rotor_assembly.py`:
+  `c5e6562d092426ffdb44641a1fb2092c6e5df8e3e44be437749b3711f7633c09`;
+- `ross/results.py`:
+  `0d53a92700228c074145e35e49e31e6f8550f4199efc1e9470b53ca5c5477cc3`;
+- `ross/bearing_seal_element.py`:
+  `4c1e39b0cfdb4a64dd0992df686f6771e3245fc74c2dc1fca95b684328cc5942`;
+- `ross/probe.py`:
+  `2e6b1f247893b12787887bd6e927ae950e2ab523a83699e508d35ce08e3adfd4`;
+- `ross/utils.py`:
+  `08708dc134682b40dcb8259527cdd9586e9f3eac26c0b510eda29355e05eb8d9`;
+- `ross/tests/test_results.py`:
+  `a8f5e244d0d9165f05bab8998d5ca6e1d101af945851cdb8daf519ddc76fd964`;
+- `ross/agent_skills/ross/clearance_analysis.md`:
+  `be46a5510689b3ba57ccc77e96f5b0e5772d58b5fe07d48b91c7bdf1f5a7f48e`.
