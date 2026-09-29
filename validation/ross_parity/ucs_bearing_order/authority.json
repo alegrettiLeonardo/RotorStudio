@@ -1,0 +1,29 @@
+{
+  "cases_sha256": "d655a58664db2f24411c5cd969b93ece64025f23cf1a8d4adb014b60003878d9",
+  "created_utc": "2026-09-29T21:27:58.339353+00:00",
+  "files": {
+    "already_sorted.json": "b7cd5a0837abdf193f647fc9f511d0b7e5844e15ac18bbd29346f96360860ed6",
+    "coefficient_2d_unsorted.json": "5bff549fc31f61ca44c61f9e38f9ae8d6359f4e111d860f6fa7316478522d43b",
+    "coefficient_constant_unsorted.json": "aa47b51768855f6c9eb76f0ce41d6bf61bbe308e20408bf5c984fd33576d5c1a",
+    "coefficient_frequency_unsorted.json": "82089c9da3f6c96ca60214632ab5c988f45a7c2d2a0e2ed4531d11cc232bde7e",
+    "coefficient_speed_unsorted.json": "6c0c9a9a9491e3c9fc671bb05a9b6da788f1f3aefeed0fce1c27b12e7f5ec6d0",
+    "explicit_bearing_speed_range.json": "0aff8ad8544925f7abb5467db656f6b02e1ae5f22bbe37097c65099df9fa0fde",
+    "legacy5_unsorted.json": "7f2237b65cf2cdefcb386eb9b823e0328c08ad74308d8b3424c9c268c7c590b5",
+    "legacy_unsorted_anisotropic.json": "3545cdebb7b2738fd8601e2be182d59811249ccfe3bf1d4d8182d1ad8bf68eda",
+    "legacy_unsorted_isotropic_first_node.json": "07e6c46fe636f33221300d881ae8c6faf9f13cd0bd423f27fda8ac73bad27ee2",
+    "rouch_unsorted.json": "637455d8fc5848db5639f568ab14678b8d99237a4accf2468a285528984e3212",
+    "seal_and_unsorted_bearings.json": "78d0b784a64319e8130c9144d9f5d360b605c0449b23e721d09fe2bc6453e295",
+    "stable_same_node_order.json": "8a245e832f5ac384907fb39790a43df8cd1938ccd78e5923893961b182fbbebf"
+  },
+  "generator_sha256": "29ad5ff0272bf7138a741890ff58269a8f859297b006d1eb730cb1f3278f013d",
+  "numpy": "2.5.3",
+  "policy": "Additive immutable ROSS authority; historical ucs/ is not rewritten",
+  "python": "3.12.14",
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "source_sha256": {
+    "ross/bearing_seal_element.py": "4c1e39b0cfdb4a64dd0992df686f6771e3245fc74c2dc1fca95b684328cc5942",
+    "ross/results.py": "0d53a92700228c074145e35e49e31e6f8550f4199efc1e9470b53ca5c5477cc3",
+    "ross/rotor_assembly.py": "c5e6562d092426ffdb44641a1fb2092c6e5df8e3e44be437749b3711f7633c09",
+    "ross/utils.py": "08708dc134682b40dcb8259527cdd9586e9f3eac26c0b510eda29355e05eb8d9"
+  }
+}
