@@ -25,7 +25,7 @@ def standard_model(*,advanced=()):
     ]
     disks=[
         Disk.geometric(3,7810.,.07,.28,.05),
-        Disk.geometric(5,7810.,.06,.24,.05),
+        Disk.geometric(5,7810.,.07,.28,.05),
     ]
     bearings=[] if advanced else [
         Bearing(5,1,(1e6,0.,0.,1e6,1e3,0.,0.,1e3)),
