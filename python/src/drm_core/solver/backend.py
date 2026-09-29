@@ -445,3 +445,8 @@ class FortranBackend:
     def level1_matrices(self,m:RotorModel,rotor_speed_rad_s,cross_coupling_node,Q_n_m):
         from .level1_backend import matrices
         return matrices(self,m,rotor_speed_rad_s,cross_coupling_node,Q_n_m)
+
+
+    def api617_unbalance(self,m:RotorModel,mode:int,maximum_continuous_speed_rad_s:float,num_modes:int=12):
+        from .api617_unbalance_backend import execute
+        return execute(self,m,mode,maximum_continuous_speed_rad_s,num_modes)
