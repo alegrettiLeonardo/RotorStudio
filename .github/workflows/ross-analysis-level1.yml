@@ -17,7 +17,7 @@ jobs:
       matrix:
         os: [ubuntu-24.04, windows-2025]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 90
     env:
       QT_QPA_PLATFORM: offscreen
       OPENBLAS_NUM_THREADS: '1'
@@ -78,5 +78,11 @@ jobs:
           test -f validation/ross_parity/forced/authority.json
           test -f validation/ross_parity/frf/authority.json
           test -f validation/ross_parity/static/authority.json
-      - name: A6 Level 1 frozen ROSS parity
+      - name: Preserve A1-A5 and legacy native paths
+        run: python scripts/verify_a1_legacy_preservation.py
+      - name: A6 Level 1 frozen ROSS parity, GUI, persistence and exports
         run: python -m pytest python/tests_level1 -q
+      - name: A0-A5 and Stage 1 regression
+        run: python -m pytest python/tests_ucs python/tests_time python/tests_forced python/tests_frf python/tests_static python/tests -q
+      - name: Bearing foundation regression
+        run: python -m pytest python/tests_bearings -q
