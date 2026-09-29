@@ -24,9 +24,11 @@ allowed_additive={
  'fortran/src/rd_ucs_c_api.f90','fortran/tests/test_ucs.f90',
  # A6 Level 1 remains additive to the promoted A5 implementation.
  'fortran/src/rd_level1.f90','fortran/src/rd_level1_c_api.f90','fortran/tests/test_level1.f90',
+ # A7 API 617 unbalance remains additive to the promoted A6 implementation.
+ 'fortran/src/rd_api617_unbalance.f90','fortran/src/rd_api617_unbalance_c_api.f90','fortran/tests/test_api617_unbalance.f90',
 }
 assert extra==allowed_additive,extra
-print('PASS: legacy source and tests unchanged; A1 unchanged; only additive A2/A3/A4/A5/A6 modules/ABIs/tests added')
+print('PASS: legacy source and tests unchanged; A1 unchanged; only additive A2/A3/A4/A5/A6/A7 modules/ABIs/tests added')
 
 exec(Path("scripts/verify_a2_preservation.py").read_text())
 

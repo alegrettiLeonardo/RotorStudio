@@ -8,6 +8,7 @@ from drm_core.analysis.forced_response import ForcedResponseResult
 from drm_core.analysis.general_time_response import GeneralTimeResponseResult
 from drm_core.analysis.ucs import UCSResult
 from drm_core.analysis.level1 import Level1Result
+from drm_core.analysis.api617_unbalance import API617UnbalanceResult
 
 from drm_core import (
     ModalResult, CriticalSpeedResult, FrequencyResponseResult, TransientResult,
@@ -39,6 +40,23 @@ def _complex_response_rows(axis, response):
 def record_data_table(record):
     """Map qualified result objects to explicit numeric columns without recalculating physics."""
     result = record.execution.result
+    if isinstance(result, API617UnbalanceResult):
+        rows=[]
+        rpm=float(rad_s_to_rpm(result.maximum_continuous_speed_rad_s))
+        for i,node in enumerate(result.nodes):
+            rows.append((
+                i+1,int(node),float(result.unbalance_magnitude_kg_m[i]),
+                float(result.unbalance_phase_rad[i]),float(result.static_load_kg[i]),
+                int(result.mode_index),float(result.mode_frequency_rad_s),
+                float(result.maximum_continuous_speed_rad_s),rpm,
+                int(result.requested_forward_mode),
+            ))
+        return [
+            "unbalance_index","node_one_based","unbalance_kg_m","phase_rad",
+            "static_load_kg","raw_mode_index_zero_based","mode_frequency_rad_s",
+            "maximum_continuous_speed_rad_s","maximum_continuous_speed_rpm",
+            "requested_forward_mode_zero_based",
+        ],np.asarray(rows,dtype=float)
     if isinstance(result, Level1Result):
         rows=[]
         for j,Q in enumerate(result.cross_coupled_stiffness_n_m):
@@ -212,6 +230,19 @@ def export_record_csv(record, path):
 
 
 def export_record_native(record, path):
+    if isinstance(record.execution.result,API617UnbalanceResult):
+        r=record.execution.result
+        arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
+        return export_npz(
+            path,**arrays,
+            mode_index=np.asarray([r.mode_index],dtype=np.int32),
+            mode_frequency_rad_s=np.asarray([r.mode_frequency_rad_s]),
+            maximum_continuous_speed_rad_s=np.asarray([r.maximum_continuous_speed_rad_s]),
+            requested_forward_mode=np.asarray([r.requested_forward_mode],dtype=np.int32),
+            metadata_json=np.asarray(json.dumps(r.metadata,sort_keys=True)),
+            analysis_hash=np.asarray(record.execution.analysis_hash),
+            build_metadata_json=np.asarray(json.dumps(record.execution.build_metadata,sort_keys=True)),
+        )
     if isinstance(record.execution.result,Level1Result):
         r=record.execution.result
         arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}

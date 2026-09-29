@@ -1,0 +1,13 @@
+{
+  "case": "mode_not_available",
+  "error": {
+    "adapted_4dof": {
+      "message": "Only 3 forward modes were found with num_modes=12; mode=20 is not available. Increase num_modes.",
+      "type": "ValueError"
+    },
+    "six_dof": {
+      "message": "Only 2 forward modes were found with num_modes=12; mode=20 is not available. Increase num_modes.",
+      "type": "ValueError"
+    }
+  }
+}

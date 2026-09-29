@@ -9,6 +9,8 @@ class SolverFacade:
         return self.backend.level1(model,rotor_speed_rad_s,cross_coupling_node,stiffness_range_n_m,num)
     def level1_matrices(self,model,rotor_speed_rad_s,cross_coupling_node,Q_n_m):
         return self.backend.level1_matrices(model,rotor_speed_rad_s,cross_coupling_node,Q_n_m)
+    def api617_unbalance(self,model,mode,maximum_continuous_speed_rad_s,num_modes=12):
+        return self.backend.api617_unbalance(model,mode,maximum_continuous_speed_rad_s,num_modes)
 
     def general_time_response(self,model,time_s,force_real,speed=0.,weight=False,gamma=.5,beta=.25,tol=1e-6):
         return self.backend.general_time_response(model,time_s,force_real,speed,weight,gamma,beta,tol)

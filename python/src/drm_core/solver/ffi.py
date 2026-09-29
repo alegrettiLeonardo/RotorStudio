@@ -190,3 +190,25 @@ def configure_level1(lib):
         P,P,IP,IP,P,P,P,P,P,P
     ];full.restype=I
     return required,matrix,full
+
+
+def configure_api617_unbalance(lib):
+    """A7 versioned API 617 unbalance placement ABI."""
+    try:
+        required=lib.rd_api617_unbalance_required_v1
+        full=lib.rd_api617_unbalance_v1
+    except AttributeError as exc:
+        raise SolverLibraryError(
+            "API 617 unbalance requires rd_api617_unbalance_required_v1/"
+            "rd_api617_unbalance_v1; rebuild the A7 native solver. "
+            "No Python placement-physics fallback is available."
+        ) from exc
+    I=ct.c_int;D=ct.c_double;P=ct.POINTER(D);IP=ct.POINTER(I)
+    required.argtypes=[I,I,IP,IP];required.restype=I
+    full.argtypes=[
+        I,P,I,P,I,P,I,P,D,I,I,I,
+        IP,IP,P,P,P,IP,P,
+        P,P,P,P,P,P,
+    ]
+    full.restype=I
+    return required,full
