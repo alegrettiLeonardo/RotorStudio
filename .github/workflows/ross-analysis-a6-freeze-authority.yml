@@ -31,22 +31,30 @@ jobs:
             echo "freeze_needed=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Checkout exact frozen ROSS
-        if: steps.gate.outputs.freeze_needed == 'true'
         shell: bash
         run: |
           git clone https://github.com/petrobras/ross.git _ross_authority
           git -C _ross_authority checkout 6320eab9f890f1b3cc1710d508b446fe063ca68d
           test "$(git -C _ross_authority rev-parse HEAD)" = "6320eab9f890f1b3cc1710d508b446fe063ca68d"
       - name: Install frozen ROSS validation runtime
-        if: steps.gate.outputs.freeze_needed == 'true'
         shell: bash
         run: |
           python -m pip install -e ./_ross_authority
           python -m pip install "numpy==1.26.4" "scipy==1.14.1"
-      - name: Generate immutable A6 goldens
+      - name: Generate immutable A6 goldens once
         if: steps.gate.outputs.freeze_needed == 'true'
         run: |
-          python validation/ross_parity/generate_level1_reference.py             --ross-root _ross_authority             --out validation/ross_parity/level1
+          python validation/ross_parity/generate_level1_reference.py \
+            --ross-root _ross_authority \
+            --out validation/ross_parity/level1
+      - name: Reproduce immutable A6 authority without overwrite
+        if: steps.gate.outputs.freeze_needed == 'false'
+        run: |
+          python validation/ross_parity/generate_level1_reference.py \
+            --ross-root _ross_authority \
+            --out _a6_level1_candidate
+          python validation/ross_parity/verify_level1_candidate.py \
+            validation/ross_parity/level1 _a6_level1_candidate
       - name: Commit immutable A6 goldens
         if: steps.gate.outputs.freeze_needed == 'true'
         shell: bash
