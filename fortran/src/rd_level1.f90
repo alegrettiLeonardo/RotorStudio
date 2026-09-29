@@ -37,7 +37,9 @@ contains
  ! silently reducing a different topology.
  if(any(iz))then;status=RD_ERR_UNSUPPORTED;return;endif
  M=M0+Mb
- C=C0+Cb+speed*G
+ ! Keep the physical matrix decomposition identical to frozen ROSS:
+ ! C() excludes the gyroscopic speed term and G() is returned separately.
+ C=C0+Cb
  K=K0+Kb+speed*K1
  if(.not.all(ieee_is_finite(M)).or..not.all(ieee_is_finite(C)).or. &
     .not.all(ieee_is_finite(G)).or..not.all(ieee_is_finite(K)))then
@@ -165,20 +167,24 @@ contains
  integer(ik),intent(out)::selected_mode(nq),mode_dir(nmode,nq)
  real(rk),intent(out)::wr(nmode,nq),wi(nmode,nq),wn(nmode,nq),wd(nmode,nq),zeta(nmode,nq),logdec(nmode,nq)
  integer(ik),intent(out)::status
- real(rk),allocatable::M(:,:),C(:,:),G(:,:),K(:,:),rwr(:),rwi(:),rwn(:),rwd(:),rz(:),rld(:)
+ real(rk),allocatable::M(:,:),C(:,:),Ceff(:,:),G(:,:),K(:,:),rwr(:),rwi(:),rwn(:),rwd(:),rz(:),rld(:)
+ real(rk)::step
  complex(rk),allocatable::V(:,:)
  integer::i,j,nfound,first
  status=RD_ERR_INPUT
  if(nq<2.or.nmode<1.or.node<1.or.node>nnode.or..not.ieee_is_finite(q0).or..not.ieee_is_finite(q1).or.q1<=q0)return
- allocate(M(4*nnode,4*nnode),C(4*nnode,4*nnode),G(4*nnode,4*nnode),K(4*nnode,4*nnode))
+ allocate(M(4*nnode,4*nnode),C(4*nnode,4*nnode),Ceff(4*nnode,4*nnode),G(4*nnode,4*nnode),K(4*nnode,4*nnode))
  allocate(rwr(nmode),rwi(nmode),rwn(nmode),rwd(nmode),rz(nmode),rld(nmode),V(4*nnode,nmode))
+ step=(q1-q0)/real(nq-1,rk)
  do i=1,nq
-   qgrid(i)=q0+(q1-q0)*real(i-1,rk)/real(nq-1,rk)
+   qgrid(i)=q0+real(i-1,rk)*step
  enddo
+ qgrid(nq)=q1
  selected_logdec=0;selected_mode=0;mode_dir=0;wr=0;wi=0;wn=0;wd=0;zeta=0;logdec=0
  do i=1,nq
    call level1_matrix(nnode,z,ns,sh,nd,di,nb,be,speed,node,qgrid(i),M,C,G,K,status);if(status/=RD_OK)return
-   call ross_positive_modes(M,C,K,nmode,rwr,rwi,rwn,rwd,rz,rld,V,nfound,status);if(status/=RD_OK)return
+   Ceff=C+speed*G
+   call ross_positive_modes(M,Ceff,K,nmode,rwr,rwi,rwn,rwd,rz,rld,V,nfound,status);if(status/=RD_OK)return
    if(nfound<nmode)then;status=RD_ERR_UNSUPPORTED;return;endif
    first=0
    do j=1,nmode
