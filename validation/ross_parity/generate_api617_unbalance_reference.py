@@ -27,8 +27,8 @@ def digest(path:Path)->str:
 
 def jsonable(value):
     import numpy as np
-    if isinstance(value,np.ndarray):return value.tolist()
-    if isinstance(value,np.generic):return value.item()
+    if isinstance(value,np.ndarray):return jsonable(value.tolist())
+    if isinstance(value,np.generic):return jsonable(value.item())
     if isinstance(value,complex):return {"real":float(value.real),"imag":float(value.imag)}
     if isinstance(value,dict):return {str(k):jsonable(v) for k,v in value.items()}
     if isinstance(value,(list,tuple)):return [jsonable(v) for v in value]
