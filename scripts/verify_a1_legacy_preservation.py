@@ -22,9 +22,11 @@ allowed_additive={
  # A5 is additive and has no edits to the promoted legacy/A1 implementation.
  'fortran/src/rd_intersections.f90','fortran/src/rd_rouch.f90','fortran/src/rd_ucs.f90',
  'fortran/src/rd_ucs_c_api.f90','fortran/tests/test_ucs.f90',
+ # A6 Level 1 remains additive to the promoted A5 implementation.
+ 'fortran/src/rd_level1.f90','fortran/src/rd_level1_c_api.f90','fortran/tests/test_level1.f90',
 }
 assert extra==allowed_additive,extra
-print('PASS: legacy source and tests unchanged; A1 unchanged; only additive A2/A3/A4/A5 modules/ABIs/tests added')
+print('PASS: legacy source and tests unchanged; A1 unchanged; only additive A2/A3/A4/A5/A6 modules/ABIs/tests added')
 
 exec(Path("scripts/verify_a2_preservation.py").read_text())
 

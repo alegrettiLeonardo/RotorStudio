@@ -1,0 +1,26 @@
+{
+  "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "generated_utc": "2026-09-29T14:24:51.747258+00:00",
+  "golden_sha256": {
+    "anisotropic_damped.json": "b61b15951f64536f6bfbeff63f6706638e71c833114aecd721efdffbf3b62dea",
+    "application_at_support.json": "60702f76f04fac3e5a515ca7bfd691132eea80a16fa89136cdcc42b800d11b9b",
+    "default_range_audit.json": "7aa90bc7401d6e0bb5d6a079fec45838e6361e8dc41596bf1648243736674b81",
+    "map_2d.json": "3013fb18794ddad80887487148faa8f0982cc2ad6558f8ab98d41e860a0f3336",
+    "rated_speed_midspan.json": "1298e365288f24bf3ce29bedc02fed2bf19691cab3ee408ee9c21c9ca07bd0c8",
+    "speed_dependent.json": "c3795d7c602dfba25d55df3a3e8dee89126f62d3a20c3f826e99782147174852",
+    "zero_speed_fixture.json": "b91a60c7c7df69dccbff77fbdf05d27d5d08b5969fd4d82d1243b3514736f5ce"
+  },
+  "numpy": "1.26.4",
+  "python": "3.12.14",
+  "repository": "petrobras/ross",
+  "scipy": "1.14.1",
+  "scope": "A6 Level 1 immutable authority; actual run_level1 plus declared 4-DOF adaptation",
+  "source_sha256": {
+    "ross/agent_skills/ross/ucs_and_level1.md": "cf8965a19c621696fee632b506207c064920e3c5646dda8b1c722243a79ddb39",
+    "ross/bearing_seal_element.py": "4c1e39b0cfdb4a64dd0992df686f6771e3245fc74c2dc1fca95b684328cc5942",
+    "ross/results.py": "0d53a92700228c074145e35e49e31e6f8550f4199efc1e9470b53ca5c5477cc3",
+    "ross/rotor_assembly.py": "c5e6562d092426ffdb44641a1fb2092c6e5df8e3e44be437749b3711f7633c09",
+    "ross/tests/test_plot_results.py": "4ddc53dfbb57b588de066f8b12154e6d1c9655a67a4d901bbf3b5b16160b2873",
+    "ross/utils.py": "08708dc134682b40dcb8259527cdd9586e9f3eac26c0b510eda29355e05eb8d9"
+  }
+}

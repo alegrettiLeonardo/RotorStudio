@@ -111,6 +111,8 @@ jobs:
           assert d["general_time_response"]["status"]=="PASS", d
           assert d["ucs"]["status"]=="PASS", d
           assert d["ucs"]["native_abi"]=="rd_ucs_v1", d
+          assert d["level1"]["status"]=="PASS", d
+          assert d["level1"]["native_abi"]=="rd_level1_v1", d
           assert d["static_analysis"]["status"]=="PASS", d
           assert d["backend"]=="Fortran2018/ctypes", d
           assert d["advanced_bearing"]["status"]=="PASS", d
@@ -285,6 +287,8 @@ jobs:
           if ($payload.general_time_response.status -ne "PASS") { throw "General Time packaged smoke failed" }
           if ($payload.ucs.status -ne "PASS") { throw "A5 UCS packaged smoke failed" }
           if ($payload.ucs.native_abi -ne "rd_ucs_v1") { throw "A5 UCS packaged ABI mismatch" }
+          if ($payload.level1.status -ne "PASS") { throw "A6 Level 1 packaged smoke failed" }
+          if ($payload.level1.native_abi -ne "rd_level1_v1") { throw "A6 Level 1 packaged ABI mismatch" }
           if ($payload.static_analysis.status -ne "PASS") { throw "Static packaged smoke failed" }
           $payload | ConvertTo-Json -Depth 20
           if ($payload.advanced_bearing.status -ne "PASS") { throw "packaged advanced-bearing smoke failed" }

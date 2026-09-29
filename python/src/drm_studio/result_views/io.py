@@ -7,6 +7,7 @@ from drm_core.analysis.general_frf import FrequencyResponseMatrixResult
 from drm_core.analysis.forced_response import ForcedResponseResult
 from drm_core.analysis.general_time_response import GeneralTimeResponseResult
 from drm_core.analysis.ucs import UCSResult
+from drm_core.analysis.level1 import Level1Result
 
 from drm_core import (
     ModalResult, CriticalSpeedResult, FrequencyResponseResult, TransientResult,
@@ -38,6 +39,27 @@ def _complex_response_rows(axis, response):
 def record_data_table(record):
     """Map qualified result objects to explicit numeric columns without recalculating physics."""
     result = record.execution.result
+    if isinstance(result, Level1Result):
+        rows=[]
+        for j,Q in enumerate(result.cross_coupled_stiffness_n_m):
+            selected=int(result.selected_mode_index[j])
+            rows.append((
+                float(Q),float(result.log_dec[j]),selected,
+                float(result.eigenvalue_real[selected,j]),
+                float(result.eigenvalue_imag[selected,j]),
+                float(result.natural_frequency_rad_s[selected,j]),
+                float(result.damped_frequency_rad_s[selected,j]),
+                float(result.damping_ratio[selected,j]),
+                float(result.mode_direction_code[selected,j]),
+                float(result.rotor_speed_rad_s),
+                float(result.cross_coupling_node),
+            ))
+        return [
+            "Q_N_per_m","selected_log_dec","selected_mode_zero_based",
+            "eigenvalue_real_rad_s","eigenvalue_imag_rad_s",
+            "natural_frequency_rad_s","damped_frequency_rad_s","damping_ratio",
+            "whirl_direction_code","rotor_speed_rad_s","cross_coupling_node_one_based",
+        ],np.asarray(rows,dtype=float)
     if isinstance(result, UCSResult):
         rows=[]
         for mode in range(result.natural_frequency_rad_s.shape[0]):
@@ -190,6 +212,18 @@ def export_record_csv(record, path):
 
 
 def export_record_native(record, path):
+    if isinstance(record.execution.result,Level1Result):
+        r=record.execution.result
+        arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
+        return export_npz(
+            path,**arrays,
+            rotor_speed_rad_s=np.asarray([r.rotor_speed_rad_s]),
+            cross_coupling_node=np.asarray([r.cross_coupling_node],dtype=np.int32),
+            metadata_json=np.asarray(json.dumps(r.metadata,sort_keys=True)),
+            selection_json=np.asarray(json.dumps(getattr(record,"level1_selection",record.execution.case.options),sort_keys=True)),
+            analysis_hash=np.asarray(record.execution.analysis_hash),
+            build_metadata_json=np.asarray(json.dumps(record.execution.build_metadata,sort_keys=True)),
+        )
     if isinstance(record.execution.result,UCSResult):
         r=record.execution.result
         arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}

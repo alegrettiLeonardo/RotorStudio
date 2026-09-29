@@ -35,6 +35,7 @@ class PackagedQualification(QObject):
         self.bearing_smoke = None
         self.fluidfilm_smoke = None
         self.ucs_smoke = None
+        self.level1_smoke = None
         self.b13_crud_smoke = None
         self.b14_field_smoke = None
         self.b15_b18_integrated_smoke = None
@@ -59,6 +60,8 @@ class PackagedQualification(QObject):
             self.general_time_smoke = run_general_time_gui_smoke(self.output_dir)
             from .ucs_qualification import run_ucs_gui_smoke
             self.ucs_smoke = run_ucs_gui_smoke(self.output_dir)
+            from .level1_qualification import run_level1_gui_smoke
+            self.level1_smoke = run_level1_gui_smoke(self.output_dir)
             # B13 qualification starts with the real PySide6 engineering
             # editor/command/persistence chain. Reading or editing these
             # entities does not run Reynolds/THD/TEHD.
@@ -254,6 +257,7 @@ class PackagedQualification(QObject):
                         "launch",
                         "open packaged example",
                         "A5 UCS GUI + native Rouch map + exports + save/reopen/recompute",
+                        "A6 Level 1 GUI + native cross-coupled sweep + exports + save/reopen/recompute",
                         "B13 advanced-bearing GUI CRUD + save/reopen",
                         "B14 asynchronous native bearing fields + visualization",
                         "B15 real iRdin coefficient-table import",
@@ -279,6 +283,7 @@ class PackagedQualification(QObject):
                     "forced_response": self.forced_response_smoke,
                     "general_time_response": self.general_time_smoke,
                     "ucs": self.ucs_smoke,
+                    "level1": self.level1_smoke,
                     "native_fluidfilm_bearing": self.fluidfilm_smoke,
                     "saved_project": str(self.output_dir / "packaged_saved_project.rds"),
                     "screenshot": str(screenshot),
