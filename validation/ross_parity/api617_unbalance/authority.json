@@ -1,0 +1,28 @@
+{
+  "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "generated_utc": "2026-09-29T16:59:29.078264+00:00",
+  "golden_sha256": {
+    "below_boundary_24999rpm.json": "229e859996d257d1298efe470632cef99652eac27981a6fd8ca5bb9ffd180073",
+    "conical_mode_9000rpm.json": "250f31e6e72a2c1678ba71c0fbf8e9ab12ecdb2a0809e033b5ced4b3c1425aea",
+    "first_mode_9000rpm.json": "280e0f077781dbd5d1f8696b21fee910c1441c3cb5563a4ac60b0a4742d4b527",
+    "high_speed_25000rpm.json": "ccb9349e4a02a764ce3fcf8a259d2fbbc3ecc41695c7895ad30bef91f09074c4",
+    "high_speed_30000rpm.json": "4e1066cee02a99b9b820a002ab28459ac17bed5f0ddef61274577bd46deea020",
+    "map_2d_9000rpm.json": "aeb176bccec20ee4a72cc5a23a6881c095308c86ee086b6fb81fd9c9a532c566",
+    "mode_not_available.json": "acb40c5a5532079ffd5085e06165e57b562e47ff16b9dc87a31664aad8fab8a9",
+    "overhung_6000rpm.json": "31b22e314fb331a896b3eb44bdb7916915d5e847596163c8478ab1ab303bbcc1",
+    "speed_dependent_9000rpm.json": "beb7d4d3cfdd48109f3a7ba10a5e9204234c89d081f915bc95f0c07b999b935b"
+  },
+  "numpy": "1.26.4",
+  "python": "3.12.14",
+  "repository": "petrobras/ross",
+  "scipy": "1.14.1",
+  "scope": "A7 API 617 unbalance placement immutable authority; actual ROSS plus declared 4-DOF adaptation",
+  "source_sha256": {
+    "ross/agent_skills/ross/clearance_analysis.md": "be46a5510689b3ba57ccc77e96f5b0e5772d58b5fe07d48b91c7bdf1f5a7f48e",
+    "ross/agent_skills/ross/unbalance_response.md": "972f3dd8596d3c4375df5e3eb8e1e626f776dcc16ea5a63e8357f945979cf911",
+    "ross/results.py": "0d53a92700228c074145e35e49e31e6f8550f4199efc1e9470b53ca5c5477cc3",
+    "ross/rotor_assembly.py": "c5e6562d092426ffdb44641a1fb2092c6e5df8e3e44be437749b3711f7633c09",
+    "ross/tests/test_results.py": "a8f5e244d0d9165f05bab8998d5ca6e1d101af945851cdb8daf519ddc76fd964",
+    "ross/utils.py": "08708dc134682b40dcb8259527cdd9586e9f3eac26c0b510eda29355e05eb8d9"
+  }
+}
