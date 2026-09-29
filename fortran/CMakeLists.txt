@@ -120,3 +120,11 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(test_level1 PRIVATE -ffree-line-length-none)
 endif()
 add_test(NAME level1_native_contract COMMAND test_level1)
+
+
+add_executable(test_api617_unbalance tests/test_api617_unbalance.f90)
+target_link_libraries(test_api617_unbalance PRIVATE drmrotor)
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_api617_unbalance PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME api617_unbalance_native_contract COMMAND test_api617_unbalance)
