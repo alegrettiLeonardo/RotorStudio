@@ -104,7 +104,7 @@ def test_level1_frozen_ross_4dof_parity(name):
     ref=g["ross_adapted_4dof"]
     np.testing.assert_allclose(r.cross_coupled_stiffness_n_m,g["ross_level1"]["stiffness_range"],rtol=0,atol=1e-8)
     np.testing.assert_allclose(r.log_dec,ref["log_dec"],rtol=3e-8,atol=3e-10)
-    np.testing.assert_array_equal(r.selected_mode_index,np.asarray(ref["selected_index"])-1)
+    np.testing.assert_array_equal(r.selected_mode_index,np.asarray(ref["selected_index"]))
     for j,p in enumerate(ref["points"]):
         np.testing.assert_allclose(r.eigenvalue_real[:,j],p["evalues_real"][:r.eigenvalue_real.shape[0]],rtol=3e-8,atol=3e-7)
         np.testing.assert_allclose(r.eigenvalue_imag[:,j],p["evalues_imag"][:r.eigenvalue_imag.shape[0]],rtol=3e-8,atol=3e-7)
