@@ -68,3 +68,22 @@ jobs:
           "DRMROTOR_LIB=$($dll.FullName)" >> $env:GITHUB_ENV
           "DRMBEARINGS_LIB=$($bearing.FullName)" >> $env:GITHUB_ENV
           "PYTHONPATH=$PWD\python\src;$PWD" >> $env:GITHUB_ENV
+      - name: Immutable A0-A7 authorities present
+        shell: bash
+        run: |
+          test -f validation/ross_parity/api617_unbalance/authority.json
+          grep -q 6320eab9f890f1b3cc1710d508b446fe063ca68d validation/ross_parity/api617_unbalance/authority.json
+          test -f validation/ross_parity/level1/authority.json
+          test -f validation/ross_parity/ucs/authority.json
+          test -f validation/ross_parity/time_response/authority.json
+          test -f validation/ross_parity/forced/authority.json
+          test -f validation/ross_parity/frf/authority.json
+          test -f validation/ross_parity/static/authority.json
+      - name: Preserve A1-A6 and legacy native paths
+        run: python scripts/verify_a1_legacy_preservation.py
+      - name: A7 API 617 unbalance frozen ROSS parity
+        run: python -m pytest python/tests_api617_unbalance -q
+      - name: A0-A6 and Stage 1 regression
+        run: python -m pytest python/tests_level1 python/tests_ucs python/tests_time python/tests_forced python/tests_frf python/tests_static python/tests -q
+      - name: Bearing foundation regression
+        run: python -m pytest python/tests_bearings -q
