@@ -104,14 +104,21 @@ def test_level1_frozen_ross_4dof_parity(name):
     ref=g["ross_adapted_4dof"]
     np.testing.assert_allclose(r.cross_coupled_stiffness_n_m,g["ross_level1"]["stiffness_range"],rtol=0,atol=1e-8)
     np.testing.assert_allclose(r.log_dec,ref["log_dec"],rtol=3e-8,atol=3e-10)
-    np.testing.assert_array_equal(r.selected_mode_index,np.asarray(ref["selected_index"]))
+    # At zero spin the isotropic lateral eigenspaces are repeated. ARPACK
+    # (frozen ROSS) and native LAPACK may choose different bases inside the
+    # degenerate subspace, so whirl labels/selected indices are not invariant
+    # even though the Level1Results log-dec curve is. Do not turn an
+    # unobservable basis choice into production physics.
+    if name!="zero_speed_fixture":
+        np.testing.assert_array_equal(r.selected_mode_index,np.asarray(ref["selected_index"]))
     for j,p in enumerate(ref["points"]):
         np.testing.assert_allclose(r.eigenvalue_real[:,j],p["evalues_real"][:r.eigenvalue_real.shape[0]],rtol=3e-8,atol=3e-7)
         np.testing.assert_allclose(r.eigenvalue_imag[:,j],p["evalues_imag"][:r.eigenvalue_imag.shape[0]],rtol=3e-8,atol=3e-7)
         np.testing.assert_allclose(r.modal_log_dec[:,j],p["log_dec"][:r.modal_log_dec.shape[0]],rtol=3e-8,atol=3e-9)
-        labels=np.asarray(p["directions"][:r.mode_direction_code.shape[0]])
-        code=np.where(labels=="Forward",1,np.where(labels=="Mixed",2,3))
-        np.testing.assert_array_equal(r.mode_direction_code[:,j],code)
+        if name!="zero_speed_fixture":
+            labels=np.asarray(p["directions"][:r.mode_direction_code.shape[0]])
+            code=np.where(labels=="Forward",1,np.where(labels=="Mixed",2,3))
+            np.testing.assert_array_equal(r.mode_direction_code[:,j],code)
 
 
 @pytest.mark.parametrize("name",["rated_speed_midspan","anisotropic_damped","map_2d"])
@@ -125,7 +132,7 @@ def test_level1_matrix_first_sentinels(name):
             np.testing.assert_allclose(got[key],sent[key],rtol=2e-11,atol=2e-7)
 
 
-def test_linear_q_semantics_and_no_branch_tracking():
+def test_linear_q_semantics_and_zero_speed_degenerate_curve():
     g=golden("zero_speed_fixture");inp=g["input"]
     r=run_level1(model_for("zero_speed_fixture"),inp["rated_w_rad_s"],
                  inp["rotorstudio_node_one_based"],inp["stiffness_range_n_m"],inp["num"])
@@ -133,7 +140,9 @@ def test_linear_q_semantics_and_no_branch_tracking():
         r.cross_coupled_stiffness_n_m,
         np.linspace(*inp["stiffness_range_n_m"],inp["num"])
     )
-    assert list(r.selected_mode_index)==[0,0,2,0,0]
+    np.testing.assert_allclose(
+        r.log_dec,g["ross_adapted_4dof"]["log_dec"],rtol=3e-8,atol=3e-10
+    )
 
 
 def test_default_range_and_unsupported_scope_fail_closed():
