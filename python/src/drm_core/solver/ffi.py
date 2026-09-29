@@ -169,3 +169,24 @@ def configure_ucs(lib):
         P,P,IP,P,P,IP,IP,P,P,P,P,P,P
     ];full_fn.restype=I
     return required,map_fn,matrix_fn,full_fn
+
+
+def configure_level1(lib):
+    """A6 versioned Level 1 ABI; production sweep/whirl selection is native."""
+    try:
+        required=lib.rd_level1_required_v1
+        matrix=lib.rd_level1_matrix_v1
+        full=lib.rd_level1_v1
+    except AttributeError as exc:
+        raise SolverLibraryError(
+            "Level 1 requires rd_level1_required_v1/rd_level1_matrix_v1/rd_level1_v1; "
+            "rebuild the A6 native solver. No Python physics fallback is available."
+        ) from exc
+    I=ct.c_int;D=ct.c_double;P=ct.POINTER(D);IP=ct.POINTER(I)
+    required.argtypes=[I,I,IP,IP];required.restype=I
+    matrix.argtypes=[I,P,I,P,I,P,I,P,D,I,D,P,P,P,P];matrix.restype=I
+    full.argtypes=[
+        I,P,I,P,I,P,I,P,D,I,D,D,I,I,
+        P,P,IP,IP,P,P,P,P,P,P
+    ];full.restype=I
+    return required,matrix,full
