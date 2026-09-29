@@ -53,6 +53,46 @@ def standard_rotor(rs):
     )
 
 
+def speed_dependent_rotor(rs,np):
+    base=rs.rotor_example()
+    speed=np.array([0.0,300.0,600.0,900.0,1200.0])
+    kx=np.array([.8e6,.95e6,1.12e6,1.32e6,1.55e6])
+    ky=np.array([.70e6,.82e6,.96e6,1.12e6,1.30e6])
+    cx=np.array([1100.,1050.,1000.,950.,900.])
+    cy=np.array([1000.,960.,920.,880.,840.])
+    bearings=[
+        rs.BearingElement(n=0,kxx=kx,kyy=ky,cxx=cx,cyy=cy,speed=speed),
+        rs.BearingElement(n=6,kxx=1.04*kx,kyy=1.02*ky,cxx=.98*cx,cyy=1.01*cy,speed=speed),
+    ]
+    return rs.Rotor(copy.deepcopy(base.shaft_elements),copy.deepcopy(base.disk_elements),bearings)
+
+
+def map2d_rotor(rs,np):
+    base=rs.rotor_example()
+    speed=np.array([0.0,300.0,600.0,900.0,1200.0])
+    frequency=np.array([0.0,300.0,600.0,900.0,1200.0])
+    gx=np.array([
+        [.75e6,.78e6,.82e6,.86e6,.90e6],
+        [.88e6,.92e6,.97e6,1.02e6,1.08e6],
+        [1.02e6,1.07e6,1.13e6,1.20e6,1.28e6],
+        [1.18e6,1.24e6,1.31e6,1.39e6,1.48e6],
+        [1.36e6,1.43e6,1.51e6,1.60e6,1.70e6],
+    ])
+    gy=.83*gx+8.0e4
+    gc=np.array([
+        [1150.,1120.,1090.,1060.,1030.],
+        [1100.,1070.,1040.,1010.,980.],
+        [1050.,1020.,990.,960.,930.],
+        [1000.,970.,940.,910.,880.],
+        [950.,920.,890.,860.,830.],
+    ])
+    bearings=[
+        rs.BearingElement(n=0,kxx=gx,kyy=gy,cxx=gc,cyy=.92*gc,speed=speed,frequency=frequency),
+        rs.BearingElement(n=6,kxx=1.03*gx,kyy=1.02*gy,cxx=.97*gc,cyy=.95*gc,speed=speed,frequency=frequency),
+    ]
+    return rs.Rotor(copy.deepcopy(base.shaft_elements),copy.deepcopy(base.disk_elements),bearings)
+
+
 def overhung_rotor(rs):
     shaft=[
         rs.ShaftElement(L=0.25,idl=0,odl=0.05,material=rs.steel)
@@ -167,6 +207,8 @@ def generate(ross_root:Path,out:Path):
         ("high_speed_25000rpm",std,0,Q_(25000,"RPM").to("rad/s").m),
         ("high_speed_30000rpm",std,0,Q_(30000,"RPM").to("rad/s").m),
         ("overhung_6000rpm",overhung_rotor(rs),0,Q_(6000,"RPM").to("rad/s").m),
+        ("speed_dependent_9000rpm",speed_dependent_rotor(rs,np),0,Q_(9000,"RPM").to("rad/s").m),
+        ("map_2d_9000rpm",map2d_rotor(rs,np),0,Q_(9000,"RPM").to("rad/s").m),
     ]
     for name,rotor,mode,speed in cases:
         payload={"case":name,**explicit_case(rs,convert_6dof_to_4dof,rotor,mode,speed)}
