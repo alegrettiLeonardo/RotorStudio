@@ -95,39 +95,55 @@ contains
  status=RD_OK
  end subroutine
 
- subroutine positive_modes(M,C,K,maxm,wr,wi,wn,wd,zeta,logdec,nfound,status)
+ subroutine positive_modes(M,C,K,maxm,synchronous,wr,wi,wn,wd,zeta,logdec,nfound,status)
  real(rk),intent(in)::M(:,:),C(:,:),K(:,:)
- integer(ik),intent(in)::maxm
+ integer(ik),intent(in)::maxm,synchronous
  real(rk),intent(out)::wr(maxm),wi(maxm),wn(maxm),wd(maxm),zeta(maxm),logdec(maxm)
  integer(ik),intent(out)::nfound,status
- integer::n,i,j,p
- complex(rk),allocatable::w(:),V(:,:)
+ integer::n,i,j,nvalid
+ complex(rk),allocatable::w(:),wp(:),V(:,:)
  complex(rk)::tw
- real(rk)::td,pi_
- n=size(M,1);allocate(w(2*n),V(n,2*n))
+ real(rk)::td,pi_,wdi,wdj,wni,wnj,round_scale
+ n=size(M,1);allocate(w(2*n),wp(2*n),V(n,2*n))
  call second_order_eigs(M,C,K,w,V,status);if(status/=RD_OK)return
- ! ROSS _index puts positive-imaginary modes first and orders them by wd.
- do i=1,2*n-1
-   do j=i+1,2*n
-     if(aimag(w(j))>0._rk.and.aimag(w(i))<=0._rk)then
-       tw=w(i);w(i)=w(j);w(j)=tw
-     elseif(aimag(w(j))>0._rk.and.aimag(w(i))>0._rk.and.aimag(w(j))<aimag(w(i)))then
-       tw=w(i);w(i)=w(j);w(j)=tw
+ if(synchronous/=0.and.synchronous/=1)then;status=RD_ERR_INPUT;return;endif
+
+ ! Frozen ROSS synchronous/Rouch _eigen() first removes real roots and roots
+ ! with |real/imag| >= 1000, then _index() sorts rounded (10 decimal) values
+ ! by sign, wd and wn.  Since UCS consumes the positive-imaginary half, build
+ ! that exact admissible set before selecting modal.wn[::2].
+ nvalid=0
+ do i=1,2*n
+   if(aimag(w(i))<=0._rk)cycle
+   if(synchronous==1)then
+     if(abs(real(w(i),rk)/aimag(w(i)))>=1000._rk)cycle
+   endif
+   nvalid=nvalid+1
+   wp(nvalid)=w(i)
+ enddo
+ if(nvalid<1)then;status=RD_ERR_UNSUPPORTED;return;endif
+
+ round_scale=1.0e10_rk
+ do i=1,nvalid-1
+   do j=i+1,nvalid
+     wdi=anint(aimag(wp(i))*round_scale)/round_scale
+     wdj=anint(aimag(wp(j))*round_scale)/round_scale
+     wni=anint(abs(wp(i))*round_scale)/round_scale
+     wnj=anint(abs(wp(j))*round_scale)/round_scale
+     if(wdj<wdi.or.(wdj==wdi.and.wnj<wni))then
+       tw=wp(i);wp(i)=wp(j);wp(j)=tw
      endif
    enddo
  enddo
- nfound=0;wr=0;wi=0;wn=0;wd=0;zeta=0;logdec=0;pi_=acos(-1._rk)
- do i=1,2*n
-   if(aimag(w(i))<=0._rk)cycle
-   nfound=nfound+1
-   if(nfound>maxm)exit
-   wr(nfound)=real(w(i),rk);wi(nfound)=aimag(w(i));wn(nfound)=abs(w(i));wd(nfound)=aimag(w(i))
-   if(wn(nfound)>0)zeta(nfound)=-wr(nfound)/wn(nfound)
-   td=1._rk-zeta(nfound)**2
-   if(td>0)logdec(nfound)=2*pi_*zeta(nfound)/sqrt(td)
+
+ nfound=min(nvalid,int(maxm))
+ wr=0;wi=0;wn=0;wd=0;zeta=0;logdec=0;pi_=acos(-1._rk)
+ do i=1,nfound
+   wr(i)=real(wp(i),rk);wi(i)=aimag(wp(i));wn(i)=abs(wp(i));wd(i)=aimag(wp(i))
+   if(wn(i)>0)zeta(i)=-wr(i)/wn(i)
+   td=1._rk-zeta(i)**2
+   if(td>0)logdec(i)=2*pi_*zeta(i)/sqrt(td)
  enddo
- nfound=min(nfound,maxm)
- if(nfound<1)then;status=RD_ERR_UNSUPPORTED;return;endif
  status=RD_OK
  end subroutine
 
@@ -145,7 +161,7 @@ contains
  allocate(wr(need),wi(need),wn(need),wd(need),ze(need),ld(need));rotor_wn=0
  do i=1,nk
    call build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,grid(i),synchronous,Mmat,Cmat,Gmat,Kmat,status);if(status/=RD_OK)return
-   call positive_modes(Mmat,Cmat,Kmat,need,wr,wi,wn,wd,ze,ld,nfound,status);if(status/=RD_OK)return
+   call positive_modes(Mmat,Cmat,Kmat,need,synchronous,wr,wi,wn,wd,ze,ld,nfound,status);if(status/=RD_OK)return
    if(nfound<2*(num_modes/4)-1)then;status=RD_ERR_UNSUPPORTED;return;endif
    do j=1,num_modes/4
      rotor_wn(j,i)=wn(2*j-1)
@@ -197,7 +213,7 @@ contains
        ! map was generated with synchronous=True.
        call build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,tx(q),0_ik,Mmat,Cmat,Gmat,Kmat,status);if(status/=RD_OK)return
        Cmat=ty(q)*Gmat
-       call positive_modes(Mmat,Cmat,Kmat,6_ik,wr,wi,wn,wd,ze,ld,nfound,status);if(status/=RD_OK)return
+       call positive_modes(Mmat,Cmat,Kmat,6_ik,0_ik,wr,wi,wn,wd,ze,ld,nfound,status);if(status/=RD_OK)return
        if(nfound<6)then;status=RD_ERR_UNSUPPORTED;return;endif
        cer(:,nint)=wr;cei(:,nint)=wi;cwn(:,nint)=wn;cwd(:,nint)=wd;czeta(:,nint)=ze;clogdec(:,nint)=ld
      enddo
