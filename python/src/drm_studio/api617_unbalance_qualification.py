@@ -15,7 +15,7 @@ from .result_views.io import (
 def _model():
     nodes=[Node(i+1,.25*i) for i in range(7)]
     shafts=[ShaftElement(2,i+1,i+2,.05,0.,7810.,211e9,81.2e9) for i in range(6)]
-    disks=[Disk.geometric(3,7810.,.07,.28,.05),Disk.geometric(5,7810.,.06,.24,.05)]
+    disks=[Disk.geometric(3,7810.,.07,.28,.05),Disk.geometric(5,7810.,.07,.28,.05)]
     props=(1e6,0.,0.,.8e6,0.,0.,0.,0.)
     return RotorModel(nodes,shafts,disks,[Bearing(5,1,props),Bearing(5,7,props)])
 
