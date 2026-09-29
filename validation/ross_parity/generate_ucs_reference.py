@@ -45,6 +45,12 @@ def _write(path: Path, payload) -> None:
 
 
 def _build_rotor(rs, np, bearing0, bearing1=None):
+    # ROSS assigns/validates element tags at Rotor construction. Clone the
+    # authorities and give the two supports distinct stable tags so a repeated
+    # bearing definition is still a valid two-support rotor.
+    bearing0 = copy.deepcopy(bearing0)
+    bearing0.n = 0
+    bearing0.tag = "A5 bearing 0"
     material = rs.Material(name="a5", rho=7810.0, E=211e9, G_s=81.2e9)
     lengths = [0.21, 0.27, 0.19]
     diameters = [0.054, 0.061, 0.049]
@@ -62,7 +68,10 @@ def _build_rotor(rs, np, bearing0, bearing1=None):
     disk = rs.DiskElement(n=2, m=19.0, Id=0.083, Ip=0.151)
     if bearing1 is None:
         bearing1 = copy.deepcopy(bearing0)
-        bearing1.n = 3
+    else:
+        bearing1 = copy.deepcopy(bearing1)
+    bearing1.n = 3
+    bearing1.tag = "A5 bearing 1"
     rotor = rs.Rotor(shafts, [disk], [bearing0, bearing1])
     return rotor
 
