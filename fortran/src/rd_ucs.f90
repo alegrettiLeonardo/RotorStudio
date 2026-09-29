@@ -136,7 +136,7 @@ contains
  real(rk),intent(in)::z(nnode),sh(11,ns),di(6,nd),start_exp,stop_exp
  real(rk),intent(out)::grid(nk),rotor_wn(num_modes/4,nk)
  integer(ik),intent(out)::status
- real(rk),allocatable::M(:,:),C(:,:),G(:,:),K(:,:),wr(:),wi(:),wn(:),wd(:),ze(:),ld(:)
+ real(rk),allocatable::Mmat(:,:),Cmat(:,:),Gmat(:,:),Kmat(:,:),wr(:),wi(:),wn(:),wd(:),ze(:),ld(:)
  integer::i,j,need,nfound
  need=num_modes/2
  if(nnode<2.or.ns/=nnode-1.or.nd<0.or.nsupport<1.or.nk<2.or.num_modes<4.or.num_modes/4<1)then;status=RD_ERR_INPUT;return;endif
@@ -144,8 +144,8 @@ contains
  allocate(Mmat(4*nnode,4*nnode),Cmat(4*nnode,4*nnode),Gmat(4*nnode,4*nnode),Kmat(4*nnode,4*nnode))
  allocate(wr(need),wi(need),wn(need),wd(need),ze(need),ld(need));rotor_wn=0
  do i=1,nk
-   call build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,grid(i),synchronous,M,C,G,K,status);if(status/=RD_OK)return
-   call positive_modes(M,C,K,need,wr,wi,wn,wd,ze,ld,nfound,status);if(status/=RD_OK)return
+   call build_temp(nnode,z,ns,sh,nd,di,nsupport,support_nodes,grid(i),synchronous,Mmat,Cmat,Gmat,Kmat,status);if(status/=RD_OK)return
+   call positive_modes(Mmat,Cmat,Kmat,need,wr,wi,wn,wd,ze,ld,nfound,status);if(status/=RD_OK)return
    if(nfound<2*(num_modes/4)-1)then;status=RD_ERR_UNSUPPORTED;return;endif
    do j=1,num_modes/4
      rotor_wn(j,i)=wn(2*j-1)
@@ -178,7 +178,7 @@ contains
  call ucs_map(nnode,z,ns,sh,nd,di,nsupport,support_nodes,start_exp,stop_exp,nk,num_modes,synchronous,grid,rotor_wn,status);if(status/=RD_OK)return
  nint=0;ikcrit=0;ispeed=0;imode=0;isource=0;cer=0;cei=0;cwn=0;cwd=0;czeta=0;clogdec=0
  allocate(tx(max(1,(nk-1)*(nbspeed-1))),ty(max(1,(nk-1)*(nbspeed-1))))
- allocate(M(4*nnode,4*nnode),C(4*nnode,4*nnode),G(4*nnode,4*nnode),K(4*nnode,4*nnode))
+ allocate(Mmat(4*nnode,4*nnode),Cmat(4*nnode,4*nnode),Gmat(4*nnode,4*nnode),Kmat(4*nnode,4*nnode))
  allocate(wr(6),wi(6),wn(6),wd(6),ze(6),ld(6))
  do im=1,num_modes/4
    do ic=1,ncoeff
