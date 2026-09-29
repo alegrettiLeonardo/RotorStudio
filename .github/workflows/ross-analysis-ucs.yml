@@ -27,6 +27,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Python dependencies
+        run: python -m pip install -e "./python[test,studio,ui-test]"
       - name: Linux dependencies
         if: runner.os == 'Linux'
         run: sudo apt-get update -qq && sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0
@@ -73,3 +75,6 @@ jobs:
           test -f validation/ross_parity/time_response/authority.json
           test -f validation/ross_parity/ucs/authority.json
           grep -q 6320eab9f890f1b3cc1710d508b446fe063ca68d validation/ross_parity/ucs/authority.json
+
+      - name: A5 UCS Python/native parity
+        run: python -m pytest python/tests_ucs -q
