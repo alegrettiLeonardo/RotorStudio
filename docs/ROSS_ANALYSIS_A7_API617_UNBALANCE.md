@@ -139,6 +139,98 @@ A6: PASS / PROMOTED.
 
 A7 frozen-source audit: complete.
 
-Immutable A7 authority: pending.
+Immutable A7 authority: complete under `validation/ross_parity/api617_unbalance/`.
 
-Production A7 implementation: not started at this commit.
+Production A7 native implementation, versioned ABI, thin Python binding,
+AnalysisService integration, GUI, persistence and exports: implemented for the
+declared scope.
+
+Exact-head promotion qualification: pending. A7 must not be promoted until the
+final source SHA passes Linux/Windows A7 parity, immutable-authority
+reproduction, A0-A6 preservation/regression and clean frozen product gates.
+
+
+## Implemented native boundary
+
+Production placement physics is native Fortran 2018:
+
+- `fortran/src/rd_api617_unbalance.f90`
+- `fortran/src/rd_api617_unbalance_c_api.f90`
+
+Versioned ABI:
+
+- `rd_api617_unbalance_required_v1`
+- `rd_api617_unbalance_v1`
+
+The native solver performs the modal solve at Nmc, amplitude-weighted whirl
+filter, node-orbit metrics, lobe segmentation, antinode selection, A1 static
+journal-load recovery, overhung mass accounting and API 617 residual-unbalance
+equations. Python validates the declared 4-DOF scope, materializes already
+qualified coefficient/map-backed supports at the synchronous operating point
+and marshals the native result. There is no Python placement-physics fallback.
+
+The frozen ROSS warning path for the case where no mode exceeds whirl ratio
+0.25 but positive-whirl modes exist is preserved from the native diagnostic
+whirl-ratio vector.
+
+## Immutable authority
+
+The one-time authority is frozen from
+`petrobras/ross@6320eab9f890f1b3cc1710d508b446fe063ca68d`.
+Subsequent branch runs regenerate a candidate from the same exact SHA and
+compare it numerically without rewriting the frozen files.
+
+Frozen cases:
+
+- first forward mode at 9000 rpm;
+- conical / multiple-antinode mode at 9000 rpm;
+- 24999 rpm lower-equation side;
+- 25000 rpm exact branch boundary;
+- 30000 rpm high-speed branch;
+- overhung placement at 6000 rpm;
+- speed-dependent support coefficients;
+- two-dimensional speed × frequency support maps evaluated synchronously;
+- unavailable forward-mode failure.
+
+For each successful case the authority stores both the original ROSS result and
+the declared `convert_6dof_to_4dof` adaptation, including modal roots, whirl
+ratios, node orbit quantities, journal static loads and final unbalance
+placement.
+
+Symmetric conical modes can exchange the numerically tied reference end or an
+arbitrary global modal phase. Qualification therefore compares relative
+unbalance phase and invariant mode-shape quantities rather than treating a
+global pi rotation as a physical difference.
+
+## Product integration
+
+The desktop application exposes **API 617 Unbalance Placement** with explicit
+maximum continuous speed, forward-mode number and modal root count. The result
+workspace plots the selected mode's normalized node orbit-major-axis amplitude,
+marks the selected unbalance nodes and reports Ua, phase, static load, raw mode
+index and damped modal frequency.
+
+The qualified product chain is designed as:
+
+`GUI → AnalysisCase("api617_unbalance") → SolverJobManager → AnalysisService →
+rd_api617_unbalance_v1 → Fortran → API617UnbalanceResult → plot/export → save
+→ close → reopen → recompute → exact arrays/hash → staleness`.
+
+CSV, complete NPZ, generic analysis report and PNG/SVG/PDF plot exports are
+wired through the existing result-export surfaces. The Stage 2 clean frozen
+Linux and Windows smoke now requires `rd_api617_unbalance_v1`.
+
+## Fixed A7 numerical gates
+
+A7 parity gates are independent of earlier stages:
+
+- final Ua magnitude: rtol `2e-9`, atol `2e-13 kg·m`;
+- recovered static loads: rtol `2e-9`, atol `2e-9 kg`;
+- selected damped modal frequency: rtol `3e-8`, atol `3e-7 rad/s`;
+- whirl ratio: rtol `3e-7`, atol `3e-8`;
+- normalized node orbit-major-axis profile: rtol `4e-7`, atol `4e-8`;
+- relative selected-unbalance phase: atol `2e-10 rad`;
+- placement nodes and raw selected mode: exact integer equality.
+
+The 25000-rpm boundary is gated by evaluating the two equations explicitly,
+not by assuming that their numerical values must exhibit a large discontinuity.
