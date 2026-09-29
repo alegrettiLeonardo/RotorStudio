@@ -1,0 +1,52 @@
+name: Freeze A5 UCS ROSS Authority
+on:
+  push:
+    branches: [feature/ross-analysis-a5-ucs]
+permissions:
+  contents: write
+jobs:
+  freeze:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/ross-analysis-a5-ucs
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Refuse authority overwrite
+        id: gate
+        shell: bash
+        run: |
+          if [ -f validation/ross_parity/ucs/authority.json ]; then
+            echo "freeze_needed=false" >> "$GITHUB_OUTPUT"
+            echo "A5 authority is already frozen; no regeneration performed."
+          else
+            echo "freeze_needed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Checkout exact frozen ROSS
+        if: steps.gate.outputs.freeze_needed == 'true'
+        shell: bash
+        run: |
+          git clone https://github.com/petrobras/ross.git _ross_authority
+          git -C _ross_authority checkout 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          test "$(git -C _ross_authority rev-parse HEAD)" = "6320eab9f890f1b3cc1710d508b446fe063ca68d"
+      - name: Install frozen ROSS
+        if: steps.gate.outputs.freeze_needed == 'true'
+        run: python -m pip install -e ./_ross_authority
+      - name: Generate immutable A5 goldens
+        if: steps.gate.outputs.freeze_needed == 'true'
+        run: python validation/ross_parity/generate_ucs_reference.py --ross-root _ross_authority --out validation/ross_parity/ucs
+      - name: Commit immutable A5 goldens
+        if: steps.gate.outputs.freeze_needed == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add validation/ross_parity/ucs
+          git diff --cached --exit-code && { echo "No goldens generated"; exit 1; } || true
+          git commit -m "a5: freeze ROSS UCS goldens"
+          git push origin HEAD:feature/ross-analysis-a5-ucs
