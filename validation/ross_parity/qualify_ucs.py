@@ -85,7 +85,6 @@ def _bearing_cases():
         "frequency_axis":(CoefficientBearing(1,fx,0.0,fy,0.0,frequency_rad_s=frequency),{}),
         "map_2d":(CoefficientBearing(1,gx,0.0,gy,0.0,speed_rad_s=speed,frequency_rad_s=frequency,interpolation="pchip"),{}),
         "explicit_bearing_speed_range":((1.05e7,1.85e7),{"bearing_speed_range":(40.0,900.0)}),
-        "logspace_gate":((1.25e7,1.25e7),{"num":5}),
         "no_intersection":((1.0e3,1.0e3),{"bearing_speed_range":(50.0,900.0)}),
         "synchronous_true":((1.25e7,1.25e7),{"synchronous":True}),
     }
@@ -274,8 +273,12 @@ def qualify(out:Path):
     assert metrics["intersection_polyline_scaled_max"]<=TOLERANCES["intersection_polyline_scaled_max"]
 
     logspace=run_ucs(_model((1.25e7,1.25e7)),(6,10),num=5,num_modes=16)
+    logspace_authority=_load("logspace_gate")
     np.testing.assert_allclose(
         logspace.stiffness_log_n_m,[1e6,1e7,1e8,1e9,1e10],rtol=2e-15,atol=0
+    )
+    np.testing.assert_allclose(
+        logspace.stiffness_log_n_m,logspace_authority["stiffness_log"],rtol=2e-15,atol=0
     )
 
     payload={
