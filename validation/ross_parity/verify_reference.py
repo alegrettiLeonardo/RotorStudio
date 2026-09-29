@@ -10,9 +10,15 @@ def verify(root):
     manifest=json.loads((root/'authority.json').read_text())
     if manifest['commit'] != ROSS_SHA:
         raise ValueError('Wrong authority')
-    files=manifest['files_sha256']
-    if not files or not any(p.endswith('.npz') for p in files):
+    schema_key='files_sha256' if 'files_sha256' in manifest else 'golden_sha256'
+    files=manifest.get(schema_key,{})
+    if not files:
         raise ValueError('Empty reference set')
+    # A0-A4 reference sets contain paired JSON/NPZ data. A5 UCS freezes
+    # deterministic JSON authority payloads only; accept that additive schema
+    # without weakening the historical NPZ requirement.
+    if schema_key=='files_sha256' and not any(p.endswith('.npz') for p in files):
+        raise ValueError('Empty numerical reference set')
     if {p.name for p in root.iterdir()} != set(files)|{'authority.json'}:
         raise ValueError('Unexpected or missing reference file')
     for name,expected in files.items():
@@ -27,9 +33,11 @@ def verify(root):
 
 def compare(reference,candidate,rtol=1e-12,atol=1e-12):
     a=verify(reference); b=verify(candidate)
-    if a['source_sha256'] != b['source_sha256'] or set(a['files_sha256']) != set(b['files_sha256']):
+    ak='files_sha256' if 'files_sha256' in a else 'golden_sha256'
+    bk='files_sha256' if 'files_sha256' in b else 'golden_sha256'
+    if ak!=bk or a['source_sha256'] != b['source_sha256'] or set(a[ak]) != set(b[bk]):
         raise ValueError('Authority source or case set differs')
-    for name in a['files_sha256']:
+    for name in a[ak]:
         if name.endswith('.json'):
             if (Path(reference)/name).read_bytes() != (Path(candidate)/name).read_bytes():
                 raise ValueError(f'Input mismatch: {name}')
