@@ -1,6 +1,9 @@
 from .backend import FortranBackend
 class SolverFacade:
     def __init__(self,library_path=None): self.backend=FortranBackend(library_path)
+    def general_time_response(self,model,time_s,force_real,speed=0.,weight=False,gamma=.5,beta=.25,tol=1e-6):
+        return self.backend.general_time_response(model,time_s,force_real,speed,weight,gamma,beta,tol)
+
     def forced_response(self,model,frequency_rad_s,force_real,force_imag,speed=None):
         return self.backend.forced_response(model,frequency_rad_s,force_real,force_imag,speed)
 

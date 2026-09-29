@@ -5,6 +5,7 @@ import json
 from drm_core.analysis.static import StaticResult
 from drm_core.analysis.general_frf import FrequencyResponseMatrixResult
 from drm_core.analysis.forced_response import ForcedResponseResult
+from drm_core.analysis.general_time_response import GeneralTimeResponseResult
 
 from drm_core import (
     ModalResult, CriticalSpeedResult, FrequencyResponseResult, TransientResult,
@@ -36,6 +37,10 @@ def _complex_response_rows(axis, response):
 def record_data_table(record):
     """Map qualified result objects to explicit numeric columns without recalculating physics."""
     result = record.execution.result
+    if isinstance(result, GeneralTimeResponseResult):
+        dof=getattr(record,'time_selection',record.execution.case.options).get('output_dof',0)
+        u='m' if dof%4<2 else 'rad';fu='N' if dof%4<2 else 'Nm'
+        return ['time_s','rotor_speed_rad_s','angular_acceleration_rad_s2','response_dof_zero_based','force_'+fu,'q_'+u,'v_'+u+'_per_s','a_'+u+'_per_s2','scaled_residual','absolute_residual','iterations'],np.column_stack([result.time_s,result.rotor_speed_rad_s,result.angular_acceleration_rad_s2,np.full(len(result.time_s),dof),result.force[dof],result.displacement[dof],result.velocity[dof],result.acceleration[dof],result.residual,result.absolute_residual,result.iterations])
     if isinstance(result, ForcedResponseResult):
         selection=getattr(record,'forced_selection',record.execution.case.options);dof=selection.get('output_dof',0);kind=selection.get('response','displacement')
         force=result.force_complex[dof];value=getattr(result,kind)[dof];q=result.displacement[dof];v=result.velocity[dof];a=result.acceleration[dof]
@@ -146,6 +151,9 @@ def export_record_csv(record, path):
 
 
 def export_record_native(record, path):
+    if isinstance(record.execution.result, GeneralTimeResponseResult):
+        r=record.execution.result;arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
+        return export_npz(path,**arrays,metadata_json=np.asarray(json.dumps(r.metadata,sort_keys=True)),selection_json=np.asarray(json.dumps(getattr(record,'time_selection',record.execution.case.options),sort_keys=True)),analysis_hash=np.asarray(record.execution.analysis_hash),build_metadata_json=np.asarray(json.dumps(record.execution.build_metadata,sort_keys=True)))
     if isinstance(record.execution.result, ForcedResponseResult):
         r=record.execution.result
         arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
