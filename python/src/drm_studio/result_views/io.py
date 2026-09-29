@@ -6,6 +6,7 @@ from drm_core.analysis.static import StaticResult
 from drm_core.analysis.general_frf import FrequencyResponseMatrixResult
 from drm_core.analysis.forced_response import ForcedResponseResult
 from drm_core.analysis.general_time_response import GeneralTimeResponseResult
+from drm_core.analysis.ucs import UCSResult
 
 from drm_core import (
     ModalResult, CriticalSpeedResult, FrequencyResponseResult, TransientResult,
@@ -37,6 +38,19 @@ def _complex_response_rows(axis, response):
 def record_data_table(record):
     """Map qualified result objects to explicit numeric columns without recalculating physics."""
     result = record.execution.result
+    if isinstance(result, UCSResult):
+        rows=[]
+        for mode in range(result.natural_frequency_rad_s.shape[0]):
+            for j,k in enumerate(result.stiffness_log_n_m):
+                speed=float(result.natural_frequency_rad_s[mode,j])
+                rows.append((
+                    mode+1,float(k),speed,float(rad_s_to_rpm(speed)),
+                    1.0 if result.synchronous else 0.0
+                ))
+        return [
+            "branch_index","stiffness_N_per_m","natural_frequency_rad_s",
+            "natural_frequency_rpm","synchronous_rouch"
+        ],np.asarray(rows,dtype=float)
     if isinstance(result, GeneralTimeResponseResult):
         dof=getattr(record,'time_selection',record.execution.case.options).get('output_dof',0)
         u='m' if dof%4<2 else 'rad';fu='N' if dof%4<2 else 'Nm'
@@ -144,13 +158,51 @@ def export_record_csv(record, path):
     # drm_core's public Stage 1 CSV API is keyword-column based and preserves
     # explicit column names.  Keep the UI adapter on that API rather than
     # reaching into an alternate export implementation.
-    return export_csv(
+    written=export_csv(
         path,
         **{name: data[:, i] for i, name in enumerate(header)},
     )
+    if isinstance(record.execution.result,UCSResult):
+        # A5 exports modal branches in long form in the requested CSV and a
+        # distinct critical-intersection table beside it.  No physics is
+        # recalculated during export.
+        import csv
+        from pathlib import Path
+        r=record.execution.result
+        p=Path(path)
+        ip=p.with_name(p.stem+"_intersections.csv")
+        with ip.open("w",newline="",encoding="utf-8") as stream:
+            writer=csv.writer(stream)
+            writer.writerow([
+                "intersection_index","branch_index","coefficient",
+                "stiffness_N_per_m","speed_rad_s","speed_rpm"
+            ])
+            for i in range(len(r.intersection_speed_rad_s)):
+                writer.writerow([
+                    i+1,int(r.intersection_mode_index[i])+1,
+                    str(r.intersection_coefficient[i]),
+                    format(float(r.intersection_stiffness_n_m[i]),".17g"),
+                    format(float(r.intersection_speed_rad_s[i]),".17g"),
+                    format(float(rad_s_to_rpm(r.intersection_speed_rad_s[i])),".17g"),
+                ])
+        record.ucs_csv_intersections=ip
+    return written
 
 
 def export_record_native(record, path):
+    if isinstance(record.execution.result,UCSResult):
+        r=record.execution.result
+        arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
+        return export_npz(
+            path,**arrays,
+            synchronous=np.asarray([int(bool(r.synchronous))],dtype=np.int32),
+            coefficient_families=np.asarray(r.coefficient_families,dtype="U8"),
+            bearing_speed_policy=np.asarray(r.bearing_speed_policy),
+            metadata_json=np.asarray(json.dumps(r.metadata,sort_keys=True)),
+            selection_json=np.asarray(json.dumps(getattr(record,"ucs_selection",record.execution.case.options),sort_keys=True)),
+            analysis_hash=np.asarray(record.execution.analysis_hash),
+            build_metadata_json=np.asarray(json.dumps(record.execution.build_metadata,sort_keys=True)),
+        )
     if isinstance(record.execution.result, GeneralTimeResponseResult):
         r=record.execution.result;arrays={k:v for k,v in vars(r).items() if isinstance(v,np.ndarray)}
         return export_npz(path,**arrays,metadata_json=np.asarray(json.dumps(r.metadata,sort_keys=True)),selection_json=np.asarray(json.dumps(getattr(record,'time_selection',record.execution.case.options),sort_keys=True)),analysis_hash=np.asarray(record.execution.analysis_hash),build_metadata_json=np.asarray(json.dumps(record.execution.build_metadata,sort_keys=True)))
