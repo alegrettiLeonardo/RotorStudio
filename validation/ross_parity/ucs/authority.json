@@ -1,0 +1,30 @@
+{
+  "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "generated_utc": "2026-09-29T11:24:27.409083+00:00",
+  "golden_sha256": {
+    "anisotropic_constant.json": "c4155e9931cf0378d8c02afcacba4ed36bdbb77b28812aee893799a2067d9588",
+    "explicit_bearing_speed_range.json": "782dec6cf08fe5a9225ab5634dd06f34cfff7b05354a3574313ef268fcbae758",
+    "frequency_axis.json": "1ff6031cc056f48faca8ca05e433aa2eb41861e60121b27d33f11283fa310016",
+    "intersection_sentinels.json": "0b499dcdd07c5c94946acd9d5582bdb4f1c2990e5e8fc1b9d4456cd37248dc97",
+    "isotropic_constant.json": "f38189ea8850e23535f949cf33d76038e621bc3d54a7908811d5ee549091544a",
+    "logspace_gate.json": "87cec871024baa8af513fae6e7b8c070bb00f9c256c9d55fdb5061edadde3c74",
+    "map_2d.json": "49b3cfbbcd18dab890243998f9a29f0fd6b34f7ad882d578a500b20790a36518",
+    "no_intersection.json": "642a1e3d4677870a44a07130d21113f3658673bf272505cf8575c2796a8c77ba",
+    "ross_default_no_rated_speed.json": "185b0a4f7fa06b5996e55dff192cea0665e8e02e7d9c46dd1d4333751bdd9567",
+    "speed_anisotropic.json": "26db8ffc41647c1e6bc22e4133ff183df38dee92e75b5206da3c7bb2a4c872bc",
+    "speed_equal.json": "2105b8f5a95439b2fb6d0d34455355abd195ff8177ff8c214f40dbdeef29a3c3",
+    "synchronous_true.json": "c7f963405a34d8b5ff33ca036c181f1c711ffd212336bb8615098388ee118c72"
+  },
+  "numpy": "1.26.4",
+  "python": "3.12.14",
+  "repository": "petrobras/ross",
+  "scipy": "1.14.1",
+  "scope": "A5 UCS immutable validation authority; production physics is not Python",
+  "source_sha256": {
+    "ross/bearing_seal_element.py": "4c1e39b0cfdb4a64dd0992df686f6771e3245fc74c2dc1fca95b684328cc5942",
+    "ross/results.py": "0d53a92700228c074145e35e49e31e6f8550f4199efc1e9470b53ca5c5477cc3",
+    "ross/rotor_assembly.py": "c5e6562d092426ffdb44641a1fb2092c6e5df8e3e44be437749b3711f7633c09",
+    "ross/tests/test_rotor_assembly.py": "39f542a7d7fb4aa7fbd8a0966206c7280c0204e19dde1eacf3a47acf77bc5df4",
+    "ross/utils.py": "08708dc134682b40dcb8259527cdd9586e9f3eac26c0b510eda29355e05eb8d9"
+  }
+}
