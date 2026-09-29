@@ -436,3 +436,12 @@ class FortranBackend:
         status=self.lib.rd_runup_legacy(n,self._ptr(z),sh.shape[1],self._ptr(sh),di.shape[1],self._ptr(di),be.shape[1],self._ptr(be),fo.shape[1],self._ptr(fo),self._ptr(aa),float(ts[0]),float(ts[1]),int(nr),float(rtol),float(atol),float(h_init),float(h_max),int(max_points),self._ptr(time),self._ptr(resp),self._ptr(speed),self._iptr(nout),self._iptr(nru),self._ptr(maxf),self._iptr(na),self._iptr(nrj))
         if status: raise SolverLibraryError(f"Fortran rd_runup_legacy returned status={status}")
         k=int(nout[0]);return time[:k].copy(),resp[:,:k].copy(order='F'),speed[:k].copy(),{"nr_used":int(nru[0]),"max_reduced_frequency_hz":float(maxf[0]),"accepted_steps":int(na[0]),"rejected_steps":int(nrj[0]),"rtol":rtol,"atol":atol}
+
+
+    def level1(self,m:RotorModel,rotor_speed_rad_s,cross_coupling_node,stiffness_range_n_m,num=5):
+        from .level1_backend import execute
+        return execute(self,m,rotor_speed_rad_s,cross_coupling_node,stiffness_range_n_m,num)
+
+    def level1_matrices(self,m:RotorModel,rotor_speed_rad_s,cross_coupling_node,Q_n_m):
+        from .level1_backend import matrices
+        return matrices(self,m,rotor_speed_rad_s,cross_coupling_node,Q_n_m)
