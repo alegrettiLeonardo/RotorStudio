@@ -74,7 +74,7 @@ def base_rotor(rs,np,*,map_backed=False):
     return rs.Rotor(copy.deepcopy(base.shaft_elements),copy.deepcopy(base.disk_elements),bearings)
 
 
-def probes(rs):
+def probes(rs,np):
     return [
         rs.Probe(0,np.deg2rad(45.),tag="DE-45"),
         rs.Probe(6,np.deg2rad(-45.),tag="NDE-45"),
@@ -120,7 +120,7 @@ def run_case(rs,np,convert,case):
         speed_range=np.asarray(case["speed_range"],float),
         minimum_allowable_speed=float(case["nma"]),
         maximum_continuous_speed=float(case["nmc"]),
-        probes=probes(rs),
+        probes=probes(rs,np),
         mode=int(case.get("mode",0)),
         scale_factor_cap=case.get("cap"),
         num_modes=int(case.get("num_modes",12)),
