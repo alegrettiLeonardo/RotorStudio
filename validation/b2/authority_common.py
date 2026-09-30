@@ -71,9 +71,14 @@ def validate_spec(spec:dict)->None:
     ids=[x["id"] for k in ("matrix_cases","modal_cases","campbell_cases") for x in spec[k]]
     require(len(ids)==len(set(ids)),"duplicate case id")
 
-def save_array(root:Path,relative:str,value:Any,group:str)->dict:
+def save_array(root:Path,relative:str,value:Any,group:str,allow_nan:bool=False)->dict:
     arr=np.asarray(value)
-    require(arr.dtype.kind in "fc" and np.isfinite(arr).all(),f"invalid array {relative}")
+    require(arr.dtype.kind in "fc",f"invalid array dtype {relative}: {arr.dtype}")
+    require(not np.isinf(arr).any(),f"infinite value in {relative}")
+    if allow_nan:
+        require(group in {"modal_whirl","campbell_whirl"},f"NaN is not permitted for group {group}")
+    else:
+        require(np.isfinite(arr).all(),f"nonfinite value in {relative}")
     arr=np.array(arr,dtype=np.complex128 if arr.dtype.kind=="c" else np.float64,order="F",copy=True)
     path=root/relative;path.parent.mkdir(parents=True,exist_ok=True)
     require(not path.exists(),f"duplicate output {relative}")
