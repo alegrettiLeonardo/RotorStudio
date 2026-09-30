@@ -138,6 +138,25 @@ def generate(ross_root:Path,out:Path):
             cases[case["id"]]={"kind":"campbell","rotor":case["rotor"],"ndof":rotor.ndof,"frequencies":freqs,"speed_range_rad_s":speeds.tolist()}
     finally:
         sys.setprofile(previous)
+    # Freeze gates required by the declared B2 scope.
+    observed_types=set()
+    nonlateral_nan_ok=True
+    for p in sorted((out/"modal").glob("*_mode_types.json")):
+        mode_types=read_json(p);observed_types.update(mode_types)
+        whirl=np.load(p.with_name(p.name.replace("_mode_types.json","_whirl.npy")),allow_pickle=False)
+        for kind,value in zip(mode_types,whirl,strict=True):
+            if kind!="Lateral":
+                nonlateral_nan_ok &= bool(np.isnan(value))
+    require({"Lateral","Axial","Torsional"}.issubset(observed_types),
+            f"authority must expose Lateral/Axial/Torsional, observed={sorted(observed_types)}")
+    require(nonlateral_nan_ok,"non-lateral ROSS whirl values must remain NaN")
+    crossing=False
+    for p in sorted((out/"campbell").glob("*_tracking.json")):
+        for station in read_json(p)[1:]:
+            assignment=station["assignment"]
+            if assignment!=list(range(len(assignment))):
+                crossing=True
+    require(crossing,"authority requires at least one non-identity MAC tracking sentinel")
     ranges=function_ranges(rs,ross_root);modules={}
     byfile={}
     for name,module in sorted(sys.modules.items()):
