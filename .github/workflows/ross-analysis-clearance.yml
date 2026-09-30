@@ -107,10 +107,32 @@ jobs:
           set -euo pipefail
           git init _ross_a8_intermediate
           git -C _ross_a8_intermediate config core.autocrlf false
+          git -C _ross_a8_intermediate config core.eol lf
           git -C _ross_a8_intermediate remote add origin https://github.com/petrobras/ross.git
           git -C _ross_a8_intermediate fetch --depth=1 origin 6320eab9f890f1b3cc1710d508b446fe063ca68d
           git -C _ross_a8_intermediate checkout --detach 6320eab9f890f1b3cc1710d508b446fe063ca68d
           git -C _ross_a8_intermediate rev-parse HEAD > a8-evidence/ross-head.txt
+          python - <<'PY'
+          import hashlib,json,pathlib,subprocess
+          root=pathlib.Path('_ross_a8_intermediate')
+          manifest=json.loads(pathlib.Path('validation/ross_parity/clearance/authority.json').read_text())
+          rows={}
+          for relative,expected in manifest['source_sha256'].items():
+              blob=subprocess.check_output(['git','cat-file','blob','HEAD:'+relative],cwd=root)
+              working=(root/relative).read_bytes()
+              rows[relative]={
+                  'expected_sha256':expected,
+                  'blob_sha256':hashlib.sha256(blob).hexdigest(),
+                  'working_sha256':hashlib.sha256(working).hexdigest(),
+                  'blob_crlf':blob.count(b'\r\n'),
+                  'working_crlf':working.count(b'\r\n'),
+                  'bytes_equal':working==blob,
+              }
+          text=json.dumps(rows,indent=2,sort_keys=True)
+          pathlib.Path('a8-evidence/ross-source-bytes.json').write_text(text,encoding='utf-8')
+          print(text)
+          assert all(r['bytes_equal'] and r['expected_sha256']==r['blob_sha256']==r['working_sha256'] for r in rows.values()),'Frozen ROSS working bytes differ from authority/blob'
+          PY
       - name: Isolated dependency-consistent ROSS and intermediate response audit
         shell: bash
         run: |
