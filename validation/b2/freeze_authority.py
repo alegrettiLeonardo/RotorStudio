@@ -19,14 +19,17 @@ def freeze(linux:Path,windows:Path,cross_report:Path)->dict:
     require(cross["status"]=="PASS","cross-platform comparison failed")
     if target.exists():
         frozen,_=load(target)
-        require(frozen["generator_head"]==al["generator_head"],"frozen authority belongs to a different reviewed HEAD")
+        # A first freeze necessarily creates a new repository HEAD. Subsequent
+        # candidates may therefore report a later generator_head while still
+        # reproducing the immutable authority byte/numerical contract.
         verify_l=compare(target,linux,None);verify_w=compare(target,windows,None)
         sums=read_json(target/"SHA256SUMS.json")
         expected={p.relative_to(target).as_posix():file_hash(p) for p in sorted(target.rglob("*"))
                   if p.is_file() and p.name!="SHA256SUMS.json"}
         require(sums["files"]==expected,"frozen SHA256SUMS mismatch")
         return {"status":"PASS","mode":"REPRODUCTION","frozen_head":frozen["generator_head"],
-                "ross_sha":ROSS_SHA,"linux":lcheck,"windows":wcheck,
+                "candidate_head":al["generator_head"],"ross_sha":ROSS_SHA,
+                "linux":lcheck,"windows":wcheck,
                 "linux_vs_frozen":verify_l["status"],"windows_vs_frozen":verify_w["status"]}
     # First freeze: Linux candidate is canonical after cross-platform numeric parity.
     shutil.copytree(linux,target)
