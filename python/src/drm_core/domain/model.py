@@ -48,6 +48,31 @@ class Disk:
         return Disk(disk_type,node,mass_kg,Ix_kgm2,Iy_kgm2,Ip_kgm2)
 
 @dataclass(frozen=True)
+class RotorMassSpan:
+    """Logical imported rotor mass before native disk materialization.
+
+    This domain object keeps source extent and source-qualified inertias explicit.
+    It is intentionally not a Disk: converting spans to solver disks is a
+    separate qualification gate.
+    """
+    z_start_m: float
+    length_m: float
+    mass_kg: float
+    outer_diameter_m: float
+    inner_diameter_m: float
+    package: bool = False
+    divisions: int = 1
+    diametral_inertia_kgm2: float = 0.0
+    polar_inertia_kgm2: float = 0.0
+    inertia_source: str = "LEGACY_GEOMETRY_DERIVED"
+    tag: str = ""
+    provenance: dict = field(default_factory=dict)
+
+    @property
+    def z_center_m(self) -> float:
+        return self.z_start_m + 0.5*self.length_m
+
+@dataclass(frozen=True)
 class Bearing:
     bearing_type: int; node: int; properties: tuple[float,...]=()
 
@@ -75,6 +100,7 @@ class RotorModel:
     bend:list[BendPoint]=field(default_factory=list)
     rotors:list[RotorDefinition]=field(default_factory=list)
     advanced_bearings:list[AdvancedBearing]=field(default_factory=list)
+    mass_spans:list[RotorMassSpan]=field(default_factory=list)
     @classmethod
     def from_legacy_arrays(cls,node,shaft,disc,bearing,force=None,bend=None,rotors=None)->"RotorModel":
         nodes=[Node(int(r[0]),float(r[1])) for r in node]
@@ -119,6 +145,10 @@ class RotorModel:
         # actually present.
         if self.advanced_bearings:
             payload["advanced_bearings"]=[d(x) for x in self.advanced_bearings]
+        # I2 is additive: legacy model hashes remain byte-identical when no
+        # imported logical mass spans are present.
+        if self.mass_spans:
+            payload["mass_spans"]=[d(x) for x in self.mass_spans]
         return payload
     def model_hash(self)->str:
         return hashlib.sha256(json.dumps(self.canonical_dict(),sort_keys=True,separators=(",",":"),default=list).encode()).hexdigest()
