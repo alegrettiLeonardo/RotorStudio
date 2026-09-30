@@ -1,0 +1,143 @@
+name: A5 UCS Bearing Order Regression Qualification
+on:
+  push:
+    branches: [fix/a5-ucs-bearing-order-authority-20260929]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authority-reproduction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ./_ross
+      - name: Regenerate candidate without rewriting any golden
+        run: |
+          python validation/ross_parity/generate_ucs_bearing_order_reference.py --ross-root _ross --out /tmp/ucs-order-candidate
+          python validation/ross_parity/verify_ucs_bearing_order.py --candidate /tmp/ucs-order-candidate --out order-evidence/authority-reproduction.json
+          git diff --exit-code HEAD -- validation/ross_parity
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a5-order-authority-${{ github.event.pull_request.head.sha || github.sha }}
+          path: order-evidence/
+  native-bearing-order:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    env:
+      QT_QPA_PLATFORM: offscreen
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      A5_ORDER_EVIDENCE: order-evidence
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python dependencies
+        run: python -m pip install -e "./python[test,studio,ui-test]"
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update -qq && sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-openblas
+      - name: Linux Release and ALL CTest
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p order-evidence
+          cmake -S fortran -B build-a5-order -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-a5-order -j2
+          ctest --test-dir build-a5-order --output-on-failure --output-junit "$PWD/order-evidence/ctest.xml"
+          echo "DRMROTOR_LIB=$PWD/build-a5-order/libdrmrotor.so" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_LIB=$PWD/build-a5-order/libdrmbearings.so" >> "$GITHUB_ENV"
+          echo "PYTHONPATH=$PWD/python/src:$PWD" >> "$GITHUB_ENV"
+      - name: Windows Release and ALL CTest
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          mkdir -p order-evidence
+          cmake -S fortran -B build-a5-order -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-a5-order --parallel
+          ctest --test-dir build-a5-order --output-on-failure --output-junit "$(cygpath -m "$PWD/order-evidence/ctest.xml")"
+          echo "DRMROTOR_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - name: Windows library paths
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dll = Get-ChildItem build-a5-order -Recurse -Filter '*drmrotor*.dll' | Select-Object -First 1
+          $bearing = Get-ChildItem build-a5-order -Recurse -Filter '*drmbearings*.dll' | Select-Object -First 1
+          "DRMROTOR_LIB=$($dll.FullName)" >> $env:GITHUB_ENV
+          "DRMBEARINGS_LIB=$($bearing.FullName)" >> $env:GITHUB_ENV
+          "PYTHONPATH=$PWD\python\src;$PWD" >> $env:GITHUB_ENV
+      - name: Actual native tests - complete historical and corrective UCS suite
+        run: python -m pytest python/tests_ucs -vv --junitxml=order-evidence/ucs.xml
+      - name: Additive ROSS numeric and matrix-first parity
+        run: python validation/ross_parity/verify_ucs_bearing_order.py --out order-evidence/native-parity.json
+      - name: Historical A5 independent physics gates including Rouch
+        run: python validation/ross_parity/qualify_ucs.py --out order-evidence/independent-ucs.json
+      - name: A0-A7 authority integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in static static_extended frf forced time_response ucs level1 api617_unbalance; do
+            python validation/ross_parity/verify_reference.py "validation/ross_parity/$name"
+          done
+      - name: Preservation scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_a1_legacy_preservation.py
+          python scripts/verify_a2_preservation.py
+          python scripts/verify_a3_preservation.py
+      - name: A6 and A7 regressions
+        run: python -m pytest python/tests_level1 python/tests_api617_unbalance -q --junitxml=order-evidence/a6-a7.xml
+      - name: A0-A4 and Stage 1 broad regressions
+        run: python -m pytest python/tests_static python/tests_frf python/tests_forced python/tests_time python/tests -q --junitxml=order-evidence/broad.xml
+      - name: Bearing foundation regressions
+        run: python -m pytest python/tests_bearings -q --junitxml=order-evidence/bearings.xml
+      - name: Record exact tested HEAD and source archive
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p order-evidence
+          git rev-parse HEAD > order-evidence/tested-head.txt
+          git diff --stat 03fef9b0da65c51b7ea3c9a14911cf7f83bcb015 > order-evidence/diff-stat.txt
+          git diff 03fef9b0da65c51b7ea3c9a14911cf7f83bcb015 -- python/src/drm_core/solver/ucs_backend.py > order-evidence/production.patch
+          if test '${{ runner.os }}' = Linux; then
+            git archive --format=zip HEAD -o order-evidence/tested-source.zip
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a5-order-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: order-evidence/
+          if-no-files-found: error

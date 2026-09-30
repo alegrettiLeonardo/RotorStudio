@@ -4,7 +4,7 @@ import numpy as np
 from PySide6.QtCore import QEventLoop, QTimer
 
 from drm_core import (
-    Bearing, Disk, Node, RotorModel, RotorProject, ShaftElement
+    Bearing, Disk, Node, RotorModel, RotorProject, ShaftElement, run_ucs
 )
 from .application import ProjectSession
 from .main_window import MainWindow
@@ -30,8 +30,10 @@ def _qualification_model():
         shafts,
         [Disk.inertial(3,19.0,0.083,0.151)],
         [
+            # Post-A7 corrective sentinel: deliberately unsorted, unequal
+            # physical supports. The temporary UCS sweep remains isotropic.
+            Bearing(3,4,(21.0e6,36.0e6,310.0,410.0)),
             Bearing(3,1,(1.25e7,1.25e7,230.0,230.0)),
-            Bearing(3,4,(1.25e7,1.25e7,230.0,230.0)),
         ],
     )
 
@@ -41,6 +43,8 @@ def run_ucs_gui_smoke(output_dir):
     out=Path(output_dir)/"ucs"
     out.mkdir(parents=True,exist_ok=True)
     model=_qualification_model()
+    original_hash=model.model_hash()
+    assert [b.node for b in model.bearings]==[4,1]
     window=MainWindow(ProjectSession(RotorProject("A5 UCS qualification",model)))
     window.show()
 
@@ -74,6 +78,10 @@ def run_ucs_gui_smoke(output_dir):
             w.session.resultAdded.disconnect(done)
             w.jobs.failed.disconnect(fail)
 
+    def unchanged(m):
+        assert [b.node for b in m.bearings]==[4,1]
+        assert m.model_hash()==original_hash
+
     try:
         first=execute(window,case)
         result=first.execution.result
@@ -83,6 +91,24 @@ def run_ucs_gui_smoke(output_dir):
         assert result.metadata["native_abi"]=="rd_ucs_v1"
         assert result.metadata["backend"]=="Fortran2018/ctypes"
         assert result.metadata["ross_authority"]=="6320eab9f890f1b3cc1710d508b446fe063ca68d"
+        unchanged(model)
+        from drm_core.solver.ucs_backend import _validate_model
+        supports=_validate_model(None,model,(6,10),7,16,None,True)[5]
+        assert [b.node for b in supports]==[1,4] and supports[0].node==1
+        np.testing.assert_array_equal(result.bearing_kxx_n_m,12.5e6)
+        np.testing.assert_array_equal(result.bearing_kyy_n_m,12.5e6)
+        assert result.coefficient_families==('kxx',)
+        assert len(result.intersection_speed_rad_s)==4
+        assert result.bearing_speed_policy=='constant_10_point_rotor_wn_margin'
+        # Independent insertion-order sentinel: run the same physical model
+        # already sorted, through the real ABI, and compare ALL numeric data.
+        from dataclasses import replace
+        ordered=replace(model,bearings=sorted(model.bearings,key=lambda b:b.node))
+        reference=run_ucs(ordered,(6,10),num=7,num_modes=16,synchronous=True)
+        for key,value in vars(result).items():
+            if isinstance(value,np.ndarray):
+                np.testing.assert_array_equal(value,getattr(reference,key),err_msg=key)
+        unchanged(model)
 
         view=window._result_tabs[first.key]
         assert len(view.figure.axes)==1
@@ -125,11 +151,13 @@ def run_ucs_gui_smoke(output_dir):
         window.grab().save(str(out/"ucs_gui.png"))
         saved_project=out/"ucs.rds"
         window.save_project(saved_project)
+        unchanged(window.session.project.model)
         window.close()
 
         window=MainWindow()
         window.session.open_project(saved_project)
         window.show()
+        unchanged(window.session.project.model)
         assert len(window.session.project.analyses)==1
         reopened_case=window.session.project.analyses[0]
         assert reopened_case.kind=="ucs"
@@ -139,6 +167,7 @@ def run_ucs_gui_smoke(output_dir):
             if isinstance(value,np.ndarray):
                 np.testing.assert_array_equal(value,getattr(result2,key))
         assert first.execution.analysis_hash==second.execution.analysis_hash
+        unchanged(window.session.project.model)
 
         window.session.project.model.disks.append(Disk.inertial(2,1.0,0.0,0.0))
         window.session.notify_model_changed()
@@ -157,6 +186,12 @@ def run_ucs_gui_smoke(output_dir):
             "synchronous_rouch":True,
             "temporary_system":"undamped / isotropic sweep supports / seals excluded",
             "intersections":int(len(result.intersection_speed_rad_s)),
+            "bearing_order_corrective_sentinel":{
+                "status":"PASS","input_order":[4,1],"persisted_order":[4,1],
+                "selected_physical_node":1,"kxx_n_m":12.5e6,"kyy_n_m":12.5e6,
+                "coefficient_families":["kxx"],"model_hash":original_hash,
+                "all_numeric_arrays_equal_sorted_reference":True,
+            },
             "persistence":"save-close-reopen-recompute exact arrays and analysis hash",
             "staleness":"PASS",
             "exports":"long-form branch CSV + separate intersections CSV + complete NPZ + report + PNG/SVG/PDF",

@@ -72,6 +72,9 @@ def _validate_model(backend,model,stiffness_range_exponents,num,num_modes,bearin
         raise ValueError("UCS requires at least one non-seal radial support.")
     if any(x.node<1 or x.node>nn for x in supports):
         raise ValueError("UCS support node lies outside the shaft node range.")
+    # Frozen ROSS Rotor.__init__ sorts by node before run_ucs selects bearing0.
+    # Sort only this temporary list; stable ties and persisted order are preserved.
+    supports=sorted(supports,key=lambda bearing:bearing.node)
     if bearing_speed_range is not None:
         try:a,b=map(float,bearing_speed_range)
         except Exception as exc:raise ValueError("UCS bearing_speed_range must contain two finite rad/s values.") from exc
