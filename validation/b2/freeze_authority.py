@@ -1,8 +1,9 @@
 """One-time B2 authority freeze after same-head Linux/Windows candidate PASS."""
 from __future__ import annotations
-import argparse,json,shutil,subprocess
+import argparse,json,shutil,subprocess,sys
 from datetime import datetime,timezone
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 from validation.b2.authority_common import *
 from validation.ross_parity.verify_6dof_global_candidate import compare,self_check,load
 
