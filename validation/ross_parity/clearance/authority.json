@@ -1,0 +1,28 @@
+{
+  "commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "generated_utc": "2026-09-29T19:21:53.308935+00:00",
+  "golden_sha256": {
+    "baseline_mode0.json": "b4f7f1ce2757e640c33a985bf1d9e72cce64f3f8db357aee92e0a91a65e739f1",
+    "cap_6.json": "ed80a6311e795b6c724945874ca75c1e10164cbf0d0c5fda577d170a6a418ac4",
+    "conical_mode1.json": "8c53d5e3c71ca2afb06ded4bc9f49cb7dad04af86643077eb55cd9b23a1d2b75",
+    "explicit_20_gmm.json": "f25ac2c3040e52a7e73f2fe8587f9bd5b14c4ef53b42a7210c53af312c90e7ea",
+    "explicit_80_gmm.json": "efa107b79ac2f4adc705fe0e333c9a27646f8ec0acc5b85e3ffac29ef9338836",
+    "high_speed_limit.json": "9ae4aedc09a2b2e4824c5e0215583b547418c326db578cab037f2c4a4f2000ea",
+    "map_2d.json": "571241b6c3619f63911ad5810d90f84beb72f8142cf7daf306e55bef45e81b72",
+    "operating_speed_insertion.json": "9c69c09b0cf1b0ba69bb4f0760d8921e5908ff488af2c888afbde89f3e0d836a"
+  },
+  "numpy": "1.26.4",
+  "python": "3.12.14",
+  "repository": "petrobras/ross",
+  "scipy": "1.14.1",
+  "scope": "A8 API 617 clearance immutable authority; actual ROSS plus declared 4-DOF adaptation",
+  "source_sha256": {
+    "ross/agent_skills/ross/clearance_analysis.md": "be46a5510689b3ba57ccc77e96f5b0e5772d58b5fe07d48b91c7bdf1f5a7f48e",
+    "ross/bearing_seal_element.py": "4c1e39b0cfdb4a64dd0992df686f6771e3245fc74c2dc1fca95b684328cc5942",
+    "ross/probe.py": "2e6b1f247893b12787887bd6e927ae950e2ab523a83699e508d35ce08e3adfd4",
+    "ross/results.py": "0d53a92700228c074145e35e49e31e6f8550f4199efc1e9470b53ca5c5477cc3",
+    "ross/rotor_assembly.py": "c5e6562d092426ffdb44641a1fb2092c6e5df8e3e44be437749b3711f7633c09",
+    "ross/tests/test_results.py": "a8f5e244d0d9165f05bab8998d5ca6e1d101af945851cdb8daf519ddc76fd964",
+    "ross/utils.py": "08708dc134682b40dcb8259527cdd9586e9f3eac26c0b510eda29355e05eb8d9"
+  }
+}
