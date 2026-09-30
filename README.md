@@ -1,5 +1,7 @@
 # RotorStudio — Fortran 2018 + Python Core
 
+> Flet distribution closure is partial: repository publication and Windows/web/frozen validation remain blocked or unexecuted. See `docs/FLET_DISTRIBUTION_STATUS.md`.
+
 RotorStudio is the qualified migration of the DRM rotor-dynamics software to a Fortran 2018 numerical core with a GUI-independent Python Core for domain modelling, validation, units, persistence, orchestration, post-processing, reports, CLI and examples.
 
 `Rotor_Software_v2` remains the numerical and behavioural authority. The desktop application is Stage 2 and consumes the qualified Stage 1 Core; it does not replace or reimplement the solver.
@@ -134,3 +136,19 @@ The qualification workflows reproduce the frozen Stage 1 authority and regressio
 - `docs/UI_KNOWN_LIMITATIONS.md`
 
 The final gate is `UI1–UI20`; it is emitted by the final workflow only after both Linux and Windows qualifications succeed.
+
+## Flet desktop — complete current screen inventory
+
+The optional `drm-studio-flet` command implements the 42 Qt presentation
+classes / 21 native analysis contracts inventoried at
+`fcdac252974aeeded6961dbe3310677e234a6495`, including A8 close-clearance.
+It also provides typed model/bearing editors, physical bearing fields,
+operating maps/cache, project/results/report centres and diagnostics.
+The existing Qt command `drm-studio` is retained without modification.
+
+Install with `python -m pip install -e "./python[flet]"`, build the existing
+Fortran libraries, then run `drm-studio-flet --check` and `drm-studio-flet`.
+See `docs/FLET_UI.md`, `docs/FLET_SCREEN_PARITY.json` and
+`python/tests_flet`. The Flet workflow separates actual Linux desktop
+rendering from Windows Core/handler tests. This is not a frozen-executable,
+web-rendering or complete normative API-certification claim.
