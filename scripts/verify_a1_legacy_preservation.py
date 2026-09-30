@@ -28,9 +28,12 @@ allowed_additive={
  'fortran/src/rd_api617_unbalance.f90','fortran/src/rd_api617_unbalance_c_api.f90','fortran/tests/test_api617_unbalance.f90',
  # A8 close-clearance remains additive to the promoted A7 implementation.
  'fortran/src/rd_clearance.f90','fortran/src/rd_clearance_c_api.f90','fortran/tests/test_clearance.f90',
+ # B1 remains additive to the promoted A0-A8 implementation.
+ 'fortran/src/rd_shaft_6dof.f90','fortran/src/rd_disk_6dof.f90',
+ 'fortran/src/rd_6dof_element_c_api.f90','fortran/tests/test_6dof_elements.f90',
 }
 assert extra==allowed_additive,extra
-print('PASS: legacy source and tests unchanged; A1 unchanged; only additive A2/A3/A4/A5/A6/A7/A8 modules/ABIs/tests added')
+print('PASS: legacy source and tests unchanged; A1 unchanged; only additive A2/A3/A4/A5/A6/A7/A8/B1 modules/ABIs/tests added')
 
 exec(Path("scripts/verify_a2_preservation.py").read_text())
 

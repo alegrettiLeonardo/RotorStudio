@@ -57,7 +57,7 @@ NEW_FILES=frozenset({
     'validation/ross_parity/generate_6dof_elements_reference.py',
     'validation/ross_parity/verify_6dof_elements_candidate.py',
 })
-ADAPTED_FILES=frozenset({'fortran/CMakeLists.txt'})
+ADAPTED_FILES=frozenset({'fortran/CMakeLists.txt','scripts/verify_a1_legacy_preservation.py'})
 MODIFIED_FILES=ADAPTED_FILES
 ARTIFACT_ROOTS=frozenset({'review','b1-evidence','b1-native-evidence','b1-native-preflight',
                          'b1-platform-artifacts','b1-aggregate-evidence','_ross_b1'})
@@ -88,8 +88,24 @@ def blob_hash(data):
     return hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
 
 
+def one_replace(data,old,new):
+    require(data.count(old)==1,'Baseline adaptation anchor is not unique')
+    return data.replace(old,new,1)
+
+
 def expected_adaptation(path,before):
     if path=='fortran/CMakeLists.txt': return before+CMAKE_APPEND
+    if path=='scripts/verify_a1_legacy_preservation.py':
+        old=(b" # A8 close-clearance remains additive to the promoted A7 implementation.\n"
+             b" 'fortran/src/rd_clearance.f90','fortran/src/rd_clearance_c_api.f90','fortran/tests/test_clearance.f90',\n")
+        new=(old+
+             b" # B1 remains additive to the promoted A0-A8 implementation.\n"
+             b" 'fortran/src/rd_shaft_6dof.f90','fortran/src/rd_disk_6dof.f90',\n"
+             b" 'fortran/src/rd_6dof_element_c_api.f90','fortran/tests/test_6dof_elements.f90',\n")
+        data=one_replace(before,old,new)
+        old_msg=b"only additive A2/A3/A4/A5/A6/A7/A8 modules/ABIs/tests added"
+        new_msg=b"only additive A2/A3/A4/A5/A6/A7/A8/B1 modules/ABIs/tests added"
+        return one_replace(data,old_msg,new_msg)
     raise ValueError('No historical adaptation is allowed for '+path)
 
 
@@ -150,8 +166,9 @@ def verify(root=ROOT):
         approve_change(name,None,file.read_bytes() if file.is_file() else None)
     for name in NEW_FILES:
         require((root/name).is_file() and not (root/name).is_symlink(),'Missing B1 file: '+name)
-    before=git(root,'show',f'{BASE}:fortran/CMakeLists.txt')
-    approve_change('fortran/CMakeLists.txt',before,(root/'fortran/CMakeLists.txt').read_bytes())
+    for name in sorted(ADAPTED_FILES):
+        before=git(root,'show',f'{BASE}:{name}')
+        approve_change(name,before,(root/name).read_bytes())
     from validation.b1.tests.test_frozen_authority import locked_integrity,FREEZE_COMMIT
     from validation.b1.authority_common import FROZEN_PATH
     frozen=root/FROZEN_PATH
