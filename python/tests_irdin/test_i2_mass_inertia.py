@@ -85,7 +85,10 @@ def test_i2_package_expansion_conserves_mass_extent_centroid_and_full_cylinder_i
         for x in slices
     )
     assert ip==pytest.approx(package.polar_inertia_kgm2,rel=3e-16)
-    assert id_about_package_cg==pytest.approx(package.diametral_inertia_kgm2,rel=3e-16)
+    # Six independently rounded slice centers/inertias are recombined through
+    # the parallel-axis theorem. 8*machine-epsilon-scale relative roundoff is
+    # expected; this is not a production/golden tolerance.
+    assert id_about_package_cg==pytest.approx(package.diametral_inertia_kgm2,rel=2e-15)
 
 
 def test_i2_st41_mass_audit_is_deterministic():
