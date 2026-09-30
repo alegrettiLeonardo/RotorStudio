@@ -23,6 +23,7 @@ from drm_core.domain.model import (
 from drm_core.stage1 import RotorProject
 from .bearing_table import BearingTableImportError, parse_irdin_coefficient_table
 from .irdin_mass import build_mass_spans
+from .irdin_support import IrdinSupportMappingError, build_bearing_supports
 
 
 _GRID_KEY = re.compile(r"^(\d+)\s*,\s*(\d+)$")
@@ -555,7 +556,8 @@ def load_irdin_project(path: str | Path) -> RotorProject:
                 "mass_semantics": "PASS" if masses and not any(item["ump"] for item in masses) else ("NOT_APPLICABLE" if not masses else "BLOCKED_BY_UMP_SEMANTICS"),
                 "mass_inertia": "PASS_I2_LOGICAL_ONLY" if masses and not any(item["ump"] for item in masses) else ("NOT_APPLICABLE" if not masses else "BLOCKED"),
                 "mass_native_materialization": "NOT_QUALIFIED" if masses else "NOT_APPLICABLE",
-                "supports": "NOT_QUALIFIED" if supports else "NOT_APPLICABLE",
+                "support_semantics": "PENDING" if supports else "NOT_APPLICABLE",
+                "support_native_assembly": "NOT_QUALIFIED" if supports else "NOT_APPLICABLE",
                 "unbalance": "NOT_QUALIFIED" if unbalance else "NOT_APPLICABLE",
                 "probes": "NOT_QUALIFIED" if probes else "NOT_APPLICABLE",
             },
@@ -569,11 +571,22 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         if masses and not any(item["ump"] for item in masses)
         else []
     )
+    mapped_supports = []
+    if supports:
+        try:
+            mapped_supports = build_bearing_supports(metadata)
+            metadata["numerical_readiness"]["components"]["support_semantics"] = "PASS_I3_DOMAIN_ONLY"
+        except IrdinSupportMappingError as exc:
+            metadata["numerical_readiness"]["components"]["support_semantics"] = "BLOCKED"
+            metadata["numerical_readiness"].setdefault("mapping_diagnostics", []).append(
+                {"component": "supports", "message": str(exc)}
+            )
     model = RotorModel(
         nodes=nodes,
         shafts=shafts,
         advanced_bearings=advanced_bearings,
         mass_spans=mass_spans,
+        supports=mapped_supports,
     )
     return RotorProject(name=name, model=model, analyses=[], metadata=metadata)
 
