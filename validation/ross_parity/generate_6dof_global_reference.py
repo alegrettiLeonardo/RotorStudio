@@ -123,13 +123,13 @@ def generate(ross_root:Path,out:Path):
             track=[];types_out=[]
             for i,w in enumerate(speeds):
                 tracked=camp.modal_results[float(w)];raw=rotor.run_modal(speed=float(w),num_modes=2*(freqs+2),sparse=False,synchronous=False,matched_whirl=False)
-                n= int((2*(freqs+2))/2);tv=tracked.evectors[:rotor.ndof,:n];rv=raw.evectors[:rotor.ndof,:n]
+                n=int((2*(freqs+2))/2);tv=tracked.evectors[:,:n];rv=raw.evectors[:,:n]
                 mm=np.array([[mac(tv[:,ii],rv[:,jj]) for jj in range(n)] for ii in range(n)],float)
                 assignment=np.argmax(mm,axis=1)
                 arrays.append(save_array(out,f"campbell/{case['id']}_station{i}_tracked_to_raw_mac.npy",mm,"campbell_tracking_mac"))
                 arrays.append(save_array(out,f"campbell/{case['id']}_station{i}_assignment.npy",assignment.astype(float),"campbell_tracking_assignment"))
                 if i>0:
-                    prev=camp.modal_results[float(speeds[i-1])].evectors[:rotor.ndof,:n]
+                    prev=camp.modal_results[float(speeds[i-1])].evectors[:,:n]
                     cm=np.array([[mac(prev[:,ii],tv[:,jj]) for jj in range(n)] for ii in range(n)],float)
                     arrays.append(save_array(out,f"campbell/{case['id']}_station{i}_consecutive_mac.npy",cm,"campbell_tracking_mac"))
                 types_out.append([s.mode_type for s in tracked.shapes[:freqs]])
