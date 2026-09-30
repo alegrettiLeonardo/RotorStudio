@@ -79,5 +79,12 @@
       "atol": 1e-8
     },
     "tracking_mac_min": 0.9
+  },
+  "platform_semantics": {
+    "modal_eigenvectors": "MAC for nondegenerate modes; minimum principal-angle subspace MAC for degenerate eigenvalue groups",
+    "modal_whirl": "exact only for nondegenerate modes; degenerate-basis whirl is diagnostic",
+    "campbell_whirl": "diagnostic enum/NaN contract across platforms; branch frequencies, damping, mode types and tracking assignment are normative",
+    "campbell_tracking_mac": "diagnostic bounded [0,1] across platforms; tracking assignment is normative",
+    "campbell_tracking_assignment": "exact"
   }
 }
