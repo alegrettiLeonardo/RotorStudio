@@ -1,0 +1,64 @@
+name: A5 UCS Bearing Order Frozen Authority
+on:
+  push:
+    branches: [fix/a5-ucs-bearing-order-authority-20260929]
+    paths:
+      - validation/ross_parity/generate_ucs_bearing_order_reference.py
+      - validation/ross_parity/ucs_bearing_order_cases.py
+      - .github/workflows/a5-ucs-bearing-order-authority.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  authority:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+      - uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install exact authority
+        run: python -m pip install -e ./_ross
+      - name: Generate additive authority once or reproduce candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -d validation/ross_parity/ucs_bearing_order; then
+            python validation/ross_parity/generate_ucs_bearing_order_reference.py --ross-root _ross --out /tmp/ucs-order-candidate
+            python validation/ross_parity/verify_ucs_bearing_order.py --candidate /tmp/ucs-order-candidate
+          else
+            python validation/ross_parity/generate_ucs_bearing_order_reference.py --ross-root _ross --out validation/ross_parity/ucs_bearing_order
+            git diff --exit-code HEAD -- validation/ross_parity/ucs
+            git add -- validation/ross_parity/ucs_bearing_order
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git commit -m 'test(a5): freeze additive bearing-order authority from pinned ROSS'
+            git push origin HEAD:fix/a5-ucs-bearing-order-authority-20260929
+          fi
+      - name: Archive exact review sources and authority
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p authority-review
+          git archive --format=zip HEAD -o authority-review/rotorstudio-source.zip
+          git -C _ross archive --format=zip HEAD -o "$PWD/authority-review/ross-frozen-source.zip"
+          git rev-parse HEAD > authority-review/rotorstudio-head.txt
+          git -C _ross rev-parse HEAD > authority-review/ross-head.txt
+          python -m pip freeze > authority-review/requirements-observed.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a5-order-authority-review-${{ github.sha }}
+          path: authority-review/
