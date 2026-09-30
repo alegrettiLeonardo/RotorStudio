@@ -22,12 +22,14 @@ Promoted checkpoints:
 - A6 Level 1 qualified HEAD `e7906b6329bab06d6a5a7ea53170485a31869679`;
   promoted main `bae1adf745ffd66742a14c956dbd090524f5737e`.
 
-Current campaign stage: **A7 API 617 unbalance placement** on
-`feature/ross-analysis-a7-api617-unbalance`, branched from the exact A6
-promoted main. A7 implementation and immutable frozen-ROSS authority are in
-place; promotion remains contingent on exact-head Linux/Windows parity,
+A7 API 617 unbalance qualified HEAD
+`4d610f0ac78d943092884187aba1e19e7f6aff3e` was promoted at main
+`03fef9b0da65c51b7ea3c9a14911cf7f83bcb015`.
+
+Current campaign stage: **A8 API 617 close-clearance analysis** on
+`feature/ross-analysis-a8-clearance`, whose pre-work state was byte-identical
+to that promoted A7 main. A8 frozen authority and production implementation are
+in place; promotion remains contingent on exact-head Linux/Windows parity,
 preservation/regression and clean frozen application gates.
 
-A8 close-clearance analysis remains blocked until A7 is promoted. B1 and later
-6-DOF platform work remain blocked until the A-series reaches its planned
-boundary.
+B1 6-DOF platform work remains blocked until A8 is promoted.

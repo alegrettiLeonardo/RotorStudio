@@ -16,6 +16,7 @@ from drm_core.analysis.general_time_response import GeneralTimeResponseResult
 from drm_core.analysis.ucs import UCSResult
 from drm_core.analysis.level1 import Level1Result
 from drm_core.analysis.api617_unbalance import API617UnbalanceResult
+from drm_core.analysis.clearance import ClearanceResult
 from .analysis_pages.general_time_setup import GeneralTimeSetupDialog
 from .result_views.general_time_view import GeneralTimeResultView
 from .analysis_pages.ucs_setup import UCSSetupDialog
@@ -24,6 +25,8 @@ from .analysis_pages.level1_setup import Level1SetupDialog
 from .result_views.level1_view import Level1ResultView
 from .analysis_pages.api617_unbalance_setup import API617UnbalanceSetupDialog
 from .result_views.api617_unbalance_view import API617UnbalanceResultView
+from .analysis_pages.clearance_setup import ClearanceSetupDialog
+from .result_views.clearance_view import ClearanceResultView
 from .analysis_pages.forced_response_setup import ForcedResponseSetupDialog
 from .result_views.forced_response_view import ForcedResponseResultView
 from drm_core.analysis.general_frf import FrequencyResponseMatrixResult
@@ -109,6 +112,8 @@ class MainWindow(QMainWindow):
         self.level1_action.triggered.connect(self._configure_level1)
         self.api617_unbalance_action = QAction("API 617 Unbalance Placement", self)
         self.api617_unbalance_action.triggered.connect(self._configure_api617_unbalance)
+        self.clearance_action = QAction("API 617 Close-Clearance Analysis", self)
+        self.clearance_action.triggered.connect(self._configure_clearance)
         self.forced_response_action = QAction("Forced Response", self)
         self.forced_response_action.triggered.connect(self._configure_forced_response)
         self.general_frf_action = QAction("General FRF — Matrix", self)
@@ -197,6 +202,7 @@ class MainWindow(QMainWindow):
         self.analysis_menu.addAction(self.ucs_action)
         self.analysis_menu.addAction(self.level1_action)
         self.analysis_menu.addAction(self.api617_unbalance_action)
+        self.analysis_menu.addAction(self.clearance_action)
         self.analysis_menu.addAction(self.static_action)
         self.analysis_menu.addAction(self.modal_action)
         self.analysis_menu.addAction(self.campbell_action)
@@ -449,6 +455,10 @@ class MainWindow(QMainWindow):
         dialog=API617UnbalanceSetupDialog(self.session.project.model,self)
         if dialog.exec()==QDialog.Accepted:self.run_analysis(dialog.analysis_case())
 
+    def _configure_clearance(self):
+        dialog=ClearanceSetupDialog(self.session.project.model,self)
+        if dialog.exec()==QDialog.Accepted:self.run_analysis(dialog.analysis_case())
+
     def _configure_forced_response(self):
         dialog=ForcedResponseSetupDialog(self.session.project.model,self)
         if dialog.exec()==QDialog.Accepted:self.run_analysis(dialog.analysis_case())
@@ -634,6 +644,9 @@ class MainWindow(QMainWindow):
         elif isinstance(result, API617UnbalanceResult):
             view=API617UnbalanceResultView(record)
             prefix="API 617 Unbalance"
+        elif isinstance(result, ClearanceResult):
+            view=ClearanceResultView(record)
+            prefix="API 617 Clearance"
         elif isinstance(result, GeneralTimeResponseResult):
             view=GeneralTimeResultView(record)
         elif isinstance(result, ForcedResponseResult):

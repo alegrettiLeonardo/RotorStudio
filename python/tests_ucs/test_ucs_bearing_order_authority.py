@@ -15,6 +15,84 @@ from drm_core import run_ucs,RotorProject,AnalysisCase,AnalysisService,save_proj
 from drm_core.solver.backend import FortranBackend
 
 CASES=tuple(specifications())
+A5_PROMOTED='c2073acc0085900e72f0b17ad90cbf1090eec495'
+A8_PRE_RECONCILIATION='ad394e109fa356015b8ed183c6df246ef6efe586'
+A8_NATIVE_ADDITIONS={
+    'fortran/src/rd_clearance.f90',
+    'fortran/src/rd_clearance_c_api.f90',
+    'fortran/tests/test_clearance.f90',
+}
+A5_ADDITIVE_PATHS=(
+    'validation/ross_parity/ucs_bearing_order',
+    'validation/ross_parity/ucs_bearing_order_cases.py',
+    'validation/ross_parity/generate_ucs_bearing_order_reference.py',
+    'validation/ross_parity/verify_ucs_bearing_order.py',
+)
+A8_ADDITIVE_PATHS=(
+    'validation/ross_parity/clearance',
+    'validation/ross_parity/generate_clearance_reference.py',
+    'validation/ross_parity/verify_clearance_candidate.py',
+)
+
+
+def _git_diff_unchanged(ref,*paths):
+    subprocess.run(['git','diff','--no-ext-diff','--no-textconv',
+                    '--exit-code',ref,'--',*paths],cwd=ROOT,check=True)
+
+
+def _changed_status(ref,*paths):
+    return subprocess.check_output(
+        ['git','diff','--no-ext-diff','--no-textconv','--no-renames',
+         '--name-status',ref,'--',*paths],cwd=ROOT,text=True).splitlines()
+
+
+def _assert_allowed_delta(rows,allowed):
+    # Check statuses as well as exact paths: an allowed addition must not hide
+    # deletion, renaming, type changes or edits to a historical baseline file.
+    for row in rows:
+        fields=row.split('\t')
+        assert len(fields)==2,('unexpected diff record',row)
+        status,path=fields
+        assert allowed.get(path)==status,('out-of-scope change',row)
+
+
+def _snapshot_paths(ref,paths):
+    return subprocess.check_output(
+        ['git','ls-tree','-r','--name-only',ref,'--',*paths],
+        cwd=ROOT,text=True).splitlines()
+
+
+def _assert_native_baseline_unchanged():
+    # The PR31-only whole-directory equality is stale on additive A8. Preserve
+    # EVERY historical Fortran file, admitting only the three reviewed A8 files
+    # and the exact already-published CMake integration. No solver is exempted.
+    allowed={path:'A' for path in A8_NATIVE_ADDITIONS}
+    allowed['fortran/CMakeLists.txt']='M'
+    _assert_allowed_delta(_changed_status(BASE_SHA,'fortran'),allowed)
+    _git_diff_unchanged(A8_PRE_RECONCILIATION,'fortran/CMakeLists.txt')
+
+
+@pytest.mark.parametrize('row',[
+    'M\tfortran/src/rd_ucs.f90',
+    'D\tfortran/src/rd_eigensystem.f90',
+    'A\tfortran/src/unreviewed.f90',
+    'T\tfortran/src/rd_clearance.f90',
+    'D\tfortran/src/rd_clearance.f90',
+    'R100\tfortran/src/rd_ucs.f90\tfortran/src/renamed.f90',
+    'M\tvalidation/ross_parity/ucs/isotropic_constant.json',
+    'D\tvalidation/ross_parity/ucs/isotropic_constant.json',
+])
+def test_preservation_scope_rejects_historical_changes(row):
+    allowed={path:'A' for path in A8_NATIVE_ADDITIONS}
+    allowed['fortran/CMakeLists.txt']='M'
+    with pytest.raises(AssertionError):
+        _assert_allowed_delta([row],allowed)
+
+
+def test_preservation_scope_accepts_only_declared_native_additions():
+    allowed={path:'A' for path in A8_NATIVE_ADDITIONS}
+    allowed['fortran/CMakeLists.txt']='M'
+    _assert_allowed_delta([status+'\t'+path for path,status in allowed.items()],allowed)
 
 
 @pytest.mark.parametrize('name',CASES)
@@ -49,11 +127,11 @@ def test_actual_fortran_permutation_save_reopen_and_model_immutability(name,tmp_
 
 def test_real_unpatched_to_patched_map_isolation_and_numeric_consequence(tmp_path):
     # Load the exact historical binding AS CODE, not a mock. Both paths use the
-    # real current ABI/Fortran library, whose sources must remain unchanged.
+    # real current ABI/Fortran library. All pre-A8 native sources are preserved.
     source=subprocess.check_output(['git','show',BASE_SHA+':python/src/drm_core/solver/ucs_backend.py'],cwd=ROOT)
     blob=hashlib.sha1(b'blob '+str(len(source)).encode()+b'\0'+source).hexdigest()
     assert blob=='6217f22db20882fbfce23057b0942f46b7c22ef6'
-    subprocess.run(['git','diff','--exit-code',BASE_SHA,'--','fortran'],cwd=ROOT,check=True)
+    _assert_native_baseline_unchanged()
     old=types.ModuleType('drm_core.solver._ucs_historical_validation_only')
     old.__package__='drm_core.solver'
     exec(compile(source,'ucs_backend@'+BASE_SHA,'exec'),old.__dict__)
@@ -91,13 +169,21 @@ def test_real_unpatched_to_patched_map_isolation_and_numeric_consequence(tmp_pat
 
 
 def test_historical_goldens_and_unrelated_production_are_unchanged():
-    # New authority lives in a separate directory. The original A0-A7 data and
-    # their generators/qualifiers are immutable preservation targets.
-    changed=subprocess.check_output(['git','diff','--name-only',BASE_SHA,'--','validation/ross_parity'],cwd=ROOT,text=True).splitlines()
-    allowed={'validation/ross_parity/ucs_bearing_order_cases.py',
-             'validation/ross_parity/generate_ucs_bearing_order_reference.py',
-             'validation/ross_parity/verify_ucs_bearing_order.py'}
-    assert all(p in allowed or p.startswith('validation/ross_parity/ucs_bearing_order/') for p in changed),changed
-    subprocess.run(['git','diff','--exit-code',BASE_SHA,'--','fortran',
+    # Enumerate exact additive files from their frozen commits, rather than
+    # exempting all of ross_parity. Original A0-A7 files cannot change at all.
+    additions=_snapshot_paths(A5_PROMOTED,A5_ADDITIVE_PATHS)
+    additions+=_snapshot_paths(A8_PRE_RECONCILIATION,A8_ADDITIVE_PATHS)
+    assert additions
+    _assert_allowed_delta(_changed_status(BASE_SHA,'validation/ross_parity'),
+                          {path:'A' for path in additions})
+    # Pin the corrective authority and the existing A8 goldens independently.
+    _git_diff_unchanged(A5_PROMOTED,*A5_ADDITIVE_PATHS)
+    _git_diff_unchanged(A8_PRE_RECONCILIATION,'validation/ross_parity/clearance')
+    _assert_native_baseline_unchanged()
+    _git_diff_unchanged(BASE_SHA,
         'python/src/drm_core/solver/level1_backend.py',
-        'python/src/drm_core/solver/api617_unbalance_backend.py'],cwd=ROOT,check=True)
+        'python/src/drm_core/solver/api617_unbalance_backend.py')
+    _git_diff_unchanged(A5_PROMOTED,
+        'python/src/drm_core/solver/ucs_backend.py',
+        'python/src/drm_studio/ucs_qualification.py',
+        '.gitattributes')

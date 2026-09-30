@@ -115,6 +115,8 @@ jobs:
           assert d["level1"]["native_abi"]=="rd_level1_v1", d
           assert d["api617_unbalance"]["status"]=="PASS", d
           assert d["api617_unbalance"]["native_abi"]=="rd_api617_unbalance_v1", d
+          assert d["clearance"]["status"]=="PASS", d
+          assert d["clearance"]["native_abi"]=="rd_clearance_v1", d
           assert d["static_analysis"]["status"]=="PASS", d
           assert d["backend"]=="Fortran2018/ctypes", d
           assert d["advanced_bearing"]["status"]=="PASS", d
@@ -293,6 +295,8 @@ jobs:
           if ($payload.level1.native_abi -ne "rd_level1_v1") { throw "A6 Level 1 packaged ABI mismatch" }
           if ($payload.api617_unbalance.status -ne "PASS") { throw "A7 API 617 unbalance packaged smoke failed" }
           if ($payload.api617_unbalance.native_abi -ne "rd_api617_unbalance_v1") { throw "A7 API 617 unbalance packaged ABI mismatch" }
+          if ($payload.clearance.status -ne "PASS") { throw "A8 clearance packaged smoke failed" }
+          if ($payload.clearance.native_abi -ne "rd_clearance_v1") { throw "A8 clearance packaged ABI mismatch" }
           if ($payload.static_analysis.status -ne "PASS") { throw "Static packaged smoke failed" }
           $payload | ConvertTo-Json -Depth 20
           if ($payload.advanced_bearing.status -ne "PASS") { throw "packaged advanced-bearing smoke failed" }
