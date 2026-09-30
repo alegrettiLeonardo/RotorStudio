@@ -93,5 +93,43 @@
     "modal_whirl": "exact against the same-platform frozen authority for nondegenerate native parity",
     "campbell_whirl": "exact against the same-platform frozen authority where ROSS returns a stable lateral classification",
     "tracking": "reproduce MAC>0.9 found_order/modes_not_found/missing_modes algorithm"
+  },
+  "scope_contract": {
+    "min_nodes": 2,
+    "max_nodes": 100,
+    "node_numbering": "one-based consecutive in RotorStudio domain; native local descriptor maps to 1..N",
+    "dof_order": [
+      "x",
+      "y",
+      "z",
+      "alpha",
+      "beta",
+      "theta"
+    ],
+    "shaft_damping_factor": 0,
+    "bearing_axial_terms": {
+      "kzz": 0,
+      "czz": 0,
+      "mzz": 0
+    },
+    "matched_whirl": false,
+    "rouch_synchronous": false,
+    "torsional_analysis": false
+  },
+  "ross_semantics": {
+    "rigid_body_abs_lambda_cutoff": 0.1,
+    "eigen_sort_round_decimals": 10,
+    "mode_classification_normalized_amplitude_threshold": 0.08,
+    "axial_or_torsional_fraction_threshold": 0.9,
+    "campbell_tracking_mac_strictly_greater_than": 0.9,
+    "campbell_num_modes": "2*(frequencies+2)",
+    "campbell_evec_size": "num_modes/2",
+    "constant_speed_ksdt_multiplier": 0
+  },
+  "conditioning": {
+    "mass_rcond_min": 1e-14,
+    "explicit_inverse_forbidden": true,
+    "linear_solver": "LAPACK DGESV",
+    "dense_eigensolver": "LAPACK DGEEV"
   }
 }
