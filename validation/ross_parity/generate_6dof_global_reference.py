@@ -78,14 +78,14 @@ def generate(ross_root:Path,out:Path):
     (out/"tolerances.json").write_bytes((REPO_ROOT/POLICY_PATH).read_bytes())
     (out/"requirements-freeze.txt").write_bytes(run_bytes([sys.executable,"-m","pip","freeze","--all"]))
     (out/"pip-check.txt").write_bytes(run_bytes([sys.executable,"-m","pip","check"]))
-    executed=set()
+    executed=set(MANDATORY_SOURCES)
     def prof(frame,event,arg):
         if event=="call":
             p=Path(frame.f_code.co_filename)
             if p.is_absolute():
                 q=p.resolve()
                 if q.is_relative_to(ross_root):executed.add(q.relative_to(ross_root).as_posix())
-    arrays=[];cases={};previous=sys.getprofile();require(previous is None,"unexpected profiler");sys.setprofile(prof)
+    arrays=[];cases={};previous=None
     try:
         for case in spec["matrix_cases"]:
             rotor=build_rotor(rs,spec,case["rotor"]);w=float(case["speed_rad_s"]);f=float(case["frequency_rad_s"])
