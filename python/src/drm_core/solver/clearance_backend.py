@@ -18,6 +18,14 @@ from .ffi import configure_clearance,SolverLibraryError
 ROSS_SHA="6320eab9f890f1b3cc1710d508b446fe063ca68d"
 
 
+def _vector(values,dtype,name):
+    """Validate rank before exposing a contiguous temporary vector to the ABI."""
+    array=np.asarray(values,dtype=dtype)
+    if array.ndim!=1:
+        raise ValueError(f"A8 {name} must be one-dimensional; received shape={array.shape}")
+    return np.ascontiguousarray(array)
+
+
 def _validate_model(model):
     nn=len(model.nodes)
     if nn<2 or nn>128 or [n.number for n in model.nodes]!=list(range(1,nn+1)):
@@ -70,10 +78,10 @@ def execute(
         raise ValueError("expected 0 <= minimum_allowable_speed_rad_s <= maximum_continuous_speed_rad_s and Nmc > 0")
     speed=np.ascontiguousarray(np.union1d(raw,[nma,nmc]),dtype=np.float64)
 
-    pnodes=np.asarray(probe_nodes,dtype=np.int32)
-    pang=np.asarray(probe_angles_rad,dtype=np.float64)
-    cnodes=np.asarray(clearance_nodes,dtype=np.int32)
-    radial=np.asarray(radial_clearance_m,dtype=np.float64)
+    pnodes=_vector(probe_nodes,np.int32,"probe_nodes")
+    pang=_vector(probe_angles_rad,np.float64,"probe_angles_rad")
+    cnodes=_vector(clearance_nodes,np.int32,"clearance_nodes")
+    radial=_vector(radial_clearance_m,np.float64,"radial_clearance_m")
     if pnodes.ndim!=1 or len(pnodes)<1 or len(pnodes)!=len(pang):
         raise ValueError("A8 requires equal non-empty probe_nodes/probe_angles_rad arrays")
     if cnodes.ndim!=1 or len(cnodes)<1 or len(cnodes)!=len(radial):
@@ -98,9 +106,9 @@ def execute(
     if explicit:
         if unbalance_magnitude_kg_m is None or unbalance_phase_rad is None:
             raise ValueError("unbalance_magnitude_kg_m and unbalance_phase_rad are required with unbalance_nodes")
-        un=np.asarray(unbalance_nodes,dtype=np.int32)
-        um=np.asarray(unbalance_magnitude_kg_m,dtype=np.float64)
-        up=np.asarray(unbalance_phase_rad,dtype=np.float64)
+        un=_vector(unbalance_nodes,np.int32,"unbalance_nodes")
+        um=_vector(unbalance_magnitude_kg_m,np.float64,"unbalance_magnitude_kg_m")
+        up=_vector(unbalance_phase_rad,np.float64,"unbalance_phase_rad")
         if un.ndim!=1 or len(un)<1 or len(un)!=len(um) or len(un)!=len(up):
             raise ValueError("explicit unbalance node/magnitude/phase arrays must be equal and non-empty")
         if np.any(un<1) or np.any(un>nn) or not np.isfinite(um).all() or np.any(um<0) or not np.isfinite(up).all():

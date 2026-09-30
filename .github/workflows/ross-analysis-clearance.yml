@@ -23,6 +23,7 @@ jobs:
       OPENBLAS_NUM_THREADS: '1'
       OMP_NUM_THREADS: '1'
       A5_ORDER_EVIDENCE: a8-evidence/a5-before-after
+      A8_QUALIFICATION_EVIDENCE: a8-evidence/independent
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,12 +95,51 @@ jobs:
         run: python -m pytest python/tests_level1 -q --junitxml=a8-evidence/a6-level1.xml
       - name: Inherited A7 API 617 unbalance gate
         run: python -m pytest python/tests_api617_unbalance -q --junitxml=a8-evidence/a7-unbalance.xml
-      - name: A8 clearance frozen ROSS parity
+      - name: A8 clearance frozen parity independent boundaries and marshalling
         run: python -m pytest python/tests_clearance -q --junitxml=a8-evidence/a8-clearance.xml
       - name: A0-A4 and Stage 1 regression
         run: python -m pytest python/tests_time python/tests_forced python/tests_frf python/tests_static python/tests -q --junitxml=a8-evidence/broad.xml
       - name: Bearing foundation regression
         run: python -m pytest python/tests_bearings -q --junitxml=a8-evidence/bearings.xml
+      - name: Exact frozen ROSS source for response-first audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init _ross_a8_intermediate
+          git -C _ross_a8_intermediate config core.autocrlf false
+          git -C _ross_a8_intermediate remote add origin https://github.com/petrobras/ross.git
+          git -C _ross_a8_intermediate fetch --depth=1 origin 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          git -C _ross_a8_intermediate checkout --detach 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          git -C _ross_a8_intermediate rev-parse HEAD > a8-evidence/ross-head.txt
+      - name: Isolated dependency-consistent ROSS and intermediate response audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv .venv-a8-authority
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            P=.venv-a8-authority/Scripts/python.exe
+          else
+            P=.venv-a8-authority/bin/python
+          fi
+          "$P" -m pip install -e './python[test]' -e ./_ross_a8_intermediate
+          "$P" -m pip check
+          "$P" -m pip freeze > a8-evidence/authority-environment.txt
+          "$P" validation/a8/qualify_clearance_intermediates.py --ross-root _ross_a8_intermediate --out a8-evidence/intermediates.json
+          git diff --exit-code HEAD -- validation/ross_parity
+      - name: Require every collected native inheritance and A8 test to execute
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          for name in ['a5-ucs','a6-level1','a7-unbalance','a8-clearance','broad','bearings']:
+              path=Path('a8-evidence')/(name+'.xml')
+              root=ET.parse(path).getroot()
+              cases=root.findall('.//testcase')
+              bad=[c.attrib.get('name') for c in cases if any(c.find(t) is not None for t in ['failure','error','skipped'])]
+              assert cases and not bad,(name,bad)
+              print(name,len(cases),'PASS; failures/errors/skips=0')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:

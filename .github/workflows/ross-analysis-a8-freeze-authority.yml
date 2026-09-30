@@ -3,65 +3,64 @@ name: Freeze A8 Clearance ROSS Authority
 on:
   push:
     branches: [feature/ross-analysis-a8-clearance]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  freeze:
-    if: github.actor != 'github-actions[bot]'
+  reproduce-existing-authority:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feature/ross-analysis-a8-clearance
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross_clearance
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Refuse authority overwrite
-        id: gate
-        shell: bash
+      - name: Require immutable historical A8 authority and record exact HEADs
         run: |
-          if [ -f validation/ross_parity/clearance/authority.json ]; then
-            echo "freeze_needed=false" >> "$GITHUB_OUTPUT"
-            echo "A8 authority already exists."
-          else
-            echo "freeze_needed=true" >> "$GITHUB_OUTPUT"
-          fi
-      - name: Checkout exact frozen ROSS
-        shell: bash
+          test -f validation/ross_parity/clearance/authority.json
+          mkdir -p a8-authority-evidence
+          git rev-parse HEAD > a8-authority-evidence/tested-head.txt
+          git -C _ross_clearance rev-parse HEAD > a8-authority-evidence/ross-head.txt
+          test "$(git -C _ross_clearance rev-parse HEAD)" = 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          python - <<'PY'
+          import hashlib,json,pathlib
+          root=pathlib.Path('validation/ross_parity/clearance')
+          manifest=json.loads((root/'authority.json').read_text())
+          for path,digest in manifest['golden_sha256'].items():
+              assert hashlib.sha256((root/path).read_bytes()).hexdigest()==digest,path
+          print('Immutable A8 golden bytes: PASS')
+          PY
+      - name: Install declared ROSS dependencies without incompatible downgrades
         run: |
-          git clone https://github.com/petrobras/ross.git _ross_authority
-          git -C _ross_authority checkout 6320eab9f890f1b3cc1710d508b446fe063ca68d
-          test "$(git -C _ross_authority rev-parse HEAD)" = "6320eab9f890f1b3cc1710d508b446fe063ca68d"
-      - name: Install frozen ROSS validation runtime
-        shell: bash
+          python -m pip install -e ./_ross_clearance
+          python -m pip check
+          python -m pip freeze > a8-authority-evidence/environment.txt
+      - name: Reproduce candidate without changing any golden
         run: |
-          python -m pip install -e ./_ross_authority
-          python -m pip install "numpy==1.26.4" "scipy==1.14.1"
-      - name: Generate immutable A8 goldens once
-        if: steps.gate.outputs.freeze_needed == 'true'
-        run: |
-          python validation/ross_parity/generate_clearance_reference.py \
-            --ross-root _ross_authority \
-            --out validation/ross_parity/clearance
-      - name: Reproduce immutable A8 authority without overwrite
-        if: steps.gate.outputs.freeze_needed == 'false'
-        run: |
-          python validation/ross_parity/generate_clearance_reference.py \
-            --ross-root _ross_authority \
-            --out _a8_clearance_candidate
-          python validation/ross_parity/verify_clearance_candidate.py \
-            validation/ross_parity/clearance _a8_clearance_candidate
-      - name: Commit immutable A8 goldens
-        if: steps.gate.outputs.freeze_needed == 'true'
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add validation/ross_parity/clearance
-          git diff --cached --exit-code && { echo "No goldens generated"; exit 1; } || true
-          git commit -m "a8: freeze ROSS clearance goldens"
-          git push origin HEAD:feature/ross-analysis-a8-clearance
+          python validation/ross_parity/generate_clearance_reference.py --ross-root _ross_clearance --out a8-authority-evidence/candidate
+          python validation/ross_parity/verify_clearance_candidate.py validation/ross_parity/clearance a8-authority-evidence/candidate
+          git diff --exit-code HEAD -- validation/ross_parity
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a8-authority-reproduction-${{ github.event.pull_request.head.sha || github.sha }}
+          path: a8-authority-evidence/
+          if-no-files-found: error
+          retention-days: 90
