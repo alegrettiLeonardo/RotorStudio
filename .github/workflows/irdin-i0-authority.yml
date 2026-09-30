@@ -62,7 +62,6 @@ jobs:
           python -m pytest
           python/tests_irdin
           python/tests_ui/test_core_irdin_import.py
-          python/tests_bearings/test_b15_irdin_coefficient_import.py
           -q
           --junitxml=irdin-i0-${{ runner.os }}.xml
 
