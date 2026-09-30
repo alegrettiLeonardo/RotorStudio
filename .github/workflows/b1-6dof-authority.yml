@@ -107,8 +107,7 @@ jobs:
           PY
       - name: Preserve all historical files and record exact job scope
         run: |
-          git diff --exit-code fcdac252974aeeded6961dbe3310677e234a6495 HEAD -- fortran python reference
-          git diff --exit-code --diff-filter=CDMRTUXB fcdac252974aeeded6961dbe3310677e234a6495 HEAD
+          python validation/b1/native_preservation.py
           git diff --exit-code 23a7624374418991fe700c2817150f67c5bd48fb HEAD -- validation/b1/element_cases.json
           git diff --exit-code HEAD -- validation/ross_parity validation/b1
           python - <<'PY'
@@ -121,7 +120,7 @@ jobs:
           frozen=pathlib.Path('validation/ross_parity/6dof_elements').exists()
           assert r['mode']==('IMMUTABLE_AUTHORITY_REPRODUCTION' if frozen else 'CANDIDATE_REVIEW_ONLY')
           n=len(ET.parse(root/'generation-tests.xml').getroot().findall('.//testcase'))
-          summary={'status':'PASS','head_sha':os.environ['GITHUB_SHA'],'run_id':os.environ['GITHUB_RUN_ID'],'platform':a['platform'],'tests':n,'inspection_checks':670,'primary_matrices':113,'lateral_selections':63,'frozen_authority':'PASS' if frozen else 'NOT_STARTED','reproduction_mode':r['mode'],'data_bundle_sha256':a['data_bundle_sha256'],'historical_preservation':'PASS','native_implementation':'NOT_STARTED','ABI':'NOT_STARTED'}
+          summary={'status':'PASS','head_sha':os.environ['GITHUB_SHA'],'run_id':os.environ['GITHUB_RUN_ID'],'platform':a['platform'],'tests':n,'inspection_checks':670,'primary_matrices':113,'lateral_selections':63,'frozen_authority':'PASS' if frozen else 'NOT_STARTED','reproduction_mode':r['mode'],'data_bundle_sha256':a['data_bundle_sha256'],'historical_preservation':'PASS','native_implementation':'NOT_ASSESSED_BY_AUTHORITY_WORKFLOW','ABI':'NOT_ASSESSED_BY_AUTHORITY_WORKFLOW'}
           (root/'job-summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n',encoding='utf-8')
           print('B1_JOB_SUMMARY',json.dumps(summary,sort_keys=True))
           PY
@@ -174,7 +173,7 @@ jobs:
           assert result['status']=='PASS'
           frozen=pathlib.Path('validation/ross_parity/6dof_elements').exists()
           assert all(s['frozen_authority']==('PASS' if frozen else 'NOT_STARTED') for s in summaries.values())
-          summary={'status':'PASS','head_sha':sha,'run_id':os.environ['GITHUB_RUN_ID'],'authority_gate':'PASS' if frozen else 'NOT_STARTED','platforms':summaries,'cross_platform_primary_matrices':113,'cross_platform_lateral_selections':63,'primary_npy_bitwise_equal':result['primary_npy_files_bitwise_equal'],'lateral_npy_bitwise_equal':result['lateral_npy_files_bitwise_equal'],'by_block':result['by_block'],'native_implementation':'NOT_STARTED','ABI':'NOT_STARTED'}
+          summary={'status':'PASS','head_sha':sha,'run_id':os.environ['GITHUB_RUN_ID'],'authority_gate':'PASS' if frozen else 'NOT_STARTED','platforms':summaries,'cross_platform_primary_matrices':113,'cross_platform_lateral_selections':63,'primary_npy_bitwise_equal':result['primary_npy_files_bitwise_equal'],'lateral_npy_bitwise_equal':result['lateral_npy_files_bitwise_equal'],'by_block':result['by_block'],'native_implementation':'NOT_ASSESSED_BY_AUTHORITY_WORKFLOW','ABI':'NOT_ASSESSED_BY_AUTHORITY_WORKFLOW'}
           write_json(out/'summary.json',summary)
           print('B1_AUTHORITY_AGGREGATE',json.dumps(summary,sort_keys=True))
           PY

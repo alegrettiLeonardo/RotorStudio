@@ -52,7 +52,8 @@ def test_every_frozen_file_matches_first_publication_commit(frozen):
 
 def test_physical_inputs_and_production_paths_remain_unchanged(frozen):
     assert (REPO_ROOT / INPUT_PATH).read_bytes() == git(REPO_ROOT, "show", f"{START_HEAD}:{INPUT_PATH}")
-    assert not git(REPO_ROOT, "diff", BASE_MAIN, "HEAD", "--", "fortran", "python", "reference").strip()
+    from validation.b1.native_preservation import verify
+    verify(REPO_ROOT)
 
 
 @pytest.mark.parametrize("mutation", ["matrix", "missing", "tolerance", "extra", "provenance"])

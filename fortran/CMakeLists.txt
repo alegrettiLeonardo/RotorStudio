@@ -136,3 +136,16 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(test_clearance PRIVATE -ffree-line-length-none)
 endif()
 add_test(NAME api617_clearance_native_contract COMMAND test_clearance)
+
+# B1 isolated 6-DOF element kernels. Existing A1-A8 dispatch is unchanged.
+target_sources(drmrotor PRIVATE
+ src/rd_shaft_6dof.f90
+ src/rd_disk_6dof.f90
+ src/rd_6dof_element_c_api.f90)
+add_executable(test_6dof_elements tests/test_6dof_elements.f90)
+target_link_libraries(test_6dof_elements PRIVATE drmrotor)
+target_include_directories(test_6dof_elements PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_6dof_elements PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME sixdof_element_native_contract COMMAND test_6dof_elements)
