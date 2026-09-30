@@ -31,6 +31,8 @@ jobs:
       DRMROTOR_LIB: ${{ github.workspace }}/build-flet/libdrmrotor.so
       DRMBEARINGS_LIB: ${{ github.workspace }}/build-flet/libdrmbearings.so
       MPLBACKEND: Agg
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      GALLIUM_DRIVER: llvmpipe
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,7 +44,7 @@ jobs:
       - name: Install native dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgtk-3-0 libsecret-1-0 libgles2 libegl1 libgl1 xvfb xauth zenity
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgtk-3-0 libsecret-1-0 libgles2 libegl1 libgl1 libgl1-mesa-dri openbox xvfb xauth zenity
           python -m pip install -e './python[flet,test]'
       - name: Numerical and Qt source preservation
         run: |
@@ -64,7 +66,7 @@ jobs:
       - name: Real Flutter desktop screenshots and handler integration
         run: |
           set -o pipefail
-          xvfb-run -a -s '-screen 0 1920x1200x24' timeout 180s python scripts/flet_desktop_smoke.py --outdir validation/reports/flet/desktop | tee validation/reports/flet/desktop.log
+          xvfb-run -a -s '-screen 0 1920x1200x24' bash -c 'openbox > validation/reports/flet/openbox.log 2>&1 & wm=$!; trap "kill $wm 2>/dev/null || true" EXIT; sleep 1; timeout 180s python scripts/flet_desktop_smoke.py --outdir validation/reports/flet/desktop' | tee validation/reports/flet/desktop.log
       - uses: actions/upload-artifact@v4
         if: always()
         with:
