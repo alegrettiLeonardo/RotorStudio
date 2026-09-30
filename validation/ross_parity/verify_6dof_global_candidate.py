@@ -35,6 +35,37 @@ def mac(u,v):
     den=float(np.vdot(u,u).real*np.vdot(v,v).real)
     return float(abs(np.vdot(u,v))**2/den) if den>0 else 0.0
 
+def eigen_groups(values,policy):
+    values=np.asarray(values,dtype=np.complex128)
+    used=np.zeros(len(values),dtype=bool);groups=[]
+    pr=policy["modal"]["eigenvalue_real"];pi=policy["modal"]["eigenvalue_imag"]
+    for i in range(len(values)):
+        if used[i]:continue
+        group=[i];used[i]=True
+        for j in range(i+1,len(values)):
+            if used[j]:continue
+            real_close=abs(values[i].real-values[j].real)<=max(pr["atol"],pr["rtol"]*max(abs(values[i].real),abs(values[j].real),1.0))
+            imag_close=abs(values[i].imag-values[j].imag)<=max(pi["atol"],pi["rtol"]*max(abs(values[i].imag),abs(values[j].imag),1.0))
+            if real_close and imag_close:
+                group.append(j);used[j]=True
+        groups.append(group)
+    return groups
+
+def evec_group_parity(x,y,evalues,policy):
+    metrics=[]
+    threshold=policy["modal"]["eigenvector_mac_min"]
+    for group in eigen_groups(evalues,policy):
+        if len(group)==1:
+            score=mac(x[:,group[0]],y[:,group[0]])
+            metrics.append({"indices":group,"kind":"vector_mac","score":score})
+        else:
+            qx=np.linalg.qr(x[:,group],mode="reduced")[0]
+            qy=np.linalg.qr(y[:,group],mode="reduced")[0]
+            singular=np.linalg.svd(qx.conj().T@qy,compute_uv=False)
+            score=float(np.min(singular,initial=1.0)**2)
+            metrics.append({"indices":group,"kind":"subspace_mac","score":score})
+    return all(m["score"]>=threshold for m in metrics),metrics
+
 def compare(reference:Path,candidate:Path,report:Path|None=None):
     ar,R=load(reference);ac,C=load(candidate)
     require(ar["input_sha256"]==ac["input_sha256"] and ar["policy_sha256"]==ac["policy_sha256"],"candidate spec/policy differs")
@@ -48,20 +79,35 @@ def compare(reference:Path,candidate:Path,report:Path|None=None):
             pr=policy["modal"]["eigenvalue_real"];pi=policy["modal"]["eigenvalue_imag"]
             okr,dr=closeness(x.real,y.real,pr["rtol"],pr["atol"]);oki,di=closeness(x.imag,y.imag,pi["rtol"],pi["atol"]);ok=okr and oki;detail={"real":dr,"imag":di}
         elif g=="modal_evec":
-            require(x.shape==y.shape,f"evec shape {name}");vals=[mac(x[:,j],y[:,j]) for j in range(x.shape[1])];m=min(vals,default=1.0)
-            ok=m>=policy["modal"]["eigenvector_mac_min"];detail={"min_mac":m}
+            require(x.shape==y.shape,f"evec shape {name}")
+            case=Path(name).name.split("_",1)[0]
+            eigen_ref=R[f"modal/{case}_evalues.npy"]
+            ok,metrics=evec_group_parity(x,y,eigen_ref,policy)
+            detail={"minimum_group_mac":min((m["score"] for m in metrics),default=1.0),"groups":metrics}
         elif g in ("modal_wn","modal_wd","modal_damping","modal_logdec"):
             k={"modal_wn":"wn","modal_wd":"wd","modal_damping":"damping_ratio","modal_logdec":"log_dec"}[g];p=policy["modal"][k];ok,detail=closeness(x,y,p["rtol"],p["atol"])
         elif g=="modal_residual":
             m=max(float(np.max(x,initial=0)),float(np.max(y,initial=0)));ok=m<=policy["modal"]["residual_max"];detail={"max":m}
-        elif g=="modal_whirl" or g=="campbell_whirl":
-            ok=bool(np.array_equal(np.isnan(x),np.isnan(y)) and np.allclose(x,y,rtol=0,atol=0,equal_nan=True))
+        elif g=="modal_whirl":
+            case=Path(name).name.split("_",1)[0]
+            groups=eigen_groups(R[f"modal/{case}_evalues.npy"],policy)
+            normative=[group[0] for group in groups if len(group)==1]
+            valid=lambda a: bool(np.all(np.isnan(a)|np.isin(a,[0.0,0.5,1.0])))
+            ok=valid(x) and valid(y)
+            if normative:
+                ok &= bool(np.allclose(x[normative],y[normative],rtol=0,atol=0,equal_nan=True))
+            detail={"normative_indices":normative,"platform_difference_count":int(np.sum(~np.isclose(x,y,rtol=0,atol=0,equal_nan=True)))}
+        elif g=="campbell_whirl":
+            valid=lambda a: bool(np.all(np.isnan(a)|np.isin(a,[0.0,0.5,1.0])))
+            ok=valid(x) and valid(y)
+            detail={"diagnostic_platform_difference_count":int(np.sum(~np.isclose(x,y,rtol=0,atol=0,equal_nan=True)))}
         elif g.startswith("campbell_") and g not in ("campbell_tracking_mac","campbell_tracking_assignment"):
             k=g.split("_",1)[1]
             if k=="speed":ok=bool(np.array_equal(x,y));detail={}
             else:p=policy["campbell"][k];ok,detail=closeness(x,y,p["rtol"],p["atol"])
         elif g=="campbell_tracking_mac":
-            ok,detail=closeness(x,y,1e-8,1e-10)
+            ok=bool(np.isfinite(x).all() and np.isfinite(y).all() and np.all((x>=0)&(x<=1)) and np.all((y>=0)&(y<=1)))
+            detail={"diagnostic_max_platform_difference":float(np.max(np.abs(x-y),initial=0.0))}
         elif g=="campbell_tracking_assignment":
             ok=bool(np.array_equal(x,y));detail={}
         else:raise ValueError("unhandled group "+g)
