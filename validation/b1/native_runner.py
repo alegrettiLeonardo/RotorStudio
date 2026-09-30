@@ -18,6 +18,16 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 
+# GitHub-hosted Windows runners can expose a legacy cp1252 console even when
+# child-process output is decoded as UTF-8.  Qualification logs may contain
+# Unicode replacement/code-point characters that cp1252 cannot encode.  Make
+# the harness output deterministic and UTF-8-safe without changing any numeric
+# calculation, solver input, authority, tolerance, or generated evidence bytes.
+for _stream in (sys.stdout, sys.stderr):
+    _reconfigure=getattr(_stream,'reconfigure',None)
+    if _reconfigure is not None:
+        _reconfigure(encoding='utf-8',errors='backslashreplace')
+
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
 from validation.b1.native_preservation import ROOT as SOURCE_ROOT,BASE,NEW_FILES,blob_hash,read_bytes,source_snapshot,verify
@@ -53,7 +63,8 @@ def run_campaign(args):
     env=dict(os.environ)
     for key in ('PYTHONHOME','PYTHONOPTIMIZE','PYTEST_ADDOPTS'): env.pop(key,None)
     env.update(PYTHONPATH=os.pathsep.join([str(ROOT/'python/src'),str(ROOT)]),PYTHONNOUSERSITE='1',
-               PYTHONDONTWRITEBYTECODE='1',QT_QPA_PLATFORM='offscreen',OPENBLAS_NUM_THREADS='1',
+               PYTHONDONTWRITEBYTECODE='1',PYTHONUTF8='1',PYTHONIOENCODING='utf-8',
+               QT_QPA_PLATFORM='offscreen',OPENBLAS_NUM_THREADS='1',
                OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',PYTHONHASHSEED='0')
     head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     expected=env.get('B1_EXPECTED_HEAD')
