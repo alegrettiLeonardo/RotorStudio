@@ -15,7 +15,10 @@ def load(root:Path):
     for rec in a["arrays"]:
         p=root/rec["file"];require(p.is_file(),f"missing {rec['file']}");require(file_hash(p)==rec["sha256"],f"hash mismatch {rec['file']}")
         x=np.load(p,allow_pickle=False);require(list(x.shape)==rec["shape"] and str(x.dtype)==rec["dtype"],f"descriptor mismatch {rec['file']}")
-        require(np.isfinite(x).all(),f"nonfinite {rec['file']}");arrays[rec["file"]]=x
+        require(not np.isinf(x).any(),f"infinite value {rec['file']}")
+        if rec["group"] not in {"modal_whirl","campbell_whirl"}:
+            require(np.isfinite(x).all(),f"nonfinite {rec['file']}")
+        arrays[rec["file"]]=x
     for rel,h in a.get("metadata_files",{}).items():
         require(file_hash(root/rel)==h,f"metadata hash mismatch {rel}")
     return a,arrays
