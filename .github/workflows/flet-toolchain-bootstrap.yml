@@ -10,14 +10,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - name: Obtain client system library (not project qualification)
+      - name: Obtain client GLES library (not project qualification)
         run: |
           mkdir runtime
           cd runtime
-          apt-get download libsecret-1-0
+          apt-get download libgles2
           sha256sum *.deb > SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
-          name: flet-linux-system-dependency
+          name: flet-linux-gles-dependency
           path: runtime
           retention-days: 7
