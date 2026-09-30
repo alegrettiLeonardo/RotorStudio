@@ -73,6 +73,23 @@ class RotorMassSpan:
         return self.z_start_m + 0.5*self.length_m
 
 @dataclass(frozen=True)
+class BearingSupport:
+    """Two-radial-DOF bearing housing/support imported from iRdin."""
+    bearing_number: int
+    node: int
+    mass_kg: float
+    kxx_n_m: float
+    kxy_n_m: float
+    kyx_n_m: float
+    kyy_n_m: float
+    cxx_ns_m: float
+    cxy_ns_m: float
+    cyx_ns_m: float
+    cyy_ns_m: float
+    tag: str = ""
+    provenance: dict = field(default_factory=dict)
+
+@dataclass(frozen=True)
 class Bearing:
     bearing_type: int; node: int; properties: tuple[float,...]=()
 
@@ -101,6 +118,7 @@ class RotorModel:
     rotors:list[RotorDefinition]=field(default_factory=list)
     advanced_bearings:list[AdvancedBearing]=field(default_factory=list)
     mass_spans:list[RotorMassSpan]=field(default_factory=list)
+    supports:list[BearingSupport]=field(default_factory=list)
     @classmethod
     def from_legacy_arrays(cls,node,shaft,disc,bearing,force=None,bend=None,rotors=None)->"RotorModel":
         nodes=[Node(int(r[0]),float(r[1])) for r in node]
@@ -149,6 +167,8 @@ class RotorModel:
         # imported logical mass spans are present.
         if self.mass_spans:
             payload["mass_spans"]=[d(x) for x in self.mass_spans]
+        if self.supports:
+            payload["supports"]=[d(x) for x in self.supports]
         return payload
     def model_hash(self)->str:
         return hashlib.sha256(json.dumps(self.canonical_dict(),sort_keys=True,separators=(",",":"),default=list).encode()).hexdigest()
