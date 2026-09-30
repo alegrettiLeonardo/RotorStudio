@@ -219,7 +219,9 @@ def generated_documents(raw: bytes) -> dict:
 def normalized_raw_document(parsed: dict) -> dict[str, dict[str, str]]:
     result: dict[str, dict[str, str]] = {}
     for record in parsed["records"]:
-        if record["kind"] == "assignment":
+        if record["kind"] == "section":
+            result.setdefault(record["section"].casefold(), {})
+        elif record["kind"] == "assignment":
             result.setdefault(record["section"].casefold(), {})[record["key"].casefold()] = record["value"]
     return result
 
