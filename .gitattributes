@@ -15,3 +15,9 @@ validation/ross_parity/**/*.npz binary
 # Additive A5 authority generator and fixture source are byte-hashed.
 validation/ross_parity/generate_ucs_bearing_order_reference.py text eol=lf
 validation/ross_parity/ucs_bearing_order_cases.py text eol=lf
+
+# Historical iRdin fixtures are byte authorities (CP1252/CRLF may be significant).
+validation/irdin/cases/*.txt -text
+validation/irdin/**/*.json text eol=lf
+validation/irdin/**/*.py text eol=lf
+validation/irdin/**/*.md text eol=lf
