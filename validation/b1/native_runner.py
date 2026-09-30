@@ -131,6 +131,7 @@ def run_campaign(args):
         ('24-a0-a4-stage1',['python/tests_time','python/tests_forced','python/tests_frf','python/tests_static','python/tests']),
         ('25-bearings',['python/tests_bearings']),
         ('26-stage2-ui',['python/tests_ui']),
+        ('27-flet-tests',['python/tests_flet']),
     ]:
         pytest_suite(label,paths,release_env)
     for label,path in [('27-a1-preservation','scripts/verify_a1_legacy_preservation.py'),
@@ -142,6 +143,11 @@ def run_campaign(args):
         raise RuntimeError('Independent UCS qualifier did not report PASS')
     for name in ('static','static_extended','frf','forced','time_response','ucs','level1','api617_unbalance','clearance'):
         run('31-authority-'+name,[sys.executable,'validation/ross_parity/verify_reference.py','validation/ross_parity/'+name],release_env)
+    inventory=out/'flet-screen-inventory.json'
+    run('32-flet-screen-inventory',[sys.executable,'scripts/flet_screen_inventory.py','--out',inventory],release_env)
+    flet_inventory=json.loads(inventory.read_text(encoding='utf-8'))
+    if not (flet_inventory.get('status')=='MAPPED' and flet_inventory.get('qt_presentation_classes')==42 and flet_inventory.get('native_contracts')==21):
+        raise RuntimeError('Flet screen/native-contract inventory changed unexpectedly: '+str(flet_inventory))
     after=source_snapshot(ROOT)
     store(out/'SOURCE_AFTER.json',after)
     if after!=before: raise RuntimeError('Source/reference snapshot changed during qualification')
@@ -157,6 +163,7 @@ def run_campaign(args):
             'platform':platform.platform(),'python':sys.version,'run_id':env.get('GITHUB_RUN_ID'),
             'completed_utc':datetime.now(timezone.utc).isoformat(),'junit':junits,
             'native':release,'native_debug':debug,'authority_integrity':verify(ROOT)['authority'],
+            'flet':{'pytest':junits['27-flet-tests'],'screen_inventory':flet_inventory},
             'promotion':'NOT_AUTHORIZED_BY_THIS_RUN',
             'separate_remaining_gates':['same-head authority workflow','same-head broad PR product workflows','explicit promotion authorization']}
     store(out/'PLATFORM_RESULT.json',result)

@@ -194,3 +194,25 @@ reported as awaiting artifact/log review, never automatic engineering promotion.
 B1 does not implement global 6-DOF assembly, bearings, modal/Campbell, axial or
 torsional rotor analyses, GUI analyses, transients, faults, or experimental
 validation. B2/B3 remain blocked until explicit B1 promotion.
+
+
+## Reconciliation with promoted Flet main
+
+The native implementation was published first on the historical B1 line as
+`7c1d505da1d2bf5fee872cb68a3bc4e474722d4f`. The promoted main subsequently used for B1 qualification is
+`0904bf5940a5006a57bb3292b46dcedcab7e3dd5` (PR #32, complete Flet screen migration). Main was merged into
+B1 without rebasing; there were no overlapping changed paths between the 224 B1
+paths and the 43 promoted Flet paths.
+
+Post-reconciliation preservation is anchored to the promoted main. Every
+promoted-main byte is required unchanged except the single exact additive
+`fortran/CMakeLists.txt` suffix that registers the isolated B1 kernels.
+The frozen 194-file ROSS authority remains byte-identical and its
+`SHA256SUMS.json` identity remains
+`86e80775aab32b904ba48a7d7ba64954a3cfabad79cf835e808bf49077ffe847`.
+
+The B1 native platform campaign now executes `python/tests_flet` and the
+42-class / 21-contract Flet inventory on both platforms. The Linux job also
+executes the real all-screen Flet desktop smoke on the same exact B1 HEAD.
+The existing Flet UI and Flet distribution workflows remain separate required
+exact-head gates; B1 does not weaken or rewrite their contracts.

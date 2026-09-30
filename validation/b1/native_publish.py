@@ -28,6 +28,7 @@ REQUIRED_PATHS={'.github/workflows/'+p for p in (
     'b13-advanced-bearing-crud.yml','b14-async-field-visualization.yml',
     'b15-irdin-coefficient-import.yml','b16-operating-map-cache.yml',
     'b17-matched-whirl.yml','b18-synchronous-runup.yml','b13-b18-integrated-qualification.yml',
+    'flet-ui-qualification.yml','flet-distribution-qualification.yml',
     'b1-6dof-authority.yml','ross-analysis-b1-6dof-elements.yml')}
 
 

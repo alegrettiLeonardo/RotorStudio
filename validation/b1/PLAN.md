@@ -1,3 +1,8 @@
+> Historical authority-freeze plan. The native B1 implementation was subsequently
+> published and reconciled with promoted main `0904bf5940a5006a57bb3292b46dcedcab7e3dd5`.
+> Current native scope and qualification state are documented in `validation/b1/NATIVE.md`.
+> This file remains as provenance for the frozen-authority stage.
+
 # B1 — frozen 6-DOF element authority and remaining native plan
 
 ## 1. Scope and current evidence boundary
