@@ -12,11 +12,14 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 BASE='0904bf5940a5006a57bb3292b46dcedcab7e3dd5'
 MAIN=BASE
 NATIVE_IMPLEMENTATION_COMMIT='7c1d505da1d2bf5fee872cb68a3bc4e474722d4f'
 ROOT=Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0,str(ROOT))
 FROZEN_PREFIX='validation/ross_parity/6dof_elements/'
 NATIVE_WORKFLOW='.github/workflows/ross-analysis-b1-6dof-elements.yml'
 PINNED_NEW_BLOBS={
