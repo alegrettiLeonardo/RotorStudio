@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 import hashlib,json,os,platform,sys
 import numpy as np
-from .domain.model import RotorModel
+from .domain.model import RotorModel, RotorMassSpan
 from .domain.bearings import advanced_bearing_to_dict, advanced_bearing_from_dict
 from .analysis.static import run_static
 from .analysis.general_frf import run_general_frf
@@ -172,11 +172,13 @@ def _legacy_payload(m:RotorModel):
              "rotors":[r.legacy_row() for r in m.rotors]}
     if m.advanced_bearings:
         payload["advanced_bearings"]=[advanced_bearing_to_dict(b) for b in m.advanced_bearings]
+    if m.mass_spans:
+        payload["mass_spans"]=[asdict(x) for x in m.mass_spans]
     return payload
 
 def save_project(project:RotorProject,path):
     p=Path(path);p.parent.mkdir(parents=True,exist_ok=True)
-    schema_version=2 if project.model.advanced_bearings else 1
+    schema_version=3 if project.model.mass_spans else (2 if project.model.advanced_bearings else 1)
     p.write_text(json.dumps({"schema_version":schema_version,"name":project.name,"created_utc":project.created_utc,"metadata":project.metadata,
                              "model":_legacy_payload(project.model),"analyses":[a.canonical_dict() for a in project.analyses]},indent=2,sort_keys=True))
     return p
@@ -185,6 +187,7 @@ def load_project(path):
     d=json.loads(Path(path).read_text());m=d["model"]
     model=RotorModel.from_legacy_arrays(m["node"],m["shaft"],m.get("disc",[]),m.get("bearing",[]),m.get("force",[]),m.get("bend",[]),m.get("rotors",[]))
     model.advanced_bearings=[advanced_bearing_from_dict(x) for x in m.get("advanced_bearings",[])]
+    model.mass_spans=[RotorMassSpan(**x) for x in m.get("mass_spans",[])]
     cases=[AnalysisCase(x["kind"],x.get("parameters",{}),x.get("name",""),x.get("options",{})) for x in d.get("analyses",[])]
     return RotorProject(d.get("name","Rotor project"),model,cases,d.get("metadata",{}),d.get("created_utc",""))
 
