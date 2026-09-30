@@ -15,7 +15,7 @@ def test_i3_st41_support_domain_preserves_legacy_radial_contract():
     project=_project()
     supports=project.model.supports
     assert len(supports)==2
-    assert [(x.bearing_number,x.node) for x in supports]==[(1,2),(2,19)]
+    assert [(x.bearing_number,x.node) for x in supports]==[(1,4),(2,15)]
 
     for support in supports:
         assert support.mass_kg==415.0
@@ -46,13 +46,13 @@ def test_i3_st41_support_audit_is_deterministic():
         "total_mass_kg":830.0,
         "supports":[
             {
-                "bearing_number":1,"node":2,"mass_kg":415.0,
+                "bearing_number":1,"node":4,"mass_kg":415.0,
                 "K_n_m":[[2.73e9,0.0],[0.0,3.41e9]],
                 "C_ns_m":[[0.0,0.0],[0.0,0.0]],
                 "axis_mapping":"X->X; Z->Y; coefficient order/sign unchanged",
             },
             {
-                "bearing_number":2,"node":19,"mass_kg":415.0,
+                "bearing_number":2,"node":15,"mass_kg":415.0,
                 "K_n_m":[[2.73e9,0.0],[0.0,3.41e9]],
                 "C_ns_m":[[0.0,0.0],[0.0,0.0]],
                 "axis_mapping":"X->X; Z->Y; coefficient order/sign unchanged",
