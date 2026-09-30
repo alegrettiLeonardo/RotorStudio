@@ -1,0 +1,111 @@
+name: Freeze / Reproduce B1 6DOF Element Authority
+
+on:
+  push:
+    branches: [feature/ross-analysis-b1-6dof-element-matrices]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: b1-authority-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    name: B1 authority candidate / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Set LF policy before either checkout
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross_b1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Create isolated dependency environment
+        run: |
+          python - <<'PY'
+          import os,pathlib,subprocess,sys
+          v=pathlib.Path(os.environ['RUNNER_TEMP'])/'b1-authority-env'
+          subprocess.run([sys.executable,'-m','venv',str(v)],check=True)
+          bindir=v/('Scripts' if os.name=='nt' else 'bin')
+          with open(os.environ['GITHUB_PATH'],'a',encoding='utf-8') as f:
+              f.write(str(bindir)+'\n')
+          PY
+      - name: Install actual frozen ROSS with consistent dependencies
+        run: |
+          python -m pip install -e ./_ross_b1 pytest
+          python -m pip check
+          python -m compileall -q validation/b1 validation/ross_parity/generate_6dof_elements_reference.py
+      - name: Generate candidate matrices (not immutable references)
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python validation/ross_parity/generate_6dof_elements_reference.py --ross-root _ross_b1 --out b1-evidence/candidate
+      - name: Inspect actual candidate matrices and source behavior
+        run: python validation/b1/inspect_candidate.py b1-evidence/candidate
+      - name: Exercise generation and corruption guards
+        env:
+          B1_CANDIDATE: b1-evidence/candidate
+        run: |
+          python -m pytest validation/b1/tests -q --junitxml=b1-evidence/generation-tests.xml
+      - name: Independent repeat in a second directory
+        run: |
+          python validation/ross_parity/generate_6dof_elements_reference.py --ross-root _ross_b1 --out b1-evidence/repeat
+          python - <<'PY'
+          import json,pathlib
+          a=json.loads(pathlib.Path('b1-evidence/candidate/authority.json').read_text())
+          b=json.loads(pathlib.Path('b1-evidence/repeat/authority.json').read_text())
+          assert a['data_bundle_sha256']==b['data_bundle_sha256']
+          print('B1_SAME_PLATFORM_EXACT_ARRAY_REPEAT=PASS',a['data_bundle_sha256'])
+          PY
+      - name: Preserve historical code and references
+        run: |
+          git diff --exit-code fcdac252974aeeded6961dbe3310677e234a6495 HEAD -- fortran python reference
+          git diff --exit-code HEAD -- validation/ross_parity validation/b1
+          git diff --exit-code fcdac252974aeeded6961dbe3310677e234a6495 HEAD -- validation/ross_parity/static validation/ross_parity/static_extended validation/ross_parity/frf validation/ross_parity/forced validation/ross_parity/time_response validation/ross_parity/ucs validation/ross_parity/ucs_bearing_order validation/ross_parity/level1 validation/ross_parity/api617_unbalance validation/ross_parity/clearance
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b1-authority-${{ matrix.os }}-${{ github.sha }}
+          path: b1-evidence/
+          if-no-files-found: error
+          retention-days: 90
+
+  review-required:
+    name: B1 candidate aggregate (not a freeze or native qualification)
+    needs: candidate
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require both executed platform jobs
+        env:
+          CANDIDATE_RESULT: ${{ needs.candidate.result }}
+        run: |
+          test "$CANDIDATE_RESULT" = success
+          echo 'Candidate generation and inspection PASS on both platforms; immutable freeze requires subsequent review.'
