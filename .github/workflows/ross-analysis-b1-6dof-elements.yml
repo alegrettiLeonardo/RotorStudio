@@ -1,0 +1,61 @@
+name: ROSS Analysis B1 6DOF Element Matrices Qualification
+
+on:
+  push:
+    branches: [feature/ross-analysis-b1-6dof-element-matrices]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: B1 preflight only - no native qualification
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Preserve raw source bytes
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross_b1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute locked authority integrity before native development
+        run: |
+          python -m pip install numpy pytest
+          mkdir -p b1-native-preflight
+          python - <<'PY'
+          import json, pathlib, subprocess
+          from validation.b1.tests.test_frozen_authority import locked_integrity, FREEZE_COMMIT
+          from validation.b1.authority_common import FROZEN_PATH, REPO_ROOT
+          result = locked_integrity(REPO_ROOT / FROZEN_PATH)
+          subprocess.run(['git','diff','--exit-code',FREEZE_COMMIT,'HEAD','--',FROZEN_PATH],check=True)
+          subprocess.run(['git','diff','--exit-code','a7c7bf6e66a91f3f81362a7473011171d2118b91','HEAD','--','fortran','python','reference','validation'],check=True)
+          result.update(head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(), scope='PRE_NATIVE_INTEGRITY_ONLY', native_implementation='NOT_STARTED', ABI='NOT_STARTED')
+          pathlib.Path('b1-native-preflight/integrity.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+          print('B1_PRE_NATIVE_INTEGRITY',json.dumps(result,sort_keys=True))
+          PY
+      - name: Archive exact source for offline native development
+        run: |
+          git bundle create b1-native-preflight/RotorStudio.bundle HEAD
+          git -C _ross_b1 archive --format=tar HEAD ross/shaft_element.py ross/disk_element.py ross/materials.py > b1-native-preflight/ross-element-sources.tar
+          git -C _ross_b1 rev-parse HEAD > b1-native-preflight/ross-sha.txt
+          sha256sum b1-native-preflight/RotorStudio.bundle b1-native-preflight/ross-element-sources.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: b1-native-preflight-${{ github.event.pull_request.head.sha || github.sha }}
+          path: b1-native-preflight/
+          if-no-files-found: error
+          retention-days: 90
