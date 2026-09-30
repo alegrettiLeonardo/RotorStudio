@@ -28,3 +28,9 @@ def test_bearing_scope_has_explicit_zero_axial_terms():
     for rotor in spec["rotors"].values():
         for b in rotor["bearings"]:
             assert b["kzz"]==b["czz"]==b["mzz"]==0.0
+
+
+def test_whirl_contract_is_the_only_nan_array_contract():
+    common=(REPO_ROOT/"validation/b2/authority_common.py").read_text(encoding="utf-8")
+    assert 'group in {"modal_whirl","campbell_whirl"}' in common
+    assert 'not np.isinf(arr).any()' in common
