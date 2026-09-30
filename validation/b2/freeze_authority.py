@@ -33,9 +33,8 @@ def freeze(linux:Path,windows:Path,cross_report:Path)->dict:
     (target/".gitattributes").write_text("*.npy -text\n*.json text eol=lf\n*.txt -text\n",encoding="utf-8")
     evidence=target/"initial_reproduction";evidence.mkdir()
     if cross_report.is_file():shutil.copy2(cross_report,evidence/"cross-platform.json")
-    for name in ("authority.json","source_provenance.json","source_ranges.json","requirements-freeze.txt","pip-check.txt"):
-        src=windows/name
-        if src.is_file():shutil.copy2(src,evidence/("windows-"+name))
+    windows_snapshot=evidence/"windows_candidate"
+    shutil.copytree(windows,windows_snapshot)
     record={"schema_version":1,"freeze_utc":datetime.now(timezone.utc).isoformat(),
             "freeze_parent_head":current,"ross_sha":ROSS_SHA,
             "canonical_platform":"ubuntu-24.04",
