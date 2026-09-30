@@ -1,0 +1,1358 @@
+{
+  "encoding": "cp1252",
+  "newline": "CRLF",
+  "records": [
+    {
+      "kind": "section",
+      "line": 1,
+      "raw": "[irDin]",
+      "section": "irDin"
+    },
+    {
+      "key": "Data",
+      "kind": "assignment",
+      "line": 2,
+      "raw": "Data=18/09/2026 13:30:05",
+      "section": "irDin",
+      "value": "18/09/2026 13:30:05"
+    },
+    {
+      "key": "Usuario",
+      "kind": "assignment",
+      "line": 3,
+      "raw": "Usuario=ANGELO",
+      "section": "irDin",
+      "value": "ANGELO"
+    },
+    {
+      "kind": "section",
+      "line": 4,
+      "raw": "[Dados]",
+      "section": "Dados"
+    },
+    {
+      "key": "ref",
+      "kind": "assignment",
+      "line": 5,
+      "raw": "ref=EST",
+      "section": "Dados",
+      "value": "EST"
+    },
+    {
+      "key": "comp",
+      "kind": "assignment",
+      "line": 6,
+      "raw": "comp=ST41_1000_B3_60HZ_1675_63536",
+      "section": "Dados",
+      "value": "ST41_1000_B3_60HZ_1675_63536"
+    },
+    {
+      "key": "nnom",
+      "kind": "assignment",
+      "line": 7,
+      "raw": "nnom=1800",
+      "section": "Dados",
+      "value": "1800"
+    },
+    {
+      "key": "nini",
+      "kind": "assignment",
+      "line": 8,
+      "raw": "nini=0",
+      "section": "Dados",
+      "value": "0"
+    },
+    {
+      "key": "nfin",
+      "kind": "assignment",
+      "line": 9,
+      "raw": "nfin=2160",
+      "section": "Dados",
+      "value": "2160"
+    },
+    {
+      "key": "gr_esc",
+      "kind": "assignment",
+      "line": 10,
+      "raw": "gr_esc=2.77",
+      "section": "Dados",
+      "value": "2.77"
+    },
+    {
+      "key": "gr_x0",
+      "kind": "assignment",
+      "line": 11,
+      "raw": "gr_x0=100",
+      "section": "Dados",
+      "value": "100"
+    },
+    {
+      "key": "gr_rcp",
+      "kind": "assignment",
+      "line": 12,
+      "raw": "gr_rcp=7",
+      "section": "Dados",
+      "value": "7"
+    },
+    {
+      "key": "gr_mod",
+      "kind": "assignment",
+      "line": 13,
+      "raw": "gr_mod=5",
+      "section": "Dados",
+      "value": "5"
+    },
+    {
+      "key": "s_melast",
+      "kind": "assignment",
+      "line": 14,
+      "raw": "s_melast=207000000000",
+      "section": "Dados",
+      "value": "207000000000"
+    },
+    {
+      "key": "s_masesp",
+      "kind": "assignment",
+      "line": 15,
+      "raw": "s_masesp=7850",
+      "section": "Dados",
+      "value": "7850"
+    },
+    {
+      "key": "s_poisson",
+      "kind": "assignment",
+      "line": 16,
+      "raw": "s_poisson=0.3",
+      "section": "Dados",
+      "value": "0.3"
+    },
+    {
+      "key": "s_div",
+      "kind": "assignment",
+      "line": 17,
+      "raw": "s_div=1",
+      "section": "Dados",
+      "value": "1"
+    },
+    {
+      "key": "s_mxdiv",
+      "kind": "assignment",
+      "line": 18,
+      "raw": "s_mxdiv=3",
+      "section": "Dados",
+      "value": "3"
+    },
+    {
+      "key": "s_relld",
+      "kind": "assignment",
+      "line": 19,
+      "raw": "s_relld=0.7",
+      "section": "Dados",
+      "value": "0.7"
+    },
+    {
+      "key": "c_rpmi",
+      "kind": "assignment",
+      "line": 20,
+      "raw": "c_rpmi=0",
+      "section": "Dados",
+      "value": "0"
+    },
+    {
+      "key": "c_rpmf",
+      "kind": "assignment",
+      "line": 21,
+      "raw": "c_rpmf=3000",
+      "section": "Dados",
+      "value": "3000"
+    },
+    {
+      "key": "c_div",
+      "kind": "assignment",
+      "line": 22,
+      "raw": "c_div=25",
+      "section": "Dados",
+      "value": "25"
+    },
+    {
+      "key": "c_nrrot",
+      "kind": "assignment",
+      "line": 23,
+      "raw": "c_nrrot=9",
+      "section": "Dados",
+      "value": "9"
+    },
+    {
+      "key": "c_interp",
+      "kind": "assignment",
+      "line": 24,
+      "raw": "c_interp=50",
+      "section": "Dados",
+      "value": "50"
+    },
+    {
+      "key": "d_masesp",
+      "kind": "assignment",
+      "line": 25,
+      "raw": "d_masesp=7850",
+      "section": "Dados",
+      "value": "7850"
+    },
+    {
+      "key": "p_div",
+      "kind": "assignment",
+      "line": 26,
+      "raw": "p_div=6",
+      "section": "Dados",
+      "value": "6"
+    },
+    {
+      "key": "d_rpmi",
+      "kind": "assignment",
+      "line": 27,
+      "raw": "d_rpmi=300",
+      "section": "Dados",
+      "value": "300"
+    },
+    {
+      "key": "d_rpmf",
+      "kind": "assignment",
+      "line": 28,
+      "raw": "d_rpmf=3000",
+      "section": "Dados",
+      "value": "3000"
+    },
+    {
+      "key": "d_div",
+      "kind": "assignment",
+      "line": 29,
+      "raw": "d_div=400",
+      "section": "Dados",
+      "value": "400"
+    },
+    {
+      "key": "d_nrmodos",
+      "kind": "assignment",
+      "line": 30,
+      "raw": "d_nrmodos=10",
+      "section": "Dados",
+      "value": "10"
+    },
+    {
+      "key": "m_nrmodos",
+      "kind": "assignment",
+      "line": 31,
+      "raw": "m_nrmodos=10",
+      "section": "Dados",
+      "value": "10"
+    },
+    {
+      "key": "le_inc",
+      "kind": "assignment",
+      "line": 32,
+      "raw": "le_inc=0",
+      "section": "Dados",
+      "value": "0"
+    },
+    {
+      "key": "le_g",
+      "kind": "assignment",
+      "line": 33,
+      "raw": "le_g=9.81",
+      "section": "Dados",
+      "value": "9.81"
+    },
+    {
+      "key": "mr_rini",
+      "kind": "assignment",
+      "line": 34,
+      "raw": "mr_rini=1E+07",
+      "section": "Dados",
+      "value": "1E+07"
+    },
+    {
+      "key": "mr_nrdc",
+      "kind": "assignment",
+      "line": 35,
+      "raw": "mr_nrdc=4",
+      "section": "Dados",
+      "value": "4"
+    },
+    {
+      "key": "gr_map",
+      "kind": "assignment",
+      "line": 36,
+      "raw": "gr_map=4",
+      "section": "Dados",
+      "value": "4"
+    },
+    {
+      "key": "gr_log",
+      "kind": "assignment",
+      "line": 37,
+      "raw": "gr_log=2",
+      "section": "Dados",
+      "value": "2"
+    },
+    {
+      "kind": "section",
+      "line": 38,
+      "raw": "[Secoes]",
+      "section": "Secoes"
+    },
+    {
+      "key": "1,0",
+      "kind": "assignment",
+      "line": 39,
+      "raw": "1,0=70",
+      "section": "Secoes",
+      "value": "70"
+    },
+    {
+      "key": "2,0",
+      "kind": "assignment",
+      "line": 40,
+      "raw": "2,0=372.5",
+      "section": "Secoes",
+      "value": "372.5"
+    },
+    {
+      "key": "3,0",
+      "kind": "assignment",
+      "line": 41,
+      "raw": "3,0=215",
+      "section": "Secoes",
+      "value": "215"
+    },
+    {
+      "key": "4,0",
+      "kind": "assignment",
+      "line": 42,
+      "raw": "4,0=95.5",
+      "section": "Secoes",
+      "value": "95.5"
+    },
+    {
+      "key": "5,0",
+      "kind": "assignment",
+      "line": 43,
+      "raw": "5,0=70.5",
+      "section": "Secoes",
+      "value": "70.5"
+    },
+    {
+      "key": "6,0",
+      "kind": "assignment",
+      "line": 44,
+      "raw": "6,0=91",
+      "section": "Secoes",
+      "value": "91"
+    },
+    {
+      "key": "7,0",
+      "kind": "assignment",
+      "line": 45,
+      "raw": "7,0=456.4",
+      "section": "Secoes",
+      "value": "456.4"
+    },
+    {
+      "key": "8,0",
+      "kind": "assignment",
+      "line": 46,
+      "raw": "8,0=1675",
+      "section": "Secoes",
+      "value": "1675"
+    },
+    {
+      "key": "9,0",
+      "kind": "assignment",
+      "line": 47,
+      "raw": "9,0=566.5",
+      "section": "Secoes",
+      "value": "566.5"
+    },
+    {
+      "key": "10,0",
+      "kind": "assignment",
+      "line": 48,
+      "raw": "10,0=90",
+      "section": "Secoes",
+      "value": "90"
+    },
+    {
+      "key": "11,0",
+      "kind": "assignment",
+      "line": 49,
+      "raw": "11,0=70.5",
+      "section": "Secoes",
+      "value": "70.5"
+    },
+    {
+      "key": "12,0",
+      "kind": "assignment",
+      "line": 50,
+      "raw": "12,0=93",
+      "section": "Secoes",
+      "value": "93"
+    },
+    {
+      "key": "13,0",
+      "kind": "assignment",
+      "line": 51,
+      "raw": "13,0=220",
+      "section": "Secoes",
+      "value": "220"
+    },
+    {
+      "key": "14,0",
+      "kind": "assignment",
+      "line": 52,
+      "raw": "14,0=195.3",
+      "section": "Secoes",
+      "value": "195.3"
+    },
+    {
+      "key": "15,0",
+      "kind": "assignment",
+      "line": 53,
+      "raw": "15,0=166",
+      "section": "Secoes",
+      "value": "166"
+    },
+    {
+      "key": "16,0",
+      "kind": "assignment",
+      "line": 54,
+      "raw": "16,0=199.3",
+      "section": "Secoes",
+      "value": "199.3"
+    },
+    {
+      "key": "17,0",
+      "kind": "assignment",
+      "line": 55,
+      "raw": "17,0=307.9",
+      "section": "Secoes",
+      "value": "307.9"
+    },
+    {
+      "key": "1,1",
+      "kind": "assignment",
+      "line": 56,
+      "raw": "1,1=570",
+      "section": "Secoes",
+      "value": "570"
+    },
+    {
+      "key": "2,1",
+      "kind": "assignment",
+      "line": 57,
+      "raw": "2,1=300",
+      "section": "Secoes",
+      "value": "300"
+    },
+    {
+      "key": "3,1",
+      "kind": "assignment",
+      "line": 58,
+      "raw": "3,1=300",
+      "section": "Secoes",
+      "value": "300"
+    },
+    {
+      "key": "4,1",
+      "kind": "assignment",
+      "line": 59,
+      "raw": "4,1=300",
+      "section": "Secoes",
+      "value": "300"
+    },
+    {
+      "key": "5,1",
+      "kind": "assignment",
+      "line": 60,
+      "raw": "5,1=315",
+      "section": "Secoes",
+      "value": "315"
+    },
+    {
+      "key": "6,1",
+      "kind": "assignment",
+      "line": 61,
+      "raw": "6,1=390",
+      "section": "Secoes",
+      "value": "390"
+    },
+    {
+      "key": "7,1",
+      "kind": "assignment",
+      "line": 62,
+      "raw": "7,1=390",
+      "section": "Secoes",
+      "value": "390"
+    },
+    {
+      "key": "8,1",
+      "kind": "assignment",
+      "line": 63,
+      "raw": "8,1=390",
+      "section": "Secoes",
+      "value": "390"
+    },
+    {
+      "key": "9,1",
+      "kind": "assignment",
+      "line": 64,
+      "raw": "9,1=390",
+      "section": "Secoes",
+      "value": "390"
+    },
+    {
+      "key": "10,1",
+      "kind": "assignment",
+      "line": 65,
+      "raw": "10,1=390",
+      "section": "Secoes",
+      "value": "390"
+    },
+    {
+      "key": "11,1",
+      "kind": "assignment",
+      "line": 66,
+      "raw": "11,1=315",
+      "section": "Secoes",
+      "value": "315"
+    },
+    {
+      "key": "12,1",
+      "kind": "assignment",
+      "line": 67,
+      "raw": "12,1=300",
+      "section": "Secoes",
+      "value": "300"
+    },
+    {
+      "key": "13,1",
+      "kind": "assignment",
+      "line": 68,
+      "raw": "13,1=300",
+      "section": "Secoes",
+      "value": "300"
+    },
+    {
+      "key": "14,1",
+      "kind": "assignment",
+      "line": 69,
+      "raw": "14,1=300",
+      "section": "Secoes",
+      "value": "300"
+    },
+    {
+      "key": "15,1",
+      "kind": "assignment",
+      "line": 70,
+      "raw": "15,1=225",
+      "section": "Secoes",
+      "value": "225"
+    },
+    {
+      "key": "16,1",
+      "kind": "assignment",
+      "line": 71,
+      "raw": "16,1=192",
+      "section": "Secoes",
+      "value": "192"
+    },
+    {
+      "key": "17,1",
+      "kind": "assignment",
+      "line": 72,
+      "raw": "17,1=172",
+      "section": "Secoes",
+      "value": "172"
+    },
+    {
+      "key": "7,2",
+      "kind": "assignment",
+      "line": 73,
+      "raw": "7,2=620",
+      "section": "Secoes",
+      "value": "620"
+    },
+    {
+      "key": "8,2",
+      "kind": "assignment",
+      "line": 74,
+      "raw": "8,2=620",
+      "section": "Secoes",
+      "value": "620"
+    },
+    {
+      "key": "9,2",
+      "kind": "assignment",
+      "line": 75,
+      "raw": "9,2=620",
+      "section": "Secoes",
+      "value": "620"
+    },
+    {
+      "key": "7,3",
+      "kind": "assignment",
+      "line": 76,
+      "raw": "7,3=127",
+      "section": "Secoes",
+      "value": "127"
+    },
+    {
+      "key": "8,3",
+      "kind": "assignment",
+      "line": 77,
+      "raw": "8,3=127",
+      "section": "Secoes",
+      "value": "127"
+    },
+    {
+      "key": "9,3",
+      "kind": "assignment",
+      "line": 78,
+      "raw": "9,3=127",
+      "section": "Secoes",
+      "value": "127"
+    },
+    {
+      "key": "7,6",
+      "kind": "assignment",
+      "line": 79,
+      "raw": "7,6=4",
+      "section": "Secoes",
+      "value": "4"
+    },
+    {
+      "key": "8,6",
+      "kind": "assignment",
+      "line": 80,
+      "raw": "8,6=4",
+      "section": "Secoes",
+      "value": "4"
+    },
+    {
+      "key": "9,6",
+      "kind": "assignment",
+      "line": 81,
+      "raw": "9,6=4",
+      "section": "Secoes",
+      "value": "4"
+    },
+    {
+      "key": "9,7",
+      "kind": "assignment",
+      "line": 82,
+      "raw": "9,7=60",
+      "section": "Secoes",
+      "value": "60"
+    },
+    {
+      "key": "10,7",
+      "kind": "assignment",
+      "line": 83,
+      "raw": "10,7=60",
+      "section": "Secoes",
+      "value": "60"
+    },
+    {
+      "key": "11,7",
+      "kind": "assignment",
+      "line": 84,
+      "raw": "11,7=60",
+      "section": "Secoes",
+      "value": "60"
+    },
+    {
+      "key": "12,7",
+      "kind": "assignment",
+      "line": 85,
+      "raw": "12,7=60",
+      "section": "Secoes",
+      "value": "60"
+    },
+    {
+      "key": "13,7",
+      "kind": "assignment",
+      "line": 86,
+      "raw": "13,7=60",
+      "section": "Secoes",
+      "value": "60"
+    },
+    {
+      "key": "14,7",
+      "kind": "assignment",
+      "line": 87,
+      "raw": "14,7=60",
+      "section": "Secoes",
+      "value": "60"
+    },
+    {
+      "key": "15,7",
+      "kind": "assignment",
+      "line": 88,
+      "raw": "15,7=60",
+      "section": "Secoes",
+      "value": "60"
+    },
+    {
+      "key": "16,7",
+      "kind": "assignment",
+      "line": 89,
+      "raw": "16,7=60",
+      "section": "Secoes",
+      "value": "60"
+    },
+    {
+      "key": "17,7",
+      "kind": "assignment",
+      "line": 90,
+      "raw": "17,7=60",
+      "section": "Secoes",
+      "value": "60"
+    },
+    {
+      "kind": "section",
+      "line": 91,
+      "raw": "[Massas]",
+      "section": "Massas"
+    },
+    {
+      "key": "1,0",
+      "kind": "assignment",
+      "line": 92,
+      "raw": "1,0=1370.9",
+      "section": "Massas",
+      "value": "1370.9"
+    },
+    {
+      "key": "2,0",
+      "kind": "assignment",
+      "line": 93,
+      "raw": "2,0=4449",
+      "section": "Massas",
+      "value": "4449"
+    },
+    {
+      "key": "3,0",
+      "kind": "assignment",
+      "line": 94,
+      "raw": "3,0=4646.5",
+      "section": "Massas",
+      "value": "4646.5"
+    },
+    {
+      "key": "1,1",
+      "kind": "assignment",
+      "line": 95,
+      "raw": "1,1=1675",
+      "section": "Massas",
+      "value": "1675"
+    },
+    {
+      "key": "2,1",
+      "kind": "assignment",
+      "line": 96,
+      "raw": "2,1=60.3",
+      "section": "Massas",
+      "value": "60.3"
+    },
+    {
+      "key": "3,1",
+      "kind": "assignment",
+      "line": 97,
+      "raw": "3,1=306",
+      "section": "Massas",
+      "value": "306"
+    },
+    {
+      "key": "1,2",
+      "kind": "assignment",
+      "line": 98,
+      "raw": "1,2=10090",
+      "section": "Massas",
+      "value": "10090"
+    },
+    {
+      "key": "2,2",
+      "kind": "assignment",
+      "line": 99,
+      "raw": "2,2=70",
+      "section": "Massas",
+      "value": "70"
+    },
+    {
+      "key": "3,2",
+      "kind": "assignment",
+      "line": 100,
+      "raw": "3,2=520",
+      "section": "Massas",
+      "value": "520"
+    },
+    {
+      "key": "1,3",
+      "kind": "assignment",
+      "line": 101,
+      "raw": "1,3=1140",
+      "section": "Massas",
+      "value": "1140"
+    },
+    {
+      "key": "2,3",
+      "kind": "assignment",
+      "line": 102,
+      "raw": "2,3=520",
+      "section": "Massas",
+      "value": "520"
+    },
+    {
+      "key": "3,3",
+      "kind": "assignment",
+      "line": 103,
+      "raw": "3,3=520",
+      "section": "Massas",
+      "value": "520"
+    },
+    {
+      "key": "1,4",
+      "kind": "assignment",
+      "line": 104,
+      "raw": "1,4=1",
+      "section": "Massas",
+      "value": "1"
+    },
+    {
+      "key": "2,4",
+      "kind": "assignment",
+      "line": 105,
+      "raw": "2,4=0",
+      "section": "Massas",
+      "value": "0"
+    },
+    {
+      "key": "3,4",
+      "kind": "assignment",
+      "line": 106,
+      "raw": "3,4=0",
+      "section": "Massas",
+      "value": "0"
+    },
+    {
+      "key": "1,5",
+      "kind": "assignment",
+      "line": 107,
+      "raw": "1,5=0",
+      "section": "Massas",
+      "value": "0"
+    },
+    {
+      "key": "2,5",
+      "kind": "assignment",
+      "line": 108,
+      "raw": "2,5=0",
+      "section": "Massas",
+      "value": "0"
+    },
+    {
+      "key": "3,5",
+      "kind": "assignment",
+      "line": 109,
+      "raw": "3,5=0",
+      "section": "Massas",
+      "value": "0"
+    },
+    {
+      "kind": "section",
+      "line": 110,
+      "raw": "[Mancais]",
+      "section": "Mancais"
+    },
+    {
+      "key": "1,0",
+      "kind": "assignment",
+      "line": 111,
+      "raw": "1,0=550",
+      "section": "Mancais",
+      "value": "550"
+    },
+    {
+      "key": "2,0",
+      "kind": "assignment",
+      "line": 112,
+      "raw": "2,0=3977",
+      "section": "Mancais",
+      "value": "3977"
+    },
+    {
+      "key": "1,1",
+      "kind": "assignment",
+      "line": 113,
+      "raw": "1,1=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "2,1",
+      "kind": "assignment",
+      "line": 114,
+      "raw": "2,1=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "1,2",
+      "kind": "assignment",
+      "line": 115,
+      "raw": "1,2=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "2,2",
+      "kind": "assignment",
+      "line": 116,
+      "raw": "2,2=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "1,3",
+      "kind": "assignment",
+      "line": 117,
+      "raw": "1,3=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "2,3",
+      "kind": "assignment",
+      "line": 118,
+      "raw": "2,3=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "1,4",
+      "kind": "assignment",
+      "line": 119,
+      "raw": "1,4=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "2,4",
+      "kind": "assignment",
+      "line": 120,
+      "raw": "2,4=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "1,5",
+      "kind": "assignment",
+      "line": 121,
+      "raw": "1,5=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "2,5",
+      "kind": "assignment",
+      "line": 122,
+      "raw": "2,5=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "1,6",
+      "kind": "assignment",
+      "line": 123,
+      "raw": "1,6=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "2,6",
+      "kind": "assignment",
+      "line": 124,
+      "raw": "2,6=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "1,7",
+      "kind": "assignment",
+      "line": 125,
+      "raw": "1,7=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "2,7",
+      "kind": "assignment",
+      "line": 126,
+      "raw": "2,7=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "1,8",
+      "kind": "assignment",
+      "line": 127,
+      "raw": "1,8=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "2,8",
+      "kind": "assignment",
+      "line": 128,
+      "raw": "2,8=0",
+      "section": "Mancais",
+      "value": "0"
+    },
+    {
+      "key": "1,10",
+      "kind": "assignment",
+      "line": 129,
+      "raw": "1,10=_zollern_zmzyb 22-300_vg46",
+      "section": "Mancais",
+      "value": "_zollern_zmzyb 22-300_vg46"
+    },
+    {
+      "key": "2,10",
+      "kind": "assignment",
+      "line": 130,
+      "raw": "2,10=_zollern_zmzyq 22-300_vg46",
+      "section": "Mancais",
+      "value": "_zollern_zmzyq 22-300_vg46"
+    },
+    {
+      "key": "1,11",
+      "kind": "assignment",
+      "line": 131,
+      "raw": "1,11=TABLE§500|27.35E+07|-16.07E+07|-98.04E+07|24.86E+08|30.66E+05|-68.33E+05|-68.33E+05|37.28E+06§850|26.68E+07|-12.69E+07|-85.06E+07|19.53E+08|17.60E+05|-39.31E+05|-39.31E+05|18.60E+06§1200|26.38E+07|-88.49E+06|-82.43E+07|19.94E+08|11.83E+05|-26.36E+05|-26.36E+05|13.15E+06§1550|21.07E+07|-53.72E+06|-64.62E+07|17.77E+08|71.90E+04|-15.25E+05|-15.25E+05|83.25E+05§1900|23.41E+07|-43.46E+06|-78.16E+07|20.68E+08|61.80E+04|-14.09E+05|-14.09E+05|82.83E+05§2250|21.98E+07|-60.50E+06|-77.94E+07|21.32E+08|45.40E+04|-10.53E+05|-10.53E+05|69.82E+05§2600|22.14E+07|-15.91E+06|-78.72E+07|23.16E+08|38.60E+04|-91.40E+04|-91.40E+04|62.98E+05§2950|22.00E+07|-14.84E+06|-80.23E+07|23.48E+08|34.50E+04|-82.10E+04|-82.10E+04|58.06E+05§3300|21.42E+07|-25.73E+06|-82.55E+07|23.32E+08|30.70E+04|-76.70E+04|-76.70E+04|53.46E+05§3650|22.95E+07|37.72E+06|-85.88E+07|26.29E+08|29.70E+04|-75.80E+04|-75.80E+04|51.95E+05§4000|22.44E+07|30.87E+06|-86.14E+07|26.86E+08|26.30E+04|-67.40E+04|-67.40E+04|48.35E+05",
+      "section": "Mancais",
+      "value": "TABLE§500|27.35E+07|-16.07E+07|-98.04E+07|24.86E+08|30.66E+05|-68.33E+05|-68.33E+05|37.28E+06§850|26.68E+07|-12.69E+07|-85.06E+07|19.53E+08|17.60E+05|-39.31E+05|-39.31E+05|18.60E+06§1200|26.38E+07|-88.49E+06|-82.43E+07|19.94E+08|11.83E+05|-26.36E+05|-26.36E+05|13.15E+06§1550|21.07E+07|-53.72E+06|-64.62E+07|17.77E+08|71.90E+04|-15.25E+05|-15.25E+05|83.25E+05§1900|23.41E+07|-43.46E+06|-78.16E+07|20.68E+08|61.80E+04|-14.09E+05|-14.09E+05|82.83E+05§2250|21.98E+07|-60.50E+06|-77.94E+07|21.32E+08|45.40E+04|-10.53E+05|-10.53E+05|69.82E+05§2600|22.14E+07|-15.91E+06|-78.72E+07|23.16E+08|38.60E+04|-91.40E+04|-91.40E+04|62.98E+05§2950|22.00E+07|-14.84E+06|-80.23E+07|23.48E+08|34.50E+04|-82.10E+04|-82.10E+04|58.06E+05§3300|21.42E+07|-25.73E+06|-82.55E+07|23.32E+08|30.70E+04|-76.70E+04|-76.70E+04|53.46E+05§3650|22.95E+07|37.72E+06|-85.88E+07|26.29E+08|29.70E+04|-75.80E+04|-75.80E+04|51.95E+05§4000|22.44E+07|30.87E+06|-86.14E+07|26.86E+08|26.30E+04|-67.40E+04|-67.40E+04|48.35E+05"
+    },
+    {
+      "key": "2,11",
+      "kind": "assignment",
+      "line": 132,
+      "raw": "2,11=TABLE§500|30.63E+07|-18.98E+07|-11.25E+08|29.17E+08|33.73E+05|-79.38E+05|-79.38E+05|42.97E+06§850|28.11E+07|-19.41E+07|-94.02E+07|24.01E+08|15.21E+05|-35.54E+05|-35.54E+05|19.62E+06§1200|24.38E+07|-10.92E+07|-74.26E+07|21.79E+08|99.00E+04|-21.61E+05|-21.61E+05|11.74E+06§1550|27.38E+07|-93.94E+06|-89.72E+07|23.53E+08|88.10E+04|-20.40E+05|-20.40E+05|11.26E+06§1900|24.93E+07|-80.21E+06|-84.66E+07|24.48E+08|57.20E+04|-13.41E+05|-13.41E+05|87.34E+05§2250|24.52E+07|-72.42E+06|-86.23E+07|24.76E+08|49.10E+04|-11.54E+05|-11.54E+05|77.08E+05§2600|25.11E+07|-27.35E+06|-89.04E+07|26.59E+08|43.30E+04|-10.61E+05|-10.61E+05|71.13E+05§2950|25.26E+07|-19.28E+06|-91.27E+07|27.17E+08|39.40E+04|-96.10E+04|-96.10E+04|65.67E+05§3300|24.84E+07|-27.78E+06|-94.67E+07|27.15E+08|35.70E+04|-91.10E+04|-91.10E+04|61.17E+05§3650|25.12E+07|31.20E+06|-94.73E+07|30.09E+08|31.60E+04|-82.90E+04|-82.90E+04|57.05E+05§4000|25.31E+07|27.01E+06|-97.74E+07|30.53E+08|29.90E+04|-79.20E+04|-79.20E+04|54.46E+05",
+      "section": "Mancais",
+      "value": "TABLE§500|30.63E+07|-18.98E+07|-11.25E+08|29.17E+08|33.73E+05|-79.38E+05|-79.38E+05|42.97E+06§850|28.11E+07|-19.41E+07|-94.02E+07|24.01E+08|15.21E+05|-35.54E+05|-35.54E+05|19.62E+06§1200|24.38E+07|-10.92E+07|-74.26E+07|21.79E+08|99.00E+04|-21.61E+05|-21.61E+05|11.74E+06§1550|27.38E+07|-93.94E+06|-89.72E+07|23.53E+08|88.10E+04|-20.40E+05|-20.40E+05|11.26E+06§1900|24.93E+07|-80.21E+06|-84.66E+07|24.48E+08|57.20E+04|-13.41E+05|-13.41E+05|87.34E+05§2250|24.52E+07|-72.42E+06|-86.23E+07|24.76E+08|49.10E+04|-11.54E+05|-11.54E+05|77.08E+05§2600|25.11E+07|-27.35E+06|-89.04E+07|26.59E+08|43.30E+04|-10.61E+05|-10.61E+05|71.13E+05§2950|25.26E+07|-19.28E+06|-91.27E+07|27.17E+08|39.40E+04|-96.10E+04|-96.10E+04|65.67E+05§3300|24.84E+07|-27.78E+06|-94.67E+07|27.15E+08|35.70E+04|-91.10E+04|-91.10E+04|61.17E+05§3650|25.12E+07|31.20E+06|-94.73E+07|30.09E+08|31.60E+04|-82.90E+04|-82.90E+04|57.05E+05§4000|25.31E+07|27.01E+06|-97.74E+07|30.53E+08|29.90E+04|-79.20E+04|-79.20E+04|54.46E+05"
+    },
+    {
+      "kind": "section",
+      "line": 133,
+      "raw": "[Desbal]",
+      "section": "Desbal"
+    },
+    {
+      "key": "1,0",
+      "kind": "assignment",
+      "line": 134,
+      "raw": "1,0=1370.9",
+      "section": "Desbal",
+      "value": "1370.9"
+    },
+    {
+      "key": "2,0",
+      "kind": "assignment",
+      "line": 135,
+      "raw": "2,0=3045.9",
+      "section": "Desbal",
+      "value": "3045.9"
+    },
+    {
+      "key": "1,1",
+      "kind": "assignment",
+      "line": 136,
+      "raw": "1,1=0",
+      "section": "Desbal",
+      "value": "0"
+    },
+    {
+      "key": "2,1",
+      "kind": "assignment",
+      "line": 137,
+      "raw": "2,1=0",
+      "section": "Desbal",
+      "value": "0"
+    },
+    {
+      "key": "1,2",
+      "kind": "assignment",
+      "line": 138,
+      "raw": "1,2=110175.3",
+      "section": "Desbal",
+      "value": "110175.3"
+    },
+    {
+      "key": "2,2",
+      "kind": "assignment",
+      "line": 139,
+      "raw": "2,2=110175.3",
+      "section": "Desbal",
+      "value": "110175.3"
+    },
+    {
+      "kind": "section",
+      "line": 140,
+      "raw": "[Respo]",
+      "section": "Respo"
+    },
+    {
+      "key": "1,0",
+      "kind": "assignment",
+      "line": 141,
+      "raw": "1,0=550",
+      "section": "Respo",
+      "value": "550"
+    },
+    {
+      "key": "2,0",
+      "kind": "assignment",
+      "line": 142,
+      "raw": "2,0=550",
+      "section": "Respo",
+      "value": "550"
+    },
+    {
+      "key": "3,0",
+      "kind": "assignment",
+      "line": 143,
+      "raw": "3,0=3977",
+      "section": "Respo",
+      "value": "3977"
+    },
+    {
+      "key": "4,0",
+      "kind": "assignment",
+      "line": 144,
+      "raw": "4,0=3977",
+      "section": "Respo",
+      "value": "3977"
+    },
+    {
+      "key": "1,1",
+      "kind": "assignment",
+      "line": 145,
+      "raw": "1,1=1",
+      "section": "Respo",
+      "value": "1"
+    },
+    {
+      "key": "2,1",
+      "kind": "assignment",
+      "line": 146,
+      "raw": "2,1=2",
+      "section": "Respo",
+      "value": "2"
+    },
+    {
+      "key": "3,1",
+      "kind": "assignment",
+      "line": 147,
+      "raw": "3,1=1",
+      "section": "Respo",
+      "value": "1"
+    },
+    {
+      "key": "4,1",
+      "kind": "assignment",
+      "line": 148,
+      "raw": "4,1=2",
+      "section": "Respo",
+      "value": "2"
+    },
+    {
+      "kind": "section",
+      "line": 149,
+      "raw": "[Concent]",
+      "section": "Concent"
+    },
+    {
+      "kind": "section",
+      "line": 150,
+      "raw": "[Suporte]",
+      "section": "Suporte"
+    },
+    {
+      "key": "1,0",
+      "kind": "assignment",
+      "line": 151,
+      "raw": "1,0=1",
+      "section": "Suporte",
+      "value": "1"
+    },
+    {
+      "key": "2,0",
+      "kind": "assignment",
+      "line": 152,
+      "raw": "2,0=2",
+      "section": "Suporte",
+      "value": "2"
+    },
+    {
+      "key": "1,1",
+      "kind": "assignment",
+      "line": 153,
+      "raw": "1,1=2730000000",
+      "section": "Suporte",
+      "value": "2730000000"
+    },
+    {
+      "key": "2,1",
+      "kind": "assignment",
+      "line": 154,
+      "raw": "2,1=2730000000",
+      "section": "Suporte",
+      "value": "2730000000"
+    },
+    {
+      "key": "1,2",
+      "kind": "assignment",
+      "line": 155,
+      "raw": "1,2=3410000000",
+      "section": "Suporte",
+      "value": "3410000000"
+    },
+    {
+      "key": "2,2",
+      "kind": "assignment",
+      "line": 156,
+      "raw": "2,2=3410000000",
+      "section": "Suporte",
+      "value": "3410000000"
+    },
+    {
+      "key": "1,3",
+      "kind": "assignment",
+      "line": 157,
+      "raw": "1,3=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "2,3",
+      "kind": "assignment",
+      "line": 158,
+      "raw": "2,3=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "1,4",
+      "kind": "assignment",
+      "line": 159,
+      "raw": "1,4=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "2,4",
+      "kind": "assignment",
+      "line": 160,
+      "raw": "2,4=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "1,5",
+      "kind": "assignment",
+      "line": 161,
+      "raw": "1,5=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "2,5",
+      "kind": "assignment",
+      "line": 162,
+      "raw": "2,5=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "1,6",
+      "kind": "assignment",
+      "line": 163,
+      "raw": "1,6=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "2,6",
+      "kind": "assignment",
+      "line": 164,
+      "raw": "2,6=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "1,7",
+      "kind": "assignment",
+      "line": 165,
+      "raw": "1,7=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "2,7",
+      "kind": "assignment",
+      "line": 166,
+      "raw": "2,7=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "1,8",
+      "kind": "assignment",
+      "line": 167,
+      "raw": "1,8=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "2,8",
+      "kind": "assignment",
+      "line": 168,
+      "raw": "2,8=0",
+      "section": "Suporte",
+      "value": "0"
+    },
+    {
+      "key": "1,9",
+      "kind": "assignment",
+      "line": 169,
+      "raw": "1,9=415",
+      "section": "Suporte",
+      "value": "415"
+    },
+    {
+      "key": "2,9",
+      "kind": "assignment",
+      "line": 170,
+      "raw": "2,9=415",
+      "section": "Suporte",
+      "value": "415"
+    },
+    {
+      "kind": "section",
+      "line": 171,
+      "raw": "[Fim]",
+      "section": "Fim"
+    }
+  ],
+  "schema": 1,
+  "size_bytes": 3688,
+  "source_file": "ST41_1000_B3_60HZ_1675_63536.txt",
+  "source_sha256": "b7f14fd34ccce55f2c00c3915725097c12eda9be4161b91ce7ee84c56530f0fc"
+}

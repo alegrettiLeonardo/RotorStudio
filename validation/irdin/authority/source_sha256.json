@@ -1,0 +1,9 @@
+{
+  "encoding": "cp1252",
+  "git_checkout_policy": "validation/irdin/cases/*.txt -text",
+  "newline": "CRLF",
+  "schema": 1,
+  "sha256": "b7f14fd34ccce55f2c00c3915725097c12eda9be4161b91ce7ee84c56530f0fc",
+  "size_bytes": 3688,
+  "source_file": "ST41_1000_B3_60HZ_1675_63536.txt"
+}
