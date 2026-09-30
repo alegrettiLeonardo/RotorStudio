@@ -1372,7 +1372,7 @@
       "id": "M03",
       "rotor": "R03",
       "speed_rad_s": 80,
-      "num_modes": 12
+      "num_modes": 44
     },
     {
       "id": "M04",
