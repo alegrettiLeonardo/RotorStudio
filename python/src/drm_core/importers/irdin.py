@@ -9,6 +9,7 @@ metadata until their own numerical mappings are explicitly qualified.
 """
 
 from collections import defaultdict
+from hashlib import sha256
 from pathlib import Path
 import re
 from typing import Any
@@ -315,7 +316,9 @@ def _insert_exact_stations(
 
 def load_irdin_project(path: str | Path) -> RotorProject:
     source = Path(path)
-    doc = _parse_document(_read_text(source))
+    source_text = _read_text(source)
+    raw_source = source.read_bytes()
+    doc = _parse_document(source_text)
     header = doc.get("irdin", {})
     data = doc["dados"]
 
@@ -508,6 +511,9 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         "source_format": "iRdin/VB6 INI",
         "source_file": source.name,
         "source_path": str(source),
+        "source_sha256": sha256(raw_source).hexdigest(),
+        "source_size_bytes": len(raw_source),
+        "legacy_irdin_raw": {section: dict(values) for section, values in doc.items()},
         "legacy_irdin": {
             "date": header.get("data", ""),
             "user": header.get("usuario", ""),
