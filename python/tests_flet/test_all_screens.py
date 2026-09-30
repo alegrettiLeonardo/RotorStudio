@@ -67,7 +67,7 @@ def compare_arrays(actual,expected):
 
 def test_exact_current_native_contracts_and_all_qt_setup_result_screens():
     import drm_core.stage1 as core
-    source=Path(core.__file__).read_text()
+    source=Path(core.__file__).read_text(encoding='utf-8')
     # Dispatch literals, not method names guessed from the GUI.
     tree=ast.parse(source);kinds=set()
     for node in ast.walk(tree):
@@ -76,7 +76,7 @@ def test_exact_current_native_contracts_and_all_qt_setup_result_screens():
                 if isinstance(op,ast.Constant) and isinstance(op.value,str):kinds.add(op.value)
     assert set(BY_KIND)==kinds and len(kinds)==21
     for folder,key in [('analysis_pages','qt_screen'),('result_views','result_screen')]:
-        names={x.name for file in (ROOT/'python/src/drm_studio'/folder).glob('*.py') for x in ast.parse(file.read_text()).body if isinstance(x,ast.ClassDef)}
+        names={x.name for file in (ROOT/'python/src/drm_studio'/folder).glob('*.py') for x in ast.parse(file.read_text(encoding='utf-8')).body if isinstance(x,ast.ClassDef)}
         assert names=={getattr(s,key) for s in CATALOG}-{"BearingPerformancePage"},(folder,names)
 
 
@@ -274,7 +274,7 @@ def test_navigation_catalog_results_reports_diagnostics_all_render(app_factory,n
 
 def test_flet_has_no_qt_imports_or_hidden_numeric_solver():
     for file in (ROOT/'python/src/drm_flet').glob('*.py'):
-        tree=ast.parse(file.read_text())
+        tree=ast.parse(file.read_text(encoding='utf-8'))
         for x in ast.walk(tree):
             if isinstance(x,ast.ImportFrom):assert not str(x.module).startswith(('PySide','PyQt','drm_studio'))
             if isinstance(x,ast.Call) and isinstance(x.func,ast.Attribute):assert x.func.attr not in ('eig','eigh','eigvals','eigs','solve_ivp','odeint','inv')
