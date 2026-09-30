@@ -10,16 +10,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Obtain official Flet desktop runtime (not project qualification)
+      - name: Obtain client system library (not project qualification)
         run: |
           mkdir runtime
-          curl --fail --location --retry 3 https://github.com/flet-dev/flet/releases/download/v1.0.0/flet-linux-ubuntu24.04-light-amd64.tar.gz -o runtime/flet-linux-ubuntu24.04-light-amd64.tar.gz
-          sha256sum runtime/* > runtime/SHA256SUMS
+          cd runtime
+          apt-get download libsecret-1-0
+          sha256sum *.deb > SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
-          name: flet-1.0.0-desktop-runtime-linux
+          name: flet-linux-system-dependency
           path: runtime
           retention-days: 7
