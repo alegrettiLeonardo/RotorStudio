@@ -1,0 +1,511 @@
+{
+  "schema": 1,
+  "comparison_base": "fcdac252974aeeded6961dbe3310677e234a6495",
+  "status": "MAPPED",
+  "scope": "Qt presentation classes and AnalysisService contracts at the frozen comparison base",
+  "qt_presentation_classes": 42,
+  "native_contracts": 21,
+  "analyses": [
+    {
+      "kind": "modal",
+      "label": "Modal / raízes características",
+      "setup": "ModalSetupDialog",
+      "result": "ModalResultView"
+    },
+    {
+      "kind": "modal_sweep",
+      "label": "Diagrama de Campbell",
+      "setup": "CampbellSetupDialog",
+      "result": "CampbellResultView"
+    },
+    {
+      "kind": "critical_speeds",
+      "label": "Velocidades críticas",
+      "setup": "CriticalSpeedSetupDialog",
+      "result": "CriticalSpeedResultView"
+    },
+    {
+      "kind": "static",
+      "label": "Análise estática",
+      "setup": "StaticSetupDialog",
+      "result": "StaticResultView"
+    },
+    {
+      "kind": "frequency_response",
+      "label": "Resposta síncrona",
+      "setup": "SynchronousResponseSetupDialog",
+      "result": "FrequencyResponseResultView"
+    },
+    {
+      "kind": "auxiliary_frequency_response",
+      "label": "FRF · apoio auxiliar / spinner",
+      "setup": "FrequencyResponseSetupDialog",
+      "result": "FrequencyResponseResultView"
+    },
+    {
+      "kind": "foundation_frequency_response",
+      "label": "Excitação da fundação · frequência",
+      "setup": "FrequencyResponseSetupDialog",
+      "result": "FrequencyResponseResultView"
+    },
+    {
+      "kind": "general_frf",
+      "label": "FRF geral · matriz de transferência",
+      "setup": "GeneralFrfSetupDialog",
+      "result": "GeneralFrfResultView"
+    },
+    {
+      "kind": "forced_response",
+      "label": "Resposta forçada · forças e momentos",
+      "setup": "ForcedResponseSetupDialog",
+      "result": "ForcedResponseResultView"
+    },
+    {
+      "kind": "general_time_response",
+      "label": "Resposta temporal geral · F(t)",
+      "setup": "GeneralTimeSetupDialog",
+      "result": "GeneralTimeResultView"
+    },
+    {
+      "kind": "foundation_time_response",
+      "label": "Pulso na fundação · tempo",
+      "setup": "FoundationTimeSetupDialog",
+      "result": "TransientResultView"
+    },
+    {
+      "kind": "runup",
+      "label": "Run-up / run-down",
+      "setup": "RunupSetupDialog",
+      "result": "TransientResultView"
+    },
+    {
+      "kind": "coaxial_modal",
+      "label": "Coaxial · análise modal",
+      "setup": "SpecialRotorSetupDialog",
+      "result": "SpecialRotorResultView"
+    },
+    {
+      "kind": "coaxial_frequency_response",
+      "label": "Coaxial · resposta síncrona",
+      "setup": "SpecialRotorSetupDialog",
+      "result": "SpecialRotorResultView"
+    },
+    {
+      "kind": "asymmetric_modal",
+      "label": "Assimétrico · modal no referencial girante",
+      "setup": "SpecialRotorSetupDialog",
+      "result": "SpecialRotorResultView"
+    },
+    {
+      "kind": "asymmetric_frequency_response",
+      "label": "Assimétrico · resposta no referencial girante",
+      "setup": "SpecialRotorSetupDialog",
+      "result": "SpecialRotorResultView"
+    },
+    {
+      "kind": "ucs",
+      "label": "UCS · mapa de velocidades críticas",
+      "setup": "UCSSetupDialog",
+      "result": "UCSResultView"
+    },
+    {
+      "kind": "level1",
+      "label": "Estabilidade · Level 1",
+      "setup": "Level1SetupDialog",
+      "result": "Level1ResultView"
+    },
+    {
+      "kind": "api617_unbalance",
+      "label": "API 617 · posicionamento de desbalanceamento",
+      "setup": "API617UnbalanceSetupDialog",
+      "result": "API617UnbalanceResultView"
+    },
+    {
+      "kind": "clearance",
+      "label": "API 617 · análise de folgas",
+      "setup": "ClearanceSetupDialog",
+      "result": "ClearanceResultView"
+    },
+    {
+      "kind": "bearing_matrices",
+      "label": "Mancais · matrizes globais",
+      "setup": "BearingPerformancePage",
+      "result": "BearingPerformancePage"
+    }
+  ],
+  "screens": [
+    {
+      "qt_path": "python/src/drm_studio/main_window.py",
+      "qt_class": "MainWindow",
+      "flet_target": "ui.StudioApp",
+      "scope": "menus, abas, navegação, ciclo de vida e execução",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/api617_unbalance_setup.py",
+      "qt_class": "API617UnbalanceSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "api617_unbalance",
+      "analysis_kinds": [
+        "api617_unbalance"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/campbell_setup.py",
+      "qt_class": "CampbellSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "modal_sweep",
+      "analysis_kinds": [
+        "modal_sweep"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/clearance_setup.py",
+      "qt_class": "ClearanceSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "clearance",
+      "analysis_kinds": [
+        "clearance"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/critical_speed_setup.py",
+      "qt_class": "CriticalSpeedSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "critical_speeds",
+      "analysis_kinds": [
+        "critical_speeds"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/forced_response_setup.py",
+      "qt_class": "ForcedResponseSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "forced_response",
+      "analysis_kinds": [
+        "forced_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/general_frf_setup.py",
+      "qt_class": "GeneralFrfSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "general_frf",
+      "analysis_kinds": [
+        "general_frf"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/general_time_setup.py",
+      "qt_class": "GeneralTimeSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "general_time_response",
+      "analysis_kinds": [
+        "general_time_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/level1_setup.py",
+      "qt_class": "Level1SetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "level1",
+      "analysis_kinds": [
+        "level1"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/modal_setup.py",
+      "qt_class": "ModalSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "modal",
+      "analysis_kinds": [
+        "modal"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/response_setup.py",
+      "qt_class": "SynchronousResponseSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "frequency_response",
+      "analysis_kinds": [
+        "frequency_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/response_setup.py",
+      "qt_class": "FrequencyResponseSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "auxiliary_frequency_response, foundation_frequency_response",
+      "analysis_kinds": [
+        "auxiliary_frequency_response",
+        "foundation_frequency_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/special_rotor_setup.py",
+      "qt_class": "SpecialRotorSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "coaxial_modal, coaxial_frequency_response, asymmetric_modal, asymmetric_frequency_response",
+      "analysis_kinds": [
+        "coaxial_modal",
+        "coaxial_frequency_response",
+        "asymmetric_modal",
+        "asymmetric_frequency_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/static_setup.py",
+      "qt_class": "StaticSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "static",
+      "analysis_kinds": [
+        "static"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/transient_setup.py",
+      "qt_class": "FoundationTimeSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "foundation_time_response",
+      "analysis_kinds": [
+        "foundation_time_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/transient_setup.py",
+      "qt_class": "RunupSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "runup",
+      "analysis_kinds": [
+        "runup"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/analysis_pages/ucs_setup.py",
+      "qt_class": "UCSSetupDialog",
+      "flet_target": "analysis_forms.AnalysisForm",
+      "scope": "ucs",
+      "analysis_kinds": [
+        "ucs"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/api617_unbalance_view.py",
+      "qt_class": "API617UnbalanceResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "api617_unbalance",
+      "analysis_kinds": [
+        "api617_unbalance"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/campbell_view.py",
+      "qt_class": "CampbellResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "modal_sweep",
+      "analysis_kinds": [
+        "modal_sweep"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/clearance_view.py",
+      "qt_class": "ClearanceResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "clearance",
+      "analysis_kinds": [
+        "clearance"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/critical_speed_view.py",
+      "qt_class": "CriticalSpeedResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "critical_speeds",
+      "analysis_kinds": [
+        "critical_speeds"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/forced_response_view.py",
+      "qt_class": "ForcedResponseResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "forced_response",
+      "analysis_kinds": [
+        "forced_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/general_frf_view.py",
+      "qt_class": "GeneralFrfResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "general_frf",
+      "analysis_kinds": [
+        "general_frf"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/general_time_view.py",
+      "qt_class": "GeneralTimeResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "general_time_response",
+      "analysis_kinds": [
+        "general_time_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/level1_view.py",
+      "qt_class": "Level1ResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "level1",
+      "analysis_kinds": [
+        "level1"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/modal_view.py",
+      "qt_class": "ModalResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "modal",
+      "analysis_kinds": [
+        "modal"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/response_view.py",
+      "qt_class": "FrequencyResponseResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "frequency_response, auxiliary_frequency_response, foundation_frequency_response",
+      "analysis_kinds": [
+        "frequency_response",
+        "auxiliary_frequency_response",
+        "foundation_frequency_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/special_rotor_view.py",
+      "qt_class": "SpecialRotorResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "coaxial_modal, coaxial_frequency_response, asymmetric_modal, asymmetric_frequency_response",
+      "analysis_kinds": [
+        "coaxial_modal",
+        "coaxial_frequency_response",
+        "asymmetric_modal",
+        "asymmetric_frequency_response"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/static_view.py",
+      "qt_class": "StaticResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "static",
+      "analysis_kinds": [
+        "static"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/transient_view.py",
+      "qt_class": "TransientResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "foundation_time_response, runup",
+      "analysis_kinds": [
+        "foundation_time_response",
+        "runup"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/result_views/ucs_view.py",
+      "qt_class": "UCSResultView",
+      "flet_target": "ui_results.AllResultsViews / ui_views.WorkspaceViews",
+      "scope": "ucs",
+      "analysis_kinds": [
+        "ucs"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/docks/advanced_bearing_editor.py",
+      "qt_class": "AdvancedBearingEditor",
+      "flet_target": "entity_forms.EntityForm",
+      "scope": "14 famílias; parâmetros físicos / coeficientes / proveniência",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/docks/bearing_editor.py",
+      "qt_class": "BearingInspectorWidget",
+      "flet_target": "ui_properties.PropertiesViews",
+      "scope": "mancais clássicos 1–8 e acoplamento 20",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/docks/disk_editor.py",
+      "qt_class": "DiskInspectorWidget",
+      "flet_target": "ui_properties.PropertiesViews",
+      "scope": "discos 1–6",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/docks/messages.py",
+      "qt_class": "MessagesDock",
+      "flet_target": "ui.StudioApp.messages",
+      "scope": "mensagens estruturadas / falhas / progresso",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/docks/project_explorer.py",
+      "qt_class": "ProjectExplorerDock",
+      "flet_target": "ui.StudioApp.explorer",
+      "scope": "entidades, casos e resultados",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/docks/property_inspector.py",
+      "qt_class": "PropertyInspectorDock",
+      "flet_target": "ui_properties.PropertiesViews",
+      "scope": "propriedades por entidade / resultado",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/widgets/analysis_modules.py",
+      "qt_class": "AnalysisModulesBar",
+      "flet_target": "analysis_forms.AnalysisActions",
+      "scope": "catálogo e formulários de todos os contratos",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/widgets/bearing_performance.py",
+      "qt_class": "_FieldCanvas",
+      "flet_target": "ui_bearings.field_present",
+      "scope": "campos nativos; indisponibilidade explícita quando ausentes",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/widgets/bearing_performance.py",
+      "qt_class": "BearingPerformancePage",
+      "flet_target": "ui_bearings.BearingWorkspaces",
+      "scope": "K/C/M, campos, mapas, cache e aplicação transacional",
+      "analysis_kinds": [
+        "bearing_matrices"
+      ]
+    },
+    {
+      "qt_path": "python/src/drm_studio/widgets/rotor_view.py",
+      "qt_class": "RotorView",
+      "flet_target": "plotting.rotor_svg",
+      "scope": "desenho gerado do modelo / seleção / zoom / deslocamento",
+      "analysis_kinds": []
+    },
+    {
+      "qt_path": "python/src/drm_studio/widgets/rotor_view.py",
+      "qt_class": "RotorModelPage",
+      "flet_target": "ui_views.WorkspaceViews",
+      "scope": "modelo e tabela de entidades",
+      "analysis_kinds": []
+    }
+  ],
+  "excluded_claims": [
+    "pixel-perfect Qt equality",
+    "Windows desktop rendering",
+    "web qualification",
+    "frozen executables",
+    "normative API certification"
+  ]
+}

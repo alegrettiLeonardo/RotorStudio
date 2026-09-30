@@ -1,0 +1,155 @@
+name: Flet distribution qualification
+on:
+  push:
+    branches: [feat/flet-mockup-interface-20260929]
+    paths:
+      - 'python/src/drm_flet/**'
+      - 'python/tests_flet/**'
+      - 'python/pyproject.toml'
+      - 'scripts/flet*'
+      - 'scripts/package_flet.py'
+      - '.github/workflows/flet-distribution-qualification.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'python/src/drm_flet/**'
+      - 'python/tests_flet/**'
+      - 'python/pyproject.toml'
+      - 'scripts/flet*'
+      - 'scripts/package_flet.py'
+      - '.github/workflows/flet-distribution-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: flet-distribution-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  qualify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      MPLBACKEND: Agg
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python dependencies
+        run: python -m pip install -e "./python[flet,test,package]" "pyautogui==0.9.54" "playwright==1.55.0"
+      - name: Install Linux desktop dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgtk-3-0 libsecret-1-0 libgles2 libegl1 libgl1 xvfb openbox zenity xdotool scrot
+          python -m playwright install --with-deps chromium
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: git mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-openblas
+      - name: Preserve frozen comparison scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p validation/reports/flet_distribution
+          git diff --exit-code fcdac252974aeeded6961dbe3310677e234a6495 HEAD -- fortran python/src/drm_core python/src/drm_studio
+          git rev-parse HEAD > validation/reports/flet_distribution/source_head.txt
+          python -m pip freeze > validation/reports/flet_distribution/dependencies.txt
+      - name: Linux native build
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          cmake -S fortran -B build-flet -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-flet -j2
+          ctest --test-dir build-flet --output-on-failure --output-junit "$PWD/validation/reports/flet_distribution/ctest.xml"
+          echo "DRMROTOR_LIB=$PWD/build-flet/libdrmrotor.so" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_LIB=$PWD/build-flet/libdrmbearings.so" >> "$GITHUB_ENV"
+          echo "PYTHONPATH=$PWD/python/src:$PWD" >> "$GITHUB_ENV"
+      - name: Windows native build
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          cmake -S fortran -B build-flet -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-flet --parallel 2
+          ctest --test-dir build-flet --output-on-failure --output-junit "$(cygpath -m "$PWD/validation/reports/flet_distribution/ctest.xml")"
+          echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+      - name: Windows source library paths
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $rotor = Get-ChildItem build-flet -Recurse -Filter '*drmrotor*.dll' | Select-Object -First 1
+          $bearing = Get-ChildItem build-flet -Recurse -Filter '*drmbearings*.dll' | Select-Object -First 1
+          if (-not $rotor -or -not $bearing) { throw 'Native libraries missing' }
+          "DRMROTOR_LIB=$($rotor.FullName)" >> $env:GITHUB_ENV
+          "DRMBEARINGS_LIB=$($bearing.FullName)" >> $env:GITHUB_ENV
+          "DRMROTOR_DLL_DIRS=$env:UCRT64_BIN" >> $env:GITHUB_ENV
+          "DRMBEARINGS_DLL_DIRS=$env:UCRT64_BIN" >> $env:GITHUB_ENV
+          "PYTHONPATH=$PWD\python\src;$PWD" >> $env:GITHUB_ENV
+          $env:UCRT64_BIN >> $env:GITHUB_PATH
+      - name: Core, Flet and distribution contract tests
+        run: python -m pytest python/tests python/tests_flet -q --junitxml=validation/reports/flet_distribution/pytest.xml
+      - name: Inventory guard
+        run: python scripts/flet_screen_inventory.py --out validation/reports/flet_distribution/inventory.json
+      - name: Linux real desktop including OS dialogs
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a -s '-screen 0 1800x1120x24' bash -c 'openbox >/tmp/flet-wm.log 2>&1 & python scripts/flet_distribution_driver.py --out validation/reports/flet_distribution/source_desktop --file-dialogs --source-head "$SOURCE_HEAD" -- python -m drm_flet'
+      - name: Windows real desktop including OS dialogs
+        if: runner.os == 'Windows'
+        run: python scripts/flet_distribution_driver.py --out validation/reports/flet_distribution/source_desktop --file-dialogs --source-head ${{ env.SOURCE_HEAD }} -- python -m drm_flet
+      - name: Browser with Linux backend including upload and downloads
+        if: runner.os == 'Linux'
+        run: python scripts/flet_distribution_driver.py --mode web --out validation/reports/flet_distribution/source_web --file-dialogs --source-head "$SOURCE_HEAD" -- python -m drm_flet
+      - name: Build platform-native frozen distribution
+        shell: bash
+        run: |
+          python scripts/package_flet.py --solver "$DRMROTOR_LIB" --bearing-solver "$DRMBEARINGS_LIB" --source-head "$SOURCE_HEAD"
+      - name: Extract into a new directory and verify manifests
+        run: python scripts/flet_extract_package.py --dist dist/flet --out validation/reports/flet_distribution/extracted
+      - name: Linux frozen desktop, isolated process environment
+        if: runner.os == 'Linux'
+        run: |
+          xvfb-run -a -s '-screen 0 1800x1120x24' bash -c 'openbox >/tmp/flet-frozen-wm.log 2>&1 & python scripts/flet_distribution_driver.py --out validation/reports/flet_distribution/frozen_desktop --clean --file-dialogs --source-head "$SOURCE_HEAD" -- "$PWD/validation/reports/flet_distribution/extracted/RotorStudioFlet/RotorStudioFlet"'
+      - name: Windows frozen desktop, system-only PATH
+        if: runner.os == 'Windows'
+        run: python scripts/flet_distribution_driver.py --out validation/reports/flet_distribution/frozen_desktop --clean --file-dialogs --source-head ${{ env.SOURCE_HEAD }} -- ./validation/reports/flet_distribution/extracted/RotorStudioFlet/RotorStudioFlet.exe
+      - name: Browser with frozen Linux backend
+        if: runner.os == 'Linux'
+        run: python scripts/flet_distribution_driver.py --mode web --out validation/reports/flet_distribution/frozen_web --clean --file-dialogs --source-head "$SOURCE_HEAD" -- "$PWD/validation/reports/flet_distribution/extracted/RotorStudioFlet/RotorStudioFlet"
+      - name: Fail-closed platform evidence gate
+        run: python scripts/flet_distribution_gate.py --root validation/reports/flet_distribution --head ${{ env.SOURCE_HEAD }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flet-distribution-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            validation/reports/flet_distribution/
+            !validation/reports/flet_distribution/extracted/
+            dist/flet/*.zip
+            dist/flet/*.tar.gz
+            dist/flet/PACKAGE.json
+          if-no-files-found: error
+          retention-days: 30
+  final-gate:
+    needs: qualify
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require both platform jobs
+        env:
+          RESULT: ${{ needs.qualify.result }}
+        run: test "$RESULT" = success
