@@ -108,14 +108,18 @@ def generate(ross_root:Path,out:Path):
                      "whirl":modal.whirl_values(),"residual":np.asarray(residuals)}
             groups={"A":"matrix_A","evalues_all":"modal_eigen","evalues":"modal_eigen","evectors_displacement":"modal_evec",
                     "wn":"modal_wn","wd":"modal_wd","damping_ratio":"modal_damping","log_dec":"modal_logdec","whirl":"modal_whirl","residual":"modal_residual"}
-            for name,a in payload.items():arrays.append(save_array(out,f"modal/{case['id']}_{name}.npy",a,groups[name]))
+            for name,a in payload.items():
+                group=groups[name]
+                arrays.append(save_array(out,f"modal/{case['id']}_{name}.npy",a,group,allow_nan=(group=="modal_whirl")))
             write_json(out/f"modal/{case['id']}_mode_types.json",[s.mode_type for s in modal.shapes[:nsel]])
             cases[case["id"]]={"kind":"modal","rotor":case["rotor"],"ndof":rotor.ndof,"speed_rad_s":w,"num_modes":nm,"selected_modes":nsel}
         for case in spec["campbell_cases"]:
             rotor=build_rotor(rs,spec,case["rotor"]);speeds=np.asarray(case["speed_range_rad_s"],float);freqs=int(case["frequencies"])
             camp=dense_campbell(rotor,speeds,freqs)
             payload={"speed":speeds,"wd":camp.wd,"log_dec":camp.log_dec,"damping_ratio":camp.damping_ratio,"whirl":camp.whirl_values}
-            for name,a in payload.items():arrays.append(save_array(out,f"campbell/{case['id']}_{name}.npy",a,"campbell_"+name))
+            for name,a in payload.items():
+                group="campbell_"+name
+                arrays.append(save_array(out,f"campbell/{case['id']}_{name}.npy",a,group,allow_nan=(group=="campbell_whirl")))
             track=[];types_out=[]
             for i,w in enumerate(speeds):
                 tracked=camp.modal_results[float(w)];raw=rotor.run_modal(speed=float(w),num_modes=2*(freqs+2),sparse=False,synchronous=False,matched_whirl=False)
