@@ -1,0 +1,185 @@
+name: Freeze / Reproduce B1 6DOF Element Authority
+
+on:
+  push:
+    branches: [feature/ross-analysis-b1-6dof-element-matrices]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: b1-authority-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    name: B1 authority / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      PYTHONHASHSEED: '0'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Set LF policy before either checkout
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross_b1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Create isolated dependency environment
+        run: |
+          python - <<'PY'
+          import os,pathlib,subprocess,sys
+          v=pathlib.Path(os.environ['RUNNER_TEMP'])/'b1-authority-env'
+          subprocess.run([sys.executable,'-m','venv',str(v)],check=True)
+          bindir=v/('Scripts' if os.name=='nt' else 'bin')
+          with open(os.environ['GITHUB_PATH'],'a',encoding='utf-8') as f:
+              f.write(str(bindir)+'\n')
+          PY
+      - name: Install actual frozen ROSS with consistent dependencies
+        run: |
+          python -m pip install -e ./_ross_b1 pytest
+          python -m pip check
+          python -m compileall -q validation/b1 validation/ross_parity/generate_6dof_elements_reference.py validation/ross_parity/verify_6dof_elements_candidate.py
+      - name: Generate candidate matrices (never immutable references)
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python validation/ross_parity/generate_6dof_elements_reference.py --ross-root _ross_b1 --out b1-evidence/candidate
+      - name: Inspect actual candidate matrices and source behavior
+        run: python validation/b1/inspect_candidate.py b1-evidence/candidate
+      - name: Exercise generation, provenance and numerical guards
+        env:
+          B1_CANDIDATE: b1-evidence/candidate
+        run: |
+          python -m pytest validation/b1/tests --collect-only -q > b1-evidence/collection.txt
+          python -m pytest validation/b1/tests -q --junitxml=b1-evidence/generation-tests.xml
+          python - <<'PY'
+          import pathlib,re,xml.etree.ElementTree as ET
+          text=pathlib.Path('b1-evidence/collection.txt').read_text()
+          count=int(re.search(r'(\d+) tests? collected',text).group(1))
+          root=ET.parse('b1-evidence/generation-tests.xml').getroot()
+          suites=root.findall('.//testsuite')
+          assert suites and count>=38
+          assert sum(int(s.attrib['tests']) for s in suites)==count
+          assert len(root.findall('.//testcase'))==count
+          assert not any(int(s.attrib.get(k,0)) for s in suites for k in ('failures','errors','skipped'))
+          print('B1_JUNIT_GATE=PASS',count,'tests; failures/errors/skips=0')
+          PY
+      - name: Independent repeat in a second directory
+        run: |
+          python validation/ross_parity/generate_6dof_elements_reference.py --ross-root _ross_b1 --out b1-evidence/repeat
+          python validation/b1/inspect_candidate.py b1-evidence/repeat
+          python validation/ross_parity/verify_6dof_elements_candidate.py --review-only --reference b1-evidence/candidate --candidate b1-evidence/repeat --report b1-evidence/repeat-comparison.json
+      - name: Reproduce immutable authority when present (read only)
+        run: |
+          python - <<'PY'
+          import os,pathlib,subprocess,sys
+          frozen=pathlib.Path('validation/ross_parity/6dof_elements')
+          command=[sys.executable,'validation/ross_parity/verify_6dof_elements_candidate.py','--candidate','b1-evidence/candidate','--report','b1-evidence/reproduction.json']
+          if frozen.exists():
+              command += ['--reference',str(frozen)]
+          else:
+              command += ['--review-only','--reference','b1-evidence/repeat']
+          subprocess.run(command,check=True)
+          PY
+      - name: Preserve all historical files and record exact job scope
+        run: |
+          python validation/b1/native_preservation.py
+          git diff --exit-code 23a7624374418991fe700c2817150f67c5bd48fb HEAD -- validation/b1/element_cases.json
+          git diff --exit-code HEAD -- validation/ross_parity validation/b1
+          python - <<'PY'
+          import json,os,pathlib,xml.etree.ElementTree as ET
+          root=pathlib.Path('b1-evidence')
+          a=json.loads((root/'candidate/authority.json').read_text())
+          r=json.loads((root/'reproduction.json').read_text())
+          assert a['generator_head']==os.environ['GITHUB_SHA']
+          assert r['status']=='PASS' and r['verification_head']==os.environ['GITHUB_SHA']
+          frozen=pathlib.Path('validation/ross_parity/6dof_elements').exists()
+          assert r['mode']==('IMMUTABLE_AUTHORITY_REPRODUCTION' if frozen else 'CANDIDATE_REVIEW_ONLY')
+          n=len(ET.parse(root/'generation-tests.xml').getroot().findall('.//testcase'))
+          summary={'status':'PASS','head_sha':os.environ['GITHUB_SHA'],'run_id':os.environ['GITHUB_RUN_ID'],'platform':a['platform'],'tests':n,'inspection_checks':670,'primary_matrices':113,'lateral_selections':63,'frozen_authority':'PASS' if frozen else 'NOT_STARTED','reproduction_mode':r['mode'],'data_bundle_sha256':a['data_bundle_sha256'],'historical_preservation':'PASS','native_implementation':'NOT_ASSESSED_BY_AUTHORITY_WORKFLOW','ABI':'NOT_ASSESSED_BY_AUTHORITY_WORKFLOW'}
+          (root/'job-summary.json').write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print('B1_JOB_SUMMARY',json.dumps(summary,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b1-authority-${{ matrix.os }}-${{ github.sha }}
+          path: b1-evidence/
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate:
+    name: B1 authority aggregate (no native qualification)
+    needs: candidate
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Require both executed platform jobs
+        env:
+          PLATFORM_RESULT: ${{ needs.candidate.result }}
+        run: test "$PLATFORM_RESULT" = success
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy==2.5.3
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: b1-authority-*-${{ github.sha }}
+          path: b1-platform-artifacts
+      - name: Compare both platforms' actual arrays and provenance
+        run: |
+          python - <<'PY'
+          import json,os,pathlib
+          from validation.b1.authority_common import read_json,write_json
+          from validation.ross_parity.verify_6dof_elements_candidate import verify
+          sha=os.environ['GITHUB_SHA']; root=pathlib.Path('b1-platform-artifacts')
+          paths={osname:root/f'b1-authority-{osname}-{sha}' for osname in ('ubuntu-24.04','windows-2025')}
+          summaries={osname:read_json(path/'job-summary.json') for osname,path in paths.items()}
+          for s in summaries.values():
+              assert s['status']=='PASS' and s['head_sha']==sha
+              assert s['run_id']==os.environ['GITHUB_RUN_ID']
+          assert len({s['tests'] for s in summaries.values()})==1
+          out=pathlib.Path('b1-aggregate-evidence'); out.mkdir()
+          result=verify(paths['ubuntu-24.04']/'candidate',paths['windows-2025']/'candidate',out/'cross-platform.json',review_only=True)
+          assert result['status']=='PASS'
+          frozen=pathlib.Path('validation/ross_parity/6dof_elements').exists()
+          assert all(s['frozen_authority']==('PASS' if frozen else 'NOT_STARTED') for s in summaries.values())
+          summary={'status':'PASS','head_sha':sha,'run_id':os.environ['GITHUB_RUN_ID'],'authority_gate':'PASS' if frozen else 'NOT_STARTED','platforms':summaries,'cross_platform_primary_matrices':113,'cross_platform_lateral_selections':63,'primary_npy_bitwise_equal':result['primary_npy_files_bitwise_equal'],'lateral_npy_bitwise_equal':result['lateral_npy_files_bitwise_equal'],'by_block':result['by_block'],'native_implementation':'NOT_ASSESSED_BY_AUTHORITY_WORKFLOW','ABI':'NOT_ASSESSED_BY_AUTHORITY_WORKFLOW'}
+          write_json(out/'summary.json',summary)
+          print('B1_AUTHORITY_AGGREGATE',json.dumps(summary,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: b1-authority-aggregate-${{ github.sha }}
+          path: b1-aggregate-evidence/
+          if-no-files-found: error
+          retention-days: 90

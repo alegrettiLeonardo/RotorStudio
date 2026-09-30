@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "review_type": "Assistant technical inspection of actual execution logs and immutable Actions artifacts; not independent third-party review",
+  "authorization_scope": "User explicitly requested the first B1 authority freeze on the existing B1 branch. No production/native implementation or promotion is authorized by this record.",
+  "reviewed_head": "d8a4cb58f4472f7577bb79f0cf7e47771b10dd11",
+  "main": "fcdac252974aeeded6961dbe3310677e234a6495",
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "run_id": 36710089212,
+  "job_ids": {"linux": 109869533976, "windows": 109869533673, "aggregate": 109870461937},
+  "observed_job_status": {"linux": "PASS", "windows": "PASS", "aggregate": "PASS"},
+  "source_generator_sha256": "8ba45b99eca02d10959118aa7fd8448e9cb2ef8b8fd6ec46d444bdc96d24e074",
+  "source_inspector_sha256": "3fda0f3a1ea7077d1d5483c7124220d313819bafb8196f3134d787c3c91bfc06",
+  "input_specification_sha256": "8b4b21c2450b46082a6915d89a911e06491a9d9f7bb04b28d4a367b6c06d4d0e",
+  "reviewed_data_bundle_sha256": "5601990610bd1a06cec124c1f071d5d13d3768d24760e98581952ae86f335ce0",
+  "linux_authority_sha256": "1c5819b06df134bbaaa374c2106fa0bc695be6f131a7ab12a554045479d1d03b",
+  "windows_authority_sha256": "730fd012f8e203898e53ba42b3cfabb6db2338fdc36604c4e61d34ca3a18a030",
+  "artifacts": {
+    "linux": {"id": 11093976663, "name": "b1-authority-ubuntu-24.04-d8a4cb58f4472f7577bb79f0cf7e47771b10dd11", "sha256": "23ce276fd2b59e5f557d00bcd4e164b37e424bcf734e7f5adf79f507f2b8f687"},
+    "windows": {"id": 11093482540, "name": "b1-authority-windows-2025-d8a4cb58f4472f7577bb79f0cf7e47771b10dd11", "sha256": "a0959edbdf4fe43b3be49916c867d598ea99d316ee5c45323277c170df7c7be2"}
+  },
+  "source_sha256": {
+    "ross/shaft_element.py": "46d6bdf328dad4958a3b3398c28c8424c6057775ff461a646627339104cb89f6",
+    "ross/disk_element.py": "6ff37f5188bc8eff9d8961cdd326496f7b8de2255f01a70655894584b6fa3d53",
+    "ross/materials.py": "fae027debec61926a216916915ee7edb51850727293ced3c8381719b2625b8e8",
+    "ross/element.py": "0f64954444aab624aad3f0be78f92e254655ec01e89a9b3e57263cee5d25bd23",
+    "ross/units.py": "d3bef81b1216e4eeb1a6300ce1a8dc0c16707f37ba45e729d42d6a473a74a39d",
+    "ross/new_units.txt": "b3e6c4e71bb067db02e0c6ecbb9276a7ab9154dd8c2d7007ddc71896871247f9"
+  },
+  "inspection": {
+    "case_count": {"shaft": 26, "disk": 3},
+    "primary_matrix_count": 113,
+    "supplementary_lateral_selections": 63,
+    "checks_per_platform": 670,
+    "failed_checks": 0,
+    "tests_per_platform": 21,
+    "same_platform_second_generation": "PASS",
+    "cross_platform_data_digest_equal": true,
+    "observations": [
+      "All primary matrices float64, finite and with the required 12x12/6x6 shapes; complete unique inventory.",
+      "M symmetry and G skew residuals are exactly zero. Torque-free K symmetry passes; torque cases deliberately remain nonsymmetric.",
+      "Kst remains nonzero with gyroscopic disabled and unchanged for all otherwise-identical effect-flag combinations.",
+      "Torsional mass/stiffness remain when lateral rotary/shear effects are disabled. Signed axial/torque and density checks pass.",
+      "Cylindrical baseline rigid vectors, mass and axial/torsional energy checks pass. Scaled mass eigenvalue diagnostics are positive.",
+      "S17 axial rigid mass 2.8333640719196955 kg versus geometric constructor mass 2.7137590942365613 kg; ratio 1.0440735428347894.",
+      "S18/S19/S24 axial rigid mass 2.6077777604611208 kg versus geometric mass 2.509581366061506 kg; ratio 1.0391285956006768. Preserve the source endpoint-mean convention.",
+      "Transitive ccp import emits a REFPROP-unavailable/HEOS warning on both systems. It is retained in logs. Matrix generation calls only the declared ROSS element/material methods; no thermodynamic result is an authority output."
+    ]
+  },
+  "freeze_selection": "Copy the reviewed Linux FIRST candidate byte-for-byte, not a later regenerated result. Verify the reviewed Windows and repeat candidates separately before committing.",
+  "tolerance_policy_path": "validation/b1/TOLERANCE_POLICY.json",
+  "freeze_condition": "All reviewed hashes, inventory, independent inspection, source/input provenance and the committed pre-native tolerance policy must pass. Refuse an existing frozen directory and never force push over parallel work.",
+  "native_implementation": "NOT_STARTED",
+  "ABI": "NOT_STARTED"
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "scope": "B1 frozen ROSS element reference reproduction; policy established before any native B1 comparison",
+  "reviewed_candidate_head": "d8a4cb58f4472f7577bb79f0cf7e47771b10dd11",
+  "reviewed_candidate_data_sha256": "5601990610bd1a06cec124c1f071d5d13d3768d24760e98581952ae86f335ce0",
+  "binary64_epsilon": 2.220446049250313e-16,
+  "comparison": "Every entry independently: abs(candidate-reference) <= atol + rtol*abs(reference). No global matrix norm sets an absolute tolerance.",
+  "zero_pattern_policy": "Exact numerical zero/nonzero mask for every primary matrix and lateral selection. Sign of floating zero is recorded by byte comparison but is not a physical discrepancy.",
+  "serialization_policy": "Frozen NPY file bytes and raw F-order values are hash-protected. Cross-platform numerical agreement is a separate gate; different candidate serialization bytes alone do not fail numerical reproduction.",
+  "dimensional_interpretation": {
+    "coordinates": "x,y,z in m; alpha,beta,theta in rad (dimensionless in SI)",
+    "M_G_Kst": "Generalized inertial coefficients: translation/translation kg; translation/rotation kg*m; rotation/rotation kg*m^2. G multiplies spin and velocity; Kst multiplies angular acceleration and displacement.",
+    "K": "Generalized stiffness: translation/translation N/m; translation/rotation N; rotation/rotation N*m. No comparisons mix these entries through a common absolute norm.",
+    "load_additions": "Same entry units as K, restricted to the lateral selection; subtraction roundoff is bounded entrywise from the corresponding loaded and unloaded reference entries, never from the axial stiffness."
+  },
+  "blocks": {
+    "shaft_M_lateral": {"rtol": 9.094947017729282e-13, "atol": 0.0, "units": "kg / kg*m / kg*m^2 by row and column", "reason": "4096 epsilon, reserved for scalar polynomial evaluation/reordering in these finite reviewed fixtures; exact zeros checked separately."},
+    "shaft_M_axial": {"rtol": 1.1368683772161603e-13, "atol": 0.0, "units": "kg", "reason": "512 epsilon for the short endpoint-mean consistent-mass expression."},
+    "shaft_M_torsional": {"rtol": 1.1368683772161603e-13, "atol": 0.0, "units": "kg*m^2", "reason": "512 epsilon for endpoint-mean torsional inertia; not scaled by translational mass."},
+    "shaft_K_lateral": {"rtol": 9.094947017729282e-13, "atol": 0.0, "units": "N/m / N / N*m by row and column", "reason": "4096 epsilon for scalar bending/shear/preload arithmetic; each small torque entry is tested against its own value."},
+    "shaft_K_axial": {"rtol": 1.1368683772161603e-13, "atol": 0.0, "units": "N/m", "reason": "512 epsilon for EAe/L; this block cannot set the tolerance of other blocks."},
+    "shaft_K_torsional": {"rtol": 1.1368683772161603e-13, "atol": 0.0, "units": "N*m", "reason": "512 epsilon for Gs*Je/L, independently of axial stiffness."},
+    "shaft_axial_load_addition": {"rtol": 9.094947017729282e-13, "atol": 0.0, "cancellation_epsilon_multiplier": 16, "units": "Lateral K entry units", "reason": "Compare S20/S21 minus S02. Add the predetermined bound 16*epsilon*(abs(K_loaded_ref_ij)+abs(K_base_ref_ij)) for cancellation in subtracting two matrices. This is not a globally scaled tolerance."},
+    "shaft_torque_addition": {"rtol": 1.1368683772161603e-13, "atol": 0.0, "cancellation_epsilon_multiplier": 16, "units": "Lateral K entry units", "reason": "Compare S22/S23 minus S02, signed. Use the same entrywise subtraction floor; torque entries absent from the baseline retain a small local bound."},
+    "shaft_G": {"rtol": 9.094947017729282e-13, "atol": 0.0, "units": "kg / kg*m / kg*m^2 by row and column", "reason": "4096 epsilon for scalar gyroscopic coefficients; exact skew/zero patterns independently audited."},
+    "shaft_Kst": {"rtol": 9.094947017729282e-13, "atol": 0.0, "units": "kg / kg*m / kg*m^2 by row and column", "reason": "4096 epsilon for angular-acceleration coefficients; nonsymmetry and flag independence retained."},
+    "disk_M": {"rtol": 0.0, "atol": 0.0, "units": "kg on translation diagonal; kg*m^2 on rotation diagonal", "reason": "Direct input assignments, not an iterative or polynomial calculation."},
+    "disk_G": {"rtol": 0.0, "atol": 0.0, "units": "kg*m^2", "reason": "Only +Ip/-Ip direct assignments at the two specified entries."},
+    "disk_Kdt": {"rtol": 0.0, "atol": 0.0, "units": "kg*m^2", "reason": "Only +Ip at zero-based [4,3]; direct assignment."}
+  },
+  "derived_metadata": {"rtol": 5.684341886080802e-14, "atol": 0.0, "reason": "256 epsilon for constructor-derived scalar quantities; input specification, keys, flags, names and DOF maps must match exactly."},
+  "limitation": "These pre-native engineering bounds apply to the declared finite B1 fixtures. They are not a proof of uniform floating-point conditioning for arbitrary degenerate geometry. A future failure requires diagnosis, not automatic tolerance relaxation."
+}

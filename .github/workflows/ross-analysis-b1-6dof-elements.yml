@@ -1,0 +1,198 @@
+name: ROSS Analysis B1 6DOF Element Matrices Qualification
+
+on:
+  push:
+    branches: [feature/ross-analysis-b1-6dof-element-matrices]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  B1_EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+  QT_QPA_PLATFORM: offscreen
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  preflight:
+    name: B1 locked authority and historical preservation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Preserve raw source bytes
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.B1_EXPECTED_HEAD }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Execute locked authority integrity before any native build
+        run: |
+          python -m pip install numpy pytest
+          mkdir -p b1-native-preflight
+          python - <<'PY'
+          import json, os, pathlib, subprocess
+          from validation.b1.tests.test_frozen_authority import locked_integrity, FREEZE_COMMIT
+          from validation.b1.authority_common import FROZEN_PATH, REPO_ROOT
+          from validation.b1.native_preservation import verify
+          result = locked_integrity(REPO_ROOT / FROZEN_PATH)
+          subprocess.run(['git','diff','--exit-code',FREEZE_COMMIT,'HEAD','--',FROZEN_PATH],check=True)
+          verify(REPO_ROOT)
+          sha=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          assert sha==os.environ['B1_EXPECTED_HEAD']
+          result.update(head=sha, scope='LOCKED_AUTHORITY_AND_NATIVE_ADDITIVE_PRESERVATION', native_qualification='PENDING')
+          pathlib.Path('b1-native-preflight/integrity.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+          print('B1_PRE_NATIVE_INTEGRITY',json.dumps(result,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: b1-native-preflight-${{ env.B1_EXPECTED_HEAD }}
+          path: b1-native-preflight/
+          if-no-files-found: error
+          retention-days: 90
+
+  native:
+    name: B1 native / ${{ matrix.os }}
+    needs: preflight
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 100
+    steps:
+      - name: Preserve raw bytes
+        shell: bash
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.B1_EXPECTED_HEAD }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Python dependencies
+        run: |
+          python -m pip install -e "./python[flet,test,studio,ui-test]"
+          python -m pip check
+      - name: Linux packages
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make cmake gfortran libblas-dev liblapack-dev libgl1 libegl1 libgl1-mesa-dri libgtk-3-0 libsecret-1-0 libgles2 libxkbcommon-x11-0 libxcb-cursor0 openbox xvfb xauth zenity
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-openblas
+      - name: Windows Release and Debug builds
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          set -euo pipefail
+          for config in Release Debug; do
+            lower=$(echo "$config" | tr '[:upper:]' '[:lower:]')
+            cmake -S fortran -B "build-b1-$lower" -G Ninja -DCMAKE_BUILD_TYPE="$config" -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+            cmake --build "build-b1-$lower" --parallel 2
+          done
+          echo "DRMROTOR_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+          cygpath -w /ucrt64/bin >> "$GITHUB_PATH"
+      - name: Complete Linux native and inherited regression qualification
+        if: runner.os == 'Linux'
+        run: python validation/b1/native_runner.py --out b1-native-evidence
+      - name: Complete Windows native and inherited regression qualification
+        if: runner.os == 'Windows'
+        run: python validation/b1/native_runner.py --out b1-native-evidence --no-configure
+      - name: Flet exact-head source preservation on real Linux desktop
+        if: runner.os == 'Linux'
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+          DRMROTOR_LIB: ${{ github.workspace }}/build-b1-release/libdrmrotor.so
+          DRMBEARINGS_LIB: ${{ github.workspace }}/build-b1-release/libdrmbearings.so
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+          MPLBACKEND: Agg
+        run: |
+          set -euo pipefail
+          mkdir -p b1-native-evidence/flet-source
+          xvfb-run -a -s '-screen 0 1800x1120x24' bash -c 'openbox > b1-native-evidence/flet-source/openbox.log 2>&1 & wm=$!; trap "kill $wm 2>/dev/null || true" EXIT; sleep 1; timeout 900s python scripts/flet_all_screens_smoke.py --outdir b1-native-evidence/flet-source/all_screens'
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('b1-native-evidence/flet-source/all_screens/all_screens_smoke.json')
+          d=json.loads(p.read_text(encoding='utf-8'))
+          assert d['status']=='PASS' and d['sessions_started']==1
+          assert d['desktop_rendering'] is True and d['web_rendering'] is False
+          assert len(d['checks'])>=100 and len(d.get('screenshots',{}))>0
+          print('B1_FLET_SOURCE_PRESERVATION=PASS',len(d['checks']),len(d.get('screenshots',{})))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b1-native-${{ matrix.os }}-${{ env.B1_EXPECTED_HEAD }}
+          path: b1-native-evidence/
+          if-no-files-found: error
+          retention-days: 90
+
+  aggregate:
+    name: B1 native aggregate (authority workflow remains a separate gate)
+    needs: [preflight, native]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Require executed native platform jobs
+        env:
+          PREFLIGHT_RESULT: ${{ needs.preflight.result }}
+          NATIVE_RESULT: ${{ needs.native.result }}
+        run: |
+          test "$PREFLIGHT_RESULT" = success
+          test "$NATIVE_RESULT" = success
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: b1-native-*-${{ env.B1_EXPECTED_HEAD }}
+          path: downloaded
+      - name: Verify both exact-head platform summaries
+        run: |
+          python - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path('downloaded'); sha=os.environ['B1_EXPECTED_HEAD']; summaries={}
+          for platform in ('ubuntu-24.04','windows-2025'):
+              file=root/f'b1-native-{platform}-{sha}'/'PLATFORM_RESULT.json'
+              data=json.loads(file.read_text())
+              assert data['status']=='PLATFORM_QUALIFICATION_PASS'
+              assert data['head']==sha and data['source_tree_clean'] is True
+              assert data['run_id']==os.environ['GITHUB_RUN_ID']
+              assert data['native']['status']=='PASS'
+              assert data['native']['primary_matrices']==113
+              assert data['native']['lateral_selections']==63
+              assert data['native']['legacy_comparisons']==63
+              assert data['native']['authority_unchanged'] is True
+              assert data['junit'] and all(x['tests']>0 and x['failures']==x['errors']==x['skips']==0 for x in data['junit'].values())
+              summaries[platform]=data
+          out=pathlib.Path('b1-native-aggregate');out.mkdir()
+          result={'status':'PASS','head':sha,'scope':'Native B1 and inherited regressions; authority workflow and broad product PR workflows required separately','platforms':summaries}
+          (out/'summary.json').write_text(json.dumps(result,indent=2)+'\n')
+          print('B1_NATIVE_PLATFORM_AGGREGATE_PASS',sha)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: b1-native-aggregate-${{ env.B1_EXPECTED_HEAD }}
+          path: b1-native-aggregate/
+          if-no-files-found: error
+          retention-days: 90
