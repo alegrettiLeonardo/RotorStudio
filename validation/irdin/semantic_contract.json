@@ -1,0 +1,222 @@
+{
+  "schema": 1,
+  "status": "PASS_FOR_ST41_DECLARED_SCOPE",
+  "scope": "ST41 iRdin lateral import semantics required by I2-I5; UMP producer scale excluded because all ST41 mass UMP flags are false",
+  "source_project": {
+    "repository": "alegrettiLeonardo/frontend_rotordin",
+    "commit": "647d600bc1d32a05de62ee457942e00285b572e3",
+    "files": [
+      {
+        "path": "src/rotordin_frontend/legacy_import.py",
+        "blob": "6d1b3c2420ddf0663cff45b0cf0c85677d23ca5a",
+        "role": "legacy INI column mapping"
+      },
+      {
+        "path": "src/rotordin_frontend/domain.py",
+        "blob": "5d57cbfde729c5ef55ce5f1c3408f965f2aa31dc",
+        "role": "typed legacy domain and Xi/LC/probe/support contract"
+      },
+      {
+        "path": "src/rotordin_frontend/mass_properties.py",
+        "blob": "16532bf7ea01e019793bf2193a7d5757beff6b65",
+        "role": "disk geometry and predad-compatible inertia contract"
+      },
+      {
+        "path": "src/rotordin_frontend/solver_disks.py",
+        "blob": "0d7a207e7cf88a31f505be89706398a7c84cf6d9",
+        "role": "legacy package expansion contract"
+      },
+      {
+        "path": "src/rotordin_frontend/physical_parity.py",
+        "blob": "f822e3d91ada3cde58458b38cc2fae1831be89c8",
+        "role": "g.mm -> kg.m and degree angle boundary"
+      },
+      {
+        "path": "src/rotordin_frontend/solver.py",
+        "blob": "f377b13fb2b59fe3bad0da3b0e4a15d725d8674d",
+        "role": "RotorDin standard-input serialization"
+      },
+      {
+        "path": "solver/src/source/entrada.f90",
+        "blob": "fed9da6948bdc106cac51e43bd15ebbcff9b3c2b",
+        "role": "native support input and SI contract"
+      },
+      {
+        "path": "solver/src/source/predad.f90",
+        "blob": "3aecb69e054179617fb56ff470c4a63c967fa081",
+        "role": "native disk mass/inertia and mandatory-station contract"
+      },
+      {
+        "path": "solver/src/source/resp_f.f90",
+        "blob": "b7b72dcdb135787cce0122f74d143d524af22c0e",
+        "role": "native unbalance/probe response semantics"
+      }
+    ]
+  },
+  "mappings": {
+    "Massas": {
+      "0": {
+        "name": "xi_mm",
+        "unit": "mm",
+        "meaning": "axial start of logical distributed-mass span",
+        "confidence": "HIGH"
+      },
+      "1": {
+        "name": "length_mm",
+        "unit": "mm",
+        "meaning": "axial span length LC",
+        "confidence": "HIGH"
+      },
+      "2": {
+        "name": "mass_kg",
+        "unit": "kg",
+        "meaning": "logical mass/weight value sent in explicit-weight disk mode",
+        "confidence": "HIGH"
+      },
+      "3": {
+        "name": "outer_diameter_mm",
+        "unit": "mm",
+        "meaning": "physical disk/package outer diameter; zero invokes legacy local-shaft fallback",
+        "confidence": "HIGH"
+      },
+      "4": {
+        "name": "package",
+        "unit": null,
+        "meaning": "boolean; one logical package is split into p_div equal rigid DISK records preserving mass, extent and centroid",
+        "confidence": "HIGH"
+      },
+      "5": {
+        "name": "ump",
+        "unit": null,
+        "meaning": "boolean enabling legacy UMP quantity; producer-side ump_crg unit/scale remains unproven",
+        "confidence": "PARTIAL"
+      },
+      "6": {
+        "name": "inner_diameter_mm",
+        "unit": "mm",
+        "meaning": "physical disk bore; zero follows qualified legacy fallback rules",
+        "confidence": "HIGH"
+      }
+    },
+    "Suporte": {
+      "0": {
+        "name": "bearing_number",
+        "unit": null,
+        "meaning": "1-based associated bearing/housing number",
+        "confidence": "HIGH"
+      },
+      "1": {
+        "name": "kxx",
+        "unit": "N/m",
+        "meaning": "support Kxx",
+        "confidence": "HIGH"
+      },
+      "2": {
+        "name": "kzz",
+        "unit": "N/m",
+        "meaning": "support Kzz (RotorStudio Y is the lateral renaming of legacy Z)",
+        "confidence": "HIGH"
+      },
+      "3": {
+        "name": "kxz",
+        "unit": "N/m",
+        "meaning": "support Kxz",
+        "confidence": "HIGH"
+      },
+      "4": {
+        "name": "kzx",
+        "unit": "N/m",
+        "meaning": "support Kzx",
+        "confidence": "HIGH"
+      },
+      "5": {
+        "name": "cxx",
+        "unit": "N*s/m",
+        "meaning": "support Cxx",
+        "confidence": "HIGH"
+      },
+      "6": {
+        "name": "czz",
+        "unit": "N*s/m",
+        "meaning": "support Czz (RotorStudio Y rename)",
+        "confidence": "HIGH"
+      },
+      "7": {
+        "name": "cxz",
+        "unit": "N*s/m",
+        "meaning": "support Cxz",
+        "confidence": "HIGH"
+      },
+      "8": {
+        "name": "czx",
+        "unit": "N*s/m",
+        "meaning": "support Czx",
+        "confidence": "HIGH"
+      },
+      "9": {
+        "name": "mass_kg",
+        "unit": "kg",
+        "meaning": "bearing-housing/support mass; native reader requires >0",
+        "confidence": "HIGH"
+      },
+      "10": {
+        "name": "description",
+        "unit": null,
+        "meaning": "support description/type",
+        "confidence": "HIGH"
+      }
+    },
+    "Desbal": {
+      "0": {
+        "name": "position_mm",
+        "unit": "mm",
+        "meaning": "axial excitation position",
+        "confidence": "HIGH"
+      },
+      "1": {
+        "name": "phase_deg",
+        "unit": "deg",
+        "meaning": "unbalance phase; legacy/display contract is degrees",
+        "confidence": "HIGH"
+      },
+      "2": {
+        "name": "unbalance_g_mm",
+        "unit": "g*mm",
+        "meaning": "mass-unbalance U; solver boundary converts exactly once by 1e-6 to kg*m",
+        "confidence": "HIGH"
+      }
+    },
+    "Respo": {
+      "0": {
+        "name": "position_mm",
+        "unit": "mm",
+        "meaning": "physical response station; positive positions are inserted as mandatory FE stations",
+        "confidence": "HIGH"
+      },
+      "1": {
+        "name": "coordinate",
+        "unit": null,
+        "meaning": "1=horizontal/X, 2=vertical/Z in legacy native solver",
+        "confidence": "HIGH"
+      },
+      "2": {
+        "name": "orientation_deg",
+        "unit": "deg",
+        "meaning": "probe coordinate-rotation angle; response is rotated before coordinate selection",
+        "confidence": "HIGH"
+      }
+    }
+  },
+  "derived_mass_contract": {
+    "center_mm": "xi_mm + length_mm/2",
+    "package_expansion": "p_div equal axial slices with mass/p_div and length/p_div",
+    "polar_inertia": "m/8*(De^2+Di^2), SI diameters",
+    "diametral_inertia": "0.5*Ip + m*L^2/12",
+    "solver_mode": "explicit WEIGHT; native predad.f remains authority for inertia"
+  },
+  "exclusions": [
+    "ump_crg producer-side scale/unit is not proven and is not promoted",
+    "this contract does not yet assert API 541 compliance",
+    "this contract does not make RotorStudio numerical-ready by itself"
+  ]
+}
