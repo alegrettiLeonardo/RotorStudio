@@ -12,12 +12,14 @@ dependencies = ["numpy>=1.24", "matplotlib>=3.7"]
 [project.scripts]
 drm-cli = "drm_core.cli.main:main"
 drm-studio = "drm_studio.app:main"
+drm-studio-flet = "drm_flet.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [project.optional-dependencies]
 test = ["pytest>=7", "scipy>=1.10"]
+flet = ["flet[desktop,web]==1.0.0"]
 studio = ["PySide6>=6.8,<7", "qtawesome>=1.4,<2"]
 ui-test = ["pytest-qt>=4.4"]
 package = ["pyinstaller>=6.10,<7"]

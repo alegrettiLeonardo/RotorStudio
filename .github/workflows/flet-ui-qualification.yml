@@ -1,0 +1,137 @@
+name: Flet workbench - source qualification
+on:
+  push:
+    branches: [feat/flet-mockup-interface-20260929]
+    paths:
+      - 'python/src/drm_flet/**'
+      - 'python/tests_flet/**'
+      - 'python/pyproject.toml'
+      - 'scripts/flet_desktop_smoke.py'
+      - '.github/workflows/flet-ui-qualification.yml'
+  pull_request:
+    paths:
+      - 'python/src/drm_flet/**'
+      - 'python/tests_flet/**'
+      - 'python/pyproject.toml'
+      - 'scripts/flet_desktop_smoke.py'
+      - '.github/workflows/flet-ui-qualification.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: flet-source-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  linux:
+    name: Linux - native desktop and Core integration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+      DRMROTOR_LIB: ${{ github.workspace }}/build-flet/libdrmrotor.so
+      DRMBEARINGS_LIB: ${{ github.workspace }}/build-flet/libdrmbearings.so
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install native dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgtk-3-0 libsecret-1-0 libgles2 libegl1 libgl1 xvfb xauth zenity
+          python -m pip install -e './python[flet,test]'
+      - name: Numerical and Qt source preservation
+        run: |
+          mkdir -p validation/reports/flet
+          git diff --exit-code 03fef9b0da65c51b7ea3c9a14911cf7f83bcb015 HEAD -- fortran python/src/drm_core python/src/drm_studio python/tests python/tests_ui
+          git rev-parse HEAD > validation/reports/flet/source_head.txt
+      - name: Build unchanged Fortran and run CTest
+        run: |
+          set -o pipefail
+          cmake -S fortran -B build-flet -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-flet -j2
+          ctest --test-dir build-flet --output-on-failure | tee validation/reports/flet/ctest.txt
+      - name: Existing Core regression and Flet adapters
+        run: |
+          set -o pipefail
+          python -m pytest python/tests python/tests_flet -q --junitxml=validation/reports/flet/pytest.xml | tee validation/reports/flet/pytest.txt
+          if grep -Eqi '[1-9][0-9]* skipped' validation/reports/flet/pytest.txt; then exit 1; fi
+          python -m drm_flet --check
+      - name: Real Flutter desktop screenshots and handler integration
+        run: |
+          set -o pipefail
+          xvfb-run -a -s '-screen 0 1920x1200x24' timeout 180s python scripts/flet_desktop_smoke.py --outdir validation/reports/flet/desktop | tee validation/reports/flet/desktop.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flet-linux-source-${{ github.event.pull_request.head.sha || github.sha }}
+          path: validation/reports/flet
+          if-no-files-found: error
+          retention-days: 30
+  windows:
+    name: Windows - Core and Python handlers (no desktop/frozen claim)
+    runs-on: windows-2025
+    timeout-minutes: 30
+    env:
+      MPLBACKEND: Agg
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc-fortran
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-openblas
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Python dependencies
+        shell: pwsh
+        run: python -m pip install -e './python[flet,test]'
+      - name: Preserve numerical source and build
+        shell: msys2 {0}
+        run: |
+          mkdir -p validation/reports/flet
+          git diff --exit-code 03fef9b0da65c51b7ea3c9a14911cf7f83bcb015 HEAD -- fortran python/src/drm_core python/src/drm_studio python/tests python/tests_ui
+          git rev-parse HEAD > validation/reports/flet/source_head.txt
+          echo "UCRT64_BIN=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+          cmake -S fortran -B build-flet -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-flet --parallel 2
+          set -o pipefail
+          ctest --test-dir build-flet --output-on-failure | tee validation/reports/flet/ctest.txt
+      - name: Native integration and handler tests
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:UCRT64_BIN;$env:PATH"
+          $rotor = Get-ChildItem build-flet -Recurse -Filter '*drmrotor*.dll' | Select-Object -First 1
+          $bearing = Get-ChildItem build-flet -Recurse -Filter '*drmbearings*.dll' | Select-Object -First 1
+          if (-not $rotor -or -not $bearing) { throw 'Native libraries missing' }
+          $env:DRMROTOR_LIB = $rotor.FullName
+          $env:DRMBEARINGS_LIB = $bearing.FullName
+          $env:DRMROTOR_DLL_DIRS = $env:UCRT64_BIN
+          $env:DRMBEARINGS_DLL_DIRS = $env:UCRT64_BIN
+          $env:PYTHONPATH = "$PWD\python\src;$PWD"
+          python -m drm_flet --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $out = python -m pytest python/tests python/tests_flet -q --junitxml=validation/reports/flet/pytest.xml
+          $code = $LASTEXITCODE
+          $out | Tee-Object -FilePath validation/reports/flet/pytest.txt
+          if ($code -ne 0) { exit $code }
+          if ($out -match '[1-9][0-9]* skipped') { throw 'Native tests must not be skipped' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flet-windows-source-${{ github.event.pull_request.head.sha || github.sha }}
+          path: validation/reports/flet
+          if-no-files-found: error
+          retention-days: 30

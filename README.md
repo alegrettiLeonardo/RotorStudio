@@ -134,3 +134,23 @@ The qualification workflows reproduce the frozen Stage 1 authority and regressio
 - `docs/UI_KNOWN_LIMITATIONS.md`
 
 The final gate is `UI1–UI20`; it is emitted by the final workflow only after both Linux and Windows qualifications succeed.
+
+## Flet workbench — optional frontend
+
+A separate **Flet 1.0.0** frontend implements the four approved mockup workspaces:
+rotor model editing, Campbell results, bearing K/C performance and 3-D modes in
+light/dark themes. It uses the existing Core and Fortran libraries; the Qt
+application and numerical sources remain unchanged.
+
+```bash
+python -m pip install -e './python[flet]'
+# Build the existing Fortran libraries first, or supply --library.
+drm-studio-flet --check
+drm-studio-flet
+```
+
+See [`docs/FLET_UI.md`](docs/FLET_UI.md) for installation, limitations and tests.
+This frontend does **not** claim full Qt feature parity, web UI qualification or
+frozen Linux/Windows executable qualification. Its source-level qualification
+has a dedicated workflow; existing Stage 1/Stage 2 qualification claims must not
+be interpreted as qualification of this new frontend.
