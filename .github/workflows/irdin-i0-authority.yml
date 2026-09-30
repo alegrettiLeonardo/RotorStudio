@@ -19,77 +19,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  freeze:
-    runs-on: ubuntu-24.04
-    outputs:
-      changed: ${{ steps.freeze.outputs.changed }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Generate deterministic I0 authority candidate
-        run: python validation/irdin/i0_authority.py --write
-
-      - name: Verify generated authority
-        run: python validation/irdin/i0_authority.py --verify
-
-      - name: Freeze authority once on campaign branch
-        id: freeze
-        shell: bash
-        run: |
-          set -euo pipefail
-          expected='b7f14fd34ccce55f2c00c3915725097c12eda9be4161b91ce7ee84c56530f0fc'
-          python - <<'PY'
-          from hashlib import sha256
-          from pathlib import Path
-          p=Path('validation/irdin/cases/ST41_1000_B3_60HZ_1675_63536.txt')
-          expected='b7f14fd34ccce55f2c00c3915725097c12eda9be4161b91ce7ee84c56530f0fc'
-          assert sha256(p.read_bytes()).hexdigest() == expected
-          PY
-          mapfile -t changed < <(git status --porcelain --untracked-files=all | sed 's/^...//' | sort)
-          allowed=(
-            validation/irdin/authority/field_inventory.json
-            validation/irdin/authority/parsed_source.json
-            validation/irdin/authority/source_sha256.json
-          )
-          for path in "${changed[@]}"; do
-            ok=false
-            for permit in "${allowed[@]}"; do
-              [[ "$path" == "$permit" ]] && ok=true
-            done
-            if [[ "$ok" != true ]]; then
-              echo "Unexpected generated change: $path" >&2
-              exit 1
-            fi
-          done
-          if (( ${#changed[@]} )); then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "feature/irdin-api541-dynamics" ]]; then
-              git config user.name github-actions[bot]
-              git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-              git add -- "${allowed[@]}"
-              git commit -m "I0: freeze generated ST41 import authority"
-              git push origin HEAD:feature/irdin-api541-dynamics
-            else
-              echo "Authority differs/missing outside the freeze-capable branch push." >&2
-              exit 1
-            fi
-          else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          fi
-
   qualify:
-    needs: freeze
-    if: needs.freeze.outputs.changed == 'false'
     strategy:
       fail-fast: false
       matrix:
@@ -112,6 +45,17 @@ jobs:
 
       - name: Verify immutable source authority
         run: python validation/irdin/i0_authority.py --verify
+
+      - name: Prove authority regeneration is read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          before="$(git status --porcelain --untracked-files=all)"
+          python validation/irdin/i0_authority.py --write
+          python validation/irdin/i0_authority.py --verify
+          after="$(git status --porcelain --untracked-files=all)"
+          test "$before" = "$after"
+          git diff --exit-code -- validation/irdin/authority validation/irdin/cases
 
       - name: Run I0 and existing iRdin regressions
         run: >-
