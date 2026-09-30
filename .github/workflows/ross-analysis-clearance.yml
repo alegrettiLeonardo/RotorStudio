@@ -22,6 +22,7 @@ jobs:
       QT_QPA_PLATFORM: offscreen
       OPENBLAS_NUM_THREADS: '1'
       OMP_NUM_THREADS: '1'
+      A5_ORDER_EVIDENCE: a8-evidence/a5-before-after
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,7 +32,12 @@ jobs:
         with:
           python-version: '3.12'
       - name: Python dependencies
-        run: python -m pip install -e "./python[test,studio,ui-test]"
+        run: |
+          python -m pip install -e "./python[test,studio,ui-test]"
+          python -c "from pathlib import Path; Path('a8-evidence').mkdir(exist_ok=True)"
+      - name: Record exact tested HEAD
+        shell: bash
+        run: git rev-parse HEAD > a8-evidence/tested-head.txt
       - name: Linux dependencies
         if: runner.os == 'Linux'
         run: sudo apt-get update -qq && sudo apt-get install -y gfortran cmake libblas-dev liblapack-dev libgl1 libegl1 libxkbcommon-x11-0 libxcb-cursor0
@@ -46,7 +52,7 @@ jobs:
         run: |
           cmake -S fortran -B build-a8 -DCMAKE_BUILD_TYPE=Release
           cmake --build build-a8 -j2
-          ctest --test-dir build-a8 --output-on-failure
+          ctest --test-dir build-a8 --output-on-failure --output-junit "$PWD/a8-evidence/ctest.xml"
           echo "DRMROTOR_LIB=$PWD/build-a8/libdrmrotor.so" >> "$GITHUB_ENV"
           echo "DRMBEARINGS_LIB=$PWD/build-a8/libdrmbearings.so" >> "$GITHUB_ENV"
           echo "PYTHONPATH=$PWD/python/src:$PWD" >> "$GITHUB_ENV"
@@ -56,7 +62,7 @@ jobs:
         run: |
           cmake -S fortran -B build-a8 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
           cmake --build build-a8 --parallel
-          ctest --test-dir build-a8 --output-on-failure
+          ctest --test-dir build-a8 --output-on-failure --output-junit "$(cygpath -m "$PWD/a8-evidence/ctest.xml")"
           echo "DRMROTOR_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
           echo "DRMBEARINGS_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
       - name: Windows library paths
@@ -82,9 +88,22 @@ jobs:
           test -f validation/ross_parity/static/authority.json
       - name: Preserve A1-A7 and legacy native paths
         run: python scripts/verify_a1_legacy_preservation.py
+      - name: Inherited A5 historical and corrective UCS gate
+        run: python -m pytest python/tests_ucs -q --junitxml=a8-evidence/a5-ucs.xml
+      - name: Inherited A6 Level 1 gate
+        run: python -m pytest python/tests_level1 -q --junitxml=a8-evidence/a6-level1.xml
+      - name: Inherited A7 API 617 unbalance gate
+        run: python -m pytest python/tests_api617_unbalance -q --junitxml=a8-evidence/a7-unbalance.xml
       - name: A8 clearance frozen ROSS parity
-        run: python -m pytest python/tests_clearance -q
-      - name: A0-A7 and Stage 1 regression
-        run: python -m pytest python/tests_api617_unbalance python/tests_level1 python/tests_ucs python/tests_time python/tests_forced python/tests_frf python/tests_static python/tests -q
+        run: python -m pytest python/tests_clearance -q --junitxml=a8-evidence/a8-clearance.xml
+      - name: A0-A4 and Stage 1 regression
+        run: python -m pytest python/tests_time python/tests_forced python/tests_frf python/tests_static python/tests -q --junitxml=a8-evidence/broad.xml
       - name: Bearing foundation regression
-        run: python -m pytest python/tests_bearings -q
+        run: python -m pytest python/tests_bearings -q --junitxml=a8-evidence/bearings.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: a8-native-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: a8-evidence/
+          if-no-files-found: error
+          retention-days: 90

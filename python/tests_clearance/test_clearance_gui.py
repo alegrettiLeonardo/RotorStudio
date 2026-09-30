@@ -23,8 +23,8 @@ def test_clearance_dialog_explicit_unbalance_and_cap(qapp):
     d.cap_enabled.setChecked(True);d.cap.setValue(0.75)
     c=d.analysis_case()
     assert c.kind=="clearance"
-    assert c.params["unbalance_nodes"]==[4,5]
-    assert c.params["unbalance_magnitude_kg_m"]==[2e-5,3e-5]
-    assert c.params["scale_factor_cap"]==0.75
-    assert len(c.params["unbalance_phase_rad"])==2
+    assert c.parameters["unbalance_nodes"]==[4,5]
+    assert c.parameters["unbalance_magnitude_kg_m"]==[2e-5,3e-5]
+    assert c.parameters["scale_factor_cap"]==0.75
+    assert len(c.parameters["unbalance_phase_rad"])==2
     d.deleteLater()
