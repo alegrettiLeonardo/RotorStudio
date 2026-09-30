@@ -1,7 +1,8 @@
 """Verify B2 ROSS authority candidates or frozen authority without regenerating."""
 from __future__ import annotations
-import argparse,json
+import argparse,json,sys
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]))
 import numpy as np
 from validation.b2.authority_common import *
 
