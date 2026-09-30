@@ -1,0 +1,5268 @@
+{
+  "ABI": "NOT_STARTED",
+  "arrays": [
+    {
+      "blocks": [
+        {
+          "block": "disk_G",
+          "entry_count": 36,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "D01_mass_inertia_sentinel",
+      "category": "element",
+      "filename": "arrays/D01_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "disk_Kdt",
+          "entry_count": 36,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "D01_mass_inertia_sentinel",
+      "category": "element",
+      "filename": "arrays/D01_Kdt.npy",
+      "matrix": "Kdt",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "disk_M",
+          "entry_count": 36,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg on translation diagonal; kg*m^2 on rotation diagonal",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "D01_mass_inertia_sentinel",
+      "category": "element",
+      "filename": "arrays/D01_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "disk_G",
+          "entry_count": 36,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "D02_small_disk",
+      "category": "element",
+      "filename": "arrays/D02_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "disk_Kdt",
+          "entry_count": 36,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "D02_small_disk",
+      "category": "element",
+      "filename": "arrays/D02_Kdt.npy",
+      "matrix": "Kdt",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "disk_M",
+          "entry_count": 36,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg on translation diagonal; kg*m^2 on rotation diagonal",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "D02_small_disk",
+      "category": "element",
+      "filename": "arrays/D02_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "disk_G",
+          "entry_count": 36,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "D03_large_disk",
+      "category": "element",
+      "filename": "arrays/D03_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "disk_Kdt",
+          "entry_count": 36,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "D03_large_disk",
+      "category": "element",
+      "filename": "arrays/D03_Kdt.npy",
+      "matrix": "Kdt",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "disk_M",
+          "entry_count": 36,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg on translation diagonal; kg*m^2 on rotation diagonal",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "D03_large_disk",
+      "category": "element",
+      "filename": "arrays/D03_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S01_solid_timoshenko",
+      "category": "element",
+      "filename": "arrays/S01_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S01_solid_timoshenko",
+      "category": "element",
+      "filename": "arrays/S01_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S01_solid_timoshenko",
+      "category": "element",
+      "filename": "arrays/S01_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S01_solid_timoshenko",
+      "category": "element",
+      "filename": "arrays/S01_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S02_hollow_all_effects",
+      "category": "element",
+      "filename": "arrays/S02_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S02_hollow_all_effects",
+      "category": "element",
+      "filename": "arrays/S02_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S02_hollow_all_effects",
+      "category": "element",
+      "filename": "arrays/S02_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S02_hollow_all_effects",
+      "category": "element",
+      "filename": "arrays/S02_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S03_euler_bernoulli_no_gyro",
+      "category": "element",
+      "filename": "arrays/S03_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S03_euler_bernoulli_no_gyro",
+      "category": "element",
+      "filename": "arrays/S03_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S03_euler_bernoulli_no_gyro",
+      "category": "element",
+      "filename": "arrays/S03_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S03_euler_bernoulli_no_gyro",
+      "category": "element",
+      "filename": "arrays/S03_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S04_no_shear_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S04_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S04_no_shear_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S04_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S04_no_shear_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S04_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S04_no_shear_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S04_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S05_shear_no_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S05_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S05_shear_no_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S05_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S05_shear_no_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S05_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S05_shear_no_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S05_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S06_shear_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S06_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S06_shear_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S06_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S06_shear_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S06_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S06_shear_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S06_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S07_shear_no_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S07_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S07_shear_no_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S07_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S07_shear_no_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S07_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S07_shear_no_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S07_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S08_no_shear_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S08_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S08_no_shear_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S08_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S08_no_shear_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S08_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S08_no_shear_rotary_no_gyro",
+      "category": "element",
+      "filename": "arrays/S08_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S09_no_shear_no_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S09_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S09_no_shear_no_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S09_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S09_no_shear_no_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S09_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S09_no_shear_no_rotary_gyro",
+      "category": "element",
+      "filename": "arrays/S09_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S10_short_length",
+      "category": "element",
+      "filename": "arrays/S10_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S10_short_length",
+      "category": "element",
+      "filename": "arrays/S10_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S10_short_length",
+      "category": "element",
+      "filename": "arrays/S10_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S10_short_length",
+      "category": "element",
+      "filename": "arrays/S10_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S11_long_length",
+      "category": "element",
+      "filename": "arrays/S11_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S11_long_length",
+      "category": "element",
+      "filename": "arrays/S11_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S11_long_length",
+      "category": "element",
+      "filename": "arrays/S11_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S11_long_length",
+      "category": "element",
+      "filename": "arrays/S11_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S12_large_solid_diameter",
+      "category": "element",
+      "filename": "arrays/S12_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S12_large_solid_diameter",
+      "category": "element",
+      "filename": "arrays/S12_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S12_large_solid_diameter",
+      "category": "element",
+      "filename": "arrays/S12_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S12_large_solid_diameter",
+      "category": "element",
+      "filename": "arrays/S12_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S13_thin_annulus",
+      "category": "element",
+      "filename": "arrays/S13_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S13_thin_annulus",
+      "category": "element",
+      "filename": "arrays/S13_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S13_thin_annulus",
+      "category": "element",
+      "filename": "arrays/S13_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S13_thin_annulus",
+      "category": "element",
+      "filename": "arrays/S13_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S14_material_B",
+      "category": "element",
+      "filename": "arrays/S14_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S14_material_B",
+      "category": "element",
+      "filename": "arrays/S14_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S14_material_B",
+      "category": "element",
+      "filename": "arrays/S14_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S14_material_B",
+      "category": "element",
+      "filename": "arrays/S14_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S15_material_C",
+      "category": "element",
+      "filename": "arrays/S15_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S15_material_C",
+      "category": "element",
+      "filename": "arrays/S15_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S15_material_C",
+      "category": "element",
+      "filename": "arrays/S15_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S15_material_C",
+      "category": "element",
+      "filename": "arrays/S15_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S16_hutchinson",
+      "category": "element",
+      "filename": "arrays/S16_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S16_hutchinson",
+      "category": "element",
+      "filename": "arrays/S16_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S16_hutchinson",
+      "category": "element",
+      "filename": "arrays/S16_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S16_hutchinson",
+      "category": "element",
+      "filename": "arrays/S16_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S17_solid_conical",
+      "category": "element",
+      "filename": "arrays/S17_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S17_solid_conical",
+      "category": "element",
+      "filename": "arrays/S17_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S17_solid_conical",
+      "category": "element",
+      "filename": "arrays/S17_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S17_solid_conical",
+      "category": "element",
+      "filename": "arrays/S17_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S18_hollow_conical",
+      "category": "element",
+      "filename": "arrays/S18_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S18_hollow_conical",
+      "category": "element",
+      "filename": "arrays/S18_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S18_hollow_conical",
+      "category": "element",
+      "filename": "arrays/S18_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S18_hollow_conical",
+      "category": "element",
+      "filename": "arrays/S18_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S19_hollow_conical_reversed",
+      "category": "element",
+      "filename": "arrays/S19_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S19_hollow_conical_reversed",
+      "category": "element",
+      "filename": "arrays/S19_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S19_hollow_conical_reversed",
+      "category": "element",
+      "filename": "arrays/S19_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S19_hollow_conical_reversed",
+      "category": "element",
+      "filename": "arrays/S19_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S20_axial_positive",
+      "category": "element",
+      "filename": "arrays/S20_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S20_axial_positive",
+      "category": "element",
+      "filename": "arrays/S20_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S20_axial_positive",
+      "category": "element",
+      "filename": "arrays/S20_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S20_axial_positive",
+      "category": "element",
+      "filename": "arrays/S20_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S21_axial_negative",
+      "category": "element",
+      "filename": "arrays/S21_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S21_axial_negative",
+      "category": "element",
+      "filename": "arrays/S21_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S21_axial_negative",
+      "category": "element",
+      "filename": "arrays/S21_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S21_axial_negative",
+      "category": "element",
+      "filename": "arrays/S21_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S22_torque_positive",
+      "category": "element",
+      "filename": "arrays/S22_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S22_torque_positive",
+      "category": "element",
+      "filename": "arrays/S22_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S22_torque_positive",
+      "category": "element",
+      "filename": "arrays/S22_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S22_torque_positive",
+      "category": "element",
+      "filename": "arrays/S22_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S23_torque_negative",
+      "category": "element",
+      "filename": "arrays/S23_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S23_torque_negative",
+      "category": "element",
+      "filename": "arrays/S23_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S23_torque_negative",
+      "category": "element",
+      "filename": "arrays/S23_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S23_torque_negative",
+      "category": "element",
+      "filename": "arrays/S23_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S24_conical_hutchinson_combined_load",
+      "category": "element",
+      "filename": "arrays/S24_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S24_conical_hutchinson_combined_load",
+      "category": "element",
+      "filename": "arrays/S24_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S24_conical_hutchinson_combined_load",
+      "category": "element",
+      "filename": "arrays/S24_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S24_conical_hutchinson_combined_load",
+      "category": "element",
+      "filename": "arrays/S24_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S25_changed_cylindrical_section_sentinel",
+      "category": "element",
+      "filename": "arrays/S25_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S25_changed_cylindrical_section_sentinel",
+      "category": "element",
+      "filename": "arrays/S25_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S25_changed_cylindrical_section_sentinel",
+      "category": "element",
+      "filename": "arrays/S25_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S25_changed_cylindrical_section_sentinel",
+      "category": "element",
+      "filename": "arrays/S25_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S26_density_only_scaling",
+      "category": "element",
+      "filename": "arrays/S26_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_K_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N*m",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S26_density_only_scaling",
+      "category": "element",
+      "filename": "arrays/S26_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_Kst",
+          "entry_count": 144,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S26_density_only_scaling",
+      "category": "element",
+      "filename": "arrays/S26_Kst.npy",
+      "matrix": "Kst",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_axial",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        },
+        {
+          "block": "shaft_M_torsional",
+          "entry_count": 4,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg*m^2",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S26_density_only_scaling",
+      "category": "element",
+      "filename": "arrays/S26_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S01_solid_timoshenko",
+      "category": "lateral_selection",
+      "filename": "lateral/S01_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S01_solid_timoshenko",
+      "category": "lateral_selection",
+      "filename": "lateral/S01_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S01_solid_timoshenko",
+      "category": "lateral_selection",
+      "filename": "lateral/S01_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S02_hollow_all_effects",
+      "category": "lateral_selection",
+      "filename": "lateral/S02_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S02_hollow_all_effects",
+      "category": "lateral_selection",
+      "filename": "lateral/S02_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S02_hollow_all_effects",
+      "category": "lateral_selection",
+      "filename": "lateral/S02_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S03_euler_bernoulli_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S03_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S03_euler_bernoulli_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S03_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S03_euler_bernoulli_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S03_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S04_no_shear_rotary_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S04_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S04_no_shear_rotary_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S04_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S04_no_shear_rotary_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S04_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S05_shear_no_rotary_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S05_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S05_shear_no_rotary_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S05_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S05_shear_no_rotary_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S05_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S06_shear_rotary_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S06_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S06_shear_rotary_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S06_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S06_shear_rotary_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S06_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S07_shear_no_rotary_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S07_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S07_shear_no_rotary_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S07_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S07_shear_no_rotary_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S07_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S08_no_shear_rotary_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S08_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S08_no_shear_rotary_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S08_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S08_no_shear_rotary_no_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S08_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S09_no_shear_no_rotary_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S09_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S09_no_shear_no_rotary_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S09_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S09_no_shear_no_rotary_gyro",
+      "category": "lateral_selection",
+      "filename": "lateral/S09_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S10_short_length",
+      "category": "lateral_selection",
+      "filename": "lateral/S10_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S10_short_length",
+      "category": "lateral_selection",
+      "filename": "lateral/S10_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S10_short_length",
+      "category": "lateral_selection",
+      "filename": "lateral/S10_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S11_long_length",
+      "category": "lateral_selection",
+      "filename": "lateral/S11_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S11_long_length",
+      "category": "lateral_selection",
+      "filename": "lateral/S11_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S11_long_length",
+      "category": "lateral_selection",
+      "filename": "lateral/S11_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S12_large_solid_diameter",
+      "category": "lateral_selection",
+      "filename": "lateral/S12_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S12_large_solid_diameter",
+      "category": "lateral_selection",
+      "filename": "lateral/S12_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S12_large_solid_diameter",
+      "category": "lateral_selection",
+      "filename": "lateral/S12_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S13_thin_annulus",
+      "category": "lateral_selection",
+      "filename": "lateral/S13_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S13_thin_annulus",
+      "category": "lateral_selection",
+      "filename": "lateral/S13_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S13_thin_annulus",
+      "category": "lateral_selection",
+      "filename": "lateral/S13_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S14_material_B",
+      "category": "lateral_selection",
+      "filename": "lateral/S14_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S14_material_B",
+      "category": "lateral_selection",
+      "filename": "lateral/S14_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S14_material_B",
+      "category": "lateral_selection",
+      "filename": "lateral/S14_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S15_material_C",
+      "category": "lateral_selection",
+      "filename": "lateral/S15_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S15_material_C",
+      "category": "lateral_selection",
+      "filename": "lateral/S15_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S15_material_C",
+      "category": "lateral_selection",
+      "filename": "lateral/S15_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S20_axial_positive",
+      "category": "lateral_selection",
+      "filename": "lateral/S20_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S20_axial_positive",
+      "category": "lateral_selection",
+      "filename": "lateral/S20_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S20_axial_positive",
+      "category": "lateral_selection",
+      "filename": "lateral/S20_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S21_axial_negative",
+      "category": "lateral_selection",
+      "filename": "lateral/S21_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S21_axial_negative",
+      "category": "lateral_selection",
+      "filename": "lateral/S21_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S21_axial_negative",
+      "category": "lateral_selection",
+      "filename": "lateral/S21_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S22_torque_positive",
+      "category": "lateral_selection",
+      "filename": "lateral/S22_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S22_torque_positive",
+      "category": "lateral_selection",
+      "filename": "lateral/S22_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S22_torque_positive",
+      "category": "lateral_selection",
+      "filename": "lateral/S22_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S23_torque_negative",
+      "category": "lateral_selection",
+      "filename": "lateral/S23_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S23_torque_negative",
+      "category": "lateral_selection",
+      "filename": "lateral/S23_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S23_torque_negative",
+      "category": "lateral_selection",
+      "filename": "lateral/S23_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S25_changed_cylindrical_section_sentinel",
+      "category": "lateral_selection",
+      "filename": "lateral/S25_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S25_changed_cylindrical_section_sentinel",
+      "category": "lateral_selection",
+      "filename": "lateral/S25_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S25_changed_cylindrical_section_sentinel",
+      "category": "lateral_selection",
+      "filename": "lateral/S25_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_G",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S26_density_only_scaling",
+      "category": "lateral_selection",
+      "filename": "lateral/S26_G.npy",
+      "matrix": "G",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_K_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "N/m / N / N*m by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S26_density_only_scaling",
+      "category": "lateral_selection",
+      "filename": "lateral/S26_K.npy",
+      "matrix": "K",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    },
+    {
+      "blocks": [
+        {
+          "block": "shaft_M_lateral",
+          "entry_count": 64,
+          "failed_entries": 0,
+          "max_absolute_difference": 0.0,
+          "max_budget_ratio": 0.0,
+          "max_relative_difference_nonzero": 0.0,
+          "status": "PASS",
+          "units": "kg / kg*m / kg*m^2 by row and column",
+          "zero_budget_violation": false,
+          "zero_pattern_differences": 0
+        }
+      ],
+      "case_id": "S26_density_only_scaling",
+      "category": "lateral_selection",
+      "filename": "lateral/S26_M.npy",
+      "matrix": "M",
+      "npy_bytes_equal": true,
+      "raw_value_bytes_equal": true
+    }
+  ],
+  "by_block": {
+    "disk_G": {
+      "compared_entries": 108,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "disk_Kdt": {
+      "compared_entries": 108,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "disk_M": {
+      "compared_entries": 108,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "shaft_G": {
+      "compared_entries": 5088,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "shaft_K_axial": {
+      "compared_entries": 104,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "shaft_K_lateral": {
+      "compared_entries": 3008,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "shaft_K_torsional": {
+      "compared_entries": 104,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "shaft_Kst": {
+      "compared_entries": 3744,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "shaft_M_axial": {
+      "compared_entries": 104,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "shaft_M_lateral": {
+      "compared_entries": 3008,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    },
+    "shaft_M_torsional": {
+      "compared_entries": 104,
+      "max_absolute_difference": 0.0,
+      "max_relative_difference_nonzero": 0.0
+    }
+  },
+  "candidate_data_bundle_sha256": "5601990610bd1a06cec124c1f071d5d13d3768d24760e98581952ae86f335ce0",
+  "candidate_generator_head": "d8a4cb58f4472f7577bb79f0cf7e47771b10dd11",
+  "candidate_platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "failures": [],
+  "function_count": 12,
+  "integrity": null,
+  "lateral_npy_files_bitwise_equal": 63,
+  "lateral_raw_values_bitwise_equal": 63,
+  "lateral_selections_compared": 63,
+  "load_additions": [
+    {
+      "block": "shaft_axial_load_addition",
+      "case": "S20",
+      "entry_count": 64,
+      "failed_entries": 0,
+      "max_absolute_difference": 0.0,
+      "max_budget_ratio": 0.0,
+      "max_relative_difference_nonzero": 0.0,
+      "max_subtraction_floor": 6.776462660810049e-07,
+      "status": "PASS",
+      "subtraction_floor_entrywise": true,
+      "zero_budget_violation": false,
+      "zero_pattern_differences": 0
+    },
+    {
+      "block": "shaft_axial_load_addition",
+      "case": "S21",
+      "entry_count": 64,
+      "failed_entries": 0,
+      "max_absolute_difference": 0.0,
+      "max_budget_ratio": 0.0,
+      "max_relative_difference_nonzero": 0.0,
+      "max_subtraction_floor": 6.77588519157703e-07,
+      "status": "PASS",
+      "subtraction_floor_entrywise": true,
+      "zero_budget_violation": false,
+      "zero_pattern_differences": 0
+    },
+    {
+      "block": "shaft_torque_addition",
+      "case": "S22",
+      "entry_count": 64,
+      "failed_entries": 0,
+      "max_absolute_difference": 0.0,
+      "max_budget_ratio": 0.0,
+      "max_relative_difference_nonzero": 0.0,
+      "max_subtraction_floor": 6.77617392619354e-07,
+      "status": "PASS",
+      "subtraction_floor_entrywise": true,
+      "zero_budget_violation": false,
+      "zero_pattern_differences": 0
+    },
+    {
+      "block": "shaft_torque_addition",
+      "case": "S23",
+      "entry_count": 64,
+      "failed_entries": 0,
+      "max_absolute_difference": 0.0,
+      "max_budget_ratio": 0.0,
+      "max_relative_difference_nonzero": 0.0,
+      "max_subtraction_floor": 6.77617392619354e-07,
+      "status": "PASS",
+      "subtraction_floor_entrywise": true,
+      "zero_budget_violation": false,
+      "zero_pattern_differences": 0
+    }
+  ],
+  "metadata_errors": [],
+  "mode": "CANDIDATE_REVIEW_ONLY",
+  "native_implementation": "NOT_STARTED",
+  "physics_metadata": "PASS",
+  "policy_sha256": "882e323801379435d18cefed92db302424a37016b2d4de8e742c1e289a51a96c",
+  "primary_matrices_compared": 113,
+  "primary_npy_files_bitwise_equal": 113,
+  "primary_raw_values_bitwise_equal": 113,
+  "reference_data_bundle_sha256": "5601990610bd1a06cec124c1f071d5d13d3768d24760e98581952ae86f335ce0",
+  "reference_generator_head": "d8a4cb58f4472f7577bb79f0cf7e47771b10dd11",
+  "reference_platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "reference_unchanged": true,
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "schema_version": 1,
+  "scope": "Frozen ROSS element-authority reproduction only; no native B1 comparison",
+  "source_file_count": 52,
+  "source_provenance": "PASS",
+  "status": "PASS",
+  "verification_head": "a1369ba8066ea40f79c86057b6ec824e5520fbf1"
+}

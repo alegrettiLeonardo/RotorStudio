@@ -1,0 +1,31 @@
+{
+  "ABI": "NOT_STARTED",
+  "artifacts": {
+    "linux": {
+      "bytes": 183576,
+      "head_sha": "d8a4cb58f4472f7577bb79f0cf7e47771b10dd11",
+      "id": 11093976663,
+      "run_id": 36710089212,
+      "sha256": "23ce276fd2b59e5f557d00bcd4e164b37e424bcf734e7f5adf79f507f2b8f687"
+    },
+    "windows": {
+      "bytes": 183781,
+      "head_sha": "d8a4cb58f4472f7577bb79f0cf7e47771b10dd11",
+      "id": 11093482540,
+      "run_id": 36710089212,
+      "sha256": "a0959edbdf4fe43b3be49916c867d598ea99d316ee5c45323277c170df7c7be2"
+    }
+  },
+  "candidate_review": "PASS",
+  "copy_policy": "Reviewed Linux first candidate copied byte-for-byte; no generator output was substituted during freeze",
+  "cross_platform_numeric_comparison": "PASS",
+  "freeze_parent_head": "a1369ba8066ea40f79c86057b6ec824e5520fbf1",
+  "freeze_utc": "2026-09-30T11:55:34.365716+00:00",
+  "freeze_workflow_run_id": "36711495229",
+  "native_implementation": "NOT_STARTED",
+  "review_sha256": "3a562b6e2114b72a9b533a997e55c38f8a8271c4bc1c0bfcfef4c47e8dac496c",
+  "reviewed_generator_head": "d8a4cb58f4472f7577bb79f0cf7e47771b10dd11",
+  "schema_version": 1,
+  "source_candidate_authority_sha256": "1c5819b06df134bbaaa374c2106fa0bc695be6f131a7ab12a554045479d1d03b",
+  "tolerances_sha256": "882e323801379435d18cefed92db302424a37016b2d4de8e742c1e289a51a96c"
+}
