@@ -1,8 +1,8 @@
 """B1 exact-head preservation after reconciliation with promoted main.
 
-The current promoted main is byte-preserved in full except for the single,
-reviewed additive CMake suffix that wires the isolated B1 element kernels.
-All other B1 content is additive. The frozen ROSS authority remains immutable.
+The current promoted main is byte-preserved except for explicit, exact
+preservation-gate adaptations and the additive CMake suffix that wires the
+isolated B1 element kernels. All production B1 content is additive. The frozen ROSS authority remains immutable.
 """
 from __future__ import annotations
 import argparse
@@ -57,7 +57,7 @@ NEW_FILES=frozenset({
     'validation/ross_parity/generate_6dof_elements_reference.py',
     'validation/ross_parity/verify_6dof_elements_candidate.py',
 })
-ADAPTED_FILES=frozenset({'fortran/CMakeLists.txt','scripts/verify_a1_legacy_preservation.py'})
+ADAPTED_FILES=frozenset({'fortran/CMakeLists.txt','scripts/verify_a1_legacy_preservation.py','python/tests_ucs/test_ucs_bearing_order_authority.py'})
 MODIFIED_FILES=ADAPTED_FILES
 ARTIFACT_ROOTS=frozenset({'review','b1-evidence','b1-native-evidence','b1-native-preflight',
                          'b1-platform-artifacts','b1-aggregate-evidence','_ross_b1'})
@@ -106,6 +106,56 @@ def expected_adaptation(path,before):
         old_msg=b"only additive A2/A3/A4/A5/A6/A7/A8 modules/ABIs/tests added"
         new_msg=b"only additive A2/A3/A4/A5/A6/A7/A8/B1 modules/ABIs/tests added"
         return one_replace(data,old_msg,new_msg)
+    if path=='python/tests_ucs/test_ucs_bearing_order_authority.py':
+        anchor=(b"A8_NATIVE_ADDITIONS={\n"
+                b"    'fortran/src/rd_clearance.f90',\n"
+                b"    'fortran/src/rd_clearance_c_api.f90',\n"
+                b"    'fortran/tests/test_clearance.f90',\n"
+                b"}\n")
+        addition=(anchor+
+                  b"B1_NATIVE_IMPLEMENTATION='7c1d505da1d2bf5fee872cb68a3bc4e474722d4f'\n"
+                  b"B1_NATIVE_ADDITIONS={\n"
+                  b"    'fortran/src/rd_shaft_6dof.f90',\n"
+                  b"    'fortran/src/rd_disk_6dof.f90',\n"
+                  b"    'fortran/src/rd_6dof_element_c_api.f90',\n"
+                  b"    'fortran/tests/test_6dof_elements.f90',\n"
+                  b"}\n"
+                  b"B1_PARITY_ADDITIVE_PATHS=(\n"
+                  b"    'validation/ross_parity/6dof_elements',\n"
+                  b"    'validation/ross_parity/generate_6dof_elements_reference.py',\n"
+                  b"    'validation/ross_parity/verify_6dof_elements_candidate.py',\n"
+                  b")\n")
+        data=one_replace(before,anchor,addition)
+        old=(b"    allowed={path:'A' for path in A8_NATIVE_ADDITIONS}\n"
+             b"    allowed['fortran/CMakeLists.txt']='M'\n")
+        new=(b"    allowed={path:'A' for path in A8_NATIVE_ADDITIONS|B1_NATIVE_ADDITIONS}\n"
+             b"    allowed['fortran/CMakeLists.txt']='M'\n")
+        require(data.count(old)==3,'A5 allowlist adaptation count changed')
+        data=data.replace(old,new)
+        old=(b"    _assert_allowed_delta(_changed_status(BASE_SHA,'fortran'),allowed)\n"
+             b"    _git_diff_unchanged(A8_PRE_RECONCILIATION,'fortran/CMakeLists.txt')\n")
+        new=(b"    _assert_allowed_delta(_changed_status(BASE_SHA,'fortran'),allowed)\n"
+             b"    _git_diff_unchanged(B1_NATIVE_IMPLEMENTATION,'fortran/CMakeLists.txt',*sorted(B1_NATIVE_ADDITIONS))\n")
+        data=one_replace(data,old,new)
+        old=(b"    additions=_snapshot_paths(A5_PROMOTED,A5_ADDITIVE_PATHS)\n"
+             b"    additions+=_snapshot_paths(A8_PRE_RECONCILIATION,A8_ADDITIVE_PATHS)\n"
+             b"    assert additions\n"
+             b"    _assert_allowed_delta(_changed_status(BASE_SHA,'validation/ross_parity'),\n"
+             b"                          {path:'A' for path in additions})\n"
+             b"    # Pin the corrective authority and the existing A8 goldens independently.\n"
+             b"    _git_diff_unchanged(A5_PROMOTED,*A5_ADDITIVE_PATHS)\n"
+             b"    _git_diff_unchanged(A8_PRE_RECONCILIATION,'validation/ross_parity/clearance')\n")
+        new=(b"    additions=_snapshot_paths(A5_PROMOTED,A5_ADDITIVE_PATHS)\n"
+             b"    additions+=_snapshot_paths(A8_PRE_RECONCILIATION,A8_ADDITIVE_PATHS)\n"
+             b"    additions+=_snapshot_paths(B1_NATIVE_IMPLEMENTATION,B1_PARITY_ADDITIVE_PATHS)\n"
+             b"    assert additions\n"
+             b"    _assert_allowed_delta(_changed_status(BASE_SHA,'validation/ross_parity'),\n"
+             b"                          {path:'A' for path in additions})\n"
+             b"    # Pin the corrective authority, A8 goldens and immutable B1 authority independently.\n"
+             b"    _git_diff_unchanged(A5_PROMOTED,*A5_ADDITIVE_PATHS)\n"
+             b"    _git_diff_unchanged(A8_PRE_RECONCILIATION,'validation/ross_parity/clearance')\n"
+             b"    _git_diff_unchanged(B1_NATIVE_IMPLEMENTATION,*B1_PARITY_ADDITIVE_PATHS)\n")
+        return one_replace(data,old,new)
     raise ValueError('No historical adaptation is allowed for '+path)
 
 
