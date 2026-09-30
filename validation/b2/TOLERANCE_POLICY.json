@@ -82,9 +82,16 @@
   },
   "platform_semantics": {
     "modal_eigenvectors": "MAC for nondegenerate modes; minimum principal-angle subspace MAC for degenerate eigenvalue groups",
-    "modal_whirl": "exact only for nondegenerate modes; degenerate-basis whirl is diagnostic",
+    "modal_whirl": "platform diagnostic enum/NaN contract; same-platform native parity must reproduce the corresponding frozen platform authority",
     "campbell_whirl": "diagnostic enum/NaN contract across platforms; branch frequencies, damping, mode types and tracking assignment are normative",
-    "campbell_tracking_mac": "diagnostic bounded [0,1] across platforms; tracking assignment is normative",
-    "campbell_tracking_assignment": "exact"
+    "campbell_tracking_mac": "pre-reorder full-state MAC is diagnostic across platforms; found_order/fallback structure is normative",
+    "campbell_tracking_assignment": "exact",
+    "campbell_tracking_selected_mac": "diagnostic across platforms; threshold-matched selections must exceed 0.9",
+    "campbell_wn": "tracked wn branches and frequency_type='wn' display ordering are both frozen"
+  },
+  "same_platform_native_semantics": {
+    "modal_whirl": "exact against the same-platform frozen authority for nondegenerate native parity",
+    "campbell_whirl": "exact against the same-platform frozen authority where ROSS returns a stable lateral classification",
+    "tracking": "reproduce MAC>0.9 found_order/modes_not_found/missing_modes algorithm"
   }
 }

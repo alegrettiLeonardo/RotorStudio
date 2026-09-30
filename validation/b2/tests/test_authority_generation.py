@@ -34,3 +34,18 @@ def test_whirl_contract_is_the_only_nan_array_contract():
     common=(REPO_ROOT/"validation/b2/authority_common.py").read_text(encoding="utf-8")
     assert 'group in {"modal_whirl","campbell_whirl"}' in common
     assert 'not np.isinf(arr).any()' in common
+
+
+def test_campbell_authority_records_actual_ross_tracking_decision():
+    text=(REPO_ROOT/"validation/ross_parity/generate_6dof_global_reference.py").read_text(encoding="utf-8")
+    for token in ("decision=np.array", "mask=decision>threshold", "found_order=np.where",
+                  "modes_not_found=np.where", "missing_modes=sorted", "previous_tracked=tracked_v"):
+        assert token in text
+    assert 'frequency_type="wn"' in text or '"wn"' in text
+    assert "phase_normalize_columns" in text
+
+def test_cross_platform_policy_distinguishes_degenerate_basis_and_tracking_diagnostics():
+    policy=read_json(REPO_ROOT/POLICY_PATH)
+    assert "subspace MAC" in policy["platform_semantics"]["modal_eigenvectors"]
+    assert "same-platform" in policy["platform_semantics"]["modal_whirl"]
+    assert policy["campbell"]["tracking_mac_min"]==0.9

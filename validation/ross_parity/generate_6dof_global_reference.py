@@ -54,7 +54,20 @@ def mac(u,v):
     den=np.vdot(u,u)*np.vdot(v,v)
     return float(abs(np.vdot(u,v))**2/abs(den)) if abs(den)>0 else 0.0
 
-def dense_campbell(rotor,speed_range,frequencies):
+def phase_normalize_columns(vectors):
+    value=np.asarray(vectors,dtype=np.complex128)
+    out=np.empty_like(value)
+    for j in range(value.shape[1]):
+        q=value[:,j].copy()
+        norm=float(np.linalg.norm(q));require(np.isfinite(norm) and norm>np.finfo(float).tiny,"invalid eigenvector norm")
+        q/=norm
+        pivot=int(np.argmax(np.abs(q)))
+        q*=np.exp(-1j*np.angle(q[pivot]))
+        if q[pivot].real<0:q=-q
+        out[:,j]=q
+    return out
+
+def dense_campbell(rotor,speed_range,frequencies,frequency_type="wd"):
     original=rotor.run_modal
     def wrapper(self,speed,**kwargs):
         kwargs["sparse"]=False
@@ -62,8 +75,11 @@ def dense_campbell(rotor,speed_range,frequencies):
         kwargs["matched_whirl"]=False
         return original(speed,**kwargs)
     rotor.run_modal=types.MethodType(wrapper,rotor)
-    return rotor.run_campbell(speed_range=np.asarray(speed_range,float),frequencies=int(frequencies),
-                              frequency_type="wd",torsional_analysis=False,matched_whirl=False)
+    try:
+        return rotor.run_campbell(speed_range=np.asarray(speed_range,float),frequencies=int(frequencies),
+                                  frequency_type=frequency_type,torsional_analysis=False,matched_whirl=False)
+    finally:
+        rotor.run_modal=original
 
 def generate(ross_root:Path,out:Path):
     ross_root=ross_root.resolve();out=out.resolve();frozen=(REPO_ROOT/FROZEN_PATH).resolve()
@@ -104,10 +120,13 @@ def generate(ross_root:Path,out:Path):
                 scale=(abs(lam)**2*np.linalg.norm(M)*np.linalg.norm(q)+abs(lam)*np.linalg.norm(C+w*G)*np.linalg.norm(q)+np.linalg.norm(K)*np.linalg.norm(q))
                 residuals.append(float(np.linalg.norm(R)/scale if scale else np.linalg.norm(R)))
             payload={"A":A,"evalues_all":modal.evalues,"evalues":vals,"evectors_displacement":disp,
+                     "evectors_normalized":phase_normalize_columns(disp),
                      "wn":modal.wn,"wd":modal.wd,"damping_ratio":modal.damping_ratio,"log_dec":modal.log_dec,
                      "whirl":modal.whirl_values(),"residual":np.asarray(residuals)}
-            groups={"A":"matrix_A","evalues_all":"modal_eigen","evalues":"modal_eigen","evectors_displacement":"modal_evec",
-                    "wn":"modal_wn","wd":"modal_wd","damping_ratio":"modal_damping","log_dec":"modal_logdec","whirl":"modal_whirl","residual":"modal_residual"}
+            groups={"A":"matrix_A","evalues_all":"modal_eigen","evalues":"modal_eigen",
+                    "evectors_displacement":"modal_evec","evectors_normalized":"modal_evec_normalized",
+                    "wn":"modal_wn","wd":"modal_wd","damping_ratio":"modal_damping","log_dec":"modal_logdec",
+                    "whirl":"modal_whirl","residual":"modal_residual"}
             for name,a in payload.items():
                 group=groups[name]
                 arrays.append(save_array(out,f"modal/{case['id']}_{name}.npy",a,group,allow_nan=(group=="modal_whirl")))
@@ -115,27 +134,55 @@ def generate(ross_root:Path,out:Path):
             cases[case["id"]]={"kind":"modal","rotor":case["rotor"],"ndof":rotor.ndof,"speed_rad_s":w,"num_modes":nm,"selected_modes":nsel}
         for case in spec["campbell_cases"]:
             rotor=build_rotor(rs,spec,case["rotor"]);speeds=np.asarray(case["speed_range_rad_s"],float);freqs=int(case["frequencies"])
-            camp=dense_campbell(rotor,speeds,freqs)
-            payload={"speed":speeds,"wd":camp.wd,"log_dec":camp.log_dec,"damping_ratio":camp.damping_ratio,"whirl":camp.whirl_values}
+            camp=dense_campbell(rotor,speeds,freqs,"wd")
+            camp_wn=dense_campbell(rotor,speeds,freqs,"wn")
+            wn_tracked=np.vstack([camp.modal_results[float(w)].wn[:freqs] for w in speeds])
+            payload={"speed":speeds,"wd":camp.wd,"wn":wn_tracked,"wn_display":camp_wn.wd,
+                     "log_dec":camp.log_dec,"damping_ratio":camp.damping_ratio,"whirl":camp.whirl_values}
+            group_map={"speed":"campbell_speed","wd":"campbell_wd","wn":"campbell_wn","wn_display":"campbell_wn",
+                       "log_dec":"campbell_log_dec","damping_ratio":"campbell_damping_ratio","whirl":"campbell_whirl"}
             for name,a in payload.items():
-                group="campbell_"+name
+                group=group_map[name]
                 arrays.append(save_array(out,f"campbell/{case['id']}_{name}.npy",a,group,allow_nan=(group=="campbell_whirl")))
-            track=[];types_out=[]
+            track=[];types_out=[];previous_tracked=None;mode_order=np.arange(freqs+2,dtype=int);threshold=0.9
             for i,w in enumerate(speeds):
-                tracked=camp.modal_results[float(w)];raw=rotor.run_modal(speed=float(w),num_modes=2*(freqs+2),sparse=False,synchronous=False,matched_whirl=False)
-                n=int((2*(freqs+2))/2);tv=tracked.evectors[:,:n];rv=raw.evectors[:,:n]
-                mm=np.array([[mac(tv[:,ii],rv[:,jj]) for jj in range(n)] for ii in range(n)],float)
-                assignment=np.argmax(mm,axis=1)
-                arrays.append(save_array(out,f"campbell/{case['id']}_station{i}_tracked_to_raw_mac.npy",mm,"campbell_tracking_mac"))
-                arrays.append(save_array(out,f"campbell/{case['id']}_station{i}_assignment.npy",assignment.astype(float),"campbell_tracking_assignment"))
+                tracked=camp.modal_results[float(w)]
+                raw=rotor.run_modal(speed=float(w),num_modes=2*(freqs+2),sparse=False,synchronous=False,matched_whirl=False)
+                n=freqs+2;raw_v=raw.evectors[:,:n]
+                if i==0:
+                    decision=np.eye(n,dtype=float);found_order=mode_order.copy()
+                    modes_not_found=np.asarray([],dtype=int);missing_modes=[];threshold_match=np.ones(n,dtype=bool)
+                else:
+                    decision=np.array([[mac(previous_tracked[:,ii],raw_v[:,jj]) for jj in range(n)] for ii in range(n)],float)
+                    mask=decision>threshold
+                    found_order=np.where(mask.any(axis=1),np.argmax(decision*mask,axis=1),-1)
+                    modes_not_found=np.where(found_order==-1)[0]
+                    missing_modes=sorted(set(mode_order.tolist())-set(found_order.tolist()))
+                    if len(modes_not_found):
+                        found_order[modes_not_found]=missing_modes[:len(modes_not_found)]
+                    threshold_match=mask.any(axis=1)
+                require(sorted(int(x) for x in found_order)==mode_order.tolist(),f"{case['id']} station {i}: tracking is not a permutation")
+                # Prove the independently reconstructed ROSS decision produced the stored tracked object.
+                require(np.allclose(tracked.evalues[:n],raw.evalues[found_order],rtol=2e-12,atol=2e-9),
+                        f"{case['id']} station {i}: reconstructed found_order differs from ROSS")
+                tracked_v=tracked.evectors[:,:n]
+                selected=np.asarray([decision[row,found_order[row]] for row in range(n)],float)
                 if i>0:
-                    prev=camp.modal_results[float(speeds[i-1])].evectors[:,:n]
-                    cm=np.array([[mac(prev[:,ii],tv[:,jj]) for jj in range(n)] for ii in range(n)],float)
-                    arrays.append(save_array(out,f"campbell/{case['id']}_station{i}_consecutive_mac.npy",cm,"campbell_tracking_mac"))
+                    require(np.all(selected[threshold_match]>threshold),f"{case['id']} station {i}: threshold match contract failed")
+                arrays.append(save_array(out,f"campbell/{case['id']}_station{i}_decision_mac.npy",decision,"campbell_tracking_mac"))
+                arrays.append(save_array(out,f"campbell/{case['id']}_station{i}_found_order.npy",found_order.astype(float),"campbell_tracking_assignment"))
+                arrays.append(save_array(out,f"campbell/{case['id']}_station{i}_selected_mac.npy",selected,"campbell_tracking_selected_mac"))
                 types_out.append([s.mode_type for s in tracked.shapes[:freqs]])
-                track.append({"speed":float(w),"assignment":[int(x) for x in assignment],"assignment_mac":[float(mm[ii,assignment[ii]]) for ii in range(n)]})
+                track.append({"speed":float(w),"found_order":[int(x) for x in found_order],
+                              "modes_not_found":[int(x) for x in modes_not_found],
+                              "missing_modes":[int(x) for x in missing_modes],
+                              "threshold_match":[bool(x) for x in threshold_match],
+                              "assignment_mac":[float(x) for x in selected]})
+                previous_tracked=tracked_v
             write_json(out/f"campbell/{case['id']}_mode_types.json",types_out);write_json(out/f"campbell/{case['id']}_tracking.json",track)
-            cases[case["id"]]={"kind":"campbell","rotor":case["rotor"],"ndof":rotor.ndof,"frequencies":freqs,"speed_range_rad_s":speeds.tolist()}
+            cases[case["id"]]={"kind":"campbell","rotor":case["rotor"],"ndof":rotor.ndof,"frequencies":freqs,
+                               "speed_range_rad_s":speeds.tolist(),"num_modes":2*(freqs+2),"evec_size":freqs+2,
+                               "tracking_threshold":threshold}
     finally:
         sys.setprofile(previous)
     # Freeze gates required by the declared B2 scope.
@@ -153,7 +200,7 @@ def generate(ross_root:Path,out:Path):
     crossing=False
     for p in sorted((out/"campbell").glob("*_tracking.json")):
         for station in read_json(p)[1:]:
-            assignment=station["assignment"]
+            assignment=station["found_order"]
             if assignment!=list(range(len(assignment))):
                 crossing=True
     require(crossing,"authority requires at least one non-identity MAC tracking sentinel")

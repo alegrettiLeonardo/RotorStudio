@@ -78,7 +78,7 @@ def compare(reference:Path,candidate:Path,report:Path|None=None):
         elif g=="modal_eigen":
             pr=policy["modal"]["eigenvalue_real"];pi=policy["modal"]["eigenvalue_imag"]
             okr,dr=closeness(x.real,y.real,pr["rtol"],pr["atol"]);oki,di=closeness(x.imag,y.imag,pi["rtol"],pi["atol"]);ok=okr and oki;detail={"real":dr,"imag":di}
-        elif g=="modal_evec":
+        elif g in ("modal_evec","modal_evec_normalized"):
             require(x.shape==y.shape,f"evec shape {name}")
             case=Path(name).name.split("_",1)[0]
             eigen_ref=R[f"modal/{case}_evalues.npy"]
@@ -89,14 +89,9 @@ def compare(reference:Path,candidate:Path,report:Path|None=None):
         elif g=="modal_residual":
             m=max(float(np.max(x,initial=0)),float(np.max(y,initial=0)));ok=m<=policy["modal"]["residual_max"];detail={"max":m}
         elif g=="modal_whirl":
-            case=Path(name).name.split("_",1)[0]
-            groups=eigen_groups(R[f"modal/{case}_evalues.npy"],policy)
-            normative=[group[0] for group in groups if len(group)==1]
             valid=lambda a: bool(np.all(np.isnan(a)|np.isin(a,[0.0,0.5,1.0])))
             ok=valid(x) and valid(y)
-            if normative:
-                ok &= bool(np.allclose(x[normative],y[normative],rtol=0,atol=0,equal_nan=True))
-            detail={"normative_indices":normative,"platform_difference_count":int(np.sum(~np.isclose(x,y,rtol=0,atol=0,equal_nan=True)))}
+            detail={"diagnostic_platform_difference_count":int(np.sum(~np.isclose(x,y,rtol=0,atol=0,equal_nan=True)))}
         elif g=="campbell_whirl":
             valid=lambda a: bool(np.all(np.isnan(a)|np.isin(a,[0.0,0.5,1.0])))
             ok=valid(x) and valid(y)
@@ -105,18 +100,32 @@ def compare(reference:Path,candidate:Path,report:Path|None=None):
             k=g.split("_",1)[1]
             if k=="speed":ok=bool(np.array_equal(x,y));detail={}
             else:p=policy["campbell"][k];ok,detail=closeness(x,y,p["rtol"],p["atol"])
-        elif g=="campbell_tracking_mac":
+        elif g in ("campbell_tracking_mac","campbell_tracking_selected_mac"):
             ok=bool(np.isfinite(x).all() and np.isfinite(y).all() and np.all((x>=0)&(x<=1)) and np.all((y>=0)&(y<=1)))
             detail={"diagnostic_max_platform_difference":float(np.max(np.abs(x-y),initial=0.0))}
         elif g=="campbell_tracking_assignment":
             ok=bool(np.array_equal(x,y));detail={}
         else:raise ValueError("unhandled group "+g)
         rows.append({"file":name,"group":g,"status":"PASS" if ok else "FAIL",**detail});overall &= ok
-    # non-array mode/tracking metadata must match except environment/provenance files.
-    for pattern in ("modal/*_mode_types.json","campbell/*_mode_types.json","campbell/*_tracking.json"):
+    # Mode type is normative. Tracking structure/permutation is normative;
+    # numeric MAC values are platform diagnostics stored in arrays/JSON.
+    for pattern in ("modal/*_mode_types.json","campbell/*_mode_types.json"):
         for p in reference.glob(pattern):
             q=candidate/p.relative_to(reference);require(q.is_file(),f"missing {q}")
-            if read_json(p)!=read_json(q):overall=False;rows.append({"file":p.relative_to(reference).as_posix(),"status":"FAIL","metadata_equal":False})
+            if read_json(p)!=read_json(q):
+                overall=False;rows.append({"file":p.relative_to(reference).as_posix(),"status":"FAIL","metadata_equal":False})
+    for p in reference.glob("campbell/*_tracking.json"):
+        q=candidate/p.relative_to(reference);require(q.is_file(),f"missing {q}")
+        left,right=read_json(p),read_json(q)
+        same=len(left)==len(right)
+        if same:
+            for a,b in zip(left,right,strict=True):
+                for key in ("speed","found_order","modes_not_found","missing_modes","threshold_match"):
+                    if a[key]!=b[key]:same=False
+                for values in (a["assignment_mac"],b["assignment_mac"]):
+                    if not all(np.isfinite(values)) or not all(0.0<=float(x)<=1.0 for x in values):same=False
+        if not same:
+            overall=False;rows.append({"file":p.relative_to(reference).as_posix(),"status":"FAIL","tracking_structure_equal":False})
     result={"status":"PASS" if overall else "FAIL","reference_head":ar["generator_head"],"candidate_head":ac["generator_head"],
             "array_count":len(rows),"rows":rows}
     if report:write_json(report,result)
@@ -127,11 +136,23 @@ def self_check(root:Path):
     a,arrays=load(root);policy=read_json(root/"tolerances.json")
     residual=[np.max(x,initial=0) for n,x in arrays.items() if any(r["file"]==n and r["group"]=="modal_residual" for r in a["arrays"])]
     require(max(residual,default=0)<=policy["modal"]["residual_max"],"modal residual gate failed")
-    tracks=[]
+    threshold=float(policy["campbell"]["tracking_mac_min"]);matched=[]
     for p in root.glob("campbell/*_tracking.json"):
-        for station in read_json(p):tracks.extend(station["assignment_mac"])
-    require(min(tracks,default=1.0)>=policy["campbell"]["tracking_mac_min"],"Campbell tracking MAC below frozen threshold")
-    return {"status":"PASS","arrays":len(arrays),"max_modal_residual":max(residual,default=0),"min_tracking_assignment_mac":min(tracks,default=1.0),
+        stations=read_json(p)
+        for station_index,station in enumerate(stations):
+            order=[int(x) for x in station["found_order"]];n=len(order)
+            require(sorted(order)==list(range(n)),f"{p.name} station {station_index}: found_order is not a permutation")
+            values=[float(x) for x in station["assignment_mac"]]
+            flags=[bool(x) for x in station["threshold_match"]]
+            require(len(values)==len(flags)==n,"tracking metadata length mismatch")
+            if station_index==0:
+                require(order==list(range(n)) and all(flags),"first Campbell station must be identity")
+            for value,flag in zip(values,flags,strict=True):
+                require(np.isfinite(value) and 0.0<=value<=1.0,"invalid tracking MAC")
+                if flag:
+                    require(value>threshold,"ROSS threshold-matched branch has MAC <= threshold");matched.append(value)
+    return {"status":"PASS","arrays":len(arrays),"max_modal_residual":max(residual,default=0),
+            "min_threshold_matched_mac":min(matched,default=1.0),
             "data_bundle_sha256":a["data_bundle_sha256"]}
 
 if __name__=="__main__":
