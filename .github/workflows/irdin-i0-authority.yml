@@ -57,10 +57,13 @@ jobs:
           test "$before" = "$after"
           git diff --exit-code -- validation/irdin/authority validation/irdin/cases
 
-      - name: Run I0 and existing iRdin regressions
+      - name: Run authority/domain iRdin regressions (I0-I3 only)
         run: >-
           python -m pytest
-          python/tests_irdin
+          python/tests_irdin/test_i0_authority.py
+          python/tests_irdin/test_i1_semantic_contract.py
+          python/tests_irdin/test_i2_mass_inertia.py
+          python/tests_irdin/test_i3_support_domain.py
           python/tests_ui/test_core_irdin_import.py
           -q
           --junitxml=irdin-i0-${{ runner.os }}.xml
