@@ -1,0 +1,2421 @@
+{
+  "array_count": 219,
+  "candidate_head": "76466db4facfca79c26c83957b76009703d44bad",
+  "reference_head": "76466db4facfca79c26c83957b76009703d44bad",
+  "rows": [
+    {
+      "file": "global/G01_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G01_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G01_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G01_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G01_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G02_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G02_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G02_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G02_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G02_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G03_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G03_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G03_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G03_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G03_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G04_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G04_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G04_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G04_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G04_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G05_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G05_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G05_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G05_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G05_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G06_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G06_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G06_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G06_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G06_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G07_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G07_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G07_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G07_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G07_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G08_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G08_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G08_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G08_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G08_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G09_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G09_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G09_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G09_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G09_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G10_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G10_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G10_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G10_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G10_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G11_M.npy",
+      "group": "matrix_M",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G11_K.npy",
+      "group": "matrix_K",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G11_C.npy",
+      "group": "matrix_C",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G11_G.npy",
+      "group": "matrix_G",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "global/G11_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_A.npy",
+      "group": "matrix_A",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_evalues_all.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 2.674482857401017e-10,
+        "max_rel": 8.443117759409657e-13
+      },
+      "real": {
+        "max_abs": 4.274625098332763e-11,
+        "max_rel": 3.9166666666666665
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_evalues.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 2.674482857401017e-10,
+        "max_rel": 8.443117759409657e-13
+      },
+      "real": {
+        "max_abs": 1.5916157281026244e-11,
+        "max_rel": 9.846706528938498e-14
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_evectors_displacement.npy",
+      "group": "modal_evec",
+      "groups": [
+        {
+          "indices": [
+            0,
+            1
+          ],
+          "kind": "subspace_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            2,
+            3
+          ],
+          "kind": "subspace_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            4,
+            5
+          ],
+          "kind": "subspace_mac",
+          "score": 1.0
+        }
+      ],
+      "minimum_group_mac": 1.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "groups": [
+        {
+          "indices": [
+            0,
+            1
+          ],
+          "kind": "subspace_mac",
+          "score": 0.9999999999999996
+        },
+        {
+          "indices": [
+            2,
+            3
+          ],
+          "kind": "subspace_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            4,
+            5
+          ],
+          "kind": "subspace_mac",
+          "score": 0.9999999999999991
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999991,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_wn.npy",
+      "group": "modal_wn",
+      "max_abs": 2.6352608983870596e-10,
+      "max_rel": 8.22039112789505e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_wd.npy",
+      "group": "modal_wd",
+      "max_abs": 2.674482857401017e-10,
+      "max_rel": 8.443117759409657e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_damping_ratio.npy",
+      "group": "modal_damping",
+      "max_abs": 1.4152568006409183e-13,
+      "max_rel": 9.205480738093893e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_log_dec.npy",
+      "group": "modal_logdec",
+      "max_abs": 9.215961327413424e-13,
+      "max_rel": 9.42709392704795e-13,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 4,
+      "file": "modal/M01_whirl.npy",
+      "group": "modal_whirl",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M01_residual.npy",
+      "group": "modal_residual",
+      "max": 2.3433418845886165e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_A.npy",
+      "group": "matrix_A",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_evalues_all.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 1.0078338164021261e-10,
+        "max_rel": 3.181642416600307e-13
+      },
+      "real": {
+        "max_abs": 3.728928277269006e-11,
+        "max_rel": 3.0
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_evalues.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 1.0078338164021261e-10,
+        "max_rel": 3.181642416600307e-13
+      },
+      "real": {
+        "max_abs": 3.240074875066057e-11,
+        "max_rel": 1.1031894050801191e-13
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_evectors_displacement.npy",
+      "group": "modal_evec",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999976
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999981
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999976,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999978
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999978
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999978,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_wn.npy",
+      "group": "modal_wn",
+      "max_abs": 9.981704351957887e-11,
+      "max_rel": 3.1136723236054933e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_wd.npy",
+      "group": "modal_wd",
+      "max_abs": 1.0078338164021261e-10,
+      "max_rel": 3.181642416600307e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_damping_ratio.npy",
+      "group": "modal_damping",
+      "max_abs": 6.042388811522414e-14,
+      "max_rel": 3.930274785218671e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_log_dec.npy",
+      "group": "modal_logdec",
+      "max_abs": 3.934630399271555e-13,
+      "max_rel": 4.0247993227455233e-13,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 0,
+      "file": "modal/M02_whirl.npy",
+      "group": "modal_whirl",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M02_residual.npy",
+      "group": "modal_residual",
+      "max": 1.6703600185072099e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_A.npy",
+      "group": "matrix_A",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_evalues_all.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 1.6007106751203537e-10,
+        "max_rel": 1.0260758705100276e-13
+      },
+      "real": {
+        "max_abs": 5.880451681150589e-11,
+        "max_rel": 2.5714285714285716
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_evalues.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 1.6007106751203537e-10,
+        "max_rel": 1.0260758705100276e-13
+      },
+      "real": {
+        "max_abs": 5.880451681150589e-11,
+        "max_rel": 2.5714285714285716
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_evectors_displacement.npy",
+      "group": "modal_evec",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            6
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            7
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            8
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            9
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            10
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            11
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            12
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999997
+        },
+        {
+          "indices": [
+            13
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            14
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            15
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            16
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999996
+        },
+        {
+          "indices": [
+            17
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            18
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            19
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            20
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            21
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999996,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000004
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            6
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            7
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            8
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000004
+        },
+        {
+          "indices": [
+            9
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            10
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            11
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            12
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            13
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            14
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            15
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            16
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            17
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            18
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            19
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            20
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            21
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999998,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_wn.npy",
+      "group": "modal_wn",
+      "max_abs": 1.6007106751203537e-10,
+      "max_rel": 1.0597031379542321e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_wd.npy",
+      "group": "modal_wd",
+      "max_abs": 1.6007106751203537e-10,
+      "max_rel": 1.0260758705100276e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_damping_ratio.npy",
+      "group": "modal_damping",
+      "max_abs": 2.521594044679887e-13,
+      "max_rel": 2.571428571428575,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_log_dec.npy",
+      "group": "modal_logdec",
+      "max_abs": 1.6140422332000526e-12,
+      "max_rel": 2.571428571428575,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 0,
+      "file": "modal/M03_whirl.npy",
+      "group": "modal_whirl",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M03_residual.npy",
+      "group": "modal_residual",
+      "max": 1.6999044231409038e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_A.npy",
+      "group": "matrix_A",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_evalues_all.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 1.3096723705530167e-10,
+        "max_rel": 2.059149067203049e-13
+      },
+      "real": {
+        "max_abs": 9.094947017729282e-11,
+        "max_rel": 13.0
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_evalues.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 6.730260793119669e-11,
+        "max_rel": 2.059149067203049e-13
+      },
+      "real": {
+        "max_abs": 1.9610979506978765e-11,
+        "max_rel": 9.395770399412806e-14
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_evectors_displacement.npy",
+      "group": "modal_evec",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000004
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000004
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        }
+      ],
+      "minimum_group_mac": 1.0000000000000002,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        }
+      ],
+      "minimum_group_mac": 1.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_wn.npy",
+      "group": "modal_wn",
+      "max_abs": 6.531308827106841e-11,
+      "max_rel": 1.9680829761102257e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_wd.npy",
+      "group": "modal_wd",
+      "max_abs": 6.730260793119669e-11,
+      "max_rel": 2.059149067203049e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_damping_ratio.npy",
+      "group": "modal_damping",
+      "max_abs": 5.037636974236648e-14,
+      "max_rel": 2.9087894212495776e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_log_dec.npy",
+      "group": "modal_logdec",
+      "max_abs": 3.310685059432217e-13,
+      "max_rel": 2.9964753248528416e-13,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 0,
+      "file": "modal/M04_whirl.npy",
+      "group": "modal_whirl",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M04_residual.npy",
+      "group": "modal_residual",
+      "max": 1.672876836469028e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_A.npy",
+      "group": "matrix_A",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_evalues_all.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 1.3096723705530167e-10,
+        "max_rel": 2.7029024125345093e-14
+      },
+      "real": {
+        "max_abs": 5.667288860422559e-11,
+        "max_rel": 1.1610576923076923
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_evalues.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 2.1032064978498966e-11,
+        "max_rel": 2.7029024125345093e-14
+      },
+      "real": {
+        "max_abs": 5.667288860422559e-11,
+        "max_rel": 5.758566407329635e-13
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_evectors_displacement.npy",
+      "group": "modal_evec",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999994
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999997
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999994,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000004
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999999,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_wn.npy",
+      "group": "modal_wn",
+      "max_abs": 2.808064891723916e-11,
+      "max_rel": 3.6841605515973034e-14,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_wd.npy",
+      "group": "modal_wd",
+      "max_abs": 2.1032064978498966e-11,
+      "max_rel": 2.7029024125345093e-14,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_damping_ratio.npy",
+      "group": "modal_damping",
+      "max_abs": 8.198997036856781e-14,
+      "max_rel": 5.796072002559417e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_log_dec.npy",
+      "group": "modal_logdec",
+      "max_abs": 5.311306949806749e-13,
+      "max_rel": 5.915688905754324e-13,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 0,
+      "file": "modal/M05_whirl.npy",
+      "group": "modal_whirl",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M05_residual.npy",
+      "group": "modal_residual",
+      "max": 1.2750480827791964e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_A.npy",
+      "group": "matrix_A",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_evalues_all.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 1.1641532182693481e-10,
+        "max_rel": 5.047891478531309e-14
+      },
+      "real": {
+        "max_abs": 9.14610609470401e-11,
+        "max_rel": 17.666666666666668
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_evalues.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 2.000888343900442e-11,
+        "max_rel": 5.047891478531309e-14
+      },
+      "real": {
+        "max_abs": 9.14610609470401e-11,
+        "max_rel": 1.6816490949479452e-12
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_evectors_displacement.npy",
+      "group": "modal_evec",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999993
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999993
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999993,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999991
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999994
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000004
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999991,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_wn.npy",
+      "group": "modal_wn",
+      "max_abs": 3.1377567211166024e-11,
+      "max_rel": 9.321441200120912e-14,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_wd.npy",
+      "group": "modal_wd",
+      "max_abs": 2.000888343900442e-11,
+      "max_rel": 5.047891478531309e-14,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_damping_ratio.npy",
+      "group": "modal_damping",
+      "max_abs": 2.661759701538813e-13,
+      "max_rel": 1.6474237829706864e-12,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_log_dec.npy",
+      "group": "modal_logdec",
+      "max_abs": 1.7401635687974704e-12,
+      "max_rel": 1.691619617788542e-12,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 0,
+      "file": "modal/M06_whirl.npy",
+      "group": "modal_whirl",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M06_residual.npy",
+      "group": "modal_residual",
+      "max": 6.765050583501663e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_A.npy",
+      "group": "matrix_A",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_evalues_all.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 1.0186340659856796e-10,
+        "max_rel": 7.65319821028179e-14
+      },
+      "real": {
+        "max_abs": 4.320099833421409e-11,
+        "max_rel": 8.0
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_evalues.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 5.5365489970427006e-11,
+        "max_rel": 7.65319821028179e-14
+      },
+      "real": {
+        "max_abs": 5.9117155615240335e-12,
+        "max_rel": 1.3650894268787345e-13
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_evectors_displacement.npy",
+      "group": "modal_evec",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999997
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999997,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999998
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000002
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999998,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_wn.npy",
+      "group": "modal_wn",
+      "max_abs": 5.2523319027386606e-11,
+      "max_rel": 6.822744579516633e-14,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_wd.npy",
+      "group": "modal_wd",
+      "max_abs": 5.5365489970427006e-11,
+      "max_rel": 7.65319821028179e-14,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_damping_ratio.npy",
+      "group": "modal_damping",
+      "max_abs": 2.142730437526552e-14,
+      "max_rel": 1.6313839557193985e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_log_dec.npy",
+      "group": "modal_logdec",
+      "max_abs": 1.6209256159527285e-13,
+      "max_rel": 1.6564730936683461e-13,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 0,
+      "file": "modal/M07_whirl.npy",
+      "group": "modal_whirl",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M07_residual.npy",
+      "group": "modal_residual",
+      "max": 2.3441463478947546e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_A.npy",
+      "group": "matrix_A",
+      "max_abs": 0.0,
+      "max_rel": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_evalues_all.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 5.820766091346741e-11,
+        "max_rel": 1.341705082079837e-13
+      },
+      "real": {
+        "max_abs": 2.7853275241795927e-11,
+        "max_rel": 1.5789473684210527
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_evalues.npy",
+      "group": "modal_eigen",
+      "imag": {
+        "max_abs": 4.177991286269389e-11,
+        "max_rel": 1.341705082079837e-13
+      },
+      "real": {
+        "max_abs": 1.0970779840135947e-11,
+        "max_rel": 1.2504809289460436e-13
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_evectors_displacement.npy",
+      "group": "modal_evec",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999997
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000004
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0000000000000004
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999997,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "groups": [
+        {
+          "indices": [
+            0
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            1
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            2
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        },
+        {
+          "indices": [
+            3
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            4
+          ],
+          "kind": "vector_mac",
+          "score": 0.9999999999999999
+        },
+        {
+          "indices": [
+            5
+          ],
+          "kind": "vector_mac",
+          "score": 1.0
+        }
+      ],
+      "minimum_group_mac": 0.9999999999999999,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_wn.npy",
+      "group": "modal_wn",
+      "max_abs": 4.1154635255225e-11,
+      "max_rel": 1.314484376146834e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_wd.npy",
+      "group": "modal_wd",
+      "max_abs": 4.177991286269389e-11,
+      "max_rel": 1.341705082079837e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_damping_ratio.npy",
+      "group": "modal_damping",
+      "max_abs": 2.6617597015388128e-14,
+      "max_rel": 2.564029480457017e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_log_dec.npy",
+      "group": "modal_logdec",
+      "max_abs": 1.7008616737257398e-13,
+      "max_rel": 2.5935249597514743e-13,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 0,
+      "file": "modal/M08_whirl.npy",
+      "group": "modal_whirl",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/M08_residual.npy",
+      "group": "modal_residual",
+      "max": 2.7510419131976724e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_speed.npy",
+      "group": "campbell_speed",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_wd.npy",
+      "group": "campbell_wd",
+      "max_abs": 2.674482857401017e-10,
+      "max_rel": 8.443117759409657e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_wn.npy",
+      "group": "campbell_wn",
+      "max_abs": 2.6352608983870596e-10,
+      "max_rel": 8.22039112789505e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_wn_display.npy",
+      "group": "campbell_wn",
+      "max_abs": 2.1111645764904097e-10,
+      "max_rel": 6.585533358284558e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_log_dec.npy",
+      "group": "campbell_log_dec",
+      "max_abs": 9.215961327413424e-13,
+      "max_rel": 9.42709392704795e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_damping_ratio.npy",
+      "group": "campbell_damping_ratio",
+      "max_abs": 1.4152568006409183e-13,
+      "max_rel": 9.205480738093893e-13,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 7,
+      "file": "campbell/C01_whirl.npy",
+      "group": "campbell_whirl",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.0,
+      "file": "campbell/C01_station0_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_station0_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.0,
+      "file": "campbell/C01_station0_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.5060063735496252,
+      "file": "campbell/C01_station1_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_station1_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.5060063735496252,
+      "file": "campbell/C01_station1_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 1.1312478731539954e-13,
+      "file": "campbell/C01_station2_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_station2_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 9.658940314238862e-15,
+      "file": "campbell/C01_station2_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 1.0248399351375781e-13,
+      "file": "campbell/C01_station3_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C01_station3_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 3.3306690738754696e-15,
+      "file": "campbell/C01_station3_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_speed.npy",
+      "group": "campbell_speed",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_wd.npy",
+      "group": "campbell_wd",
+      "max_abs": 1.8246737454319373e-10,
+      "max_rel": 5.711858552419585e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_wn.npy",
+      "group": "campbell_wn",
+      "max_abs": 1.8633272702572867e-10,
+      "max_rel": 5.774196080659208e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_wn_display.npy",
+      "group": "campbell_wn",
+      "max_abs": 1.8633272702572867e-10,
+      "max_rel": 5.774196080659208e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_log_dec.npy",
+      "group": "campbell_log_dec",
+      "max_abs": 1.3677947663381929e-12,
+      "max_rel": 1.2927470007916292e-12,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_damping_ratio.npy",
+      "group": "campbell_damping_ratio",
+      "max_abs": 2.0874968420514506e-13,
+      "max_rel": 1.2571010208550383e-12,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 0,
+      "file": "campbell/C02_whirl.npy",
+      "group": "campbell_whirl",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.0,
+      "file": "campbell/C02_station0_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_station0_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.0,
+      "file": "campbell/C02_station0_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 4.090505711928927e-12,
+      "file": "campbell/C02_station1_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_station1_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 1.121103210266483e-12,
+      "file": "campbell/C02_station1_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 2.2530796672803888e-12,
+      "file": "campbell/C02_station2_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_station2_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 2.9531932455029164e-14,
+      "file": "campbell/C02_station2_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 4.361393191043561e-12,
+      "file": "campbell/C02_station3_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C02_station3_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 2.5091040356528538e-14,
+      "file": "campbell/C02_station3_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_speed.npy",
+      "group": "campbell_speed",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_wd.npy",
+      "group": "campbell_wd",
+      "max_abs": 2.2754420569981448e-10,
+      "max_rel": 6.512851713593203e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_wn.npy",
+      "group": "campbell_wn",
+      "max_abs": 2.2640733732259832e-10,
+      "max_rel": 6.409355489107294e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_wn_display.npy",
+      "group": "campbell_wn",
+      "max_abs": 2.2640733732259832e-10,
+      "max_rel": 6.409355489107294e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_log_dec.npy",
+      "group": "campbell_log_dec",
+      "max_abs": 4.82058837292243e-13,
+      "max_rel": 4.829202211932766e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_damping_ratio.npy",
+      "group": "campbell_damping_ratio",
+      "max_abs": 6.972200594645983e-14,
+      "max_rel": 4.724427926373295e-13,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 1,
+      "file": "campbell/C03_whirl.npy",
+      "group": "campbell_whirl",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.0,
+      "file": "campbell/C03_station0_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_station0_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.0,
+      "file": "campbell/C03_station0_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 8.289757769119888e-12,
+      "file": "campbell/C03_station1_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_station1_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 8.108291815744906e-12,
+      "file": "campbell/C03_station1_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 1.3474291127302251e-12,
+      "file": "campbell/C03_station2_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_station2_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 2.348121697082206e-13,
+      "file": "campbell/C03_station2_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 1.0242848236252655e-12,
+      "file": "campbell/C03_station3_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C03_station3_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 6.650235917504688e-14,
+      "file": "campbell/C03_station3_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_speed.npy",
+      "group": "campbell_speed",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_wd.npy",
+      "group": "campbell_wd",
+      "max_abs": 2.530669007683173e-10,
+      "max_rel": 6.014743748528829e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_wn.npy",
+      "group": "campbell_wn",
+      "max_abs": 2.432898327242583e-10,
+      "max_rel": 5.960461663699055e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_wn_display.npy",
+      "group": "campbell_wn",
+      "max_abs": 2.432898327242583e-10,
+      "max_rel": 5.960461663699055e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_log_dec.npy",
+      "group": "campbell_log_dec",
+      "max_abs": 6.619149672815183e-13,
+      "max_rel": 5.590843367482377e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_damping_ratio.npy",
+      "group": "campbell_damping_ratio",
+      "max_abs": 9.658940314238862e-14,
+      "max_rel": 5.534211173237825e-13,
+      "status": "PASS"
+    },
+    {
+      "diagnostic_platform_difference_count": 2,
+      "file": "campbell/C04_whirl.npy",
+      "group": "campbell_whirl",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.0,
+      "file": "campbell/C04_station0_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_station0_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 0.0,
+      "file": "campbell/C04_station0_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 2.653155473097968e-12,
+      "file": "campbell/C04_station1_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_station1_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 1.982303210468217e-12,
+      "file": "campbell/C04_station1_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 3.7829808730016623e-13,
+      "file": "campbell/C04_station2_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_station2_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 1.8252066524837574e-13,
+      "file": "campbell/C04_station2_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 1.6131540547803525e-13,
+      "file": "campbell/C04_station3_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "status": "PASS"
+    },
+    {
+      "file": "campbell/C04_station3_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "status": "PASS"
+    },
+    {
+      "diagnostic_max_platform_difference": 1.6131540547803525e-13,
+      "file": "campbell/C04_station3_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

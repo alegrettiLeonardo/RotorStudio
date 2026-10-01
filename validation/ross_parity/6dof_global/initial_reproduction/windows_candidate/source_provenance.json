@@ -1,0 +1,566 @@
+[
+  {
+    "git_blob_id": "7845b860d46b810381ae0a079e83fbb0a57f2039",
+    "git_blob_sha256": "279fb3c28fd3256e8a8e08c1fc7ab7f36736737c3273d56fec309250d0fe1c38",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "pyproject.toml",
+    "role": "imported_or_required",
+    "runtime_paths": [],
+    "working_sha256": "279fb3c28fd3256e8a8e08c1fc7ab7f36736737c3273d56fec309250d0fe1c38"
+  },
+  {
+    "git_blob_id": "9b37bc4cffcb8e984c1c5f5c059bae39d67cf477",
+    "git_blob_sha256": "cc26a0b5c61d2b6a8f02f8c7bc440cac096cbc3697ccaad9a93e61d01b55eb35",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "requirements.txt",
+    "role": "imported_or_required",
+    "runtime_paths": [],
+    "working_sha256": "cc26a0b5c61d2b6a8f02f8c7bc440cac096cbc3697ccaad9a93e61d01b55eb35"
+  },
+  {
+    "git_blob_id": "061539896ac63441a4af8d4f4186569c6ffbd46c",
+    "git_blob_sha256": "1385630e6f2fdf496d88c767eac74b9000db2b61e2283fb7c3e3ef6e2a5e4d4a",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/__init__.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross"
+    ],
+    "working_sha256": "1385630e6f2fdf496d88c767eac74b9000db2b61e2283fb7c3e3ef6e2a5e4d4a"
+  },
+  {
+    "git_blob_id": "93724e39505d1f27c03a7324544fce77e1001c1d",
+    "git_blob_sha256": "eaf8a7e2d0be976c3a2b29efc4d97ca304bcf1569dc50c9b69aada88affd02ab",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/available_materials.toml",
+    "role": "imported_or_required",
+    "runtime_paths": [],
+    "working_sha256": "eaf8a7e2d0be976c3a2b29efc4d97ca304bcf1569dc50c9b69aada88affd02ab"
+  },
+  {
+    "git_blob_id": "86251eec97910e77585c9426a114fd25b7472ebc",
+    "git_blob_sha256": "4c1e39b0cfdb4a64dd0992df686f6771e3245fc74c2dc1fca95b684328cc5942",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearing_seal_element.py",
+    "role": "executed",
+    "runtime_paths": [
+      "ross.bearing_seal_element"
+    ],
+    "working_sha256": "4c1e39b0cfdb4a64dd0992df686f6771e3245fc74c2dc1fca95b684328cc5942"
+  },
+  {
+    "git_blob_id": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/__init__.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings"
+    ],
+    "working_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "git_blob_id": "ef0cf1b0219535df81e7bef47fc719ca28ee7dc5",
+    "git_blob_sha256": "b9553b0b04f8630d3e7138766fd5bf06be1223f34fe37d7221ee9056967502e6",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/bearing_results.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.bearing_results"
+    ],
+    "working_sha256": "b9553b0b04f8630d3e7138766fd5bf06be1223f34fe37d7221ee9056967502e6"
+  },
+  {
+    "git_blob_id": "fa62860ce85550af41bcffdc4bf893b3bb00f94f",
+    "git_blob_sha256": "c32786cc0bc509ffc1427ad85625d8576054f997b8c4aa473d41afe0dc03f6ab",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/fixed_geometry.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.fixed_geometry"
+    ],
+    "working_sha256": "c32786cc0bc509ffc1427ad85625d8576054f997b8c4aa473d41afe0dc03f6ab"
+  },
+  {
+    "git_blob_id": "20f08cc487d0dc87f6c4ea6e61a5e7384f7f06f0",
+    "git_blob_sha256": "ba2317a542db0d24858d31b0967779adedc3214231d48ffe048d913e432e4de5",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/fluid_film/__init__.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.fluid_film"
+    ],
+    "working_sha256": "ba2317a542db0d24858d31b0967779adedc3214231d48ffe048d913e432e4de5"
+  },
+  {
+    "git_blob_id": "7c7e37e81d5f03a29c9f3317dba00efb9454e7b5",
+    "git_blob_sha256": "40002b890f74a13021ba727b5d281a595456a156dccc48aa013f83d7314ceb1d",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/fluid_film/constants.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.fluid_film.constants"
+    ],
+    "working_sha256": "40002b890f74a13021ba727b5d281a595456a156dccc48aa013f83d7314ceb1d"
+  },
+  {
+    "git_blob_id": "ace4e3e50815e1afc34f9f5387642195389057b5",
+    "git_blob_sha256": "f789b2903289e405804947f94809dca709138b7231748a795a6b51c59005a3f4",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/fluid_film_bearing.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.fluid_film_bearing"
+    ],
+    "working_sha256": "f789b2903289e405804947f94809dca709138b7231748a795a6b51c59005a3f4"
+  },
+  {
+    "git_blob_id": "e4e69e14e7c75a237ce8c358fcbf8ba23e8c1e46",
+    "git_blob_sha256": "c7bc4755868ed446ffc93b562c110041723fb9f7b83b5056351f67c9b5ccdda7",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/lubricants.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.lubricants"
+    ],
+    "working_sha256": "c7bc4755868ed446ffc93b562c110041723fb9f7b83b5056351f67c9b5ccdda7"
+  },
+  {
+    "git_blob_id": "ac55dc21fd7204f4510d863608fb4104266812f5",
+    "git_blob_sha256": "2689b0dab78e6b697cb35282cc5f3da50219ba1e5e6ee6d622b9ea94999bfa6d",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/magnetic/amb_controllers.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.magnetic.amb_controllers"
+    ],
+    "working_sha256": "2689b0dab78e6b697cb35282cc5f3da50219ba1e5e6ee6d622b9ea94999bfa6d"
+  },
+  {
+    "git_blob_id": "c07ca466bfcd7e5e8597fb0ffc5a2d25f04e9d35",
+    "git_blob_sha256": "19f3a4fa303a7767a867d1667eb0b735fcf0aa3ce87230328cb6e5b3b6579ee4",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/magnetic/amb_models.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.magnetic.amb_models"
+    ],
+    "working_sha256": "19f3a4fa303a7767a867d1667eb0b735fcf0aa3ce87230328cb6e5b3b6579ee4"
+  },
+  {
+    "git_blob_id": "1afad283aa5607387cac4715ec7846d5aff92820",
+    "git_blob_sha256": "c7298fc24b80609b2def6d842dbe9653dda09192275baa1b5db5836a80ca7d08",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/magnetic/amb_non_collocation.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.magnetic.amb_non_collocation"
+    ],
+    "working_sha256": "c7298fc24b80609b2def6d842dbe9653dda09192275baa1b5db5836a80ca7d08"
+  },
+  {
+    "git_blob_id": "362cecca6b2ed7827bd013b48ba4135271312a3d",
+    "git_blob_sha256": "3f7ec07de449270788c0f70d12f05a422e088ad18165fd0faefd23443f389e41",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/magnetic/amb_time_response.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.magnetic.amb_time_response"
+    ],
+    "working_sha256": "3f7ec07de449270788c0f70d12f05a422e088ad18165fd0faefd23443f389e41"
+  },
+  {
+    "git_blob_id": "94457dd12754d063289a2d2e3506f465011b8d60",
+    "git_blob_sha256": "79d096baf9bb6b25c8bdffc77bd4467952830d59900acd80a3300b834b1cfccc",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/magnetic/amb_utils.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.magnetic.amb_utils"
+    ],
+    "working_sha256": "79d096baf9bb6b25c8bdffc77bd4467952830d59900acd80a3300b834b1cfccc"
+  },
+  {
+    "git_blob_id": "a8c9359f3bebcf19ce20d3a06836bc134ef041d7",
+    "git_blob_sha256": "027eaafc26b085a0a7718ba5f8bda5581a6281c74534b3978187ff6daa2d55bf",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/plain_journal.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.plain_journal"
+    ],
+    "working_sha256": "027eaafc26b085a0a7718ba5f8bda5581a6281c74534b3978187ff6daa2d55bf"
+  },
+  {
+    "git_blob_id": "0b5b25d8655559b156ab8c84475459eec3751ea4",
+    "git_blob_sha256": "6122824c58aa4c070d147a63078a92255eb7a4d4700f52207f7cb84d672877c7",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/squeeze_film_damper.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.squeeze_film_damper"
+    ],
+    "working_sha256": "6122824c58aa4c070d147a63078a92255eb7a4d4700f52207f7cb84d672877c7"
+  },
+  {
+    "git_blob_id": "28d2c73ce1a7b4306db523c42ea27ad366111287",
+    "git_blob_sha256": "0f36dafefcfde628ee8953b6b0c635501066c27096c5f308c9578f553d8e1796",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/thrust_pad.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.thrust_pad"
+    ],
+    "working_sha256": "0f36dafefcfde628ee8953b6b0c635501066c27096c5f308c9578f553d8e1796"
+  },
+  {
+    "git_blob_id": "2342e183081efdb08422006bd4131b9191e77ed3",
+    "git_blob_sha256": "85c395e64a54f0fe961a56f4523f4241ad9909515bf3ac3f10ebe2b592a7c1e2",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/bearings/tilting_pad.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.bearings.tilting_pad"
+    ],
+    "working_sha256": "85c395e64a54f0fe961a56f4523f4241ad9909515bf3ac3f10ebe2b592a7c1e2"
+  },
+  {
+    "git_blob_id": "4e273b9939958c44022f63bb1e11102f8c70794f",
+    "git_blob_sha256": "c321ef3b45b8b34478af57092cf7f3f8640bb350de0486ef1a3ccaf97c3be49d",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/coupling_element.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.coupling_element"
+    ],
+    "working_sha256": "c321ef3b45b8b34478af57092cf7f3f8640bb350de0486ef1a3ccaf97c3be49d"
+  },
+  {
+    "git_blob_id": "330e0745a8d2898967f2b098369c6529db758d1f",
+    "git_blob_sha256": "6ff37f5188bc8eff9d8961cdd326496f7b8de2255f01a70655894584b6fa3d53",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/disk_element.py",
+    "role": "executed",
+    "runtime_paths": [
+      "ross.disk_element"
+    ],
+    "working_sha256": "6ff37f5188bc8eff9d8961cdd326496f7b8de2255f01a70655894584b6fa3d53"
+  },
+  {
+    "git_blob_id": "e8837628934ea62532f90c097dc982452890cd4d",
+    "git_blob_sha256": "0f64954444aab624aad3f0be78f92e254655ec01e89a9b3e57263cee5d25bd23",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/element.py",
+    "role": "executed",
+    "runtime_paths": [
+      "ross.element"
+    ],
+    "working_sha256": "0f64954444aab624aad3f0be78f92e254655ec01e89a9b3e57263cee5d25bd23"
+  },
+  {
+    "git_blob_id": "0b7bcac967e74d5ba2a1347916469c750071dd7f",
+    "git_blob_sha256": "e1e4ca5f18b40aeeae63a46514038a64aa2174f156ac9336737b1a964529121e",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/faults/__init__.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.faults"
+    ],
+    "working_sha256": "e1e4ca5f18b40aeeae63a46514038a64aa2174f156ac9336737b1a964529121e"
+  },
+  {
+    "git_blob_id": "6aa380bbf5f1f3714f66091a6375951b68495af5",
+    "git_blob_sha256": "b5afcae5d6635f4081a76302f8442f71400b221ffa8ea6391f0d13c183fcde88",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/faults/crack.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.faults.crack"
+    ],
+    "working_sha256": "b5afcae5d6635f4081a76302f8442f71400b221ffa8ea6391f0d13c183fcde88"
+  },
+  {
+    "git_blob_id": "a9d0de36bd0693b400416d8a056e738871bce180",
+    "git_blob_sha256": "78f87cc2a30a2d6210c38a6ef6b97ae350cfbe1c3484822c9476e018224073c4",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/faults/misalignment.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.faults.misalignment"
+    ],
+    "working_sha256": "78f87cc2a30a2d6210c38a6ef6b97ae350cfbe1c3484822c9476e018224073c4"
+  },
+  {
+    "git_blob_id": "882531b2652cece84684990df9062c7c4bcabbad",
+    "git_blob_sha256": "690948385f2b895de0f66eadba9581a0cb02a9f89e366799642f97e96dd91e42",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/faults/rubbing.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.faults.rubbing"
+    ],
+    "working_sha256": "690948385f2b895de0f66eadba9581a0cb02a9f89e366799642f97e96dd91e42"
+  },
+  {
+    "git_blob_id": "31bda1647d3f0f7a7dcf5043983894c348d98b1e",
+    "git_blob_sha256": "a8b93e4a5a38b7da75e4866c8782bf791b14d8faf545f70e8aedac1b7efb6880",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/harmonic_balance.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.harmonic_balance"
+    ],
+    "working_sha256": "a8b93e4a5a38b7da75e4866c8782bf791b14d8faf545f70e8aedac1b7efb6880"
+  },
+  {
+    "git_blob_id": "a15a621fcb8e793e2e73bf08a5fe14657fec11d6",
+    "git_blob_sha256": "fae027debec61926a216916915ee7edb51850727293ced3c8381719b2625b8e8",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/materials.py",
+    "role": "executed",
+    "runtime_paths": [
+      "ross.materials"
+    ],
+    "working_sha256": "fae027debec61926a216916915ee7edb51850727293ced3c8381719b2625b8e8"
+  },
+  {
+    "git_blob_id": "e3b05a1391b0f97770a055110c342d3e1178775a",
+    "git_blob_sha256": "9ef7e2c57a314a43f0e1975a2b80f82c0ee1d3b6aa0c2b0b918aeebe7ea01a35",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/model_reduction.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.model_reduction"
+    ],
+    "working_sha256": "9ef7e2c57a314a43f0e1975a2b80f82c0ee1d3b6aa0c2b0b918aeebe7ea01a35"
+  },
+  {
+    "git_blob_id": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/multi_rotor/__init__.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.multi_rotor"
+    ],
+    "working_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "git_blob_id": "a3d864cc9020766e032cb65352fa8c2eecaee88a",
+    "git_blob_sha256": "96eb9b6030c103f39d641a631546e629739238e56b38c9944b51335384cb1e3a",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/multi_rotor/gear_element.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.multi_rotor.gear_element"
+    ],
+    "working_sha256": "96eb9b6030c103f39d641a631546e629739238e56b38c9944b51335384cb1e3a"
+  },
+  {
+    "git_blob_id": "4c58471cd0e7627f75504ab0da12ff991d0d578d",
+    "git_blob_sha256": "2a5bbaf73585c0c153dc101786ec9ac59e4f8bd97297a3cbc156d1cf668a02ca",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/multi_rotor/mesh.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.multi_rotor.mesh"
+    ],
+    "working_sha256": "2a5bbaf73585c0c153dc101786ec9ac59e4f8bd97297a3cbc156d1cf668a02ca"
+  },
+  {
+    "git_blob_id": "2a8ad356cfd0ad1f93f9261cb4c621e8b06c23de",
+    "git_blob_sha256": "a8e019fc40b16d9c5cd221059efcfe5f1c0bcbbcad38dc1faf70432af4ec3400",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/multi_rotor/multi_rotor.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.multi_rotor.multi_rotor"
+    ],
+    "working_sha256": "a8e019fc40b16d9c5cd221059efcfe5f1c0bcbbcad38dc1faf70432af4ec3400"
+  },
+  {
+    "git_blob_id": "6e32491b8cc218ad78a47018b3906bf272bdef64",
+    "git_blob_sha256": "8cb7b5f16613302ecc9fe6089852976b7a029a299427c963d9d9e29a771507cf",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/multi_rotor/results.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.multi_rotor.results"
+    ],
+    "working_sha256": "8cb7b5f16613302ecc9fe6089852976b7a029a299427c963d9d9e29a771507cf"
+  },
+  {
+    "git_blob_id": "e73dc8a6330fecf91687bc9b0e9b0956813d4ad6",
+    "git_blob_sha256": "668d1c7655dd49682f515469051827a55671e616c0dfcacf5b0ac2a87e7283ac",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/multi_rotor/utils.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.multi_rotor.utils"
+    ],
+    "working_sha256": "668d1c7655dd49682f515469051827a55671e616c0dfcacf5b0ac2a87e7283ac"
+  },
+  {
+    "git_blob_id": "1bdded3005040eec9b5d7a5185c3904195520265",
+    "git_blob_sha256": "b3e6c4e71bb067db02e0c6ecbb9276a7ab9154dd8c2d7007ddc71896871247f9",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/new_units.txt",
+    "role": "executed",
+    "runtime_paths": [],
+    "working_sha256": "b3e6c4e71bb067db02e0c6ecbb9276a7ab9154dd8c2d7007ddc71896871247f9"
+  },
+  {
+    "git_blob_id": "077b8677d0c2905a3f3a3c7e288a7a78b8981829",
+    "git_blob_sha256": "810f76aa05c6d67b6026433b71fe05872e33bc59228f5a327fcc4a79fd03445c",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/plotly_theme.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.plotly_theme"
+    ],
+    "working_sha256": "810f76aa05c6d67b6026433b71fe05872e33bc59228f5a327fcc4a79fd03445c"
+  },
+  {
+    "git_blob_id": "3289659cf2fb2cba80deceb0f113036af7e06e29",
+    "git_blob_sha256": "5821b406517f961bac62fceec75f1ac1b895dee686816187d1b8e3aad222944b",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/point_mass.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.point_mass"
+    ],
+    "working_sha256": "5821b406517f961bac62fceec75f1ac1b895dee686816187d1b8e3aad222944b"
+  },
+  {
+    "git_blob_id": "492e5849eff1173bc4dfe89ae57239ca06456e37",
+    "git_blob_sha256": "2e6b1f247893b12787887bd6e927ae950e2ab523a83699e508d35ce08e3adfd4",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/probe.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.probe"
+    ],
+    "working_sha256": "2e6b1f247893b12787887bd6e927ae950e2ab523a83699e508d35ce08e3adfd4"
+  },
+  {
+    "git_blob_id": "efc9fc1f64f806d69cfbbc391c42ebc156090926",
+    "git_blob_sha256": "0d53a92700228c074145e35e49e31e6f8550f4199efc1e9470b53ca5c5477cc3",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/results.py",
+    "role": "executed",
+    "runtime_paths": [
+      "ross.results"
+    ],
+    "working_sha256": "0d53a92700228c074145e35e49e31e6f8550f4199efc1e9470b53ca5c5477cc3"
+  },
+  {
+    "git_blob_id": "54cfd2cb6c95e990eb06a9b993b49fe0911d5754",
+    "git_blob_sha256": "c5e6562d092426ffdb44641a1fb2092c6e5df8e3e44be437749b3711f7633c09",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/rotor_assembly.py",
+    "role": "executed",
+    "runtime_paths": [
+      "ross.rotor_assembly"
+    ],
+    "working_sha256": "c5e6562d092426ffdb44641a1fb2092c6e5df8e3e44be437749b3711f7633c09"
+  },
+  {
+    "git_blob_id": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "git_blob_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/seals/__init__.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.seals"
+    ],
+    "working_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "git_blob_id": "33ce454e20448f61e4d72bce4f42ee661519b88f",
+    "git_blob_sha256": "1f781d936dd4ec3f45e6ce72b182a1bea4c3ba591b9ba67c633d3fa7b54cddc9",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/seals/gas_model.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.seals.gas_model"
+    ],
+    "working_sha256": "1f781d936dd4ec3f45e6ce72b182a1bea4c3ba591b9ba67c633d3fa7b54cddc9"
+  },
+  {
+    "git_blob_id": "3fbe4b1593881e4bf32e283c67c764ce14a5468c",
+    "git_blob_sha256": "2659d5011c55ebbcb4d9f5ce727f6bcd1884d9c2d96b6c8a2b6e8b8fcf996071",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/seals/holepattern_seal.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.seals.holepattern_seal"
+    ],
+    "working_sha256": "2659d5011c55ebbcb4d9f5ce727f6bcd1884d9c2d96b6c8a2b6e8b8fcf996071"
+  },
+  {
+    "git_blob_id": "59c10f019850bf2e93447aa5b7e776080b223158",
+    "git_blob_sha256": "468ceb6dcfe2c73514f1906b357d1198e14ac2c7bf7114dcd7ac4d40dc25ff82",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/seals/hybrid_seal.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.seals.hybrid_seal"
+    ],
+    "working_sha256": "468ceb6dcfe2c73514f1906b357d1198e14ac2c7bf7114dcd7ac4d40dc25ff82"
+  },
+  {
+    "git_blob_id": "83ceae978696c89c8d50dfc9e1c930b4a9ee325d",
+    "git_blob_sha256": "2bd904ee056a73392e51f3aa966abbdd10d468ca929e6ec0d89298022bc4cd7e",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/seals/labyrinth_seal.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.seals.labyrinth_seal"
+    ],
+    "working_sha256": "2bd904ee056a73392e51f3aa966abbdd10d468ca929e6ec0d89298022bc4cd7e"
+  },
+  {
+    "git_blob_id": "4b3285d2efb997ba81e217ef730921edb0e6d0aa",
+    "git_blob_sha256": "d6f1a25d1073803aaea34c1e33ee6b0d65badc5df625c840bdfb16024e6115ec",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/seals/solver_tools.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.seals.solver_tools"
+    ],
+    "working_sha256": "d6f1a25d1073803aaea34c1e33ee6b0d65badc5df625c840bdfb16024e6115ec"
+  },
+  {
+    "git_blob_id": "df74525956dc3b27d1cb675e0997146b4a835af3",
+    "git_blob_sha256": "46d6bdf328dad4958a3b3398c28c8424c6057775ff461a646627339104cb89f6",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/shaft_element.py",
+    "role": "executed",
+    "runtime_paths": [
+      "ross.shaft_element"
+    ],
+    "working_sha256": "46d6bdf328dad4958a3b3398c28c8424c6057775ff461a646627339104cb89f6"
+  },
+  {
+    "git_blob_id": "d146da4a83ee39cb3d92fab017479c8fd633e2fd",
+    "git_blob_sha256": "d3bef81b1216e4eeb1a6300ce1a8dc0c16707f37ba45e729d42d6a473a74a39d",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/units.py",
+    "role": "executed",
+    "runtime_paths": [
+      "ross.units"
+    ],
+    "working_sha256": "d3bef81b1216e4eeb1a6300ce1a8dc0c16707f37ba45e729d42d6a473a74a39d"
+  },
+  {
+    "git_blob_id": "b4a02fc3284f800b21ec9632e54ce7de6e7d7f0d",
+    "git_blob_sha256": "08708dc134682b40dcb8259527cdd9586e9f3eac26c0b510eda29355e05eb8d9",
+    "git_commit": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "path": "ross/utils.py",
+    "role": "imported_or_required",
+    "runtime_paths": [
+      "ross.utils"
+    ],
+    "working_sha256": "08708dc134682b40dcb8259527cdd9586e9f3eac26c0b510eda29355e05eb8d9"
+  }
+]

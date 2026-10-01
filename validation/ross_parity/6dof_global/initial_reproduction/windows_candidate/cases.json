@@ -1,0 +1,203 @@
+{
+  "C01": {
+    "evec_size": 6,
+    "frequencies": 4,
+    "kind": "campbell",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R02",
+    "speed_range_rad_s": [
+      0.0,
+      100.0,
+      200.0,
+      300.0
+    ],
+    "tracking_threshold": 0.9
+  },
+  "C02": {
+    "evec_size": 6,
+    "frequencies": 4,
+    "kind": "campbell",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R05",
+    "speed_range_rad_s": [
+      0.0,
+      100.0,
+      200.0,
+      300.0
+    ],
+    "tracking_threshold": 0.9
+  },
+  "C03": {
+    "evec_size": 6,
+    "frequencies": 4,
+    "kind": "campbell",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R06",
+    "speed_range_rad_s": [
+      0.0,
+      100.0,
+      200.0,
+      300.0
+    ],
+    "tracking_threshold": 0.9
+  },
+  "C04": {
+    "evec_size": 6,
+    "frequencies": 4,
+    "kind": "campbell",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R08",
+    "speed_range_rad_s": [
+      0.0,
+      100.0,
+      200.0,
+      300.0
+    ],
+    "tracking_threshold": 0.9
+  },
+  "G01": {
+    "frequency_rad_s": 0.0,
+    "kind": "global",
+    "ndof": 12,
+    "rotor": "R01",
+    "speed_rad_s": 0.0
+  },
+  "G02": {
+    "frequency_rad_s": 0.0,
+    "kind": "global",
+    "ndof": 18,
+    "rotor": "R02",
+    "speed_rad_s": 0.0
+  },
+  "G03": {
+    "frequency_rad_s": 0.0,
+    "kind": "global",
+    "ndof": 24,
+    "rotor": "R03",
+    "speed_rad_s": 0.0
+  },
+  "G04": {
+    "frequency_rad_s": 80.0,
+    "kind": "global",
+    "ndof": 18,
+    "rotor": "R04",
+    "speed_rad_s": 80.0
+  },
+  "G05": {
+    "frequency_rad_s": 120.0,
+    "kind": "global",
+    "ndof": 18,
+    "rotor": "R05",
+    "speed_rad_s": 120.0
+  },
+  "G06": {
+    "frequency_rad_s": 150.0,
+    "kind": "global",
+    "ndof": 18,
+    "rotor": "R06",
+    "speed_rad_s": 150.0
+  },
+  "G07": {
+    "frequency_rad_s": 175.0,
+    "kind": "global",
+    "ndof": 18,
+    "rotor": "R07",
+    "speed_rad_s": 175.0
+  },
+  "G08": {
+    "frequency_rad_s": 175.0,
+    "kind": "global",
+    "ndof": 18,
+    "rotor": "R08",
+    "speed_rad_s": 175.0
+  },
+  "G09": {
+    "frequency_rad_s": 90.0,
+    "kind": "global",
+    "ndof": 18,
+    "rotor": "R09",
+    "speed_rad_s": 90.0
+  },
+  "G10": {
+    "frequency_rad_s": 0.0,
+    "kind": "global",
+    "ndof": 12,
+    "rotor": "R10",
+    "speed_rad_s": 0.0
+  },
+  "G11": {
+    "frequency_rad_s": 0.0,
+    "kind": "global",
+    "ndof": 12,
+    "rotor": "R11",
+    "speed_rad_s": 0.0
+  },
+  "M01": {
+    "kind": "modal",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R02",
+    "selected_modes": 6,
+    "speed_rad_s": 0.0
+  },
+  "M02": {
+    "kind": "modal",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R02",
+    "selected_modes": 6,
+    "speed_rad_s": 200.0
+  },
+  "M03": {
+    "kind": "modal",
+    "ndof": 24,
+    "num_modes": 44,
+    "rotor": "R03",
+    "selected_modes": 22,
+    "speed_rad_s": 80.0
+  },
+  "M04": {
+    "kind": "modal",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R04",
+    "selected_modes": 6,
+    "speed_rad_s": 120.0
+  },
+  "M05": {
+    "kind": "modal",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R05",
+    "selected_modes": 6,
+    "speed_rad_s": 120.0
+  },
+  "M06": {
+    "kind": "modal",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R09",
+    "selected_modes": 6,
+    "speed_rad_s": 100.0
+  },
+  "M07": {
+    "kind": "modal",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R06",
+    "selected_modes": 6,
+    "speed_rad_s": 150.0
+  },
+  "M08": {
+    "kind": "modal",
+    "ndof": 18,
+    "num_modes": 12,
+    "rotor": "R08",
+    "selected_modes": 6,
+    "speed_rad_s": 175.0
+  }
+}
