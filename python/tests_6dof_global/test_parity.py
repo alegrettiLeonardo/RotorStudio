@@ -206,6 +206,16 @@ def test_frozen_b2_authority_is_immutable():
     ],cwd=ROOT,check=True)
 
 
+def _roundoff_clean_rows(block):
+    """Normalize only row-local machine-precision cancellation remnants."""
+    block=np.asarray(block,dtype=float).copy()
+    eps=np.finfo(float).eps
+    for i in range(block.shape[0]):
+        scale=max(1.0,float(np.max(np.abs(block[i,:]),initial=0.0)))
+        block[i,np.abs(block[i,:])<=8.0*eps*scale]=0.0
+    return block
+
+
 def _nearest_relative_error(reference, candidate):
     reference=np.asarray(reference,dtype=float)
     remaining=list(np.asarray(candidate,dtype=float))
@@ -272,8 +282,10 @@ def test_independent_global_superposition_energy_and_state_space():
     eye=np.eye(n);zero=np.zeros((n,n))
     np.testing.assert_allclose(A[:n,:n],zero,rtol=0,atol=0)
     np.testing.assert_allclose(A[:n,n:],eye,rtol=0,atol=0)
-    np.testing.assert_allclose(A[n:,:n],np.linalg.solve(-g.M,g.K),rtol=5e-11,atol=1e-7)
-    np.testing.assert_allclose(A[n:,n:],np.linalg.solve(-g.M,g.C+speed*g.G),rtol=5e-11,atol=1e-7)
+    expected_k=_roundoff_clean_rows(np.linalg.solve(-g.M,g.K))
+    expected_cg=_roundoff_clean_rows(np.linalg.solve(-g.M,g.C+speed*g.G))
+    np.testing.assert_allclose(_roundoff_clean_rows(A[n:,:n]),expected_k,rtol=5e-11,atol=1e-7)
+    np.testing.assert_allclose(_roundoff_clean_rows(A[n:,n:]),expected_cg,rtol=5e-11,atol=1e-7)
 
 
 def test_independent_modal_identities_conjugates_repeatability_and_gyroscopic_split():
