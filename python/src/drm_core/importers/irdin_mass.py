@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass
 import math
 from typing import Any, Iterable
 
-from drm_core.domain.model import RotorMassSpan
+from drm_core.domain.model import Disk, Node, RotorMassSpan
 
 
 class IrdinMassMappingError(ValueError):
@@ -217,6 +217,33 @@ def all_mass_slices(spans:Iterable[RotorMassSpan]) -> list[MassSlice]:
     return [piece for span in spans for piece in span_slices(span)]
 
 
+def materialize_mass_disks(
+    spans: Iterable[RotorMassSpan],
+    nodes: Iterable[Node],
+) -> list[Disk]:
+    """Map qualified slices to existing inertial disks at exact FE stations."""
+    nodes=list(nodes)
+    positions={int(node.number):float(node.z_m) for node in nodes}
+    result=[]
+    for piece in all_mass_slices(spans):
+        if not positions:
+            raise IrdinMassMappingError("mass materialization requires FE nodes")
+        distances={node:abs(z-piece.z_center_m) for node,z in positions.items()}
+        node=min(distances,key=distances.get)
+        if distances[node] > 1.0e-10:
+            raise IrdinMassMappingError(
+                f"no exact FE node at mass slice center {piece.z_center_m:.12g} m"
+            )
+        result.append(Disk.inertial(
+            node,
+            piece.mass_kg,
+            piece.diametral_inertia_kgm2,
+            piece.polar_inertia_kgm2,
+            disk_type=2,
+        ))
+    return result
+
+
 def mass_audit(spans:Iterable[RotorMassSpan]) -> dict[str,Any]:
     spans=list(spans)
     slices=all_mass_slices(spans)
@@ -250,5 +277,5 @@ def mass_audit(spans:Iterable[RotorMassSpan]) -> dict[str,Any]:
 
 __all__=[
     "IrdinMassMappingError","MassSlice","disk_inertias_kg_m2",
-    "build_mass_spans","span_slices","all_mass_slices","mass_audit",
+    "build_mass_spans","span_slices","all_mass_slices","materialize_mass_disks","mass_audit",
 ]

@@ -23,7 +23,7 @@ from drm_core.domain.model import (
 from drm_core.stage1 import RotorProject
 from .bearing_table import BearingTableImportError, parse_irdin_coefficient_table
 from .irdin_bearing_policy import IRDIN_LEGACY_INTERPOLATION, legacy_bearing_policy
-from .irdin_mass import build_mass_spans
+from .irdin_mass import build_mass_spans, materialize_mass_disks, mass_audit
 from .irdin_support import IrdinSupportMappingError, build_bearing_supports
 from .irdin_excitation import (
     IrdinExcitationMappingError,
@@ -371,8 +371,22 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         for index, row in enumerate(probe_rows, start=1)
     ]
     bearing_positions_m = [_number(_cell(row, 0)) / 1000.0 for row in bearing_rows]
+    package_divisions=max(1,_integer(data.get("p_div"),1))
+    raw_mass_rows=_grid_rows(doc.get("massas"))
+    mass_center_positions_m=[]
+    if raw_mass_rows and not any(_truthy(_cell(row,5)) for row in raw_mass_rows):
+        for row in raw_mass_rows:
+            xi_mm=_number(_cell(row,0))
+            length_mm=_number(_cell(row,1))
+            count=package_divisions if _truthy(_cell(row,4)) else 1
+            slice_length_mm=length_mm/count
+            mass_center_positions_m.extend(
+                (xi_mm+(i+0.5)*slice_length_mm)/1000.0
+                for i in range(count)
+            )
     station_positions_m = [
         *bearing_positions_m,
+        *mass_center_positions_m,
         *[item["position_mm"] / 1000.0 for item in unbalance if item["position_mm"] >= 0.0],
         *[item["position_mm"] / 1000.0 for item in probes if item["position_mm"] >= 0.0],
     ]
@@ -509,7 +523,7 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         "probes": probes,
         "concentrated_masses": concentrated,
         "supports": supports,
-        "package_divisions": max(1, _integer(data.get("p_div"), 1)),
+        "package_divisions": package_divisions,
     }
 
     blockers: list[dict[str, str]] = []
@@ -621,6 +635,23 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         if masses and not any(item["ump"] for item in masses)
         else []
     )
+    materialized_disks=[]
+    if mass_spans:
+        try:
+            materialized_disks=materialize_mass_disks(mass_spans,nodes)
+            metadata["legacy_irdin"]["mass_audit"]=mass_audit(mass_spans)
+            metadata["numerical_readiness"]["components"]["mass_native_materialization"]="PASS_I7_DISK_MATERIALIZATION"
+            blockers[:] = [x for x in blockers if x["code"]!="IRDIN_DISTRIBUTED_MASS_UNMAPPED"]
+        except Exception as exc:
+            metadata["numerical_readiness"]["components"]["mass_native_materialization"]="BLOCKED"
+            metadata["numerical_readiness"].setdefault("mapping_diagnostics",[]).append(
+                {"component":"mass_native_materialization","message":str(exc)}
+            )
+    metadata["numerical_readiness"]["blockers"]=blockers
+    metadata["numerical_readiness"]["reasons"]=[item["message"] for item in blockers]
+    metadata["numerical_readiness"]["status"]=(
+        "BLOCKED_FOR_NUMERICAL_ANALYSIS" if blockers else "READY"
+    )
     mapped_supports = []
     if supports:
         try:
@@ -665,6 +696,7 @@ def load_irdin_project(path: str | Path) -> RotorProject:
     model = RotorModel(
         nodes=nodes,
         shafts=shafts,
+        disks=materialized_disks,
         advanced_bearings=advanced_bearings,
         mass_spans=mass_spans,
         supports=mapped_supports,
