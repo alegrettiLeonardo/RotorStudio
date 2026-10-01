@@ -1,8 +1,9 @@
 program test_6dof_global
   use iso_c_binding, only: c_double,c_int
+  use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
   use rd_shaft_6dof, only: shaft_6dof_matrices,B1_OK
   use rd_6dof_assembly, only: assemble_6dof,B2_OK,B2_INVALID_INPUT
-  use rd_6dof_modal, only: modal_from_matrices
+  use rd_6dof_modal, only: modal_from_matrices,classify_mode,whirl_value
   use rd_6dof_campbell, only: campbell_6dof
   implicit none
   integer,parameter::dp=c_double
@@ -17,6 +18,8 @@ program test_6dof_global
   integer(c_int)::c_type(2,3),track_idx(4,3)
   real(dp)::track_mac(4,3),macs(4,4,3)
   integer::i,j,istation
+  complex(dp)::qsent(18)
+  integer(c_int)::sent_type
   sn=reshape([1_c_int,2_c_int,2_c_int,3_c_int],[2,2])
   sf=1;sf(4,:)=1
   sp=0
@@ -52,6 +55,30 @@ program test_6dof_global
   call check(all(c_wd>0._dp).and.all(c_wn>0._dp),'Campbell frequencies')
   call check(all(track_idx>=0_c_int).and.all(track_idx<4_c_int),'Campbell tracked indices')
   call check(all(track_mac>=0._dp).and.all(track_mac<=1._dp),'Campbell MAC range')
+  ! Exact ROSS whirl/mode-type sentinels independent of eigensolver basis.
+  qsent=cmplx(0._dp,0._dp,kind=dp)
+  do i=1,nn
+    qsent(6*(i-1)+1)=cmplx(1._dp,0._dp,kind=dp)
+    qsent(6*(i-1)+2)=cmplx(0._dp,-1._dp,kind=dp)
+  end do
+  sent_type=classify_mode(qsent,nn)
+  call check(sent_type==1_c_int,'lateral sentinel classification')
+  call check(whirl_value(qsent,nn,sent_type)==0._dp,'Forward whirl sentinel')
+  do i=1,nn;qsent(6*(i-1)+2)=cmplx(0._dp,1._dp,kind=dp);end do
+  call check(whirl_value(qsent,nn,sent_type)==1._dp,'Backward whirl sentinel')
+  qsent=cmplx(0._dp,0._dp,kind=dp)
+  qsent(1)=cmplx(1._dp,0._dp,kind=dp);qsent(2)=cmplx(0._dp,-1._dp,kind=dp)
+  qsent(7)=cmplx(1._dp,0._dp,kind=dp);qsent(8)=cmplx(0._dp,1._dp,kind=dp)
+  qsent(13)=cmplx(1._dp,0._dp,kind=dp);qsent(14)=cmplx(0._dp,-1._dp,kind=dp)
+  sent_type=classify_mode(qsent,nn)
+  call check(sent_type==1_c_int.and.whirl_value(qsent,nn,sent_type)==0.5_dp,'Mixed whirl sentinel')
+  qsent=cmplx(0._dp,0._dp,kind=dp);do i=1,nn;qsent(6*(i-1)+3)=cmplx(1._dp,0._dp,kind=dp);end do
+  sent_type=classify_mode(qsent,nn)
+  call check(sent_type==2_c_int.and.ieee_is_nan(whirl_value(qsent,nn,sent_type)),'Axial mode sentinel')
+  qsent=cmplx(0._dp,0._dp,kind=dp);do i=1,nn;qsent(6*(i-1)+6)=cmplx(1._dp,0._dp,kind=dp);end do
+  sent_type=classify_mode(qsent,nn)
+  call check(sent_type==3_c_int.and.ieee_is_nan(whirl_value(qsent,nn,sent_type)),'Torsional mode sentinel')
+
   speeds=[0._dp,100._dp,100._dp]
   call campbell_6dof(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,3_c_int,speeds,bmap,2_c_int,c_wd,c_wn,c_zeta,c_log,c_whirl,c_type,track_idx,track_mac,macs,status)
   call check(status==B2_INVALID_INPUT,'invalid speed grid fail closed')
