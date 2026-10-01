@@ -97,7 +97,7 @@ contains
     real(dp),intent(in)::M(:,:),K(:,:),C(:,:),G(:,:),speed
     real(dp),intent(out)::A(2*size(M,1),2*size(M,1)),rcond
     integer(c_int),intent(out)::status
-    real(dp),allocatable::Mc(:,:),X(:,:),Y(:,:)
+    real(dp),allocatable::Mc(:,:),X(:,:),Y(:,:),RX(:,:),RY(:,:)
     integer::n,i
     integer(c_int)::st
     status=B2_INVALID_INPUT;A=0._dp;rcond=0._dp
@@ -106,14 +106,20 @@ contains
     if(.not.ieee_is_finite(speed).or..not.all(ieee_is_finite(M)).or..not.all(ieee_is_finite(K)).or. &
        .not.all(ieee_is_finite(C)).or..not.all(ieee_is_finite(G)))return
     call estimate_rcond(M,rcond,st);if(st/=B2_OK)then;status=st;return;end if
-    allocate(Mc(n,n),X(n,n),Y(n,n))
-    ! Preserve the frozen ROSS numerical formulation literally:
+    allocate(Mc(n,n),X(n,n),Y(n,n),RX(n,n),RY(n,n))
+    ! Preserve the frozen ROSS formulation literally:
     ! A21 = solve(-M, K) and A22 = solve(-M, C + speed*G).
-    ! Factoring -M (rather than factoring M with a negated RHS) is
-    ! algebraically equivalent but avoids platform-sensitive roundoff drift
-    ! in near-cancellation entries of the frozen state-space authority.
     X=K;Mc=-M;call solve_real(Mc,X,st);if(st/=0)then;status=B2_LAPACK;return;end if
     Y=C+speed*G;Mc=-M;call solve_real(Mc,Y,st);if(st/=0)then;status=B2_LAPACK;return;end if
+    ! One DGESV iterative-refinement correction suppresses platform-dependent
+    ! cancellation noise without changing the frozen solver contract or
+    ! forming an explicit inverse.  The correction solves A*dX=(B-A*X).
+    RX=K-matmul(-M,X)
+    Mc=-M;call solve_real(Mc,RX,st);if(st/=0)then;status=B2_LAPACK;return;end if
+    X=X+RX
+    RY=(C+speed*G)-matmul(-M,Y)
+    Mc=-M;call solve_real(Mc,RY,st);if(st/=0)then;status=B2_LAPACK;return;end if
+    Y=Y+RY
     do i=1,n;A(i,n+i)=1._dp;end do
     A(n+1:2*n,1:n)=X;A(n+1:2*n,n+1:2*n)=Y
     if(.not.all(ieee_is_finite(A)))then;status=B2_NONFINITE;return;end if
