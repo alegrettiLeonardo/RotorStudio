@@ -212,6 +212,8 @@ COMP=B15-SUPPORT
     )
     project = load_irdin_project(source)
     codes = {item["code"] for item in project.metadata["numerical_readiness"]["blockers"]}
-    assert "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" in codes
+    assert "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" not in codes
+    assert project.metadata["numerical_readiness"]["components"]["support_native_assembly"] == "PASS_I8_GLOBAL_MATRICES"
+    assert "IRDIN_EXPANDED_SOLVER_UNQUALIFIED" in codes
     assert "IRDIN_BEARING_COEFFICIENT_TABLE_UNMAPPED" not in codes
     assert len(project.model.advanced_bearings) == 1
