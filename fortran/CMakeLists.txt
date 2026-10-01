@@ -149,3 +149,17 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(test_6dof_elements PRIVATE -ffree-line-length-none)
 endif()
 add_test(NAME sixdof_element_native_contract COMMAND test_6dof_elements)
+
+# B2 additive global 6-DOF assembly/modal/Campbell kernels.
+target_sources(drmrotor PRIVATE
+ src/rd_6dof_assembly.f90
+ src/rd_6dof_modal.f90
+ src/rd_6dof_campbell.f90
+ src/rd_6dof_global_c_api.f90)
+add_executable(test_6dof_global tests/test_6dof_global.f90)
+target_link_libraries(test_6dof_global PRIVATE drmrotor)
+target_include_directories(test_6dof_global PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_6dof_global PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME sixdof_global_modal_campbell_native_contract COMMAND test_6dof_global)

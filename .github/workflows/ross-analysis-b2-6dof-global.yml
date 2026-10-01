@@ -1,0 +1,59 @@
+name: ROSS Analysis B2 6DOF Global Modal Campbell Qualification
+
+on:
+  push:
+    branches: [feature/ross-analysis-b2-6dof-global-modal-campbell]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  native-build:
+    name: B2 native build / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Linux numerical toolchain
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y cmake gfortran libblas-dev liblapack-dev
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-openblas
+      - name: Linux Release build + all CTest
+        if: runner.os == 'Linux'
+        run: |
+          cmake -S fortran -B build-b2 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-b2 --parallel 2
+          ctest --test-dir build-b2 --output-on-failure
+      - name: Windows Release build + all CTest
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-b2 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-b2 --parallel 2
+          ctest --test-dir build-b2 --output-on-failure
