@@ -214,6 +214,8 @@ COMP=B15-SUPPORT
     codes = {item["code"] for item in project.metadata["numerical_readiness"]["blockers"]}
     assert "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" not in codes
     assert project.metadata["numerical_readiness"]["components"]["support_native_assembly"] == "PASS_I8_GLOBAL_MATRICES"
-    assert "IRDIN_EXPANDED_SOLVER_UNQUALIFIED" in codes
+    assert project.metadata["numerical_readiness"]["components"]["expanded_solver"] == "PASS_I9_NATIVE_MODAL_RESPONSE"
+    assert project.metadata["numerical_readiness"]["components"]["automatic_cases"] == "BLOCKED"
+    assert "IRDIN_AUTOMATIC_CASES_UNQUALIFIED" in codes
     assert "IRDIN_BEARING_COEFFICIENT_TABLE_UNMAPPED" not in codes
     assert len(project.model.advanced_bearings) == 1
