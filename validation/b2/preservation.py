@@ -22,6 +22,13 @@ B1_IMMUTABLE_PATHS=(
     "validation/b1",
 )
 
+PINNED_B2_ADAPTER_BLOBS={
+    "python/src/drm_core/__init__.py":"4aca4be955ef3e3e3e193a71805eaafec3a3b42f",
+    "python/src/drm_core/solver/facade.py":"e48179286885e7831af1f8d5c8c933841e83bb7e",
+    "python/tests_ucs/test_ucs_bearing_order_authority.py":"a5a4928918921dc2946be079d45970d69a0e07c6",
+    "scripts/verify_a1_legacy_preservation.py":"c12f35fc3c93a73f66ecd0158826134744bc8a7f",
+}
+
 PROMOTED_PRODUCT_PATHS=(
     "python/src/drm_flet",
     "python/src/drm_studio",
@@ -59,6 +66,10 @@ def verify() -> dict:
         subprocess.run(["git","diff","--exit-code",B1_PROMOTED_MAIN,"HEAD","--",path],cwd=ROOT,check=True)
     for path in PROMOTED_PRODUCT_PATHS:
         subprocess.run(["git","diff","--exit-code",B1_PROMOTED_MAIN,"HEAD","--",path],cwd=ROOT,check=True)
+    for path,expected_blob in PINNED_B2_ADAPTER_BLOBS.items():
+        actual=git("hash-object",path).decode().strip()
+        if actual != expected_blob:
+            raise ValueError(f"B2 adapter bytes changed: {path}: {actual} != {expected_blob}")
     before=git("show",f"{B1_PROMOTED_MAIN}:fortran/CMakeLists.txt")
     after=(ROOT/"fortran/CMakeLists.txt").read_bytes()
     if after != before + B2_CMAKE_APPEND:
@@ -69,6 +80,7 @@ def verify() -> dict:
         "immutable_paths":list(B1_IMMUTABLE_PATHS),
         "promoted_product_paths":list(PROMOTED_PRODUCT_PATHS),
         "cmake":"EXACT_B2_ADDITIVE_SUFFIX",
+        "pinned_b2_adapter_blobs":dict(PINNED_B2_ADAPTER_BLOBS),
     }
 
 if __name__=="__main__":
