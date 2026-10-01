@@ -34,7 +34,7 @@ def test_i3_st41_support_domain_preserves_legacy_radial_contract():
         assert support.provenance["axis_mapping"]=="X->X; Z->Y; coefficient order/sign unchanged"
 
     readiness=project.metadata["numerical_readiness"]
-    assert readiness["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
+    assert readiness["status"]=="LEGACY_NUMERIC_READY"
     assert readiness["components"]["support_semantics"]=="PASS_I3_DOMAIN_ONLY"
     assert readiness["components"]["support_native_assembly"]=="PASS_I8_GLOBAL_MATRICES"
     assert not any(x["code"]=="IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" for x in readiness["blockers"])
