@@ -163,3 +163,15 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(test_irdin_support PRIVATE -ffree-line-length-none)
 endif()
 add_test(NAME irdin_support_element_contract COMMAND test_irdin_support)
+
+# I8 global iRdin rotor-bearing-support matrix composition.
+target_sources(drmrotor PRIVATE
+ src/rd_irdin_support_global.f90
+ src/rd_irdin_support_global_c_api.f90)
+add_executable(test_irdin_support_global tests/test_irdin_support_global.f90)
+target_link_libraries(test_irdin_support_global PRIVATE drmrotor)
+target_include_directories(test_irdin_support_global PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_irdin_support_global PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME irdin_support_global_matrix_contract COMMAND test_irdin_support_global)
