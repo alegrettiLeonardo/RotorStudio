@@ -45,7 +45,7 @@ contains
     real(dp),intent(out)::tracking_mac(frequencies+2,nsp),mac_matrix(frequencies+2,frequencies+2,nsp)
     integer(c_int),intent(out)::status
     integer(c_int),intent(in),optional::frequency_type
-    integer::ndof,ntrack,s,i,j,bestj,nmissing,kmiss,ftype,key,kk
+    integer::ndof,ntrack,s,i,j,bestj,nmissing,kmiss,ftype,key,ipos
     integer,allocatable::found(:),missing(:),used(:),display_order(:)
     real(dp)::best
     real(dp),allocatable::MM(:,:),KK(:,:),CC(:,:),GG(:,:),KSD(:,:),wn(:),wd(:),zeta(:),logdec(:),whirl(:),residual(:)
@@ -105,12 +105,12 @@ contains
       ! at each station and then takes the requested display branches.
       if(ftype==1)then
         do i=2,ntrack
-          key=display_order(i);kk=i-1
-          do while(kk>=1)
-            if(wn(found(display_order(kk)))<=wn(found(key)))exit
-            display_order(kk+1)=display_order(kk);kk=kk-1
+          key=display_order(i);ipos=i-1
+          do while(ipos>=1)
+            if(wn(found(display_order(ipos)))<=wn(found(key)))exit
+            display_order(ipos+1)=display_order(ipos);ipos=ipos-1
           end do
-          display_order(kk+1)=key
+          display_order(ipos+1)=key
         end do
       end if
       do i=1,frequencies
