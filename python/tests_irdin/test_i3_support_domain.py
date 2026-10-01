@@ -36,8 +36,9 @@ def test_i3_st41_support_domain_preserves_legacy_radial_contract():
     readiness=project.metadata["numerical_readiness"]
     assert readiness["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
     assert readiness["components"]["support_semantics"]=="PASS_I3_DOMAIN_ONLY"
-    assert readiness["components"]["support_native_assembly"]=="NOT_QUALIFIED"
-    assert any(x["code"]=="IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" for x in readiness["blockers"])
+    assert readiness["components"]["support_native_assembly"]=="PASS_I8_GLOBAL_MATRICES"
+    assert not any(x["code"]=="IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" for x in readiness["blockers"])
+    assert any(x["code"]=="IRDIN_EXPANDED_SOLVER_UNQUALIFIED" for x in readiness["blockers"])
 
 
 def test_i3_st41_support_audit_is_deterministic():
