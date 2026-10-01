@@ -149,3 +149,17 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(test_6dof_elements PRIVATE -ffree-line-length-none)
 endif()
 add_test(NAME sixdof_element_native_contract COMMAND test_6dof_elements)
+
+
+# I4 iRdin flexible bearing-support element kernel.
+# Additive diagnostic/qualification kernel only; existing A0-A8/B1 dispatch is unchanged.
+target_sources(drmrotor PRIVATE
+ src/rd_irdin_support.f90
+ src/rd_irdin_support_c_api.f90)
+add_executable(test_irdin_support tests/test_irdin_support.f90)
+target_link_libraries(test_irdin_support PRIVATE drmrotor)
+target_include_directories(test_irdin_support PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_irdin_support PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME irdin_support_element_contract COMMAND test_irdin_support)
