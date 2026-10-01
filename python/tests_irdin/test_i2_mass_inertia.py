@@ -39,7 +39,7 @@ def test_i2_st41_logical_mass_spans_remain_source_faithful_after_i7():
     assert spans[2].provenance["geometry_resolution"]["inner_source"]=="LOCAL_PHYSICAL_SHAFT_OD"
 
     readiness=project.metadata["numerical_readiness"]
-    assert readiness["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
+    assert readiness["status"]=="LEGACY_NUMERIC_READY"
     assert readiness["components"]["mass_semantics"]=="PASS"
     assert readiness["components"]["mass_inertia"]=="PASS_I2_LOGICAL_ONLY"
     assert readiness["components"]["mass_native_materialization"]=="PASS_I7_DISK_MATERIALIZATION"
