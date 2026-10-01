@@ -12,3 +12,17 @@ completed successfully before this branch was created.
 
 This stage freezes B2 ROSS authority before any native global solver is added.
 Production scope is intentionally absent until authority candidate review/freeze.
+
+
+## Current exact-head campaign
+
+- Draft PR: #35
+- Frozen authority: PASS / immutable
+- B2 native implementation present: global M/K/C/G/Ksdt, dense modal, standard Campbell
+- Independent gates added: matrix superposition/energy, state-space identities,
+  modal scalar/conjugate/repeatability/gyro-split, Campbell station consistency,
+  tracking permutation/crossing sentinel, 6DOF-vs-4DOF lateral common-domain cross-check.
+- The 4DOF cross-check compares only the positive-imaginary physical eigenvalue
+  family, avoiding double-counting the negative-frequency conjugate half.
+- Promotion remains NOT AUTHORIZED until one exact HEAD passes Linux, Windows,
+  frozen authority, inherited A0-A8, bearings, Qt and Flet qualification.
