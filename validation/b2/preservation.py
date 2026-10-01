@@ -27,7 +27,7 @@ PINNED_B2_ADAPTER_BLOBS={
     B1_VALIDATION_GATE_EXCEPTION:"e9200292c96c958a3260ca9021151ba6fb0bfdf6",
     "python/src/drm_core/__init__.py":"4aca4be955ef3e3e3e193a71805eaafec3a3b42f",
     "python/src/drm_core/solver/facade.py":"e48179286885e7831af1f8d5c8c933841e83bb7e",
-    "python/tests_ucs/test_ucs_bearing_order_authority.py":"075b29a502cba126c22c9622cf0a0b315ce40f5e",
+    "python/tests_ucs/test_ucs_bearing_order_authority.py":"c4702535caded9bc40925b75ebea19562da17478",
     "scripts/verify_a1_legacy_preservation.py":"c12f35fc3c93a73f66ecd0158826134744bc8a7f",
 }
 
