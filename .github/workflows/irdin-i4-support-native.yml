@@ -65,8 +65,25 @@ jobs:
           cygpath -w /ucrt64/bin >> "$GITHUB_PATH"
       - name: Immutable import authority
         run: python validation/irdin/i0_authority.py --verify
+      - name: Prove promoted B1 element implementation and authority are unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code origin/main...HEAD -- \
+            validation/ross_parity/6dof_elements \
+            fortran/src/rd_shaft_6dof.f90 \
+            fortran/src/rd_disk_6dof.f90 \
+            fortran/src/rd_6dof_element_c_api.f90 \
+            python/src/drm_core/solver/sixdof_elements.py
       - name: I0-I4 and inherited kernel regressions
-        run: python -m pytest python/tests_irdin python/tests_6dof_elements python/tests -q --junitxml=irdin-i4-${{ runner.os }}.xml
+        run: >-
+          python -m pytest
+          python/tests_irdin
+          python/tests_6dof_elements
+          --ignore=python/tests_6dof_elements/test_preservation.py
+          python/tests
+          -q
+          --junitxml=irdin-i4-${{ runner.os }}.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
