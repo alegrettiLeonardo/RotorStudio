@@ -661,6 +661,12 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         try:
             mapped_supports = build_bearing_supports(metadata)
             metadata["numerical_readiness"]["components"]["support_semantics"] = "PASS_I3_DOMAIN_ONLY"
+            metadata["numerical_readiness"]["components"]["support_native_assembly"] = "PASS_I8_GLOBAL_MATRICES"
+            blockers[:] = [x for x in blockers if x["code"] != "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED"]
+            block(
+                "IRDIN_EXPANDED_SOLVER_UNQUALIFIED",
+                "rotor-bearing-support global matrices are qualified, but the expanded modal/response solver is not yet promoted",
+            )
         except IrdinSupportMappingError as exc:
             metadata["numerical_readiness"]["components"]["support_semantics"] = "BLOCKED"
             metadata["numerical_readiness"].setdefault("mapping_diagnostics", []).append(
@@ -696,6 +702,12 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         metadata["numerical_readiness"]["blockers"] = blockers
         metadata["numerical_readiness"]["reasons"] = [item["message"] for item in blockers]
         metadata["numerical_readiness"]["status"] = "BLOCKED_FOR_NUMERICAL_ANALYSIS"
+
+    metadata["numerical_readiness"]["blockers"] = blockers
+    metadata["numerical_readiness"]["reasons"] = [item["message"] for item in blockers]
+    metadata["numerical_readiness"]["status"] = (
+        "BLOCKED_FOR_NUMERICAL_ANALYSIS" if blockers else "READY"
+    )
 
     model = RotorModel(
         nodes=nodes,

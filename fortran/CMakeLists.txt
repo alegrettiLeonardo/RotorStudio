@@ -175,3 +175,15 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(test_irdin_support_global PRIVATE -ffree-line-length-none)
 endif()
 add_test(NAME irdin_support_global_matrix_contract COMMAND test_irdin_support_global)
+
+# I9 expanded iRdin modal and synchronous response solvers.
+target_sources(drmrotor PRIVATE
+ src/rd_irdin_support_analysis.f90
+ src/rd_irdin_support_analysis_c_api.f90)
+add_executable(test_irdin_support_analysis tests/test_irdin_support_analysis.f90)
+target_link_libraries(test_irdin_support_analysis PRIVATE drmrotor)
+target_include_directories(test_irdin_support_analysis PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_irdin_support_analysis PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME irdin_support_analysis_contract COMMAND test_irdin_support_analysis)
