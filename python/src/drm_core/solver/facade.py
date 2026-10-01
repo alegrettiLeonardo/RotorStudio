@@ -67,6 +67,8 @@ class SolverFacade:
         from .sixdof_global import run_modal_6dof
         return run_modal_6dof(model,speed_rad_s,num_modes,self.backend.library_path)
 
-    def campbell_6dof(self,model,speed_range_rad_s,frequencies=6):
+    def campbell_6dof(self,model,speed_range_rad_s,frequencies=6,frequency_type="wd"):
         from .sixdof_global import run_campbell_6dof
-        return run_campbell_6dof(model,speed_range_rad_s,frequencies,self.backend.library_path)
+        return run_campbell_6dof(
+            model,speed_range_rad_s,frequencies,self.backend.library_path,frequency_type
+        )

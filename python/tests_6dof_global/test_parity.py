@@ -155,6 +155,18 @@ def test_campbell_wn_display_frozen_parity(case):
     assert result.metadata["frequency_type"]=="wn"
 
 
+def test_solver_facade_exposes_frozen_wn_campbell_view():
+    from drm_core.solver.facade import SolverFacade
+    case=SPEC["campbell_cases"][0]
+    result=SolverFacade().campbell_6dof(
+        model_for(case["rotor"]),case["speed_range_rad_s"],case["frequencies"],frequency_type="wn"
+    )
+    expected=np.load(AUTH/f"campbell/{case['id']}_wn_display.npy",allow_pickle=False)
+    p=POLICY["campbell"]["wn"]
+    np.testing.assert_allclose(result.wn_rad_s.T,expected,rtol=p["rtol"],atol=p["atol"])
+    assert result.metadata["frequency_type"]=="wn"
+
+
 def test_campbell_rejects_unknown_frequency_type():
     with pytest.raises(ValueError,match="frequency_type"):
         run_campbell_6dof(model_for("R02"),[0.0,100.0],2,frequency_type="absolute")

@@ -26,7 +26,7 @@ B1_VALIDATION_GATE_EXCEPTION="validation/b1/native_preservation.py"
 PINNED_B2_ADAPTER_BLOBS={
     B1_VALIDATION_GATE_EXCEPTION:"e9200292c96c958a3260ca9021151ba6fb0bfdf6",
     "python/src/drm_core/__init__.py":"4aca4be955ef3e3e3e193a71805eaafec3a3b42f",
-    "python/src/drm_core/solver/facade.py":"e48179286885e7831af1f8d5c8c933841e83bb7e",
+    "python/src/drm_core/solver/facade.py":"8a8e9b5ca7c2e6ddbf058461413ea910ee4de68e",
     "python/tests_ucs/test_ucs_bearing_order_authority.py":"1a6c1a195aa886bf2d14d4c37bfbf3e911d7b875",
     "scripts/verify_a1_legacy_preservation.py":"c12f35fc3c93a73f66ecd0158826134744bc8a7f",
 }
