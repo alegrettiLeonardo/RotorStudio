@@ -230,7 +230,7 @@ def approve_change(path,before,after):
     if B2_MARKER.is_file() and path in B2_EXISTING_ADAPTERS:
         verify_b2_inheritance()
         require(after==(ROOT/path).read_bytes(),
-                'B2 inherited adapter differs from exact pinned working bytes: '+path)
+                'Historical adaptation differs from exact permitted patch (B2 inherited adapter): '+path)
         return
     if path in ADAPTED_FILES:
         require(after==expected_adaptation(path,before),'Historical adaptation differs from exact permitted patch: '+path)
