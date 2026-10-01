@@ -41,9 +41,10 @@ def test_i7_mass_conservation_and_readiness_remove_only_mass_blocker():
     codes={x["code"] for x in r["blockers"]}
     assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" not in codes
     assert r["components"]["support_native_assembly"]=="PASS_I8_GLOBAL_MATRICES"
-    assert "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" not in codes
-    assert "IRDIN_EXPANDED_SOLVER_UNQUALIFIED" in codes
-    assert r["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
+    assert r["components"]["expanded_solver"]=="PASS_I9_NATIVE_MODAL_RESPONSE"
+    assert r["components"]["automatic_cases"]=="PASS_I10_LEGACY_CASES"
+    assert codes==set()
+    assert r["status"]=="LEGACY_NUMERIC_READY"
 
 
 def test_i7_materialized_disks_survive_save_reopen_exactly(tmp_path):
