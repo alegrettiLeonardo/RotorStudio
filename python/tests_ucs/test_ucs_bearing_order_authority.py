@@ -35,6 +35,7 @@ B1_PARITY_ADDITIVE_PATHS=(
     'validation/ross_parity/verify_6dof_elements_candidate.py',
 )
 B2_AUTHORITY_FREEZE='d9be588c71bfd7116f61d1f5f5be3a2ee0e06726'
+B2_NATIVE_IMPLEMENTATION='0267760e8325c52197d2c79b61d95a6f4dc43782'
 B2_NATIVE_ADDITIONS={
     'fortran/src/rd_6dof_assembly.f90',
     'fortran/src/rd_6dof_modal.f90',
@@ -95,7 +96,7 @@ def _assert_native_baseline_unchanged():
     allowed['fortran/CMakeLists.txt']='M'
     _assert_allowed_delta(_changed_status(BASE_SHA,'fortran'),allowed)
     _git_diff_unchanged(B1_NATIVE_IMPLEMENTATION,*sorted(B1_NATIVE_ADDITIONS))
-    _git_diff_unchanged(B2_AUTHORITY_FREEZE,*sorted(B2_NATIVE_ADDITIONS))
+    _git_diff_unchanged(B2_NATIVE_IMPLEMENTATION,*sorted(B2_NATIVE_ADDITIONS))
     from validation.b2.preservation import verify as verify_b2_preservation
     assert verify_b2_preservation()['status']=='PASS'
 
