@@ -1,7 +1,7 @@
 module rd_irdin_support_global_c_api
   use iso_c_binding, only:c_double,c_int,c_int64_t
   use rd_kinds, only:ik
-  use rd_irdin_support_global, only:irdin_support_global_matrices,I8_OK,I8_INVALID_DIMENSION
+  use rd_irdin_support_global, only:irdin_support_global_matrices,I8_OK,I8_INVALID_DIMENSION,I8_INSUFFICIENT_CAPACITY
   implicit none(type, external);private
   public::rd_irdin_support_global_matrices_v1
 contains
@@ -23,6 +23,7 @@ contains
     if(nnode<1.or.ns<1)return
     nd=4*nnode;no=nd+2*ns
     if(ldin<nd.or.ldout<no)return
+    status=I8_INSUFFICIENT_CAPACITY
     if(int(capin,c_int64_t)<int((nd-1)*ldin+nd,c_int64_t))return
     if(int(capout,c_int64_t)<int((no-1)*ldout+no,c_int64_t))return
     allocate(ndv(ns),mv(ns),kb(2,2,ns),cb(2,2,ns),ks(2,2,ns),cs(2,2,ns))
