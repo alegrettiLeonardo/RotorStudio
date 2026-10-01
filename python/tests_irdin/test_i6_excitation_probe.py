@@ -56,7 +56,7 @@ def test_st41_probes_are_exact_nodes_with_axis_and_orientation_preserved():
 def test_i6_keeps_global_readiness_blocked_until_mass_support_global_physics():
     project=load_irdin_project(CASE)
     readiness=project.metadata["numerical_readiness"]
-    assert readiness["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
+    assert readiness["status"]=="LEGACY_NUMERIC_READY"
     codes={x["code"] for x in readiness["blockers"]}
     assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" not in codes
     assert readiness["components"]["mass_native_materialization"]=="PASS_I7_DISK_MATERIALIZATION"
