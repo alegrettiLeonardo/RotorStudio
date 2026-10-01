@@ -53,13 +53,19 @@ jobs:
       - name: Reproduce frozen authority from real ROSS
         run: |
           python validation/ross_parity/generate_6dof_global_reference.py --ross-root _ross_b2 --out b2-evidence/candidate
-          python validation/ross_parity/verify_6dof_global_candidate.py             --reference validation/ross_parity/6dof_global             --candidate b2-evidence/candidate             --report b2-evidence/frozen-reproduction.json
+          python validation/ross_parity/verify_6dof_global_candidate.py \
+            --reference validation/ross_parity/6dof_global \
+            --candidate b2-evidence/candidate \
+            --report b2-evidence/frozen-reproduction.json
       - name: Authority tests
         run: python -m pytest validation/b2/tests -q --junitxml=b2-evidence/authority-tests.xml
       - name: Independent repeat
         run: |
           python validation/ross_parity/generate_6dof_global_reference.py --ross-root _ross_b2 --out b2-evidence/repeat
-          python validation/ross_parity/verify_6dof_global_candidate.py --reference b2-evidence/candidate --candidate b2-evidence/repeat --report b2-evidence/repeat-comparison.json
+          python validation/ross_parity/verify_6dof_global_candidate.py \
+            --reference b2-evidence/candidate \
+            --candidate b2-evidence/repeat \
+            --report b2-evidence/repeat-comparison.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -83,7 +89,7 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -98,20 +104,22 @@ jobs:
             --reference "b2-platforms/b2-authority-ubuntu-24.04-${GITHUB_SHA}/candidate" \
             --candidate "b2-platforms/b2-authority-windows-2025-${GITHUB_SHA}/candidate" \
             --report b2-cross-platform.json
-      - name: Freeze or reproduce immutable B2 authority
+      - name: Verify Linux reproduction against immutable frozen authority
         run: |
-          python validation/b2/freeze_authority.py \
-            --linux "b2-platforms/b2-authority-ubuntu-24.04-${GITHUB_SHA}/candidate" \
-            --windows "b2-platforms/b2-authority-windows-2025-${GITHUB_SHA}/candidate" \
-            --cross-report b2-cross-platform.json
-          if ! git diff --quiet -- validation/ross_parity/6dof_global || \
-             test -n "$(git status --porcelain --untracked-files=all validation/ross_parity/6dof_global)"; then
-            git config user.name "RotorStudio B2 Authority"
-            git config user.email "actions@users.noreply.github.com"
-            git add validation/ross_parity/6dof_global
-            git commit -m "B2 authority: freeze 6DOF global/modal/Campbell ROSS reference"
-            git push origin "HEAD:feature/ross-analysis-b2-6dof-global-modal-campbell"
-          fi
+          python validation/ross_parity/verify_6dof_global_candidate.py \
+            --reference validation/ross_parity/6dof_global \
+            --candidate "b2-platforms/b2-authority-ubuntu-24.04-${GITHUB_SHA}/candidate" \
+            --report b2-linux-frozen-reproduction.json
+      - name: Verify Windows reproduction against immutable frozen authority
+        run: |
+          python validation/ross_parity/verify_6dof_global_candidate.py \
+            --reference validation/ross_parity/6dof_global \
+            --candidate "b2-platforms/b2-authority-windows-2025-${GITHUB_SHA}/candidate" \
+            --report b2-windows-frozen-reproduction.json
+      - name: Assert frozen authority remains byte-identical and unmodified
+        run: |
+          git diff --exit-code d9be588c71bfd7116f61d1f5f5be3a2ee0e06726 HEAD -- validation/ross_parity/6dof_global
+          test -z "$(git status --porcelain --untracked-files=all validation/ross_parity/6dof_global)"
       - uses: actions/upload-artifact@v4
         with:
           name: b2-authority-aggregate-${{ github.sha }}
