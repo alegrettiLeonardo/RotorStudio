@@ -176,3 +176,139 @@ def test_frozen_b2_authority_is_immutable():
         "git","diff","--exit-code","d9be588c71bfd7116f61d1f5f5be3a2ee0e06726","HEAD",
         "--","validation/ross_parity/6dof_global"
     ],cwd=ROOT,check=True)
+
+
+def _nearest_relative_error(reference, candidate):
+    reference=np.asarray(reference,dtype=float)
+    remaining=list(np.asarray(candidate,dtype=float))
+    errors=[]
+    for value in reference:
+        if not remaining:break
+        j=min(range(len(remaining)),key=lambda k:abs(remaining[k]-value))
+        other=remaining.pop(j)
+        errors.append(abs(value-other)/max(1.0,abs(value),abs(other)))
+    return max(errors,default=0.0)
+
+
+def test_independent_global_superposition_energy_and_state_space():
+    """Independent validation math; production assembly remains native Fortran."""
+    from drm_core.solver.sixdof_elements import shaft_matrices,disk_matrices
+    model=model_for("R02")
+    speed=137.0
+    g=assemble_6dof(model,speed,speed)
+    n=6*len(model.nodes)
+    M=np.zeros((n,n));K=np.zeros((n,n));C=np.zeros((n,n));G=np.zeros((n,n));Ksdt=np.zeros((n,n))
+    z={int(node.number):float(node.z_m) for node in model.nodes}
+    def add(global_,local,idx):
+        global_[np.ix_(idx,idx)]+=local
+    for shaft in model.shafts:
+        L=z[int(shaft.node2)]-z[int(shaft.node1)]
+        if isinstance(shaft,ShaftElement):
+            mats=shaft_matrices(
+                L=L,idl=shaft.inner_diameter_m,odl=shaft.outer_diameter_m,
+                idr=shaft.inner_diameter_m,odr=shaft.outer_diameter_m,
+                rho=shaft.rho_kg_m3,E=shaft.E_pa,G_s=shaft.G_pa,
+                axial_force=shaft.axial_force_n,torque=shaft.torque_nm,
+                shear_effects=True,rotary_inertia=True,gyroscopic=True,
+            )
+        else:
+            mats=shaft_matrices(
+                L=L,idl=shaft.inner_diameter_1_m,odl=shaft.outer_diameter_1_m,
+                idr=shaft.inner_diameter_2_m,odr=shaft.outer_diameter_2_m,
+                rho=shaft.rho_kg_m3,E=shaft.E_pa,G_s=shaft.G_pa,
+                axial_force=shaft.axial_force_n,torque=0.0,
+                shear_effects=True,rotary_inertia=True,gyroscopic=True,
+            )
+        idx=[6*(int(shaft.node1)-1)+d for d in range(6)]+[6*(int(shaft.node2)-1)+d for d in range(6)]
+        add(M,mats.M,idx);add(K,mats.K,idx);add(G,mats.G,idx);add(Ksdt,mats.Kst,idx)
+    for disk in model.disks:
+        assert disk.disk_type==2
+        mats=disk_matrices(m=disk.p3,Id=disk.p4,Ip=disk.p5)
+        idx=[6*(int(disk.node)-1)+d for d in range(6)]
+        add(M,mats.M,idx);add(G,mats.G,idx);add(Ksdt,mats.Kdt,idx)
+    # R02 has constant qualified coefficient bearings, so their radial blocks
+    # are independently materialized without invoking B2 assembly.
+    for b in model.advanced_bearings:
+        idx=[6*(int(b.node)-1),6*(int(b.node)-1)+1]
+        K[np.ix_(idx,idx)]+=np.array([[float(b.kxx),float(b.kxy)],[float(b.kyx),float(b.kyy)]])
+        C[np.ix_(idx,idx)]+=np.array([[float(b.cxx),float(b.cxy)],[float(b.cyx),float(b.cyy)]])
+        M[np.ix_(idx,idx)]+=np.array([[float(b.mxx),float(b.mxy)],[float(b.myx),float(b.myy)]])
+    for actual,expected in ((g.M,M),(g.K,K),(g.C,C),(g.G,G),(g.Ksdt,Ksdt)):
+        np.testing.assert_allclose(actual,expected,rtol=3e-12,atol=1e-8)
+    q=np.linspace(-0.7,1.3,n)
+    np.testing.assert_allclose(q@g.K@q,q@K@q,rtol=2e-13,atol=1e-8)
+    np.testing.assert_allclose(q@g.M@q,q@M@q,rtol=2e-13,atol=1e-12)
+
+    modal=run_modal_6dof(model,speed,12)
+    A=modal.state_space
+    eye=np.eye(n);zero=np.zeros((n,n))
+    np.testing.assert_allclose(A[:n,:n],zero,rtol=0,atol=0)
+    np.testing.assert_allclose(A[:n,n:],eye,rtol=0,atol=0)
+    np.testing.assert_allclose(A[n:,:n],np.linalg.solve(-g.M,g.K),rtol=5e-11,atol=1e-7)
+    np.testing.assert_allclose(A[n:,n:],np.linalg.solve(-g.M,g.C+speed*g.G),rtol=5e-11,atol=1e-7)
+
+
+def test_independent_modal_identities_conjugates_repeatability_and_gyroscopic_split():
+    model=model_for("R02")
+    r0=run_modal_6dof(model,0.0,12)
+    r1=run_modal_6dof(model,200.0,12)
+    r1b=run_modal_6dof(model,200.0,12)
+    np.testing.assert_array_equal(r1.eigenvalues_all,r1b.eigenvalues_all)
+    np.testing.assert_array_equal(r1.eigenvalues,r1b.eigenvalues)
+    np.testing.assert_array_equal(r1.state_space,r1b.state_space)
+    np.testing.assert_allclose(r1.wn_rad_s,np.abs(r1.eigenvalues),rtol=2e-14,atol=2e-12)
+    np.testing.assert_allclose(r1.wd_rad_s,r1.eigenvalues.imag,rtol=0,atol=0)
+    zeta=-r1.eigenvalues.real/np.abs(r1.eigenvalues)
+    np.testing.assert_allclose(r1.damping_ratio,zeta,rtol=2e-14,atol=2e-14)
+    valid=1-zeta*zeta>0
+    expected=np.full_like(zeta,np.nan,dtype=float)
+    expected[valid]=2*np.pi*zeta[valid]/np.sqrt(1-zeta[valid]*zeta[valid])
+    np.testing.assert_allclose(r1.log_dec,expected,rtol=2e-13,atol=2e-13,equal_nan=True)
+    for lam in r1.eigenvalues_all:
+        assert np.min(np.abs(r1.eigenvalues_all-np.conj(lam))) < 2e-7*max(1.0,abs(lam))
+    assert np.max(r1.residual) <= POLICY["modal"]["residual_max"]
+    # Nonzero spin must split at least one lateral pair relative to zero-speed
+    # degeneracy; compare sorted lateral damped frequencies.
+    f0=np.sort(r0.wd_rad_s[np.array(r0.mode_type)=="Lateral"])
+    f1=np.sort(r1.wd_rad_s[np.array(r1.mode_type)=="Lateral"])
+    n=min(len(f0),len(f1))
+    assert n>=2
+    assert np.max(np.abs(f1[:n]-f0[:n])) > 1e-3
+
+
+def test_campbell_station_consistency_tracking_permutation_and_repeatability():
+    case=next(c for c in SPEC["campbell_cases"] if c["id"]=="C03")
+    model=model_for(case["rotor"])
+    speeds=case["speed_range_rad_s"];freq=case["frequencies"];nt=freq+2
+    camp=run_campbell_6dof(model,speeds,freq)
+    repeat=run_campbell_6dof(model,speeds,freq)
+    for name in ("wd_rad_s","wn_rad_s","damping_ratio","log_dec","tracking_index","tracking_mac","mac_matrix"):
+        np.testing.assert_allclose(getattr(camp,name),getattr(repeat,name),rtol=0,atol=0,equal_nan=True)
+    identity=np.arange(nt)
+    saw_reorder=False
+    for s,w in enumerate(speeds):
+        order=camp.tracking_index[:,s]
+        np.testing.assert_array_equal(np.sort(order),identity)
+        saw_reorder |= not np.array_equal(order,identity)
+        modal=run_modal_6dof(model,float(w),2*nt)
+        np.testing.assert_allclose(camp.wd_rad_s[:,s],modal.wd_rad_s[order[:freq]],rtol=2e-11,atol=2e-8)
+        np.testing.assert_allclose(camp.wn_rad_s[:,s],modal.wn_rad_s[order[:freq]],rtol=2e-11,atol=2e-8)
+    # C03 is the frozen tracking sentinel where frequency-only identity ordering
+    # and MAC branch identity differ after the branches approach.
+    assert saw_reorder
+
+
+def test_6dof_lateral_common_domain_crosscheck_against_qualified_4dof():
+    from drm_core import run_modal as run_modal_4dof
+    model=model_for("R02")
+    for speed in (0.0,150.0):
+        r6=run_modal_6dof(model,speed,12)
+        r4=run_modal_4dof(model,speed,with_eigenvectors=True,with_kappa=True)
+        f6=np.sort(np.abs(r6.wd_rad_s[np.array(r6.mode_type)=="Lateral"]))
+        f4=np.sort(np.abs(np.imag(np.asarray(r4.eigenvalues,dtype=np.complex128))))
+        # Compare only the physical positive-frequency family available in both
+        # models; 6DOF legitimately also contains axial/torsional families.
+        f4=f4[f4>1e-8]
+        n=min(4,len(f6),len(f4))
+        assert n>=2
+        assert _nearest_relative_error(f6[:n],f4[:n]) < 2e-4
