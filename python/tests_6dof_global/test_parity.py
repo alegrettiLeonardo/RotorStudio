@@ -144,6 +144,22 @@ def test_campbell_frozen_parity(case):
             assert np.all(result.tracking_mac[:,s][flags]>POLICY["campbell"]["tracking_mac_min"])
 
 
+@pytest.mark.parametrize("case",SPEC["campbell_cases"],ids=lambda x:x["id"])
+def test_campbell_wn_display_frozen_parity(case):
+    result=run_campbell_6dof(
+        model_for(case["rotor"]),case["speed_range_rad_s"],case["frequencies"],frequency_type="wn"
+    )
+    expected=np.load(AUTH/f"campbell/{case['id']}_wn_display.npy",allow_pickle=False)
+    p=POLICY["campbell"]["wn"]
+    np.testing.assert_allclose(result.wn_rad_s.T,expected,rtol=p["rtol"],atol=p["atol"])
+    assert result.metadata["frequency_type"]=="wn"
+
+
+def test_campbell_rejects_unknown_frequency_type():
+    with pytest.raises(ValueError,match="frequency_type"):
+        run_campbell_6dof(model_for("R02"),[0.0,100.0],2,frequency_type="absolute")
+
+
 def test_scope_rejects_asymmetric_and_physics_bearing():
     from drm_core import AsymmetricShaftElement,PlainJournalPhysicsBearing
     model=model_for("R02")

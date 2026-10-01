@@ -55,6 +55,13 @@ program test_6dof_global
   call check(all(c_wd>0._dp).and.all(c_wn>0._dp),'Campbell frequencies')
   call check(all(track_idx>=0_c_int).and.all(track_idx<4_c_int),'Campbell tracked indices')
   call check(all(track_mac>=0._dp).and.all(track_mac<=1._dp),'Campbell MAC range')
+  call campbell_6dof(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,3_c_int,speeds,bmap,2_c_int,c_wd,c_wn,c_zeta,c_log,c_whirl,c_type,track_idx,track_mac,macs,status,1_c_int)
+  call check(status==B2_OK,'Campbell wn display status')
+  do istation=1,3
+    call check(c_wn(1,istation)<=c_wn(2,istation),'Campbell wn display ordering')
+  end do
+  call campbell_6dof(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,3_c_int,speeds,bmap,2_c_int,c_wd,c_wn,c_zeta,c_log,c_whirl,c_type,track_idx,track_mac,macs,status,2_c_int)
+  call check(status==B2_INVALID_INPUT,'invalid Campbell frequency type fail closed')
   ! Exact ROSS whirl/mode-type sentinels independent of eigensolver basis.
   qsent=cmplx(0._dp,0._dp,kind=dp)
   do i=1,nn

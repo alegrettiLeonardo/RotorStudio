@@ -107,6 +107,7 @@ def _native(library_path=None):
         modal=lib.rd_6dof_modal_v1
         reqc=lib.rd_6dof_campbell_required_v1
         camp=lib.rd_6dof_campbell_v1
+        camp2=lib.rd_6dof_campbell_v2
     except AttributeError as exc:
         raise SolverLibraryError(
             "B2 requires rd_6dof_global/modal/campbell_*_v1 symbols. "
@@ -125,7 +126,11 @@ def _native(library_path=None):
         I,I,IP,P,IP,I,IP,P,I,IP,I,P,P,I,I,I,I,
         P,P,P,P,P,IP,IP,P,P
     ];camp.restype=I
-    return lib,reqg,glob,reqm,modal,reqc,camp
+    camp2.argtypes=[
+        I,I,IP,P,IP,I,IP,P,I,IP,I,P,P,I,I,I,I,I,
+        P,P,P,P,P,IP,IP,P,P
+    ];camp2.restype=I
+    return lib,reqg,glob,reqm,modal,reqc,camp,camp2
 
 
 def _status(code,context):
@@ -287,7 +292,7 @@ def assemble_6dof(model:RotorModel,speed_rad_s:float=0.0,frequency_rad_s:float|N
     speed=_finite_real("speed_rad_s",speed_rad_s)
     frequency=speed if frequency_rad_s is None else _finite_real("frequency_rad_s",frequency_rad_s)
     nn,ns,sn,sp,sf,nd,dn,dp,nb,bn,bp=_descriptors(model,speed,frequency,library_path)
-    _,_,fn,_,_,_,_=_native(library_path);n=6*nn
+    _,_,fn,_,_,_,_,_=_native(library_path);n=6*nn
     out=[_matrix(n) for _ in range(5)]
     args=[]
     for a in out:args.extend([_ptr(a),n,a.size])
@@ -304,7 +309,7 @@ def run_modal_6dof(model:RotorModel,speed_rad_s:float,num_modes:int=12,library_p
         raise ValueError("num_modes must be an even integer >= 2")
     num_modes=int(num_modes)
     nn,ns,sn,sp,sf,nd,dn,dp,nb,bn,bp=_descriptors(model,speed,speed,library_path)
-    _,_,_,req,fn,_,_=_native(library_path)
+    _,_,_,req,fn,_,_,_=_native(library_path)
     ndof=ct.c_int();state=ct.c_int();maxret=ct.c_int();selected=ct.c_int();qvalues=ct.c_int();avalues=ct.c_int()
     _status(req(nn,num_modes,ct.byref(ndof),ct.byref(state),ct.byref(maxret),ct.byref(selected),ct.byref(qvalues),ct.byref(avalues)),"modal size query")
     allr=np.full(maxret.value,np.nan);alli=np.full(maxret.value,np.nan)
@@ -342,13 +347,17 @@ def run_modal_6dof(model:RotorModel,speed_rad_s:float,num_modes:int=12,library_p
     return result
 
 
-def run_campbell_6dof(model:RotorModel,speed_range_rad_s:Iterable[float],frequencies:int=6,library_path=None):
+def run_campbell_6dof(model:RotorModel,speed_range_rad_s:Iterable[float],frequencies:int=6,library_path=None,frequency_type:str="wd"):
     speeds=np.asarray(tuple(speed_range_rad_s),dtype=np.float64)
     if speeds.ndim!=1 or len(speeds)<2 or not np.isfinite(speeds).all() or not np.all(np.diff(speeds)>0):
         raise ValueError("speed_range_rad_s must be a finite strictly increasing 1-D grid with >=2 stations")
     if isinstance(frequencies,bool) or int(frequencies)!=frequencies or int(frequencies)<1:
         raise ValueError("frequencies must be integer >=1")
     frequencies=int(frequencies)
+    frequency_type=str(frequency_type).lower()
+    if frequency_type not in {"wd","wn"}:
+        raise ValueError("frequency_type must be 'wd' or 'wn'")
+    frequency_type_code=0 if frequency_type=="wd" else 1
     # Descriptor topology is fixed; bearing coefficients are evaluated on the
     # synchronous diagonal (speed=frequency) at every station.
     first=_descriptors(model,float(speeds[0]),float(speeds[0]),library_path)
@@ -361,7 +370,7 @@ def run_campbell_6dof(model:RotorModel,speed_range_rad_s:Iterable[float],frequen
         if not np.array_equal(desc[2],sn) or not np.array_equal(desc[6],dn) or not np.array_equal(desc[9],bn):
             raise RuntimeError("B2 topology changed while evaluating Campbell")
         maps[:,:,k]=desc[10]
-    _,_,_,_,_,req,fn=_native(library_path)
+    _,_,_,_,_,req,_,fn=_native(library_path)
     branches=ct.c_int();tracks=ct.c_int();macs_n=ct.c_int()
     _status(req(nn,len(speeds),frequencies,ct.byref(branches),ct.byref(tracks),ct.byref(macs_n)),"Campbell size query")
     shape=(frequencies,len(speeds))
@@ -374,7 +383,7 @@ def run_campbell_6dof(model:RotorModel,speed_range_rad_s:Iterable[float],frequen
     mm=np.full((nt,nt,len(speeds)),np.nan,order="F")
     code=fn(
         nn,ns,_ptr(sn),_ptr(sp),_ptr(sf),nd,_ptr(dn),_ptr(dp),nb,_ptr(bn),
-        len(speeds),_ptr(np.ascontiguousarray(speeds)),_ptr(maps),frequencies,
+        len(speeds),_ptr(np.ascontiguousarray(speeds)),_ptr(maps),frequencies,frequency_type_code,
         branches.value,tracks.value,macs_n.value,
         _ptr(wd),_ptr(wn),_ptr(zeta),_ptr(logdec),_ptr(whirl),_ptr(mtype),_ptr(tidx),_ptr(tmac),_ptr(mm)
     )
@@ -385,6 +394,6 @@ def run_campbell_6dof(model:RotorModel,speed_range_rad_s:Iterable[float],frequen
     return SixDOFCampbellResult(
         speeds.copy(),wd.copy(order="F"),wn.copy(order="F"),zeta.copy(order="F"),logdec.copy(order="F"),
         whirl.copy(order="F"),types,tidx.copy(order="F"),tmac.copy(order="F"),mm.copy(order="F"),
-        {"dof_model":6,"frequency_type":"wd","matched_whirl":False,"synchronous_rouch":False,
+        {"dof_model":6,"frequency_type":frequency_type,"matched_whirl":False,"synchronous_rouch":False,
          "torsional_analysis":False,"tracking":"ROSS_MAC_GT_0.9","bearing_policy":"speed=frequency=rotor_speed"}
     )

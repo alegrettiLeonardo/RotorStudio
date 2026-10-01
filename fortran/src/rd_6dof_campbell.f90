@@ -34,7 +34,7 @@ contains
 
   subroutine campbell_6dof(nn,ns,shaft_nodes,shaft_par,shaft_flags,nd,disk_nodes,disk_par,nb,bearing_nodes, &
                            nsp,speeds,bearing_map,frequencies,wd_out,wn_out,zeta_out,logdec_out,whirl_out,type_out, &
-                           tracking_index,tracking_mac,mac_matrix,status)
+                           tracking_index,tracking_mac,mac_matrix,status,frequency_type)
     integer(c_int),intent(in)::nn,ns,nd,nb,nsp,frequencies
     integer(c_int),intent(in)::shaft_nodes(2,max(1,ns)),shaft_flags(4,max(1,ns)),disk_nodes(max(1,nd)),bearing_nodes(max(1,nb))
     real(dp),intent(in)::shaft_par(10,max(1,ns)),disk_par(3,max(1,nd)),speeds(nsp)
@@ -44,21 +44,24 @@ contains
     integer(c_int),intent(out)::type_out(frequencies,nsp),tracking_index(frequencies+2,nsp)
     real(dp),intent(out)::tracking_mac(frequencies+2,nsp),mac_matrix(frequencies+2,frequencies+2,nsp)
     integer(c_int),intent(out)::status
-    integer::ndof,ntrack,s,i,j,bestj,nmissing,kmiss
-    integer,allocatable::found(:),missing(:),used(:)
+    integer(c_int),intent(in),optional::frequency_type
+    integer::ndof,ntrack,s,i,j,bestj,nmissing,kmiss,ftype,key,kk
+    integer,allocatable::found(:),missing(:),used(:),display_order(:)
     real(dp)::best
     real(dp),allocatable::MM(:,:),KK(:,:),CC(:,:),GG(:,:),KSD(:,:),wn(:),wd(:),zeta(:),logdec(:),whirl(:),residual(:)
     complex(dp),allocatable::eall(:),Vall(:,:),evals(:),qvec(:,:),rawV(:,:),trackedV(:,:),prevV(:,:)
     integer(c_int),allocatable::mtype(:)
     integer(c_int)::nret,nsel,st
     real(dp)::rcond
-    status=B2_INVALID_INPUT
+    status=B2_INVALID_INPUT;ftype=0
+    if(present(frequency_type))ftype=int(frequency_type)
+    if(ftype/=0.and.ftype/=1)return
     if(nn<2.or.nsp<2.or.frequencies<1.or.frequencies+2>6*nn)return
     if(.not.all(ieee_is_finite(speeds)))return
     do s=2,nsp;if(speeds(s)<=speeds(s-1))return;end do
     ndof=6*nn;ntrack=frequencies+2
     allocate(MM(ndof,ndof),KK(ndof,ndof),CC(ndof,ndof),GG(ndof,ndof),KSD(ndof,ndof), &
-             found(ntrack),missing(ntrack),used(ntrack),rawV(2*ndof,ntrack),trackedV(2*ndof,ntrack),prevV(2*ndof,ntrack))
+             found(ntrack),missing(ntrack),used(ntrack),display_order(ntrack),rawV(2*ndof,ntrack),trackedV(2*ndof,ntrack),prevV(2*ndof,ntrack))
     wd_out=0;wn_out=0;zeta_out=0;logdec_out=0;whirl_out=0;type_out=0;tracking_index=0;tracking_mac=0;mac_matrix=0
     do s=1,nsp
       call assemble_6dof(nn,ns,shaft_nodes,shaft_par,shaft_flags,nd,disk_nodes,disk_par,nb,bearing_nodes,bearing_map(:,:,s),MM,KK,CC,GG,KSD,st)
@@ -94,10 +97,26 @@ contains
         if(.not.is_permutation(found,ntrack))then;status=B2_INVALID_INPUT;return;end if
         do i=1,ntrack;tracking_mac(i,s)=mac_matrix(i,found(i),s);end do
       end if
-      do i=1,ntrack;trackedV(:,i)=rawV(:,found(i));tracking_index(i,s)=int(found(i)-1,c_int);end do
+      do i=1,ntrack
+        trackedV(:,i)=rawV(:,found(i));tracking_index(i,s)=int(found(i)-1,c_int)
+        display_order(i)=i
+      end do
+      ! ROSS frequency_type="wn" sorts the already MAC-tracked modal.wn array
+      ! at each station and then takes the requested display branches.
+      if(ftype==1)then
+        do i=2,ntrack
+          key=display_order(i);kk=i-1
+          do while(kk>=1)
+            if(wn(found(display_order(kk)))<=wn(found(key)))exit
+            display_order(kk+1)=display_order(kk);kk=kk-1
+          end do
+          display_order(kk+1)=key
+        end do
+      end if
       do i=1,frequencies
-        wd_out(i,s)=wd(found(i));wn_out(i,s)=wn(found(i));zeta_out(i,s)=zeta(found(i));logdec_out(i,s)=logdec(found(i))
-        whirl_out(i,s)=whirl(found(i));type_out(i,s)=mtype(found(i))
+        j=display_order(i)
+        wd_out(i,s)=wd(found(j));wn_out(i,s)=wn(found(j));zeta_out(i,s)=zeta(found(j));logdec_out(i,s)=logdec(found(j))
+        whirl_out(i,s)=whirl(found(j));type_out(i,s)=mtype(found(j))
       end do
       prevV=trackedV
       deallocate(eall,Vall,evals,qvec,wn,wd,zeta,logdec,mtype,whirl,residual)

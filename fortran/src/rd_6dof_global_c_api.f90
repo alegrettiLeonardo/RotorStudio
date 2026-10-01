@@ -9,7 +9,7 @@ module rd_6dof_global_c_api
   private
   public :: rd_6dof_global_required_v1,rd_6dof_global_matrices_v1
   public :: rd_6dof_modal_required_v1,rd_6dof_modal_v1
-  public :: rd_6dof_campbell_required_v1,rd_6dof_campbell_v1
+  public :: rd_6dof_campbell_required_v1,rd_6dof_campbell_v1,rd_6dof_campbell_v2
 contains
   integer(c_int) function rd_6dof_global_required_v1(nn,ndof,matrix_values) bind(C,name='rd_6dof_global_required_v1')
     integer(c_int),value::nn
@@ -161,5 +161,37 @@ contains
     p=0;do k=1,nsp;do i=1,nt;p=p+1;track_index(p)=tidx(i,k);track_mac(p)=tm(i,k);end do;end do
     p=0;do k=1,nsp;do j=1,nt;do i=1,nt;p=p+1;macs(p)=mm(i,j,k);end do;end do;end do
     rd_6dof_campbell_v1=B2_OK
+  end function
+
+  integer(c_int) function rd_6dof_campbell_v2(nn,ns,snodes,spar,sflags,nd,dnodes,dpar,nb,bnodes,nsp,speeds,bmap,frequencies,frequency_type, &
+      branch_cap,track_cap,mac_cap,wd,wn,zeta,logdec,whirl,mtype,track_index,track_mac,macs) bind(C,name='rd_6dof_campbell_v2')
+    integer(c_int),value::nn,ns,nd,nb,nsp,frequencies,frequency_type,branch_cap,track_cap,mac_cap
+    integer(c_int),intent(in)::snodes(2,*),sflags(4,*),dnodes(*),bnodes(*)
+    real(c_double),intent(in)::spar(10,*),dpar(3,*),speeds(*),bmap(*)
+    real(c_double),intent(inout)::wd(*),wn(*),zeta(*),logdec(*),whirl(*),track_mac(*),macs(*)
+    integer(c_int),intent(inout)::mtype(*),track_index(*)
+    integer(c_int),allocatable::shaft_nodes(:,:),shaft_flags(:,:),disk_nodes(:),bearing_nodes(:),types(:,:),tidx(:,:)
+    real(c_double),allocatable::shaft_par(:,:),disk_par(:,:),bearing_dummy_in(:,:),bearing_dummy_out(:,:),map3(:,:,:),wdo(:,:),wno(:,:),zo(:,:),lo(:,:),wo(:,:),tm(:,:),mm(:,:,:)
+    integer(c_int)::st
+    integer::i,j,k,p,nt
+    rd_6dof_campbell_v2=B2_INVALID_INPUT
+    if(nn<2.or.ns/=nn-1.or.nsp<2.or.frequencies<1.or.(frequency_type/=0.and.frequency_type/=1))return
+    nt=frequencies+2
+    if(branch_cap<frequencies*nsp.or.track_cap<nt*nsp.or.mac_cap<nt*nt*nsp)then
+      rd_6dof_campbell_v2=B2_INSUFFICIENT_CAPACITY;return
+    end if
+    allocate(bearing_dummy_in(12,max(1,nb)),bearing_dummy_out(12,max(1,nb)));bearing_dummy_in=0
+    call unpack_model(nn,ns,snodes,spar,sflags,nd,dnodes,dpar,nb,bnodes,bearing_dummy_in,shaft_nodes,shaft_par,shaft_flags,disk_nodes,disk_par,bearing_nodes,bearing_dummy_out)
+    allocate(map3(12,max(1,nb),nsp));map3=0;p=0
+    do k=1,nsp;do j=1,nb;do i=1,12;p=p+1;map3(i,j,k)=bmap(p);end do;end do;end do
+    allocate(wdo(frequencies,nsp),wno(frequencies,nsp),zo(frequencies,nsp),lo(frequencies,nsp),wo(frequencies,nsp),types(frequencies,nsp), &
+             tidx(nt,nsp),tm(nt,nsp),mm(nt,nt,nsp))
+    call campbell_6dof(nn,ns,shaft_nodes,shaft_par,shaft_flags,nd,disk_nodes,disk_par,nb,bearing_nodes,nsp,speeds(1:nsp),map3,frequencies, &
+                       wdo,wno,zo,lo,wo,types,tidx,tm,mm,st,frequency_type)
+    if(st/=B2_OK)then;rd_6dof_campbell_v2=st;return;end if
+    p=0;do k=1,nsp;do i=1,frequencies;p=p+1;wd(p)=wdo(i,k);wn(p)=wno(i,k);zeta(p)=zo(i,k);logdec(p)=lo(i,k);whirl(p)=wo(i,k);mtype(p)=types(i,k);end do;end do
+    p=0;do k=1,nsp;do i=1,nt;p=p+1;track_index(p)=tidx(i,k);track_mac(p)=tm(i,k);end do;end do
+    p=0;do k=1,nsp;do j=1,nt;do i=1,nt;p=p+1;macs(p)=mm(i,j,k);end do;end do;end do
+    rd_6dof_campbell_v2=B2_OK
   end function
 end module rd_6dof_global_c_api
