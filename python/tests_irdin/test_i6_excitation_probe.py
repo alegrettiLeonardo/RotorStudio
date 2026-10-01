@@ -60,7 +60,9 @@ def test_i6_keeps_global_readiness_blocked_until_mass_support_global_physics():
     codes={x["code"] for x in readiness["blockers"]}
     assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" not in codes
     assert readiness["components"]["mass_native_materialization"]=="PASS_I7_DISK_MATERIALIZATION"
-    assert "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" in codes
+    assert readiness["components"]["support_native_assembly"]=="PASS_I8_GLOBAL_MATRICES"
+    assert "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" not in codes
+    assert "IRDIN_EXPANDED_SOLVER_UNQUALIFIED" in codes
     assert "IRDIN_EXCITATION_PROBE_UNMAPPED" not in codes
 
 
