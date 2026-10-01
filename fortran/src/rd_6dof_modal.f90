@@ -107,8 +107,13 @@ contains
        .not.all(ieee_is_finite(C)).or..not.all(ieee_is_finite(G)))return
     call estimate_rcond(M,rcond,st);if(st/=B2_OK)then;status=st;return;end if
     allocate(Mc(n,n),X(n,n),Y(n,n))
-    X=-K;Mc=M;call solve_real(Mc,X,st);if(st/=0)then;status=B2_LAPACK;return;end if
-    Y=-(C+speed*G);Mc=M;call solve_real(Mc,Y,st);if(st/=0)then;status=B2_LAPACK;return;end if
+    ! Preserve the frozen ROSS numerical formulation literally:
+    ! A21 = solve(-M, K) and A22 = solve(-M, C + speed*G).
+    ! Factoring -M (rather than factoring M with a negated RHS) is
+    ! algebraically equivalent but avoids platform-sensitive roundoff drift
+    ! in near-cancellation entries of the frozen state-space authority.
+    X=K;Mc=-M;call solve_real(Mc,X,st);if(st/=0)then;status=B2_LAPACK;return;end if
+    Y=C+speed*G;Mc=-M;call solve_real(Mc,Y,st);if(st/=0)then;status=B2_LAPACK;return;end if
     do i=1,n;A(i,n+i)=1._dp;end do
     A(n+1:2*n,1:n)=X;A(n+1:2*n,n+1:2*n)=Y
     if(.not.all(ieee_is_finite(A)))then;status=B2_NONFINITE;return;end if
