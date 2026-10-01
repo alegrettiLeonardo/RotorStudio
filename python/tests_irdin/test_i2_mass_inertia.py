@@ -45,8 +45,9 @@ def test_i2_st41_logical_mass_spans_remain_source_faithful_after_i7():
     assert readiness["components"]["mass_native_materialization"]=="PASS_I7_DISK_MATERIALIZATION"
     assert not any(x["code"]=="IRDIN_DISTRIBUTED_MASS_UNMAPPED" for x in readiness["blockers"])
     assert readiness["components"]["support_native_assembly"]=="PASS_I8_GLOBAL_MATRICES"
-    assert not any(x["code"]=="IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" for x in readiness["blockers"])
-    assert any(x["code"]=="IRDIN_EXPANDED_SOLVER_UNQUALIFIED" for x in readiness["blockers"])
+    assert readiness["components"]["expanded_solver"]=="PASS_I9_NATIVE_MODAL_RESPONSE"
+    assert readiness["components"]["automatic_cases"]=="PASS_I10_LEGACY_CASES"
+    assert readiness["blockers"]==[]
 
 
 def test_i2_st41_legacy_inertia_formula_sentinels():
