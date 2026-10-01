@@ -90,6 +90,8 @@ jobs:
         run: |
           python -m pytest python/tests_6dof_global --collect-only -q
           python -m pytest python/tests_6dof_global -q --junitxml=b2-native-parity.xml
+      - name: Export exact-head B2 native engineering evidence
+        run: python validation/b2/native_evidence.py --out b2-native-evidence
       - name: B1 numerical/ABI regression and promoted-byte preservation
         shell: bash
         run: |
@@ -125,6 +127,7 @@ jobs:
           name: b2-native-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             b2-native-parity.xml
+            b2-native-evidence/
             b1-regression.xml
             b2-inherited-regressions.xml
             b2-a5-main-regression.xml
