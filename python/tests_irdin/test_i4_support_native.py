@@ -46,4 +46,5 @@ def test_i4_abi_capacity_failure_does_not_write_outputs():
 def test_i4_keeps_global_readiness_blocked():
     p=_project();r=p.metadata["numerical_readiness"]
     assert r["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
-    assert r["components"]["support_native_assembly"]=="NOT_QUALIFIED"
+    assert r["components"]["support_native_assembly"]=="PASS_I8_GLOBAL_MATRICES"
+    assert "IRDIN_EXPANDED_SOLVER_UNQUALIFIED" in {x["code"] for x in r["blockers"]}
