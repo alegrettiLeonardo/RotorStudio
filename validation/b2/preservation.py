@@ -44,7 +44,8 @@ PROMOTED_PRODUCT_PATHS=(
     "python/src/drm_core/solver/bearing_maps.py",
 )
 
-B2_CMAKE_APPEND=b"""\n# B2 additive global 6-DOF assembly/modal/Campbell kernels.
+B2_CMAKE_APPEND=b"""
+# B2 additive global 6-DOF assembly/modal/Campbell kernels.
 target_sources(drmrotor PRIVATE
  src/rd_6dof_assembly.f90
  src/rd_6dof_modal.f90
