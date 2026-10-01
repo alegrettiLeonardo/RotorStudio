@@ -96,7 +96,7 @@ def compare(reference:Path,candidate:Path,report:Path|None=None):
             valid=lambda a: bool(np.all(np.isnan(a)|np.isin(a,[0.0,0.5,1.0])))
             ok=valid(x) and valid(y)
             detail={"diagnostic_platform_difference_count":int(np.sum(~np.isclose(x,y,rtol=0,atol=0,equal_nan=True)))}
-        elif g.startswith("campbell_") and g not in ("campbell_tracking_mac","campbell_tracking_assignment"):
+        elif g.startswith("campbell_") and g not in ("campbell_tracking_mac","campbell_tracking_selected_mac","campbell_tracking_assignment"):
             k=g.split("_",1)[1]
             if k=="speed":ok=bool(np.array_equal(x,y));detail={}
             else:p=policy["campbell"][k];ok,detail=closeness(x,y,p["rtol"],p["atol"])
