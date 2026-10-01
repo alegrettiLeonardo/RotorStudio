@@ -619,7 +619,11 @@ def load_irdin_project(path: str | Path) -> RotorProject:
                 ),
                 "mass_semantics": "PASS" if masses and not any(item["ump"] for item in masses) else ("NOT_APPLICABLE" if not masses else "BLOCKED_BY_UMP_SEMANTICS"),
                 "mass_inertia": "PASS_I2_LOGICAL_ONLY" if masses and not any(item["ump"] for item in masses) else ("NOT_APPLICABLE" if not masses else "BLOCKED"),
-                "mass_native_materialization": "NOT_QUALIFIED" if masses else "NOT_APPLICABLE",
+                "mass_native_materialization": (
+                    "NOT_QUALIFIED"
+                    if masses and not any(item["ump"] for item in masses)
+                    else ("BLOCKED_BY_UMP_SEMANTICS" if masses else "NOT_APPLICABLE")
+                ),
                 "support_semantics": "PENDING" if supports else "NOT_APPLICABLE",
                 "support_native_assembly": "NOT_QUALIFIED" if supports else "NOT_APPLICABLE",
                 "unbalance": "PENDING_I6" if unbalance else "NOT_APPLICABLE",
