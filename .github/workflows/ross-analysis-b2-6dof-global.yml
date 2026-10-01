@@ -16,16 +16,18 @@ env:
   OMP_NUM_THREADS: '1'
   MKL_NUM_THREADS: '1'
   PYTHONHASHSEED: '0'
+  PYTHONIOENCODING: utf-8
+  PYTHONUTF8: '1'
 
 jobs:
   native-build:
-    name: B2 native build / ${{ matrix.os }}
+    name: B2 native + frozen parity / ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, windows-2025]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 70
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,6 +37,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install Python B2 qualification dependencies
+        run: |
+          python -m pip install -e "./python[test]"
+          python -m pip check
       - name: Linux numerical toolchain
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y cmake gfortran libblas-dev liblapack-dev
@@ -50,6 +56,8 @@ jobs:
           cmake -S fortran -B build-b2 -DCMAKE_BUILD_TYPE=Release
           cmake --build build-b2 --parallel 2
           ctest --test-dir build-b2 --output-on-failure
+          echo "DRMROTOR_LIB=$GITHUB_WORKSPACE/build-b2/libdrmrotor.so" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_LIB=$GITHUB_WORKSPACE/build-b2/libdrmbearings.so" >> "$GITHUB_ENV"
       - name: Windows Release build + all CTest
         if: runner.os == 'Windows'
         shell: msys2 {0}
@@ -57,3 +65,28 @@ jobs:
           cmake -S fortran -B build-b2 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
           cmake --build build-b2 --parallel 2
           ctest --test-dir build-b2 --output-on-failure
+          echo "DRMROTOR_LIB=$(cygpath -w "$PWD/build-b2/libdrmrotor.dll")" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_LIB=$(cygpath -w "$PWD/build-b2/libdrmbearings.dll")" >> "$GITHUB_ENV"
+          echo "DRMROTOR_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+          cygpath -w /ucrt64/bin >> "$GITHUB_PATH"
+      - name: Frozen B2 global/modal/Campbell parity and scope gates
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+        run: |
+          python -m pytest python/tests_6dof_global --collect-only -q
+          python -m pytest python/tests_6dof_global -q --junitxml=b2-native-parity.xml
+      - name: B1 integrity remains immutable
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+        run: |
+          python -m pytest python/tests_6dof_elements -q --junitxml=b1-regression.xml
+          git diff --exit-code d9be588c71bfd7116f61d1f5f5be3a2ee0e06726 HEAD -- validation/ross_parity/6dof_global
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b2-native-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            b2-native-parity.xml
+            b1-regression.xml
+          if-no-files-found: error
+          retention-days: 90

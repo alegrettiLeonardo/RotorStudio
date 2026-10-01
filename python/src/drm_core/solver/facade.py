@@ -58,3 +58,15 @@ class SolverFacade:
             bearing, speed_rad_s, frequency_rad_s,
             backend=self.backend._bearing_provider(), **kwargs
         )
+
+    def assemble_6dof(self,model,speed_rad_s=0.0,frequency_rad_s=None):
+        from .sixdof_global import assemble_6dof
+        return assemble_6dof(model,speed_rad_s,frequency_rad_s,self.backend.library_path)
+
+    def modal_6dof(self,model,speed_rad_s,num_modes=12):
+        from .sixdof_global import run_modal_6dof
+        return run_modal_6dof(model,speed_rad_s,num_modes,self.backend.library_path)
+
+    def campbell_6dof(self,model,speed_range_rad_s,frequencies=6):
+        from .sixdof_global import run_campbell_6dof
+        return run_campbell_6dof(model,speed_range_rad_s,frequencies,self.backend.library_path)
