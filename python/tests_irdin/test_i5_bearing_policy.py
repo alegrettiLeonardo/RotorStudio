@@ -73,6 +73,11 @@ def test_i5_native_coefficients_match_independent_legacy_intlag_at_key_speeds():
         np.testing.assert_allclose(result.C,[[expected["cxx"],expected["cxy"]],[expected["cyx"],expected["cyy"]]],rtol=5e-14,atol=1e-9)
 
 
-def test_i5_is_additive_and_does_not_release_project_readiness():
+def test_i5_policy_remains_qualified_after_later_readiness_stages():
     project=load_irdin_project(CASE_PATH)
-    assert project.metadata["numerical_readiness"]["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
+    readiness=project.metadata["numerical_readiness"]
+    assert readiness["status"]=="LEGACY_NUMERIC_READY"
+    assert readiness["components"]["bearing_extrapolation"]=="PASS_I5_LEGACY_POLICY"
+    assert readiness["components"]["expanded_solver"]=="PASS_I9_NATIVE_MODAL_RESPONSE"
+    assert readiness["components"]["automatic_cases"]=="PASS_I10_LEGACY_CASES"
+    assert readiness["blockers"]==[]
