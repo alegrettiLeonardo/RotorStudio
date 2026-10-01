@@ -17,7 +17,7 @@ def _project():
     return load_irdin_project(CASE_PATH)
 
 
-def test_i2_st41_logical_mass_spans_are_source_faithful_and_blocker_remains():
+def test_i2_st41_logical_mass_spans_remain_source_faithful_after_i7():
     project=_project()
     spans=project.model.mass_spans
     assert len(spans)==3
@@ -42,8 +42,9 @@ def test_i2_st41_logical_mass_spans_are_source_faithful_and_blocker_remains():
     assert readiness["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
     assert readiness["components"]["mass_semantics"]=="PASS"
     assert readiness["components"]["mass_inertia"]=="PASS_I2_LOGICAL_ONLY"
-    assert readiness["components"]["mass_native_materialization"]=="NOT_QUALIFIED"
-    assert any(x["code"]=="IRDIN_DISTRIBUTED_MASS_UNMAPPED" for x in readiness["blockers"])
+    assert readiness["components"]["mass_native_materialization"]=="PASS_I7_DISK_MATERIALIZATION"
+    assert not any(x["code"]=="IRDIN_DISTRIBUTED_MASS_UNMAPPED" for x in readiness["blockers"])
+    assert any(x["code"]=="IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" for x in readiness["blockers"])
 
 
 def test_i2_st41_legacy_inertia_formula_sentinels():

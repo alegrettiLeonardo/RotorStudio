@@ -15,7 +15,9 @@ def test_i3_st41_support_domain_preserves_legacy_radial_contract():
     project=_project()
     supports=project.model.supports
     assert len(supports)==2
-    assert [(x.bearing_number,x.node) for x in supports]==[(1,4),(2,15)]
+    z_by_node={n.number:n.z_m for n in project.model.nodes}
+    assert [x.bearing_number for x in supports]==[1,2]
+    assert [z_by_node[x.node] for x in supports]==pytest.approx([0.550,3.977])
 
     for support in supports:
         assert support.mass_kg==415.0
@@ -39,26 +41,19 @@ def test_i3_st41_support_domain_preserves_legacy_radial_contract():
 
 
 def test_i3_st41_support_audit_is_deterministic():
-    audit=support_audit(_project().model.supports)
-    assert audit=={
-        "status":"PASS",
-        "count":2,
-        "total_mass_kg":830.0,
-        "supports":[
-            {
-                "bearing_number":1,"node":4,"mass_kg":415.0,
-                "K_n_m":[[2.73e9,0.0],[0.0,3.41e9]],
-                "C_ns_m":[[0.0,0.0],[0.0,0.0]],
-                "axis_mapping":"X->X; Z->Y; coefficient order/sign unchanged",
-            },
-            {
-                "bearing_number":2,"node":15,"mass_kg":415.0,
-                "K_n_m":[[2.73e9,0.0],[0.0,3.41e9]],
-                "C_ns_m":[[0.0,0.0],[0.0,0.0]],
-                "axis_mapping":"X->X; Z->Y; coefficient order/sign unchanged",
-            },
-        ],
-    }
+    project=_project()
+    audit=support_audit(project.model.supports)
+    z_by_node={n.number:n.z_m for n in project.model.nodes}
+    assert audit["status"]=="PASS"
+    assert audit["count"]==2
+    assert audit["total_mass_kg"]==830.0
+    assert [item["bearing_number"] for item in audit["supports"]]==[1,2]
+    assert [z_by_node[item["node"]] for item in audit["supports"]]==pytest.approx([0.550,3.977])
+    for item in audit["supports"]:
+        assert item["mass_kg"]==415.0
+        assert item["K_n_m"]==[[2.73e9,0.0],[0.0,3.41e9]]
+        assert item["C_ns_m"]==[[0.0,0.0],[0.0,0.0]]
+        assert item["axis_mapping"]=="X->X; Z->Y; coefficient order/sign unchanged"
 
 
 def test_i3_support_domain_survives_save_reopen(tmp_path):

@@ -58,7 +58,8 @@ def test_i6_keeps_global_readiness_blocked_until_mass_support_global_physics():
     readiness=project.metadata["numerical_readiness"]
     assert readiness["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
     codes={x["code"] for x in readiness["blockers"]}
-    assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" in codes
+    assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" not in codes
+    assert readiness["components"]["mass_native_materialization"]=="PASS_I7_DISK_MATERIALIZATION"
     assert "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" in codes
     assert "IRDIN_EXCITATION_PROBE_UNMAPPED" not in codes
 

@@ -42,7 +42,8 @@ def test_i0_import_preserves_every_raw_assignment_without_unlocking_physics():
     readiness = project.metadata["numerical_readiness"]
     assert readiness["status"] == "BLOCKED_FOR_NUMERICAL_ANALYSIS"
     codes = {item["code"] for item in readiness["blockers"]}
-    assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" in codes
+    assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" not in codes
+    assert readiness["components"]["mass_native_materialization"] == "PASS_I7_DISK_MATERIALIZATION"
     assert "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" in codes
     assert project.analyses == []
 
