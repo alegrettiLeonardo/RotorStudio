@@ -95,9 +95,11 @@ def test_i9_st41_probe_sweep_has_four_legacy_channels_and_preserves_blocker():
     assert np.isfinite(result.probe_response).all()
     assert np.all(result.residual<=1e-12)
     readiness=p.metadata["numerical_readiness"]
-    assert readiness["status"]=="BLOCKED_FOR_NUMERICAL_ANALYSIS"
+    assert readiness["status"]=="LEGACY_NUMERIC_READY"
     assert readiness["components"]["support_native_assembly"]=="PASS_I8_GLOBAL_MATRICES"
-    assert "IRDIN_EXPANDED_SOLVER_UNQUALIFIED" in {x["code"] for x in readiness["blockers"]}
+    assert readiness["components"]["expanded_solver"]=="PASS_I9_NATIVE_MODAL_RESPONSE"
+    assert readiness["components"]["automatic_cases"]=="PASS_I10_LEGACY_CASES"
+    assert readiness["blockers"]==[]
 
 
 def test_i9_rejects_non_unbalance_force_contract():
