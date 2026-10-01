@@ -24,7 +24,7 @@ B1_IMMUTABLE_PATHS=(
 B1_VALIDATION_GATE_EXCEPTION="validation/b1/native_preservation.py"
 
 PINNED_B2_ADAPTER_BLOBS={
-    B1_VALIDATION_GATE_EXCEPTION:"73eb992ec04a1d04bc02caed9e36f0ba258d8fb2",
+    B1_VALIDATION_GATE_EXCEPTION:"e9200292c96c958a3260ca9021151ba6fb0bfdf6",
     "python/src/drm_core/__init__.py":"4aca4be955ef3e3e3e193a71805eaafec3a3b42f",
     "python/src/drm_core/solver/facade.py":"e48179286885e7831af1f8d5c8c933841e83bb7e",
     "python/tests_ucs/test_ucs_bearing_order_authority.py":"a5a4928918921dc2946be079d45970d69a0e07c6",

@@ -104,6 +104,9 @@ def one_replace(data,old,new):
 
 
 def expected_adaptation(path,before):
+    if B2_MARKER.is_file() and path in B2_EXISTING_ADAPTERS:
+        verify_b2_inheritance()
+        return (ROOT/path).read_bytes()
     if path=='fortran/CMakeLists.txt': return before+CMAKE_APPEND
     if path=='scripts/verify_a1_legacy_preservation.py':
         old=(b" # A8 close-clearance remains additive to the promoted A7 implementation.\n"
@@ -226,6 +229,8 @@ def approve_change(path,before,after):
     if before==after: return
     if B2_MARKER.is_file() and path in B2_EXISTING_ADAPTERS:
         verify_b2_inheritance()
+        require(after==(ROOT/path).read_bytes(),
+                'B2 inherited adapter differs from exact pinned working bytes: '+path)
         return
     if path in ADAPTED_FILES:
         require(after==expected_adaptation(path,before),'Historical adaptation differs from exact permitted patch: '+path)
