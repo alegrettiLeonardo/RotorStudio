@@ -16,10 +16,12 @@ def test_real_cryostar_irdin_import_preserves_exact_shaft_geometry_and_sketch_en
     assert project.metadata["source_format"] == "iRdin/VB6 INI"
 
     model = project.model
-    # B15 inserts exact FE stations at the two imported bearing locations.
-    # The 16 historical shaft sections remain preserved in sketch metadata.
-    assert len(model.nodes) == 19
-    assert len(model.shafts) == 18
+    # B15 inserted exact bearing stations. I6 additionally inserts positive
+    # unbalance/probe stations so the mapped excitation/measurement locations
+    # are exact FE nodes. The 16 historical source sections remain preserved
+    # independently in sketch metadata.
+    assert len(model.nodes) == 21
+    assert len(model.shafts) == 20
     assert model.nodes[-1].z_m == pytest.approx(2.58555)
     assert model.shafts[0].outer_diameter_m == pytest.approx(0.06985)
     outside = [
@@ -68,6 +70,14 @@ def test_real_cryostar_irdin_import_preserves_exact_shaft_geometry_and_sketch_en
     )
     assert [p["coordinate"] for p in sketch["probes"]] == [1, 2, 1, 2]
     assert all(p["orientation_deg"] == pytest.approx(45.0) for p in sketch["probes"])
+    # I6 materialization must preserve those physical positions exactly.
+    node_positions = {n.number: n.z_m for n in model.nodes}
+    assert [node_positions[int(f.values[0])] for f in model.forces] == pytest.approx(
+        [0.88205, 1.78205]
+    )
+    assert [node_positions[p.node] for p in model.probes] == pytest.approx(
+        [0.2534, 0.2534, 2.3895, 2.3895]
+    )
 
 
 def test_real_cryostar_import_maps_bearing_tables_but_preserves_other_blockers():
