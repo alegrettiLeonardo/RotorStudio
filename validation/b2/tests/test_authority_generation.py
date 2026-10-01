@@ -49,3 +49,19 @@ def test_cross_platform_policy_distinguishes_degenerate_basis_and_tracking_diagn
     assert "subspace MAC" in policy["platform_semantics"]["modal_eigenvectors"]
     assert "same-platform" in policy["platform_semantics"]["modal_whirl"]
     assert policy["campbell"]["tracking_mac_min"]==0.9
+
+
+def test_post_freeze_authority_workflow_is_strictly_read_only():
+    workflow=(REPO_ROOT/".github/workflows/b2-6dof-global-authority.yml").read_text(encoding="utf-8")
+    assert "contents: read" in workflow
+    assert workflow.count("persist-credentials: false") >= 3
+    for forbidden in (
+        "contents: write",
+        "persist-credentials: true",
+        "freeze_authority.py",
+        "git commit",
+        "git push",
+    ):
+        assert forbidden not in workflow
+    assert "--reference validation/ross_parity/6dof_global" in workflow
+    assert "git diff --exit-code d9be588c71bfd7116f61d1f5f5be3a2ee0e06726 HEAD -- validation/ross_parity/6dof_global" in workflow
