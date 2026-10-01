@@ -19,10 +19,12 @@ B1_IMMUTABLE_PATHS=(
     "python/src/drm_core/solver/sixdof_elements.py",
     "python/tests_6dof_elements",
     "validation/ross_parity/6dof_elements",
-    "validation/b1",
 )
 
+B1_VALIDATION_GATE_EXCEPTION="validation/b1/native_preservation.py"
+
 PINNED_B2_ADAPTER_BLOBS={
+    B1_VALIDATION_GATE_EXCEPTION:"73eb992ec04a1d04bc02caed9e36f0ba258d8fb2",
     "python/src/drm_core/__init__.py":"4aca4be955ef3e3e3e193a71805eaafec3a3b42f",
     "python/src/drm_core/solver/facade.py":"e48179286885e7831af1f8d5c8c933841e83bb7e",
     "python/tests_ucs/test_ucs_bearing_order_authority.py":"a5a4928918921dc2946be079d45970d69a0e07c6",
@@ -66,6 +68,12 @@ def verify() -> dict:
         subprocess.run(["git","diff","--exit-code",B1_PROMOTED_MAIN,"HEAD","--",path],cwd=ROOT,check=True)
     for path in PROMOTED_PRODUCT_PATHS:
         subprocess.run(["git","diff","--exit-code",B1_PROMOTED_MAIN,"HEAD","--",path],cwd=ROOT,check=True)
+    # Every B1 validation file remains byte-identical except the inheritance
+    # gate itself, whose exact B2-aware bytes are pinned below.
+    tracked=git("ls-tree","-r","--name-only",B1_PROMOTED_MAIN,"--","validation/b1").decode().splitlines()
+    for path in tracked:
+        if path != B1_VALIDATION_GATE_EXCEPTION:
+            subprocess.run(["git","diff","--exit-code",B1_PROMOTED_MAIN,"HEAD","--",path],cwd=ROOT,check=True)
     for path,expected_blob in PINNED_B2_ADAPTER_BLOBS.items():
         actual=git("hash-object",path).decode().strip()
         if actual != expected_blob:
