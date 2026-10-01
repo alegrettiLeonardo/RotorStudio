@@ -31,6 +31,7 @@ from .irdin_excitation import (
     build_response_probes,
     excitation_audit,
 )
+from .irdin_cases import IrdinCaseMappingError, build_legacy_analysis_cases
 
 
 _GRID_KEY = re.compile(r"^(\d+)\s*,\s*(\d+)$")
@@ -626,6 +627,8 @@ def load_irdin_project(path: str | Path) -> RotorProject:
                 ),
                 "support_semantics": "PENDING" if supports else "NOT_APPLICABLE",
                 "support_native_assembly": "NOT_QUALIFIED" if supports else "NOT_APPLICABLE",
+                "expanded_solver": "NOT_QUALIFIED" if supports else "NOT_APPLICABLE",
+                "automatic_cases": "NOT_QUALIFIED",
                 "unbalance": "PENDING_I6" if unbalance else "NOT_APPLICABLE",
                 "probes": "PENDING_I6" if probes else "NOT_APPLICABLE",
             },
@@ -662,10 +665,14 @@ def load_irdin_project(path: str | Path) -> RotorProject:
             mapped_supports = build_bearing_supports(metadata)
             metadata["numerical_readiness"]["components"]["support_semantics"] = "PASS_I3_DOMAIN_ONLY"
             metadata["numerical_readiness"]["components"]["support_native_assembly"] = "PASS_I8_GLOBAL_MATRICES"
-            blockers[:] = [x for x in blockers if x["code"] != "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED"]
+            metadata["numerical_readiness"]["components"]["expanded_solver"] = "PASS_I9_NATIVE_MODAL_RESPONSE"
+            blockers[:] = [
+                x for x in blockers
+                if x["code"] not in {"IRDIN_FLEXIBLE_SUPPORT_UNMAPPED","IRDIN_EXPANDED_SOLVER_UNQUALIFIED"}
+            ]
             block(
-                "IRDIN_EXPANDED_SOLVER_UNQUALIFIED",
-                "rotor-bearing-support global matrices are qualified, but the expanded modal/response solver is not yet promoted",
+                "IRDIN_AUTOMATIC_CASES_UNQUALIFIED",
+                "expanded iRdin solver is qualified, but legacy analysis-case grids have not yet been materialized",
             )
         except IrdinSupportMappingError as exc:
             metadata["numerical_readiness"]["components"]["support_semantics"] = "BLOCKED"
@@ -703,10 +710,26 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         metadata["numerical_readiness"]["reasons"] = [item["message"] for item in blockers]
         metadata["numerical_readiness"]["status"] = "BLOCKED_FOR_NUMERICAL_ANALYSIS"
 
+    analyses=[]
+    if mapped_supports:
+        try:
+            analyses=build_legacy_analysis_cases(metadata)
+            metadata["numerical_readiness"]["components"]["automatic_cases"]="PASS_I10_LEGACY_CASES"
+            blockers[:] = [x for x in blockers if x["code"]!="IRDIN_AUTOMATIC_CASES_UNQUALIFIED"]
+            metadata["legacy_irdin"]["automatic_case_names"]=[case.name for case in analyses]
+        except IrdinCaseMappingError as exc:
+            metadata["numerical_readiness"]["components"]["automatic_cases"]="BLOCKED"
+            metadata["numerical_readiness"].setdefault("mapping_diagnostics",[]).append(
+                {"component":"automatic_cases","message":str(exc)}
+            )
+            if not any(x["code"]=="IRDIN_AUTOMATIC_CASES_UNQUALIFIED" for x in blockers):
+                block("IRDIN_AUTOMATIC_CASES_UNQUALIFIED",str(exc))
+
     metadata["numerical_readiness"]["blockers"] = blockers
     metadata["numerical_readiness"]["reasons"] = [item["message"] for item in blockers]
     metadata["numerical_readiness"]["status"] = (
-        "BLOCKED_FOR_NUMERICAL_ANALYSIS" if blockers else "READY"
+        "LEGACY_NUMERIC_READY" if not blockers and analyses
+        else ("BLOCKED_FOR_NUMERICAL_ANALYSIS" if blockers else "READY")
     )
 
     model = RotorModel(
@@ -719,7 +742,7 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         forces=mapped_forces,
         probes=mapped_probes,
     )
-    return RotorProject(name=name, model=model, analyses=[], metadata=metadata)
+    return RotorProject(name=name, model=model, analyses=analyses, metadata=metadata)
 
 
 __all__ = ["IrdinImportError", "load_irdin_project"]
