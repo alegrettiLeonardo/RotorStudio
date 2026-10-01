@@ -92,7 +92,17 @@ class AnalysisService:
         if project is not None:
             readiness = dict(project.metadata.get("numerical_readiness") or {})
             status = str(readiness.get("status", "READY")).upper()
-            if status not in {"READY", "QUALIFIED", "PASS"}:
+            requested_kind = case.kind.strip().lower()
+            if status == "LEGACY_NUMERIC_READY":
+                allowed_irdin = {"irdin_modal_sweep", "irdin_synchronous_response"}
+                if requested_kind not in allowed_irdin:
+                    raise ValueError(
+                        "Imported iRdin project is LEGACY_NUMERIC_READY only for the qualified "
+                        f"expanded-support paths {sorted(allowed_irdin)}; received {case.kind!r}. "
+                        "Generic RotorStudio analyses are blocked because they would omit the "
+                        "qualified iRdin support DOFs."
+                    )
+            elif status not in {"READY", "QUALIFIED", "PASS"}:
                 reasons = readiness.get("reasons") or []
                 detail = "; ".join(str(item) for item in reasons) or "imported project is not numerically qualified"
                 raise ValueError(
@@ -101,7 +111,25 @@ class AnalysisService:
                 )
         model=project.model if project is not None else model
         p=dict(case.parameters);k=case.kind.strip().lower();lib=self.library_path
-        if k=="ucs": result=run_ucs(model,library_path=lib,**p)
+        if k=="irdin_modal_sweep":
+            if project is None:
+                raise ValueError("irdin_modal_sweep requires a RotorProject with qualified iRdin metadata")
+            from .analysis.irdin_lateral import run_irdin_modal
+            speeds=np.asarray(p.pop("speeds_rad_s"),dtype=float)
+            if speeds.ndim!=1 or speeds.size<1 or not np.isfinite(speeds).all() or np.any(speeds<0):
+                raise ValueError("irdin_modal_sweep speeds_rad_s must be a finite nonnegative vector")
+            if p:
+                raise ValueError(f"unsupported irdin_modal_sweep parameters: {sorted(p)}")
+            result=[run_irdin_modal(project,float(w),library_path=lib) for w in speeds]
+        elif k=="irdin_synchronous_response":
+            if project is None:
+                raise ValueError("irdin_synchronous_response requires a RotorProject with qualified iRdin metadata")
+            from .analysis.irdin_lateral import run_irdin_synchronous_sweep
+            speeds=np.asarray(p.pop("speeds_rad_s"),dtype=float)
+            if p:
+                raise ValueError(f"unsupported irdin_synchronous_response parameters: {sorted(p)}")
+            result=run_irdin_synchronous_sweep(project,speeds,library_path=lib)
+        elif k=="ucs": result=run_ucs(model,library_path=lib,**p)
         elif k=="level1": result=run_level1(model,library_path=lib,**p)
         elif k=="api617_unbalance": result=run_api617_unbalance(model,library_path=lib,**p)
         elif k=="clearance": result=run_clearance(model,library_path=lib,**p)
