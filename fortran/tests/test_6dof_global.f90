@@ -1,16 +1,20 @@
 program test_6dof_global
   use iso_c_binding, only: c_double,c_int
-  use, intrinsic :: ieee_arithmetic, only: ieee_is_nan
+  use, intrinsic :: ieee_arithmetic, only: ieee_is_nan,ieee_value,ieee_quiet_nan
   use rd_shaft_6dof, only: shaft_6dof_matrices,B1_OK
-  use rd_6dof_assembly, only: assemble_6dof,B2_OK,B2_INVALID_INPUT
+  use rd_6dof_assembly, only: assemble_6dof,B2_OK,B2_INVALID_INPUT,B2_INSUFFICIENT_CAPACITY
   use rd_6dof_modal, only: modal_from_matrices,classify_mode,whirl_value
   use rd_6dof_campbell, only: campbell_6dof
+  use rd_6dof_global_c_api, only: rd_6dof_global_required_v1,rd_6dof_global_matrices_v1, &
+       rd_6dof_modal_required_v1,rd_6dof_campbell_required_v1
   implicit none
   integer,parameter::dp=c_double
   integer(c_int),parameter::nn=3,ns=2,nd=1,nb=2
   integer(c_int)::sn(2,ns),sf(4,ns),dn(nd),bn(nb),status,nret,nsel
+  integer(c_int)::req_ndof,req_matrix,state_dim,max_ret,selected,q_values,a_values,branch_values,track_values,mac_values
   real(dp)::sp(10,ns),dd(3,nd),bp(12,nb),M(18,18),K(18,18),C(18,18),G(18,18),S(18,18)
   real(dp)::Me(12,12),Ke(12,12),Ge(12,12),Se(12,12),rcond
+  real(dp)::bm(18*18),bk(18*18),bc(18*18),bg(18*18),bs(18*18),saved_value
   complex(dp),allocatable::eall(:),Vall(:,:),evals(:),qvec(:,:)
   real(dp),allocatable::wn(:),wd(:),zeta(:),logdec(:),whirl(:),residual(:)
   integer(c_int),allocatable::mtype(:)
@@ -37,6 +41,33 @@ program test_6dof_global
   call check(maxval(abs(G+transpose(G)))<1e-10_dp,'G skew symmetry')
   call check(abs(C(1,1)-1e3_dp)<1e-12_dp.and.abs(C(2,2)-1e3_dp)<1e-12_dp,'bearing radial C insertion')
   call check(C(3,3)==0._dp.and.K(3,3)>0._dp,'bearing axial terms are zero while shaft axial stiffness remains')
+
+  ! Fail-closed model and ABI sentinels required by B2.
+  status=rd_6dof_global_required_v1(1_c_int,req_ndof,req_matrix)
+  call check(status==B2_INVALID_INPUT,'global required invalid dimension')
+  status=rd_6dof_global_required_v1(nn,req_ndof,req_matrix)
+  call check(status==B2_OK.and.req_ndof==18.and.req_matrix==324,'global required sizes')
+  status=rd_6dof_global_matrices_v1(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,bp, &
+       bm,18_c_int,323_c_int,bk,18_c_int,324_c_int,bc,18_c_int,324_c_int, &
+       bg,18_c_int,324_c_int,bs,18_c_int,324_c_int)
+  call check(status==B2_INSUFFICIENT_CAPACITY,'global ABI short capacity')
+  status=rd_6dof_modal_required_v1(nn,11_c_int,req_ndof,state_dim,max_ret,selected,q_values,a_values)
+  call check(status==B2_INVALID_INPUT,'modal odd num_modes fail closed')
+  status=rd_6dof_modal_required_v1(nn,12_c_int,req_ndof,state_dim,max_ret,selected,q_values,a_values)
+  call check(status==B2_OK.and.req_ndof==18.and.state_dim==36.and.selected==6,'modal required sizes')
+  status=rd_6dof_campbell_required_v1(nn,3_c_int,17_c_int,branch_values,track_values,mac_values)
+  call check(status==B2_INVALID_INPUT,'Campbell excessive branch request')
+
+  sn(1,1)=2_c_int
+  call assemble_6dof(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,bp,M,K,C,G,S,status)
+  call check(status==B2_INVALID_INPUT,'invalid shaft node fail closed')
+  sn(1,1)=1_c_int
+  saved_value=sp(1,1);sp(1,1)=ieee_value(0._dp,ieee_quiet_nan)
+  call assemble_6dof(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,bp,M,K,C,G,S,status)
+  call check(status==B2_INVALID_INPUT,'NaN shaft input fail closed')
+  sp(1,1)=saved_value
+  call assemble_6dof(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,bp,M,K,C,G,S,status)
+  call check(status==B2_OK,'valid assembly restored after invalid sentinels')
   ! Local-to-global sentinel: first shaft block equals B1 plus overlapping second-shaft contribution only outside its private first-node block.
   call shaft_6dof_matrices(sp(1,1),sp(2,1),sp(3,1),sp(4,1),sp(5,1),sp(6,1),sp(7,1),sp(8,1),sp(9,1),sp(10,1), &
        sf(1,1),sf(2,1),sf(3,1),sf(4,1),Me,Ke,Ge,Se,status)
@@ -89,6 +120,9 @@ program test_6dof_global
   speeds=[0._dp,100._dp,100._dp]
   call campbell_6dof(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,3_c_int,speeds,bmap,2_c_int,c_wd,c_wn,c_zeta,c_log,c_whirl,c_type,track_idx,track_mac,macs,status)
   call check(status==B2_INVALID_INPUT,'invalid speed grid fail closed')
+  speeds=[0._dp,100._dp,200._dp];speeds(2)=ieee_value(0._dp,ieee_quiet_nan)
+  call campbell_6dof(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,3_c_int,speeds,bmap,2_c_int,c_wd,c_wn,c_zeta,c_log,c_whirl,c_type,track_idx,track_mac,macs,status)
+  call check(status==B2_INVALID_INPUT,'Campbell NaN speed fail closed')
   print *,'B2 6DOF GLOBAL/MODAL/CAMPBELL NATIVE CONTRACT: PASS'
 contains
   subroutine check(ok,msg)
