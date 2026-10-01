@@ -40,14 +40,16 @@ def test_i0_import_preserves_every_raw_assignment_without_unlocking_physics():
     assert sum(len(values) for values in project.metadata["legacy_irdin_raw"].values()) == 161
 
     readiness = project.metadata["numerical_readiness"]
-    assert readiness["status"] == "BLOCKED_FOR_NUMERICAL_ANALYSIS"
-    codes = {item["code"] for item in readiness["blockers"]}
-    assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" not in codes
+    assert readiness["status"] == "LEGACY_NUMERIC_READY"
+    assert readiness["blockers"] == []
     assert readiness["components"]["mass_native_materialization"] == "PASS_I7_DISK_MATERIALIZATION"
     assert readiness["components"]["support_native_assembly"] == "PASS_I8_GLOBAL_MATRICES"
-    assert "IRDIN_FLEXIBLE_SUPPORT_UNMAPPED" not in codes
-    assert "IRDIN_EXPANDED_SOLVER_UNQUALIFIED" in codes
-    assert project.analyses == []
+    assert readiness["components"]["expanded_solver"] == "PASS_I9_NATIVE_MODAL_RESPONSE"
+    assert readiness["components"]["automatic_cases"] == "PASS_I10_LEGACY_CASES"
+    assert [case.kind for case in project.analyses] == [
+        "irdin_modal_sweep",
+        "irdin_synchronous_response",
+    ]
 
 
 def test_i0_import_raw_metadata_survives_project_save_reopen(tmp_path):
