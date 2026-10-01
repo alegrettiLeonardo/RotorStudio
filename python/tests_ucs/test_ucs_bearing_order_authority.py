@@ -35,7 +35,7 @@ B1_PARITY_ADDITIVE_PATHS=(
     'validation/ross_parity/verify_6dof_elements_candidate.py',
 )
 B2_AUTHORITY_FREEZE='d9be588c71bfd7116f61d1f5f5be3a2ee0e06726'
-B2_NATIVE_IMPLEMENTATION='3effe0f911f4ef23f31169376492edbb372bf54c'
+B2_NATIVE_IMPLEMENTATION='e26a38e14e76f26541dbd028409bb378cf340096'
 B2_NATIVE_ADDITIONS={
     'fortran/src/rd_6dof_assembly.f90',
     'fortran/src/rd_6dof_modal.f90',
