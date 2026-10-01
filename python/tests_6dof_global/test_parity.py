@@ -314,6 +314,54 @@ def test_campbell_station_consistency_tracking_permutation_and_repeatability():
     assert saw_reorder
 
 
+def test_campbell_larger_grid_regression_is_deterministic_and_complete():
+    """Non-golden larger-grid regression required by B2 campaign scope."""
+    model=model_for("R06")
+    speeds=np.linspace(0.0,400.0,11)
+    a=run_campbell_6dof(model,speeds,4)
+    b=run_campbell_6dof(model,speeds,4)
+    np.testing.assert_array_equal(a.speed_rad_s,speeds)
+    for name in ("wd_rad_s","wn_rad_s","damping_ratio","log_dec","tracking_index","tracking_mac","mac_matrix"):
+        np.testing.assert_allclose(getattr(a,name),getattr(b,name),rtol=0,atol=0,equal_nan=True)
+    assert a.wd_rad_s.shape==(4,11)
+    assert a.tracking_index.shape==(6,11)
+    identity=np.arange(6)
+    for station in range(11):
+        np.testing.assert_array_equal(np.sort(a.tracking_index[:,station]),identity)
+    assert np.isfinite(a.wd_rad_s).all()
+    assert np.isfinite(a.wn_rad_s).all()
+    assert np.isfinite(a.tracking_mac).all()
+
+
+@pytest.mark.parametrize("grid",[
+    [],
+    [0.0],
+    [0.0,0.0],
+    [0.0,-1.0],
+    [0.0,float("nan")],
+    [0.0,float("inf")],
+])
+def test_campbell_invalid_speed_grids_fail_closed(grid):
+    with pytest.raises(ValueError,match="speed_range_rad_s"):
+        run_campbell_6dof(model_for("R02"),grid,2)
+
+
+@pytest.mark.parametrize("frequencies",[0,-1,True,1.5])
+def test_campbell_invalid_branch_count_fails_closed(frequencies):
+    with pytest.raises(ValueError,match="frequencies"):
+        run_campbell_6dof(model_for("R02"),[0.0,100.0],frequencies)
+
+
+def test_modal_invalid_mode_count_and_nonfinite_speed_fail_closed():
+    model=model_for("R02")
+    for modes in (0,1,3,True,2.5):
+        with pytest.raises(ValueError,match="num_modes"):
+            run_modal_6dof(model,0.0,modes)
+    for speed in (float("nan"),float("inf"),float("-inf")):
+        with pytest.raises(ValueError,match="speed_rad_s"):
+            run_modal_6dof(model,speed,12)
+
+
 def test_6dof_lateral_common_domain_crosscheck_against_qualified_4dof():
     from drm_core import run_modal as run_modal_4dof
     model=model_for("R02")
