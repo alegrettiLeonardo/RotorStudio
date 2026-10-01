@@ -3,12 +3,6 @@ name: iRdin I0 Import Authority Qualification
 on:
   push:
     branches: [feature/irdin-api541-dynamics]
-    paths:
-      - 'validation/irdin/**'
-      - 'python/src/drm_core/importers/irdin.py'
-      - 'python/tests_irdin/**'
-      - '.gitattributes'
-      - '.github/workflows/irdin-i0-authority.yml'
   pull_request:
     paths:
       - 'validation/irdin/**'
