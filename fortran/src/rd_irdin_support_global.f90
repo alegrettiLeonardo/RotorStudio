@@ -5,6 +5,8 @@ module rd_irdin_support_global
   private
   integer(ik), parameter, public :: I8_OK=0_ik
   integer(ik), parameter, public :: I8_INVALID_INPUT=10_ik
+  integer(ik), parameter, public :: I8_INVALID_DIMENSION=12_ik
+  integer(ik), parameter, public :: I8_INSUFFICIENT_CAPACITY=13_ik
   integer(ik), parameter, public :: I8_NONFINITE_RESULT=14_ik
   public :: irdin_support_global_matrices
 contains
