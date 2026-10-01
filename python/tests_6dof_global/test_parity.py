@@ -304,11 +304,13 @@ def test_6dof_lateral_common_domain_crosscheck_against_qualified_4dof():
     for speed in (0.0,150.0):
         r6=run_modal_6dof(model,speed,12)
         r4=run_modal_4dof(model,speed,with_eigenvectors=True,with_kappa=True)
-        f6=np.sort(np.abs(r6.wd_rad_s[np.array(r6.mode_type)=="Lateral"]))
-        f4=np.sort(np.abs(np.imag(np.asarray(r4.eigenvalues,dtype=np.complex128))))
-        # Compare only the physical positive-frequency family available in both
-        # models; 6DOF legitimately also contains axial/torsional families.
-        f4=f4[f4>1e-8]
+        f6=np.sort(r6.wd_rad_s[np.array(r6.mode_type)=="Lateral"])
+        eig4=np.asarray(r4.eigenvalues,dtype=np.complex128)
+        # The 4DOF result contains the conjugate negative-frequency half too.
+        # Compare only the same positive-imaginary physical family selected by
+        # the dense 6DOF/Ross ordering; otherwise abs(imag) double-counts every
+        # conjugate pair and creates a false mismatch.
+        f4=np.sort(eig4.imag[eig4.imag>1e-8])
         n=min(4,len(f6),len(f4))
         assert n>=2
         assert _nearest_relative_error(f6[:n],f4[:n]) < 2e-4
