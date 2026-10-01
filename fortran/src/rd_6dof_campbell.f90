@@ -44,10 +44,10 @@ contains
     integer(c_int),intent(out)::type_out(frequencies,nsp),tracking_index(frequencies+2,nsp)
     real(dp),intent(out)::tracking_mac(frequencies+2,nsp),mac_matrix(frequencies+2,frequencies+2,nsp)
     integer(c_int),intent(out)::status
-    integer::ndof,ntrack,s,i,j,bestj,nmissing,k
+    integer::ndof,ntrack,s,i,j,bestj,nmissing,kmiss
     integer,allocatable::found(:),missing(:),used(:)
     real(dp)::best
-    real(dp),allocatable::M(:,:),K(:,:),C(:,:),G(:,:),Ks(:,:),wn(:),wd(:),zeta(:),logdec(:),whirl(:),residual(:)
+    real(dp),allocatable::MM(:,:),KK(:,:),CC(:,:),GG(:,:),KSD(:,:),wn(:),wd(:),zeta(:),logdec(:),whirl(:),residual(:)
     complex(dp),allocatable::eall(:),Vall(:,:),evals(:),qvec(:,:),rawV(:,:),trackedV(:,:),prevV(:,:)
     integer(c_int),allocatable::mtype(:)
     integer(c_int)::nret,nsel,st
@@ -57,13 +57,13 @@ contains
     if(.not.all(ieee_is_finite(speeds)))return
     do s=2,nsp;if(speeds(s)<=speeds(s-1))return;end do
     ndof=6*nn;ntrack=frequencies+2
-    allocate(M(ndof,ndof),K(ndof,ndof),C(ndof,ndof),G(ndof,ndof),Ks(ndof,ndof), &
+    allocate(MM(ndof,ndof),KK(ndof,ndof),CC(ndof,ndof),GG(ndof,ndof),KSD(ndof,ndof), &
              found(ntrack),missing(ntrack),used(ntrack),rawV(2*ndof,ntrack),trackedV(2*ndof,ntrack),prevV(2*ndof,ntrack))
     wd_out=0;wn_out=0;zeta_out=0;logdec_out=0;whirl_out=0;type_out=0;tracking_index=0;tracking_mac=0;mac_matrix=0
     do s=1,nsp
-      call assemble_6dof(nn,ns,shaft_nodes,shaft_par,shaft_flags,nd,disk_nodes,disk_par,nb,bearing_nodes,bearing_map(:,:,s),M,K,C,G,Ks,st)
+      call assemble_6dof(nn,ns,shaft_nodes,shaft_par,shaft_flags,nd,disk_nodes,disk_par,nb,bearing_nodes,bearing_map(:,:,s),MM,KK,CC,GG,KSD,st)
       if(st/=B2_OK)then;status=st;return;end if
-      call modal_from_matrices(M,K,C,G,speeds(s),int(2*ntrack,c_int),eall,Vall,nret,evals,qvec,wn,wd,zeta,logdec,mtype,whirl,residual,nsel,rcond,st)
+      call modal_from_matrices(MM,KK,CC,GG,speeds(s),int(2*ntrack,c_int),eall,Vall,nret,evals,qvec,wn,wd,zeta,logdec,mtype,whirl,residual,nsel,rcond,st)
       if(st/=B2_OK)then;status=st;return;end if
       if(nsel<ntrack)then;status=B2_INVALID_INPUT;return;end if
       rawV=Vall(:,1:ntrack)
@@ -87,9 +87,9 @@ contains
         do i=1,ntrack;if(found(i)>0)used(found(i))=1;end do
         nmissing=0
         do j=1,ntrack;if(used(j)==0)then;nmissing=nmissing+1;missing(nmissing)=j;end if;end do
-        k=0
+        kmiss=0
         do i=1,ntrack
-          if(found(i)<1)then;k=k+1;if(k>nmissing)then;status=B2_INVALID_INPUT;return;end if;found(i)=missing(k);end if
+          if(found(i)<1)then;kmiss=kmiss+1;if(kmiss>nmissing)then;status=B2_INVALID_INPUT;return;end if;found(i)=missing(kmiss);end if
         end do
         if(.not.is_permutation(found,ntrack))then;status=B2_INVALID_INPUT;return;end if
         do i=1,ntrack;tracking_mac(i,s)=mac_matrix(i,found(i),s);end do
