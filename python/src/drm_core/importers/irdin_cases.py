@@ -59,6 +59,11 @@ def response_speed_grid_rpm(metadata: dict[str, Any]) -> np.ndarray:
 
 
 def build_legacy_analysis_cases(metadata: dict[str, Any]) -> list[AnalysisCase]:
+    sketch=dict(metadata.get("sketch") or {})
+    if not list(sketch.get("unbalance") or []):
+        raise IrdinCaseMappingError("qualified legacy synchronous case requires at least one [Desbal] row")
+    if not list(sketch.get("probes") or []):
+        raise IrdinCaseMappingError("qualified legacy response case requires at least one [Respo] row")
     camp_rpm=campbell_speed_grid_rpm(metadata)
     response_rpm=response_speed_grid_rpm(metadata)
     authority="frontend_rotordin@647d600bc1d32a05de62ee457942e00285b572e3"
