@@ -80,7 +80,9 @@ def verify() -> dict:
         if actual != expected_blob:
             raise ValueError(f"B2 adapter bytes changed: {path}: {actual} != {expected_blob}")
     before=git("show",f"{B1_PROMOTED_MAIN}:fortran/CMakeLists.txt")
-    after=(ROOT/"fortran/CMakeLists.txt").read_bytes()
+    # Compare committed Git bytes, not checkout bytes: Windows worktrees may use CRLF.
+    # The preservation contract is repository-byte exact and must be platform invariant.
+    after=git("show","HEAD:fortran/CMakeLists.txt")
     if after != before + B2_CMAKE_APPEND:
         raise ValueError("B2 CMake integration differs from the exact additive suffix")
     return {
