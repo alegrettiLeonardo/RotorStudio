@@ -72,5 +72,5 @@ def test_i7_ump_case_remains_unmaterialized_and_blocked():
     assert p.model.mass_spans==[]
     assert p.model.disks==[]
     r=p.metadata["numerical_readiness"]
-    assert r["components"]["mass_native_materialization"]=="BLOCKED"
+    assert r["components"]["mass_native_materialization"]=="BLOCKED_BY_UMP_SEMANTICS"
     assert "IRDIN_DISTRIBUTED_MASS_UNMAPPED" in {x["code"] for x in r["blockers"]}
