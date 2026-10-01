@@ -22,6 +22,19 @@ B1_IMMUTABLE_PATHS=(
     "validation/b1",
 )
 
+PROMOTED_PRODUCT_PATHS=(
+    "python/src/drm_flet",
+    "python/src/drm_studio",
+    "python/tests_flet",
+    "python/tests_ui",
+    "fortran/bearings",
+    "python/tests_bearings",
+    "python/src/drm_core/domain/bearings.py",
+    "python/src/drm_core/solver/bearings_backend.py",
+    "python/src/drm_core/solver/bearings_ffi.py",
+    "python/src/drm_core/solver/bearing_maps.py",
+)
+
 B2_CMAKE_APPEND=b"""\n# B2 additive global 6-DOF assembly/modal/Campbell kernels.
 target_sources(drmrotor PRIVATE
  src/rd_6dof_assembly.f90
@@ -44,6 +57,8 @@ def verify() -> dict:
     subprocess.run(["git","merge-base","--is-ancestor",B1_PROMOTED_MAIN,"HEAD"],cwd=ROOT,check=True)
     for path in B1_IMMUTABLE_PATHS:
         subprocess.run(["git","diff","--exit-code",B1_PROMOTED_MAIN,"HEAD","--",path],cwd=ROOT,check=True)
+    for path in PROMOTED_PRODUCT_PATHS:
+        subprocess.run(["git","diff","--exit-code",B1_PROMOTED_MAIN,"HEAD","--",path],cwd=ROOT,check=True)
     before=git("show",f"{B1_PROMOTED_MAIN}:fortran/CMakeLists.txt")
     after=(ROOT/"fortran/CMakeLists.txt").read_bytes()
     if after != before + B2_CMAKE_APPEND:
@@ -52,6 +67,7 @@ def verify() -> dict:
         "status":"PASS",
         "b1_promoted_main":B1_PROMOTED_MAIN,
         "immutable_paths":list(B1_IMMUTABLE_PATHS),
+        "promoted_product_paths":list(PROMOTED_PRODUCT_PATHS),
         "cmake":"EXACT_B2_ADDITIVE_SUFFIX",
     }
 

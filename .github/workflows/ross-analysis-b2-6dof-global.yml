@@ -18,6 +18,8 @@ env:
   PYTHONHASHSEED: '0'
   PYTHONIOENCODING: utf-8
   PYTHONUTF8: '1'
+  QT_QPA_PLATFORM: offscreen
+  MPLBACKEND: Agg
 
 jobs:
   native-build:
@@ -39,7 +41,7 @@ jobs:
           python-version: '3.12'
       - name: Install Python B2 qualification dependencies
         run: |
-          python -m pip install -e "./python[test]"
+          python -m pip install -e "./python[flet,test,studio,ui-test]"
           python -m pip check
       - name: Linux numerical toolchain
         if: runner.os == 'Linux'
@@ -82,6 +84,30 @@ jobs:
           python -m pytest             python/tests_6dof_elements/test_contract.py             python/tests_6dof_elements/test_parity.py             -q --junitxml=b1-regression.xml
           python validation/b2/preservation.py
           git diff --exit-code d9be588c71bfd7116f61d1f5f5be3a2ee0e06726 HEAD -- validation/ross_parity/6dof_global
+      - name: Same-head inherited A0-A8 bearings Qt and Flet regressions
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
+        run: |
+          python -m pytest \
+            python/tests_time python/tests_forced python/tests_frf python/tests_static python/tests \
+            python/tests_level1 python/tests_api617_unbalance python/tests_clearance \
+            python/tests_bearings python/tests_ui python/tests_flet \
+            -q --junitxml=b2-inherited-regressions.xml
+          python -m pytest python/tests_ucs \
+            --ignore=python/tests_ucs/test_ucs_bearing_order_authority.py \
+            -q --junitxml=b2-a5-main-regression.xml
+          python -m pytest python/tests_ucs/test_ucs_bearing_order_authority.py \
+            -k "additive_frozen_ross_native_parity_and_matrix_first or actual_fortran_permutation_save_reopen_and_model_immutability" \
+            -q --junitxml=b2-a5-corrective-runtime.xml
+          python scripts/flet_screen_inventory.py --out b2-flet-screen-inventory.json
+          python - <<'PY'
+          import json
+          d=json.load(open("b2-flet-screen-inventory.json",encoding="utf-8"))
+          assert d["status"]=="MAPPED"
+          assert d["qt_presentation_classes"]==42
+          assert d["native_contracts"]==21
+          print("B2_FLET_INVENTORY=PASS 42/21")
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -89,5 +115,9 @@ jobs:
           path: |
             b2-native-parity.xml
             b1-regression.xml
+            b2-inherited-regressions.xml
+            b2-a5-main-regression.xml
+            b2-a5-corrective-runtime.xml
+            b2-flet-screen-inventory.json
           if-no-files-found: error
           retention-days: 90
