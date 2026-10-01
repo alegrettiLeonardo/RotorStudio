@@ -21,7 +21,7 @@ from .bearings_ffi import configure_bearing_library, load_bearing_library
 from .ffi import SolverLibraryError
 
 
-_INTERP = {"pchip": 1, "linear": 2}
+_INTERP = {"pchip": 1, "linear": 2, "irdin_lagrange": 3}
 _SFD_GEOMETRY = {"groove": 1, "end_seals": 2, "groove-end_seals": 3}
 
 _THERMAL_TYPE = {None: 0, "adiabatic": 1, "full": 2}

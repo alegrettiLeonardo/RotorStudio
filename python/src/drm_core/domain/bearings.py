@@ -400,8 +400,8 @@ def validate_advanced_bearing(bearing: AdvancedBearing) -> None:
         raise ValueError(f"node={bearing.node}; expected node >= 1")
 
     if isinstance(bearing, CoefficientBearing):
-        if bearing.interpolation not in {"pchip", "linear"}:
-            raise ValueError("interpolation must be 'pchip' or 'linear'")
+        if bearing.interpolation not in {"pchip", "linear", "irdin_lagrange"}:
+            raise ValueError("interpolation must be 'pchip', 'linear' or 'irdin_lagrange'")
         _check_axis("speed_rad_s", bearing.speed_rad_s)
         _check_axis("frequency_rad_s", bearing.frequency_rad_s)
         ns, nf = len(bearing.speed_rad_s), len(bearing.frequency_rad_s)

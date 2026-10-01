@@ -78,9 +78,9 @@ class ImportedBearingTable:
         provenance: dict[str, Any] | None = None,
     ) -> CoefficientBearing:
         self.validate()
-        if interpolation not in {"linear", "pchip"}:
+        if interpolation not in {"linear", "pchip", "irdin_lagrange"}:
             raise BearingTableImportError(
-                f"interpolation={interpolation!r}; expected 'linear' or 'pchip'"
+                f"interpolation={interpolation!r}; expected 'linear', 'pchip' or 'irdin_lagrange'"
             )
         merged = {
             "source_format": "iRdin/VB6 TABLE",

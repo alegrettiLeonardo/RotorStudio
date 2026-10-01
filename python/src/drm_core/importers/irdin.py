@@ -22,6 +22,7 @@ from drm_core.domain.model import (
 )
 from drm_core.stage1 import RotorProject
 from .bearing_table import BearingTableImportError, parse_irdin_coefficient_table
+from .irdin_bearing_policy import IRDIN_LEGACY_INTERPOLATION, legacy_bearing_policy
 from .irdin_mass import build_mass_spans
 from .irdin_support import IrdinSupportMappingError, build_bearing_supports
 
@@ -374,7 +375,16 @@ def load_irdin_project(path: str | Path) -> RotorProject:
             except BearingTableImportError as exc:
                 raise IrdinImportError(f"bearing {index}: {exc}") from exc
             table_rows = imported.as_rows()
-            interpolation = "pchip"
+            interpolation = IRDIN_LEGACY_INTERPOLATION
+            policy = legacy_bearing_policy(
+                imported.speed_rpm,
+                requested_rpm=(
+                    _number(data.get("d_rpmi"), 0.0),
+                    _number(data.get("d_rpmf"), 0.0),
+                    _number(data.get("c_rpmi"), 0.0),
+                    _number(data.get("c_rpmf"), 0.0),
+                ),
+            )
             advanced_bearings.append(
                 imported.to_coefficient_bearing(
                     interpolation=interpolation,
@@ -383,6 +393,7 @@ def load_irdin_project(path: str | Path) -> RotorProject:
                         "source_bearing_index": index,
                         "source_position_mm": position_mm,
                         "source_name": name_bearing,
+                        **policy,
                     },
                 )
             )
@@ -406,6 +417,7 @@ def load_irdin_project(path: str | Path) -> RotorProject:
                 "table": table_rows,
                 "table_mapped": table_mapped,
                 "interpolation": interpolation,
+                "policy": policy if table_mapped else None,
                 "raw_source": raw_table,
             }
         )

@@ -6,6 +6,7 @@ module rb_interpolation
 
   integer(ik), parameter, public :: RB_INTERP_PCHIP = 1_ik
   integer(ik), parameter, public :: RB_INTERP_LINEAR = 2_ik
+  integer(ik), parameter, public :: RB_INTERP_IRDIN = 3_ik
 
   public :: rb_interp1, rb_interp2, rb_pchip_slopes, rb_validate_axis
 
@@ -125,6 +126,15 @@ contains
     call rb_validate_axis(n, x, status)
     if (status /= RB_OK) return
 
+    if (method == RB_INTERP_IRDIN) then
+      if (n < 2) then
+        status = RB_ERR_INPUT
+        return
+      end if
+      call rb_interp1_irdin(n, x, y, xq, yq, status)
+      return
+    end if
+
     if (n == 1) then
       yq = y(1)
       return
@@ -166,6 +176,64 @@ contains
     h11 = t**3 - t**2
     yq = h00*y(i) + h10*h*d(i) + h01*y(i+1) + h11*h*d(i+1)
   end subroutine rb_interp1
+
+  subroutine rb_interp1_irdin(n, x, y, xq, yq, status)
+    ! Historical RotorDin/iRdin INLAG semantics from
+    ! frontend_rotordin@647d600bc1d32a05de62ee457942e00285b572e3.
+    ! For n>=3 each interval ending at an interior knot uses that knot and
+    ! its immediate neighbours (3-point Lagrange). This also extrapolates
+    ! below the first point using points 1:3. The final interval and upper
+    ! extrapolation are linear in the last two points.
+    integer(ik), intent(in) :: n
+    real(rk), intent(in) :: x(n), y(n), xq
+    real(rk), intent(out) :: yq
+    integer(ik), intent(out) :: status
+    integer :: i, j, k
+    real(rk) :: term, denom
+    real(rk), parameter :: ci = 1.0e-15_rk
+
+    status = RB_OK
+    if (n < 2) then
+      status = RB_ERR_INPUT
+      return
+    end if
+    if (n == 2) then
+      yq = y(1) + (y(2)-y(1))*(xq-x(1))/(x(2)-x(1))
+      return
+    end if
+
+    if (xq > x(n-1)) then
+      yq = y(n-1) + (y(n)-y(n-1))*(xq-x(n-1))/(x(n)-x(n-1))
+      return
+    end if
+
+    do i = 2, n-1
+      if (abs(xq-x(i)) <= ci) then
+        yq = y(i)
+        return
+      end if
+      if (x(i) > xq) then
+        yq = 0.0_rk
+        do j = i-1, i+1
+          term = y(j)
+          do k = i-1, i+1
+            if (k == j) cycle
+            denom = x(j)-x(k)
+            if (denom == 0.0_rk) then
+              status = RB_ERR_INPUT
+              return
+            end if
+            term = term*(xq-x(k))/denom
+          end do
+          yq = yq + term
+        end do
+        return
+      end if
+    end do
+
+    ! Defensive fallback; monotone axes should have returned above.
+    yq = y(n-1) + (y(n)-y(n-1))*(xq-x(n-1))/(x(n)-x(n-1))
+  end subroutine rb_interp1_irdin
 
   subroutine rb_interp2(ns, speed, nf, frequency, values, speed_q, frequency_q, method, value_q, status)
     integer(ik), intent(in) :: ns, nf, method

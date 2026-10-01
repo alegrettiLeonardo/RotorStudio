@@ -1,7 +1,7 @@
 program test_ross_bearings_native
   use rb_kinds, only: rk, ik
   use rb_status, only: RB_OK, RB_ERR_INPUT
-  use rb_interpolation, only: rb_interp1, rb_interp2, RB_INTERP_PCHIP, RB_INTERP_LINEAR
+  use rb_interpolation, only: rb_interp1, rb_interp2, RB_INTERP_PCHIP, RB_INTERP_LINEAR, RB_INTERP_IRDIN
   use rb_rolling, only: rb_ball_coefficients, rb_roller_coefficients
   use rb_cylindrical, only: rb_cylindrical_coefficients
   use rb_squeeze_film_damper, only: rb_sfd_coefficients, RB_SFD_GROOVE_END_SEALS
@@ -62,7 +62,7 @@ contains
   end subroutine assert_close
 
   subroutine test_interpolation()
-    real(rk) :: x2(2), y2(2)
+    real(rk) :: x2(2), y2(2), x4(4), y4(4)
     real(rk) :: speed(5), damping(5), v
     real(rk) :: freq(5), table(5,5)
     integer :: i, j
@@ -100,6 +100,23 @@ contains
     call rb_interp2(5_ik, speed, 5_ik, freq, table, 250._rk, 25._rk, RB_INTERP_PCHIP, yq, st)
     if (st /= RB_OK) error stop 109
     call assert_close(yq, 6250._rk, 1e-12_rk, 1e-10_rk, 110)
+
+    ! Historical iRdin INLAG: three-point Lagrange through the interval's
+    ! right interior knot; the final interval/upper extrapolation are linear.
+    x4 = [100._rk,200._rk,300._rk,400._rk]
+    y4 = x4*x4
+    call rb_interp1(4_ik,x4,y4,50._rk,RB_INTERP_IRDIN,yq,st)
+    if(st/=RB_OK) error stop 111
+    call assert_close(yq,2500._rk,1e-14_rk,1e-12_rk,112)
+    call rb_interp1(4_ik,x4,y4,150._rk,RB_INTERP_IRDIN,yq,st)
+    if(st/=RB_OK) error stop 113
+    call assert_close(yq,22500._rk,1e-14_rk,1e-12_rk,114)
+    call rb_interp1(4_ik,x4,y4,250._rk,RB_INTERP_IRDIN,yq,st)
+    if(st/=RB_OK) error stop 115
+    call assert_close(yq,62500._rk,1e-14_rk,1e-12_rk,116)
+    call rb_interp1(4_ik,x4,y4,350._rk,RB_INTERP_IRDIN,yq,st)
+    if(st/=RB_OK) error stop 117
+    call assert_close(yq,125000._rk,1e-14_rk,1e-12_rk,118)
   end subroutine test_interpolation
 
   subroutine test_rolling()
