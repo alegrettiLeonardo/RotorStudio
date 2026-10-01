@@ -25,6 +25,12 @@ from .bearing_table import BearingTableImportError, parse_irdin_coefficient_tabl
 from .irdin_bearing_policy import IRDIN_LEGACY_INTERPOLATION, legacy_bearing_policy
 from .irdin_mass import build_mass_spans
 from .irdin_support import IrdinSupportMappingError, build_bearing_supports
+from .irdin_excitation import (
+    IrdinExcitationMappingError,
+    build_unbalance_forces,
+    build_response_probes,
+    excitation_audit,
+)
 
 
 _GRID_KEY = re.compile(r"^(\d+)\s*,\s*(\d+)$")
@@ -338,11 +344,52 @@ def load_irdin_project(path: str | Path) -> RotorProject:
         rho_kg_m3=rho_kg_m3,
         poisson=poisson,
     )
+
+    # I6 makes every positive bearing/unbalance/probe location an exact FE station
+    # before mapping. Negative response positions retain the historical
+    # support-reference convention and remain fail-closed until that convention
+    # is qualified for a concrete source case.
     bearing_rows = _grid_rows(doc.get("mancais"))
+    unbalance_rows = _grid_rows(doc.get("desbal"))
+    probe_rows = _grid_rows(doc.get("respo"))
+    unbalance = [
+        {
+            "index": index,
+            "position_mm": _number(_cell(row, 0)),
+            "phase_deg": _number(_cell(row, 1), 0.0),
+            "value": _number(_cell(row, 2), 0.0),
+        }
+        for index, row in enumerate(unbalance_rows, start=1)
+    ]
+    probes = [
+        {
+            "index": index,
+            "position_mm": _number(_cell(row, 0)),
+            "coordinate": _integer(_cell(row, 1), 1),
+            "orientation_deg": _number(_cell(row, 2), 0.0),
+        }
+        for index, row in enumerate(probe_rows, start=1)
+    ]
     bearing_positions_m = [_number(_cell(row, 0)) / 1000.0 for row in bearing_rows]
-    nodes, shafts, bearing_nodes = _insert_exact_stations(
-        nodes, shafts, bearing_positions_m
-    )
+    station_positions_m = [
+        *bearing_positions_m,
+        *[item["position_mm"] / 1000.0 for item in unbalance if item["position_mm"] >= 0.0],
+        *[item["position_mm"] / 1000.0 for item in probes if item["position_mm"] >= 0.0],
+    ]
+    nodes, shafts, _ = _insert_exact_stations(nodes, shafts, station_positions_m)
+
+    def exact_node(position_m: float) -> int:
+        distances=[abs(float(node.z_m)-float(position_m)) for node in nodes]
+        if not distances:
+            raise IrdinImportError("iRdin station mapping requires at least one node")
+        best=min(range(len(distances)), key=distances.__getitem__)
+        if distances[best] > 1.0e-10:
+            raise IrdinImportError(
+                f"failed to map exact iRdin station at {position_m*1000.0:.12g} mm"
+            )
+        return int(nodes[best].number)
+
+    bearing_nodes = [exact_node(position) for position in bearing_positions_m]
 
     masses: list[dict[str, Any]] = []
     for index, row in enumerate(_grid_rows(doc.get("massas")), start=1):
@@ -422,24 +469,6 @@ def load_irdin_project(path: str | Path) -> RotorProject:
             }
         )
 
-    unbalance = [
-        {
-            "index": index,
-            "position_mm": _number(_cell(row, 0)),
-            "phase_deg": _number(_cell(row, 1), 0.0),
-            "value": _number(_cell(row, 2), 0.0),
-        }
-        for index, row in enumerate(_grid_rows(doc.get("desbal")), start=1)
-    ]
-    probes = [
-        {
-            "index": index,
-            "position_mm": _number(_cell(row, 0)),
-            "coordinate": _integer(_cell(row, 1), 1),
-            "orientation_deg": _number(_cell(row, 2), 0.0),
-        }
-        for index, row in enumerate(_grid_rows(doc.get("respo")), start=1)
-    ]
     concentrated = [
         {
             "index": index,
@@ -579,8 +608,8 @@ def load_irdin_project(path: str | Path) -> RotorProject:
                 "mass_native_materialization": "NOT_QUALIFIED" if masses else "NOT_APPLICABLE",
                 "support_semantics": "PENDING" if supports else "NOT_APPLICABLE",
                 "support_native_assembly": "NOT_QUALIFIED" if supports else "NOT_APPLICABLE",
-                "unbalance": "NOT_QUALIFIED" if unbalance else "NOT_APPLICABLE",
-                "probes": "NOT_QUALIFIED" if probes else "NOT_APPLICABLE",
+                "unbalance": "PENDING_I6" if unbalance else "NOT_APPLICABLE",
+                "probes": "PENDING_I6" if probes else "NOT_APPLICABLE",
             },
             "blockers": blockers,
             "reasons": reasons,
@@ -602,12 +631,45 @@ def load_irdin_project(path: str | Path) -> RotorProject:
             metadata["numerical_readiness"].setdefault("mapping_diagnostics", []).append(
                 {"component": "supports", "message": str(exc)}
             )
+    mapped_forces = []
+    mapped_probes = []
+    try:
+        mapped_forces = build_unbalance_forces(unbalance, nodes)
+        mapped_probes = build_response_probes(probes, nodes)
+        audit = excitation_audit(unbalance, probes, mapped_forces, mapped_probes)
+        metadata["legacy_irdin"]["excitation_probe_audit"] = audit
+        metadata["numerical_readiness"]["components"]["unbalance"] = (
+            "PASS_I6_LEGACY_UNBALANCE" if unbalance else "NOT_APPLICABLE"
+        )
+        metadata["numerical_readiness"]["components"]["probes"] = (
+            "PASS_I6_RESPONSE_PROBES" if probes else "NOT_APPLICABLE"
+        )
+    except IrdinExcitationMappingError as exc:
+        metadata["numerical_readiness"]["components"]["unbalance"] = (
+            "BLOCKED" if unbalance else "NOT_APPLICABLE"
+        )
+        metadata["numerical_readiness"]["components"]["probes"] = (
+            "BLOCKED" if probes else "NOT_APPLICABLE"
+        )
+        metadata["numerical_readiness"].setdefault("mapping_diagnostics", []).append(
+            {"component": "excitation_probes", "message": str(exc)}
+        )
+        block(
+            "IRDIN_EXCITATION_PROBE_UNMAPPED",
+            "legacy unbalance/probe records could not be mapped under the qualified I6 contract",
+        )
+        metadata["numerical_readiness"]["blockers"] = blockers
+        metadata["numerical_readiness"]["reasons"] = [item["message"] for item in blockers]
+        metadata["numerical_readiness"]["status"] = "BLOCKED_FOR_NUMERICAL_ANALYSIS"
+
     model = RotorModel(
         nodes=nodes,
         shafts=shafts,
         advanced_bearings=advanced_bearings,
         mass_spans=mass_spans,
         supports=mapped_supports,
+        forces=mapped_forces,
+        probes=mapped_probes,
     )
     return RotorProject(name=name, model=model, analyses=[], metadata=metadata)
 
