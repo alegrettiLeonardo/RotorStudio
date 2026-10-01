@@ -75,11 +75,12 @@ jobs:
         run: |
           python -m pytest python/tests_6dof_global --collect-only -q
           python -m pytest python/tests_6dof_global -q --junitxml=b2-native-parity.xml
-      - name: B1 integrity remains immutable
+      - name: B1 numerical/ABI regression and promoted-byte preservation
         env:
           PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
         run: |
-          python -m pytest python/tests_6dof_elements -q --junitxml=b1-regression.xml
+          python -m pytest             python/tests_6dof_elements/test_contract.py             python/tests_6dof_elements/test_parity.py             -q --junitxml=b1-regression.xml
+          python validation/b2/preservation.py
           git diff --exit-code d9be588c71bfd7116f61d1f5f5be3a2ee0e06726 HEAD -- validation/ross_parity/6dof_global
       - uses: actions/upload-artifact@v4
         if: always()
