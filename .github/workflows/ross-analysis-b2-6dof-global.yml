@@ -31,6 +31,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 70
     steps:
+      - name: Preserve raw Git bytes
+        shell: bash
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -80,6 +85,7 @@ jobs:
           python -m pytest python/tests_6dof_global --collect-only -q
           python -m pytest python/tests_6dof_global -q --junitxml=b2-native-parity.xml
       - name: B1 numerical/ABI regression and promoted-byte preservation
+        shell: bash
         env:
           PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
         run: |
@@ -87,6 +93,7 @@ jobs:
           python validation/b2/preservation.py
           git diff --exit-code d9be588c71bfd7116f61d1f5f5be3a2ee0e06726 HEAD -- validation/ross_parity/6dof_global
       - name: Same-head inherited A0-A8 bearings Qt and Flet regressions
+        shell: bash
         env:
           PYTHONPATH: ${{ github.workspace }}/python/src:${{ github.workspace }}
         run: |
