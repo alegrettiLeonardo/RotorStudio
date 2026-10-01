@@ -1,4 +1,8 @@
 name: iRdin I8 Global Support Matrix Qualification
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 
 on:
   push:
