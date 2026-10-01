@@ -565,6 +565,15 @@ def load_irdin_project(path: str | Path) -> RotorProject:
             "components": {
                 "geometry": "PASS",
                 "bearing_tables": "PASS" if all(item["table_mapped"] for item in bearings) else "PARTIAL",
+                "bearing_extrapolation": (
+                    "PASS_I5_LEGACY_POLICY"
+                    if bearings and all(
+                        item["table_mapped"]
+                        and item["interpolation"] == IRDIN_LEGACY_INTERPOLATION
+                        for item in bearings
+                    )
+                    else "NOT_QUALIFIED"
+                ),
                 "mass_semantics": "PASS" if masses and not any(item["ump"] for item in masses) else ("NOT_APPLICABLE" if not masses else "BLOCKED_BY_UMP_SEMANTICS"),
                 "mass_inertia": "PASS_I2_LOGICAL_ONLY" if masses and not any(item["ump"] for item in masses) else ("NOT_APPLICABLE" if not masses else "BLOCKED"),
                 "mass_native_materialization": "NOT_QUALIFIED" if masses else "NOT_APPLICABLE",
