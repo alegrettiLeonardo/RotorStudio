@@ -16,7 +16,7 @@ program test_6dof_global
   real(dp)::speeds(3),bmap(12,nb,3),c_wd(2,3),c_wn(2,3),c_zeta(2,3),c_log(2,3),c_whirl(2,3)
   integer(c_int)::c_type(2,3),track_idx(4,3)
   real(dp)::track_mac(4,3),macs(4,4,3)
-  integer::i,j,k
+  integer::i,j,istation
   sn=reshape([1_c_int,2_c_int,2_c_int,3_c_int],[2,2])
   sf=1;sf(4,:)=1
   sp=0
@@ -46,7 +46,7 @@ program test_6dof_global
   call check(maxval(residual)<1e-8_dp,'second-order residual')
   call check(all(wd>0._dp),'positive branch selection')
   speeds=[0._dp,100._dp,200._dp]
-  do k=1,3;bmap(:,:,k)=bp;end do
+  do istation=1,3;bmap(:,:,istation)=bp;end do
   call campbell_6dof(nn,ns,sn,sp,sf,nd,dn,dd,nb,bn,3_c_int,speeds,bmap,2_c_int,c_wd,c_wn,c_zeta,c_log,c_whirl,c_type,track_idx,track_mac,macs,status)
   call check(status==B2_OK,'Campbell status')
   call check(all(c_wd>0._dp).and.all(c_wn>0._dp),'Campbell frequencies')
