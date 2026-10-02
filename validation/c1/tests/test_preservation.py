@@ -1,7 +1,6 @@
 from __future__ import annotations
 from pathlib import Path
 import subprocess
-import yaml
 from validation.c1.preservation import verify
 
 ROOT=Path(__file__).resolve().parents[3]
@@ -12,9 +11,7 @@ def test_c1_b3_preservation_gate():
 def test_c1_authority_workflow_is_post_freeze_read_only():
     path=ROOT/".github/workflows/c1-misalignment-authority.yml"
     text=path.read_text(encoding="utf-8")
-    data=yaml.safe_load(text)
-    permissions=data.get("permissions",{})
-    assert permissions.get("contents")=="read"
+    assert "permissions:\n  contents: read\n  actions: read" in text
     assert "contents: write" not in text
     assert "git push" not in text
     assert "git commit" not in text
