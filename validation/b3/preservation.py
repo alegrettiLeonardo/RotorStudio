@@ -47,8 +47,8 @@ B3_EXISTING_ADAPTERS={
     "fortran/CMakeLists.txt":"f4f276e7eddcbfea80566976e2bb883ad9a1f1c4",
     "python/src/drm_core/stage1.py":"860143852ce441077ccaf328e9b830df9598dfee",
     # Repinned after the B3-aware inheritance patches are applied.
-    "validation/b1/native_preservation.py":"75ceed91728ace018bf02406eba92a525822f327",
-    "validation/b2/preservation.py":"7912a1570f29748e70867508b3839afbf28a75dd",
+    "validation/b1/native_preservation.py":"118d6668654ece6f9dad2272eaeebb96fdc48064",
+    "validation/b2/preservation.py":"1855c601b4961ffa3142c3c2d278cc388c3528a0",
 }
 
 ALLOWED_ADDITIVE_PREFIXES=(
