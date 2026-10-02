@@ -1,6 +1,10 @@
 from __future__ import annotations
 import numpy as np
-from drm_core import RotorModel,Node,ShaftElement,AnalysisCase,AnalysisService,RotorProject,save_project,load_project
+from drm_core import (
+    RotorModel,Node,ShaftElement,AnalysisCase,AnalysisService,RotorProject,save_project,load_project,
+    run_axial_modal_6dof,run_torsional_modal_6dof,
+)
+from drm_core.solver.facade import SolverFacade
 
 def simple_model():
     return RotorModel(
@@ -31,3 +35,16 @@ def test_b3_analysis_service_sweep_and_project_roundtrip(tmp_path):
         np.testing.assert_array_equal(result.result.speed_rad_s,[0.0,100.0,200.0])
         assert result.result.metadata["analysis_hash"]==result.analysis_hash
         assert np.max(np.abs(result.result.wn_rad_s-result.result.wn_rad_s[0:1,:]))<1e-7
+
+
+def test_b3_public_core_and_facade_api():
+    model=simple_model()
+    assert run_axial_modal_6dof(model,0.0).family=="Axial"
+    assert run_torsional_modal_6dof(model,0.0).family=="Torsional"
+    facade=SolverFacade()
+    assert facade.axial_modal_6dof(model,0.0).family=="Axial"
+    assert facade.torsional_modal_6dof(model,0.0).family=="Torsional"
+    a=facade.axial_sweep_6dof(model,[0.0,100.0])
+    t=facade.torsional_sweep_6dof(model,[0.0,100.0])
+    assert a.wn_rad_s.shape==(2,1)
+    assert t.wn_rad_s.shape==(2,1)
