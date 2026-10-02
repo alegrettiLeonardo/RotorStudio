@@ -1,0 +1,20 @@
+{
+  "array_count": 60,
+  "cross_platform_status": "PASS",
+  "freeze_parent_head": "a82f5aa6bfec0b0b287d0bafcd6dfc5a972c37d5",
+  "production_solver": "NOT_STARTED",
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "schema": 1,
+  "source_provenance": {
+    "numpy": "2.5.3",
+    "production_solver": "NOT_USED",
+    "python": "3.12.14",
+    "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+    "sources": {
+      "ross/faults/misalignment.py": "78f87cc2a30a2d6210c38a6ef6b97ae350cfbe1c3484822c9476e018224073c4",
+      "ross/rotor_assembly.py": "c5e6562d092426ffdb44641a1fb2092c6e5df8e3e44be437749b3711f7633c09",
+      "ross/tests/test_misalignment.py": "c6190eb6a94fd9c38e094fd2c673eb71b7423472d071325fcb2b967a232abf70",
+      "ross/utils.py": "08708dc134682b40dcb8259527cdd9586e9f3eac26c0b510eda29355e05eb8d9"
+    }
+  }
+}
