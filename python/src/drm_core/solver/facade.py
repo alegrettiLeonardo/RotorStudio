@@ -88,3 +88,7 @@ class SolverFacade:
     def torsional_sweep_6dof(self,model,speed_range_rad_s):
         from .axial_torsional import run_torsional_sweep_6dof
         return run_torsional_sweep_6dof(model,speed_range_rad_s,self.backend.library_path)
+
+    def misalignment_6dof(self,model,**parameters):
+        from .misalignment import run_misalignment_6dof
+        return run_misalignment_6dof(model,library_path=self.backend.library_path,**parameters)
