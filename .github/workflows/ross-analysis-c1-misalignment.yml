@@ -77,10 +77,13 @@ jobs:
           cmake --build build-c1 --parallel 2
           ctest --test-dir build-c1 --output-on-failure
           echo "DRMROTOR_LIB=$(cygpath -w "$PWD/build-c1/libdrmrotor.dll")" >> "$GITHUB_ENV"
-          echo "DRMROTOR_DLL_DIRS=C:\\msys64\\ucrt64\\bin" >> "$GITHUB_ENV"
+          echo "DRMROTOR_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+          cygpath -w /ucrt64/bin >> "$GITHUB_PATH"
       - name: C1 frozen parity and independent gates
         run: |
-          python -m pytest python/tests_misalignment -q --junitxml=c1-evidence/c1-tests.xml
+          mkdir -p c1-evidence
+          python -m pytest python/tests_misalignment validation/c1/tests -q --junitxml=c1-evidence/c1-tests.xml
+          python validation/c1/preservation.py
       - name: B3 direct regression
         run: |
           python -m pytest python/tests_axial_torsional -q --junitxml=c1-evidence/b3-regression.xml
