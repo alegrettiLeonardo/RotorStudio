@@ -90,6 +90,11 @@ jobs:
       - name: Qualified B2 numerical regression
         run: |
           python -m pytest python/tests_6dof_global -q --junitxml=b3-b2-regression.xml
+      - name: B3/B2/B1 preservation gates
+        run: |
+          python validation/b3/preservation.py
+          python -m pytest validation/b3/tests -q --junitxml=b3-preservation.xml
+          python -m pytest python/tests_6dof_elements/test_preservation.py -q --junitxml=b3-b1-preservation.xml
       - name: Immutable B3 authority
         shell: bash
         run: |
@@ -101,5 +106,7 @@ jobs:
           path: |
             b3-native-parity.xml
             b3-b2-regression.xml
+            b3-preservation.xml
+            b3-b1-preservation.xml
           if-no-files-found: warn
           retention-days: 90
