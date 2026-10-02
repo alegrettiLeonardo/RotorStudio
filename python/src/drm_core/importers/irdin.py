@@ -632,6 +632,7 @@ def load_irdin_project(path: str | Path) -> RotorProject:
                 "unbalance": "PENDING_I6" if unbalance else "NOT_APPLICABLE",
                 "probes": "PENDING_I6" if probes else "NOT_APPLICABLE",
                 "half_coupling": "NOT_DECLARED",
+                "api541_lateral": "NOT_READY_I16_REQUIRES_EXPLICIT_DECLARATIONS",
             },
             "blockers": blockers,
             "reasons": reasons,

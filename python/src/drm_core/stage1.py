@@ -102,6 +102,13 @@ class AnalysisService:
                         "Generic RotorStudio analyses are blocked because they would omit the "
                         "qualified iRdin support DOFs."
                     )
+            elif status == "API541_LATERAL_READY":
+                allowed_irdin = {"irdin_modal_sweep", "irdin_synchronous_response", "api541_lateral"}
+                if requested_kind not in allowed_irdin:
+                    raise ValueError(
+                        "Imported iRdin project is API541_LATERAL_READY only for the guarded "
+                        f"expanded-support paths {sorted(allowed_irdin)}; received {case.kind!r}."
+                    )
             elif status not in {"READY", "QUALIFIED", "PASS"}:
                 reasons = readiness.get("reasons") or []
                 detail = "; ".join(str(item) for item in reasons) or "imported project is not numerically qualified"
@@ -129,6 +136,11 @@ class AnalysisService:
             if p:
                 raise ValueError(f"unsupported irdin_synchronous_response parameters: {sorted(p)}")
             result=run_irdin_synchronous_sweep(project,speeds,library_path=lib)
+        elif k=="api541_lateral":
+            if project is None:
+                raise ValueError("api541_lateral requires a RotorProject with qualified iRdin metadata")
+            from .analysis.api541_assessment import run_api541_lateral_assessment
+            result=run_api541_lateral_assessment(project,library_path=lib,**p)
         elif k=="ucs": result=run_ucs(model,library_path=lib,**p)
         elif k=="level1": result=run_level1(model,library_path=lib,**p)
         elif k=="api617_unbalance": result=run_api617_unbalance(model,library_path=lib,**p)
