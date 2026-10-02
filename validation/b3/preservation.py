@@ -46,9 +46,10 @@ PROMOTED_PRODUCT_PATHS=(
 B3_EXISTING_ADAPTERS={
     "fortran/CMakeLists.txt":"f4f276e7eddcbfea80566976e2bb883ad9a1f1c4",
     "python/src/drm_core/stage1.py":"860143852ce441077ccaf328e9b830df9598dfee",
-    # Repinned after the B3-aware inheritance patches are applied.
-    "validation/b1/native_preservation.py":"118d6668654ece6f9dad2272eaeebb96fdc48064",
-    "validation/b2/preservation.py":"1855c601b4961ffa3142c3c2d278cc388c3528a0",
+    "python/src/drm_core/__init__.py":"6d28515c6a3de947cc24cfe3d772ae0562a76ee6",
+    "python/src/drm_core/solver/facade.py":"5d1886720fb40b26c4f4974ef3e125fdc6b86e98",
+    "validation/b1/native_preservation.py":"35dc5865d3b12ccb690ca14a23e46981da1bdffb",
+    "validation/b2/preservation.py":"cb8fbf0667e6a731fb66a9e912b75245723c5959",
 }
 
 ALLOWED_ADDITIVE_PREFIXES=(
