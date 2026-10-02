@@ -71,4 +71,17 @@ B2 promoted
 -> make authority workflow read-only
 -> only then add native B3 production code.
 
-PRODUCTION_SOLVER = NOT_STARTED
+PRODUCTION_SOLVER = IMPLEMENTED_PENDING_EXACT_HEAD_CI
+
+
+## Current native implementation
+
+The frozen authority remains immutable. Production now contains additive B3
+Fortran kernels and a versioned C ABI for the axial/torsional invariant
+subspaces, thin Python result/adapters, SolverFacade exposure and AnalysisService
+dispatch. The dedicated workflows remain unavailable for engineering release
+until one exact HEAD passes the B3 Linux/Windows qualification workflow and all
+inherited preservation gates.
+
+No B3 GUI menu item is claimed by this initial scope. The Core/service API and
+project/report persistence are the application exposure being qualified here.
