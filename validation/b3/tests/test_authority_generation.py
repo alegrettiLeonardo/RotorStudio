@@ -33,10 +33,18 @@ def test_generator_uses_real_ross_and_torsional_converter():
         assert token in text
     assert "np.linalg.eig" not in text and "scipy.linalg.eig" not in text
 
-def test_native_b3_solver_does_not_exist_before_authority_freeze():
-    forbidden=(
-        REPO_ROOT/"fortran/src/rd_axial_torsional.f90",
-        REPO_ROOT/"fortran/src/rd_axial_torsional_c_api.f90",
-        REPO_ROOT/"python/src/drm_core/solver/axial_torsional.py",
-    )
-    assert not any(p.exists() for p in forbidden)
+def test_b3_freeze_records_pre_native_solver_state():
+    record=read_json(REPO_ROOT/"validation/ross_parity/axial_torsional/FREEZE_RECORD.json")
+    assert record["production_solver"]=="NOT_STARTED"
+    assert record["freeze_parent_head"]=="b2d52461f62488c79492dd274e8962c7db40ab2f"
+    assert record["ross_sha"]=="6320eab9f890f1b3cc1710d508b446fe063ca68d"
+    assert record["cross_platform"]=="PASS"
+
+def test_post_freeze_authority_workflow_is_strictly_read_only():
+    workflow=(REPO_ROOT/".github/workflows/b3-axial-torsional-authority.yml").read_text(encoding="utf-8")
+    assert "contents: read" in workflow
+    assert workflow.count("persist-credentials: false") >= 3
+    for forbidden in ("contents: write","persist-credentials: true","freeze_authority.py","git commit","git push"):
+        assert forbidden not in workflow
+    assert "--reference validation/ross_parity/axial_torsional" in workflow
+    assert "git diff --exit-code e4fda44cba1dd29696c67be449fa560440d9ebc0 HEAD -- validation/ross_parity/axial_torsional" in workflow
