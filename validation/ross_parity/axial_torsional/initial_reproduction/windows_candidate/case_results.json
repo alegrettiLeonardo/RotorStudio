@@ -1,0 +1,166 @@
+{
+  "AX01": {
+    "decoupling_ratio": {
+      "C": 0.0,
+      "G": 0.0,
+      "K": 0.0,
+      "Ksdt": 0.0,
+      "M": 0.0
+    },
+    "family": "Axial",
+    "family_dofs": [
+      2,
+      8
+    ],
+    "kind": "modal",
+    "mode_count": 1,
+    "rotor": "R01",
+    "speed_rad_s": 0.0,
+    "torsional_conversion_max_abs": {}
+  },
+  "AX02": {
+    "decoupling_ratio": {
+      "C": 0.0,
+      "G": 0.0,
+      "K": 0.0,
+      "Ksdt": 0.0,
+      "M": 0.0
+    },
+    "family": "Axial",
+    "family_dofs": [
+      2,
+      8,
+      14,
+      20
+    ],
+    "kind": "modal",
+    "mode_count": 3,
+    "rotor": "R03",
+    "speed_rad_s": 0.0,
+    "torsional_conversion_max_abs": {}
+  },
+  "AX03": {
+    "decoupling_ratio": {
+      "C": 0.0,
+      "G": 0.0,
+      "K": 0.0,
+      "Ksdt": 0.0,
+      "M": 0.0
+    },
+    "family": "Axial",
+    "family_dofs": [
+      2,
+      8,
+      14,
+      20
+    ],
+    "kind": "modal",
+    "mode_count": 3,
+    "rotor": "R03",
+    "speed_rad_s": 160.0,
+    "torsional_conversion_max_abs": {}
+  },
+  "AXC01": {
+    "family": "Axial",
+    "kind": "sweep",
+    "mode_count": 3,
+    "rotor": "R03",
+    "speed_range_rad_s": [
+      0.0,
+      100.0,
+      200.0,
+      300.0
+    ]
+  },
+  "TOR01": {
+    "decoupling_ratio": {
+      "C": 0.0,
+      "G": 0.0,
+      "K": 0.0,
+      "Ksdt": 0.0,
+      "M": 0.0
+    },
+    "family": "Torsional",
+    "family_dofs": [
+      5,
+      11
+    ],
+    "kind": "modal",
+    "mode_count": 1,
+    "rotor": "R01",
+    "speed_rad_s": 0.0,
+    "torsional_conversion_max_abs": {
+      "C": 0.0,
+      "G": 0.0,
+      "K": 0.0,
+      "Ksdt": 0.0,
+      "M": 0.0
+    }
+  },
+  "TOR02": {
+    "decoupling_ratio": {
+      "C": 0.0,
+      "G": 0.0,
+      "K": 0.0,
+      "Ksdt": 0.0,
+      "M": 0.0
+    },
+    "family": "Torsional",
+    "family_dofs": [
+      5,
+      11,
+      17,
+      23
+    ],
+    "kind": "modal",
+    "mode_count": 3,
+    "rotor": "R03",
+    "speed_rad_s": 0.0,
+    "torsional_conversion_max_abs": {
+      "C": 0.0,
+      "G": 0.0,
+      "K": 0.0,
+      "Ksdt": 0.0,
+      "M": 0.0
+    }
+  },
+  "TOR03": {
+    "decoupling_ratio": {
+      "C": 0.0,
+      "G": 0.0,
+      "K": 0.0,
+      "Ksdt": 0.0,
+      "M": 0.0
+    },
+    "family": "Torsional",
+    "family_dofs": [
+      5,
+      11,
+      17,
+      23
+    ],
+    "kind": "modal",
+    "mode_count": 3,
+    "rotor": "R03",
+    "speed_rad_s": 160.0,
+    "torsional_conversion_max_abs": {
+      "C": 0.0,
+      "G": 0.0,
+      "K": 0.0,
+      "Ksdt": 0.0,
+      "M": 0.0
+    }
+  },
+  "TORC01": {
+    "family": "Torsional",
+    "kind": "sweep",
+    "mode_count": 3,
+    "rotor": "R03",
+    "speed_range_rad_s": [
+      0.0,
+      100.0,
+      200.0,
+      300.0
+    ]
+  }
+}

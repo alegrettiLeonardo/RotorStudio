@@ -1,0 +1,28 @@
+{
+  "canonical_platform": "ubuntu-24.04",
+  "cross_platform": "PASS",
+  "freeze_parent_head": "b2d52461f62488c79492dd274e8962c7db40ab2f",
+  "freeze_utc": "2026-10-02T00:55:34.109860+00:00",
+  "input_sha256": "3231f64045ed1f26098824b69c2a78efd0d2eeb159367146ee5e5436f46e3d53",
+  "linux_data_bundle_sha256": "91892b519f9829d99c8a0b72faf388b6d49938af5d025723b0e3e8be2f1d9ed3",
+  "linux_self_check": {
+    "arrays": 94,
+    "data_bundle_sha256": "91892b519f9829d99c8a0b72faf388b6d49938af5d025723b0e3e8be2f1d9ed3",
+    "max_decoupling_ratio": 0.0,
+    "max_modal_residual": 8.90567307103332e-16,
+    "status": "PASS"
+  },
+  "policy_sha256": "79f76ee09036ac7528bc2dc70a8747131138aefb80d4a60018c124a90232b8b0",
+  "production_solver": "NOT_STARTED",
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "rotor_spec_sha256": "52aa39163a9b5d7c6c8d38d3cbe6d8583818a46e5e330f35b00cedf356bcdfdd",
+  "schema_version": 1,
+  "windows_data_bundle_sha256": "079de3aedea5ba19fc738fbfc3f8e712f2964189300d89446afafe4a9daceaf8",
+  "windows_self_check": {
+    "arrays": 94,
+    "data_bundle_sha256": "079de3aedea5ba19fc738fbfc3f8e712f2964189300d89446afafe4a9daceaf8",
+    "max_decoupling_ratio": 0.0,
+    "max_modal_residual": 7.283586299022087e-16,
+    "status": "PASS"
+  }
+}

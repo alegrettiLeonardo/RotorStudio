@@ -21,6 +21,14 @@ from .analysis.critical_speed import run_critical_speeds
 from .analysis.coaxial import run_coaxial_modal,run_coaxial_frequency_response
 from .analysis.asymmetric import run_asymmetric_modal,run_asymmetric_frequency_response
 from .analysis.transient import run_foundation_time_response,run_runup
+from .analysis.axial_torsional import run_axial_modal,run_torsional_modal,run_axial_sweep,run_torsional_sweep
+
+_B3_ANALYSIS_RUNNERS = {
+    "axial_modal": run_axial_modal,
+    "torsional_modal": run_torsional_modal,
+    "axial_sweep": run_axial_sweep,
+    "torsional_sweep": run_torsional_sweep,
+}
 
 def _canonical(v:Any):
     if isinstance(v,dict): return {str(k):_canonical(v[k]) for k in sorted(v)}
@@ -101,7 +109,9 @@ class AnalysisService:
                 )
         model=project.model if project is not None else model
         p=dict(case.parameters);k=case.kind.strip().lower();lib=self.library_path
-        if k=="ucs": result=run_ucs(model,library_path=lib,**p)
+        if k in _B3_ANALYSIS_RUNNERS:
+            result=_B3_ANALYSIS_RUNNERS[k](model,library_path=lib,**p)
+        elif k=="ucs": result=run_ucs(model,library_path=lib,**p)
         elif k=="level1": result=run_level1(model,library_path=lib,**p)
         elif k=="api617_unbalance": result=run_api617_unbalance(model,library_path=lib,**p)
         elif k=="clearance": result=run_clearance(model,library_path=lib,**p)

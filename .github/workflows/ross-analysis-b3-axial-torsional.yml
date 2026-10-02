@@ -1,0 +1,114 @@
+name: ROSS Analysis B3 Axial Torsional Qualification
+
+on:
+  push:
+    branches: [feature/ross-analysis-b3-axial-torsional-workflows]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+  PYTHONIOENCODING: utf-8
+  PYTHONUTF8: '1'
+
+jobs:
+  native:
+    name: B3 native axial torsional / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 70
+    steps:
+      - name: Preserve raw Git bytes
+        shell: bash
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Set Linux Python path
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE/python/src:$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+      - name: Set Windows Python path
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: echo "PYTHONPATH=$env:GITHUB_WORKSPACE\python\src;$env:GITHUB_WORKSPACE" >> $env:GITHUB_ENV
+      - name: Install Python qualification dependencies
+        run: |
+          python -m pip install -e "./python[test]"
+          python -m pip check
+      - name: Linux toolchain
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gfortran libblas-dev liblapack-dev
+      - uses: msys2/setup-msys2@v2
+        if: runner.os == 'Windows'
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-openblas
+      - name: Linux Release build + all CTest
+        if: runner.os == 'Linux'
+        run: |
+          cmake -S fortran -B build-b3 -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-b3 --parallel 2
+          ctest --test-dir build-b3 --output-on-failure
+          echo "DRMROTOR_LIB=$GITHUB_WORKSPACE/build-b3/libdrmrotor.so" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_LIB=$GITHUB_WORKSPACE/build-b3/libdrmbearings.so" >> "$GITHUB_ENV"
+      - name: Windows Release build + all CTest
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          cmake -S fortran -B build-b3 -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER=/ucrt64/bin/gfortran.exe -DCMAKE_PREFIX_PATH=/ucrt64 -DBLA_VENDOR=OpenBLAS
+          cmake --build build-b3 --parallel 2
+          ctest --test-dir build-b3 --output-on-failure
+          echo "DRMROTOR_LIB=$(cygpath -w "$PWD/build-b3/libdrmrotor.dll")" >> "$GITHUB_ENV"
+          echo "DRMBEARINGS_LIB=$(cygpath -w "$PWD/build-b3/libdrmbearings.dll")" >> "$GITHUB_ENV"
+          echo "DRMROTOR_DLL_DIRS=$(cygpath -w /ucrt64/bin)" >> "$GITHUB_ENV"
+          cygpath -w /ucrt64/bin >> "$GITHUB_PATH"
+      - name: Frozen B3 axial/torsional parity
+        shell: bash
+        run: |
+          mkdir -p b1-evidence
+          python -m pytest python/tests_axial_torsional -q --junitxml=b1-evidence/b3-native-parity.xml
+      - name: Qualified B2 numerical regression
+        run: |
+          python -m pytest python/tests_6dof_global -q --junitxml=b1-evidence/b3-b2-regression.xml
+      - name: B3/B2/B1 preservation gates
+        run: |
+          python validation/b3/preservation.py
+          python -m pytest validation/b3/tests -q --junitxml=b1-evidence/b3-preservation.xml
+          python -m pytest python/tests_6dof_elements/test_preservation.py -q --junitxml=b1-evidence/b3-b1-preservation.xml
+      - name: Immutable B3 authority
+        shell: bash
+        run: |
+          git diff --exit-code e4fda44cba1dd29696c67be449fa560440d9ebc0 HEAD -- validation/ross_parity/axial_torsional
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b3-native-${{ matrix.os }}-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            b1-evidence/b3-native-parity.xml
+            b1-evidence/b3-b2-regression.xml
+            b1-evidence/b3-preservation.xml
+            b1-evidence/b3-b1-preservation.xml
+          if-no-files-found: warn
+          retention-days: 90

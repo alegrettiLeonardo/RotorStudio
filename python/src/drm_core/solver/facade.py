@@ -72,3 +72,19 @@ class SolverFacade:
         return run_campbell_6dof(
             model,speed_range_rad_s,frequencies,self.backend.library_path,frequency_type
         )
+
+    def axial_modal_6dof(self,model,speed_rad_s=0.0):
+        from .axial_torsional import run_axial_modal_6dof
+        return run_axial_modal_6dof(model,speed_rad_s,self.backend.library_path)
+
+    def torsional_modal_6dof(self,model,speed_rad_s=0.0):
+        from .axial_torsional import run_torsional_modal_6dof
+        return run_torsional_modal_6dof(model,speed_rad_s,self.backend.library_path)
+
+    def axial_sweep_6dof(self,model,speed_range_rad_s):
+        from .axial_torsional import run_axial_sweep_6dof
+        return run_axial_sweep_6dof(model,speed_range_rad_s,self.backend.library_path)
+
+    def torsional_sweep_6dof(self,model,speed_range_rad_s):
+        from .axial_torsional import run_torsional_sweep_6dof
+        return run_torsional_sweep_6dof(model,speed_range_rad_s,self.backend.library_path)

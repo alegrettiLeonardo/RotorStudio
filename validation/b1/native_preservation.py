@@ -63,8 +63,17 @@ ARTIFACT_ROOTS=frozenset({'review','b1-evidence','b1-native-evidence','b1-native
                          'b1-platform-artifacts','b1-aggregate-evidence','_ross_b1'})
 B1_PROMOTED_MAIN='d44ad24590f984e3f0655c427fcbf39be94a6da6'
 B2_MARKER=ROOT/'validation/b2/preservation.py'
+B3_MARKER=ROOT/'validation/b3/preservation.py'
 B2_EXISTING_ADAPTERS=frozenset({
     'fortran/CMakeLists.txt',
+    'python/src/drm_core/__init__.py',
+    'python/src/drm_core/solver/facade.py',
+    'python/tests_ucs/test_ucs_bearing_order_authority.py',
+    'scripts/verify_a1_legacy_preservation.py',
+})
+B3_EXISTING_ADAPTERS=frozenset({
+    'fortran/CMakeLists.txt',
+    'python/src/drm_core/stage1.py',
     'python/src/drm_core/__init__.py',
     'python/src/drm_core/solver/facade.py',
     'python/tests_ucs/test_ucs_bearing_order_authority.py',
@@ -104,6 +113,9 @@ def one_replace(data,old,new):
 
 
 def expected_adaptation(path,before):
+    if B3_MARKER.is_file() and path in B3_EXISTING_ADAPTERS:
+        verify_b3_inheritance()
+        return (ROOT/path).read_bytes()
     if B2_MARKER.is_file() and path in B2_EXISTING_ADAPTERS:
         verify_b2_inheritance()
         return (ROOT/path).read_bytes()
@@ -197,8 +209,8 @@ def b2_added_paths():
         if status=='A':
             added.add(path)
         elif status=='M':
-            require(path in B2_EXISTING_ADAPTERS or path=='validation/b1/native_preservation.py',
-                    'B2 modified unapproved promoted-B1 path: '+path)
+            require(path in B2_EXISTING_ADAPTERS or path in B3_EXISTING_ADAPTERS or path=='validation/b1/native_preservation.py',
+                    'B2/B3 modified unapproved promoted-B1 path: '+path)
         else:
             raise ValueError('B2 contains unsupported promoted-main delta: '+row)
     return frozenset(added)
@@ -210,6 +222,14 @@ def verify_b2_inheritance():
     from validation.b2.preservation import verify as verify_b2
     result=verify_b2()
     require(result.get('status')=='PASS','B2 preservation gate did not pass')
+    return result
+
+def verify_b3_inheritance():
+    if not B3_MARKER.is_file():
+        return None
+    from validation.b3.preservation import verify as verify_b3
+    result=verify_b3()
+    require(result.get('status')=='PASS','B3 preservation gate did not pass')
     return result
 
 
@@ -227,6 +247,11 @@ def approve_change(path,before,after):
         return
     require(after is not None,'Removal of promoted-main path: '+path)
     if before==after: return
+    if B3_MARKER.is_file() and path in B3_EXISTING_ADAPTERS:
+        verify_b3_inheritance()
+        require(after==(ROOT/path).read_bytes(),
+                'Historical adaptation differs from exact permitted patch (B3 inherited adapter): '+path)
+        return
     if B2_MARKER.is_file() and path in B2_EXISTING_ADAPTERS:
         verify_b2_inheritance()
         require(after==(ROOT/path).read_bytes(),

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "fixed_before_native": true,
+  "matrix": {
+    "M": {
+      "rtol": 2e-12,
+      "atol": 1e-12
+    },
+    "K": {
+      "rtol": 2e-12,
+      "atol": 0.000001
+    },
+    "C": {
+      "rtol": 2e-12,
+      "atol": 1e-9
+    },
+    "G": {
+      "rtol": 2e-12,
+      "atol": 1e-12
+    },
+    "Ksdt": {
+      "rtol": 2e-12,
+      "atol": 1e-12
+    }
+  },
+  "modal": {
+    "eigenvalue_real": {
+      "rtol": 5e-8,
+      "atol": 0.000001
+    },
+    "eigenvalue_imag": {
+      "rtol": 5e-8,
+      "atol": 0.000001
+    },
+    "wn": {
+      "rtol": 5e-8,
+      "atol": 0.000001
+    },
+    "wd": {
+      "rtol": 5e-8,
+      "atol": 0.000001
+    },
+    "damping_ratio": {
+      "rtol": 5e-8,
+      "atol": 1e-9
+    },
+    "log_dec": {
+      "rtol": 5e-8,
+      "atol": 1e-9
+    },
+    "eigenvector_mac_min": 0.9999,
+    "residual_max": 1e-8
+  },
+  "sweep": {
+    "wn": {
+      "rtol": 1e-7,
+      "atol": 0.00001
+    },
+    "wd": {
+      "rtol": 1e-7,
+      "atol": 0.00001
+    },
+    "damping_ratio": {
+      "rtol": 1e-7,
+      "atol": 1e-8
+    },
+    "log_dec": {
+      "rtol": 1e-7,
+      "atol": 1e-8
+    },
+    "speed_invariance_abs_rad_s": 1e-7
+  },
+  "decoupling": {
+    "relative_frobenius_max": 1e-12
+  },
+  "torsional_crosscheck": {
+    "wn": {
+      "rtol": 5e-8,
+      "atol": 0.000001
+    },
+    "wd": {
+      "rtol": 5e-8,
+      "atol": 0.000001
+    },
+    "eigenvector_mac_min": 0.9999
+  },
+  "scope_contract": {
+    "axial_dof": "z",
+    "torsional_dof": "theta",
+    "b2_single_shaft_line_only": true,
+    "radial_bearing_axial_terms_zero": true,
+    "matched_whirl": false,
+    "rouch_synchronous": false,
+    "forced_response": false,
+    "transient": false,
+    "faults": false
+  }
+}

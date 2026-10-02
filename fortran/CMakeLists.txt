@@ -163,3 +163,15 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(test_6dof_global PRIVATE -ffree-line-length-none)
 endif()
 add_test(NAME sixdof_global_modal_campbell_native_contract COMMAND test_6dof_global)
+
+# B3 additive dedicated axial/torsional workflows on the qualified B2 6-DOF platform.
+target_sources(drmrotor PRIVATE
+ src/rd_axial_torsional.f90
+ src/rd_axial_torsional_c_api.f90)
+add_executable(test_axial_torsional tests/test_axial_torsional.f90)
+target_link_libraries(test_axial_torsional PRIVATE drmrotor)
+target_include_directories(test_axial_torsional PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_axial_torsional PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME axial_torsional_native_contract COMMAND test_axial_torsional)

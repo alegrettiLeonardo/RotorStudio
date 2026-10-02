@@ -1,0 +1,594 @@
+{
+  "array_count": 94,
+  "candidate_head": "b2d52461f62488c79492dd274e8962c7db40ab2f",
+  "reference_head": "b2d52461f62488c79492dd274e8962c7db40ab2f",
+  "rows": [
+    {
+      "file": "modal/AX01_M.npy",
+      "group": "axial_matrix_M",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_K.npy",
+      "group": "axial_matrix_K",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_C.npy",
+      "group": "axial_matrix_C",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_G.npy",
+      "group": "axial_matrix_G",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_Ksdt.npy",
+      "group": "axial_matrix_Ksdt",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_evalues.npy",
+      "group": "axial_modal_eigen",
+      "imag": {
+        "max_abs": 8.731149137020111e-11
+      },
+      "real": {
+        "max_abs": 3.637978901959403e-12
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_wn.npy",
+      "group": "axial_modal_wn",
+      "max_abs": 8.731149137020111e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_wd.npy",
+      "group": "axial_modal_wd",
+      "max_abs": 8.731149137020111e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_damping_ratio.npy",
+      "group": "axial_modal_damping",
+      "max_abs": 5.05119170122887e-17,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_log_dec.npy",
+      "group": "axial_modal_logdec",
+      "max_abs": 3.1737573480908695e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_evectors.npy",
+      "group": "axial_modal_evec",
+      "min_mac": 1.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_evectors_normalized.npy",
+      "group": "axial_modal_evec_normalized",
+      "min_mac": 0.9999999999999999,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_residual.npy",
+      "group": "axial_modal_residual",
+      "max": 7.283586299022087e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX01_indices.npy",
+      "group": "axial_modal_indices",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_M.npy",
+      "group": "axial_matrix_M",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_K.npy",
+      "group": "axial_matrix_K",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_C.npy",
+      "group": "axial_matrix_C",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_G.npy",
+      "group": "axial_matrix_G",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_Ksdt.npy",
+      "group": "axial_matrix_Ksdt",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_evalues.npy",
+      "group": "axial_modal_eigen",
+      "imag": {
+        "max_abs": 1.4551915228366852e-10
+      },
+      "real": {
+        "max_abs": 2.4556356947869062e-11
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_wn.npy",
+      "group": "axial_modal_wn",
+      "max_abs": 1.4551915228366852e-10,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_wd.npy",
+      "group": "axial_modal_wd",
+      "max_abs": 1.4551915228366852e-10,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_damping_ratio.npy",
+      "group": "axial_modal_damping",
+      "max_abs": 4.710968749007215e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_log_dec.npy",
+      "group": "axial_modal_logdec",
+      "max_abs": 2.9599889626344333e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_evectors.npy",
+      "group": "axial_modal_evec",
+      "min_mac": 1.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_evectors_normalized.npy",
+      "group": "axial_modal_evec_normalized",
+      "min_mac": 0.9999999999999999,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_residual.npy",
+      "group": "axial_modal_residual",
+      "max": 8.90567307103332e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX02_indices.npy",
+      "group": "axial_modal_indices",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_M.npy",
+      "group": "axial_matrix_M",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_K.npy",
+      "group": "axial_matrix_K",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_C.npy",
+      "group": "axial_matrix_C",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_G.npy",
+      "group": "axial_matrix_G",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_Ksdt.npy",
+      "group": "axial_matrix_Ksdt",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_evalues.npy",
+      "group": "axial_modal_eigen",
+      "imag": {
+        "max_abs": 9.458744898438454e-11
+      },
+      "real": {
+        "max_abs": 3.092281986027956e-11
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_wn.npy",
+      "group": "axial_modal_wn",
+      "max_abs": 9.458744898438454e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_wd.npy",
+      "group": "axial_modal_wd",
+      "max_abs": 9.458744898438454e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_damping_ratio.npy",
+      "group": "axial_modal_damping",
+      "max_abs": 6.683631424525682e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_log_dec.npy",
+      "group": "axial_modal_logdec",
+      "max_abs": 4.199449476518353e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_evectors.npy",
+      "group": "axial_modal_evec",
+      "min_mac": 1.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_evectors_normalized.npy",
+      "group": "axial_modal_evec_normalized",
+      "min_mac": 1.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_residual.npy",
+      "group": "axial_modal_residual",
+      "max": 8.282227403542011e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/AX03_indices.npy",
+      "group": "axial_modal_indices",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_M.npy",
+      "group": "torsional_matrix_M",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_K.npy",
+      "group": "torsional_matrix_K",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_C.npy",
+      "group": "torsional_matrix_C",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_G.npy",
+      "group": "torsional_matrix_G",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_Ksdt.npy",
+      "group": "torsional_matrix_Ksdt",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_evalues.npy",
+      "group": "torsional_modal_eigen",
+      "imag": {
+        "max_abs": 7.275957614183426e-12
+      },
+      "real": {
+        "max_abs": 4.020820702687537e-12
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_wn.npy",
+      "group": "torsional_modal_wn",
+      "max_abs": 7.275957614183426e-12,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_wd.npy",
+      "group": "torsional_modal_wd",
+      "max_abs": 7.275957614183426e-12,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_damping_ratio.npy",
+      "group": "torsional_modal_damping",
+      "max_abs": 8.999359381844249e-17,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_log_dec.npy",
+      "group": "torsional_modal_logdec",
+      "max_abs": 5.654464264203254e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_evectors.npy",
+      "group": "torsional_modal_evec",
+      "min_mac": 1.0000000000000002,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_evectors_normalized.npy",
+      "group": "torsional_modal_evec_normalized",
+      "min_mac": 1.0000000000000002,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_residual.npy",
+      "group": "torsional_modal_residual",
+      "max": 3.8725901342209615e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR01_indices.npy",
+      "group": "torsional_modal_indices",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_M.npy",
+      "group": "torsional_matrix_M",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_K.npy",
+      "group": "torsional_matrix_K",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_C.npy",
+      "group": "torsional_matrix_C",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_G.npy",
+      "group": "torsional_matrix_G",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_Ksdt.npy",
+      "group": "torsional_matrix_Ksdt",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_evalues.npy",
+      "group": "torsional_modal_eigen",
+      "imag": {
+        "max_abs": 2.546585164964199e-11
+      },
+      "real": {
+        "max_abs": 3.637978807091713e-12
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_wn.npy",
+      "group": "torsional_modal_wn",
+      "max_abs": 2.546585164964199e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_wd.npy",
+      "group": "torsional_modal_wd",
+      "max_abs": 2.546585164964199e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_damping_ratio.npy",
+      "group": "torsional_modal_damping",
+      "max_abs": 1.1477296630336477e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_log_dec.npy",
+      "group": "torsional_modal_logdec",
+      "max_abs": 7.211398155387192e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_evectors.npy",
+      "group": "torsional_modal_evec",
+      "min_mac": 0.9999999999999998,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_evectors_normalized.npy",
+      "group": "torsional_modal_evec_normalized",
+      "min_mac": 0.9999999999999999,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_residual.npy",
+      "group": "torsional_modal_residual",
+      "max": 5.5593110813269035e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR02_indices.npy",
+      "group": "torsional_modal_indices",
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_M.npy",
+      "group": "torsional_matrix_M",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_K.npy",
+      "group": "torsional_matrix_K",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_C.npy",
+      "group": "torsional_matrix_C",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_G.npy",
+      "group": "torsional_matrix_G",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_Ksdt.npy",
+      "group": "torsional_matrix_Ksdt",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_evalues.npy",
+      "group": "torsional_modal_eigen",
+      "imag": {
+        "max_abs": 5.820766091346741e-11
+      },
+      "real": {
+        "max_abs": 5.9117155615240335e-12
+      },
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_wn.npy",
+      "group": "torsional_modal_wn",
+      "max_abs": 5.820766091346741e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_wd.npy",
+      "group": "torsional_modal_wd",
+      "max_abs": 5.820766091346741e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_damping_ratio.npy",
+      "group": "torsional_modal_damping",
+      "max_abs": 2.213654794757456e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_log_dec.npy",
+      "group": "torsional_modal_logdec",
+      "max_abs": 1.390880328158769e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_evectors.npy",
+      "group": "torsional_modal_evec",
+      "min_mac": 1.0,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_evectors_normalized.npy",
+      "group": "torsional_modal_evec_normalized",
+      "min_mac": 0.9999999999999998,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_residual.npy",
+      "group": "torsional_modal_residual",
+      "max": 5.335988131796144e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "modal/TOR03_indices.npy",
+      "group": "torsional_modal_indices",
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/AXC01_wn.npy",
+      "group": "axial_sweep_wn",
+      "max_abs": 2.0372681319713593e-10,
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/AXC01_wd.npy",
+      "group": "axial_sweep_wd",
+      "max_abs": 2.0372681319713593e-10,
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/AXC01_damping_ratio.npy",
+      "group": "axial_sweep_damping",
+      "max_abs": 9.820047533141815e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/AXC01_log_dec.npy",
+      "group": "axial_sweep_logdec",
+      "max_abs": 6.170117837604179e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/AXC01_speed.npy",
+      "group": "axial_sweep_speed",
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/TORC01_wn.npy",
+      "group": "torsional_sweep_wn",
+      "max_abs": 5.093170329928398e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/TORC01_wd.npy",
+      "group": "torsional_sweep_wd",
+      "max_abs": 5.093170329928398e-11,
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/TORC01_damping_ratio.npy",
+      "group": "torsional_sweep_damping",
+      "max_abs": 1.6750649136166738e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/TORC01_log_dec.npy",
+      "group": "torsional_sweep_logdec",
+      "max_abs": 1.0524743253808327e-14,
+      "status": "PASS"
+    },
+    {
+      "file": "sweep/TORC01_speed.npy",
+      "group": "torsional_sweep_speed",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

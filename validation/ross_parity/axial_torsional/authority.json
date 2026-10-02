@@ -1,0 +1,1021 @@
+{
+  "arrays": [
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_M.npy",
+      "group": "axial_matrix_M",
+      "nonzero": 4,
+      "sha256": "70b1c13225fb3f34fece92f91f966d364b497108bb704430a035e736537c7051",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_K.npy",
+      "group": "axial_matrix_K",
+      "nonzero": 4,
+      "sha256": "8fd0313596103e41fae6e0d0cdb29a8338db7e8d9e81335a64fe6bf3b471487a",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_C.npy",
+      "group": "axial_matrix_C",
+      "nonzero": 0,
+      "sha256": "05ab34c9ba3ff6c3ba41af20a0508c1df7ee720f81fc93f0d0d87ff5f5f53f02",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_G.npy",
+      "group": "axial_matrix_G",
+      "nonzero": 0,
+      "sha256": "05ab34c9ba3ff6c3ba41af20a0508c1df7ee720f81fc93f0d0d87ff5f5f53f02",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_Ksdt.npy",
+      "group": "axial_matrix_Ksdt",
+      "nonzero": 0,
+      "sha256": "05ab34c9ba3ff6c3ba41af20a0508c1df7ee720f81fc93f0d0d87ff5f5f53f02",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/AX01_evalues.npy",
+      "group": "axial_modal_eigen",
+      "nonzero": 1,
+      "sha256": "ca3ac686e4e1e525c2da307d206b149d02f1334b718b5dbaeef47dfda949207c",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_wn.npy",
+      "group": "axial_modal_wn",
+      "nonzero": 1,
+      "sha256": "da36aeda206c3ffff4010b38e4c6655ec0aa719f78aa24155f85d494bb9c7be2",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_wd.npy",
+      "group": "axial_modal_wd",
+      "nonzero": 1,
+      "sha256": "da36aeda206c3ffff4010b38e4c6655ec0aa719f78aa24155f85d494bb9c7be2",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_damping_ratio.npy",
+      "group": "axial_modal_damping",
+      "nonzero": 1,
+      "sha256": "d409c4ab3932ccb1ee5110c0a6595d798a0dd14e2c098df033deefc2e6a8dfdf",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_log_dec.npy",
+      "group": "axial_modal_logdec",
+      "nonzero": 1,
+      "sha256": "dde9fa2bab1eaafc27c8e91fd40859f36b9298e757a86d0c143b52a7a23f2ffc",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/AX01_evectors.npy",
+      "group": "axial_modal_evec",
+      "nonzero": 2,
+      "sha256": "2c528c6c3ae9c4f2bddd1c784235401fbeb3fcf04f892dc3056ba5ce5c309800",
+      "shape": [
+        2,
+        1
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/AX01_evectors_normalized.npy",
+      "group": "axial_modal_evec_normalized",
+      "nonzero": 2,
+      "sha256": "320775d91a1332dc1b0970dd29290ea6f06cec535a30a74d78d2459b4388becb",
+      "shape": [
+        2,
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_residual.npy",
+      "group": "axial_modal_residual",
+      "nonzero": 1,
+      "sha256": "b464610cf17473792923a84ffc66c5f8ad4d99699508759699ce953c0af8e1c4",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX01_indices.npy",
+      "group": "axial_modal_indices",
+      "nonzero": 1,
+      "sha256": "63c5b34d6974925a9b87f85b118d59db44b8ee8f6e9e488234c401c1d8cee09a",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_M.npy",
+      "group": "axial_matrix_M",
+      "nonzero": 10,
+      "sha256": "489469df9e539176ccfbb158f9ed2f91375434181a1f04ee0a57dd6986fb80b8",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_K.npy",
+      "group": "axial_matrix_K",
+      "nonzero": 10,
+      "sha256": "08328f81630c2ee913c41702f7ba4761a15d2c2624c723e6da810da9b9bc94be",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_C.npy",
+      "group": "axial_matrix_C",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_G.npy",
+      "group": "axial_matrix_G",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_Ksdt.npy",
+      "group": "axial_matrix_Ksdt",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/AX02_evalues.npy",
+      "group": "axial_modal_eigen",
+      "nonzero": 3,
+      "sha256": "c28e2300f5f5d46f40ec8f1fba751ba912bd95f5242f11c6f86dc873bec8752c",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_wn.npy",
+      "group": "axial_modal_wn",
+      "nonzero": 3,
+      "sha256": "4b9802706658fd7599ced75498b4db892865b1623880e2b624bdf535819eac88",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_wd.npy",
+      "group": "axial_modal_wd",
+      "nonzero": 3,
+      "sha256": "4b9802706658fd7599ced75498b4db892865b1623880e2b624bdf535819eac88",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_damping_ratio.npy",
+      "group": "axial_modal_damping",
+      "nonzero": 3,
+      "sha256": "aa475ed610d39d44d7537c32c44689126e75f002e3c205cceb2ad70134822ee4",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_log_dec.npy",
+      "group": "axial_modal_logdec",
+      "nonzero": 3,
+      "sha256": "a1ffcde88c96e0c698825eb45a7e2d385e5ce5c4d76f503ace9d0fb9065bf550",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/AX02_evectors.npy",
+      "group": "axial_modal_evec",
+      "nonzero": 12,
+      "sha256": "cade0c1ee41bb8d175a9ef79feb63bddded4f6b4986f8c049b8d25a3b2f52740",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/AX02_evectors_normalized.npy",
+      "group": "axial_modal_evec_normalized",
+      "nonzero": 12,
+      "sha256": "dd739dfc8c43916cca3da90f103a96112aa9a5123cea9713d90bc51bb1aa9b45",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_residual.npy",
+      "group": "axial_modal_residual",
+      "nonzero": 3,
+      "sha256": "0aa0df4d3c8ea352080ec6a1223f6b1a05f767f36b1d14cf902cbe0c880af127",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX02_indices.npy",
+      "group": "axial_modal_indices",
+      "nonzero": 3,
+      "sha256": "4bb95b8a9b07ae1c265d0753e7ad082ccd670e9daf286d9fb535d2d08e332ee1",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_M.npy",
+      "group": "axial_matrix_M",
+      "nonzero": 10,
+      "sha256": "489469df9e539176ccfbb158f9ed2f91375434181a1f04ee0a57dd6986fb80b8",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_K.npy",
+      "group": "axial_matrix_K",
+      "nonzero": 10,
+      "sha256": "08328f81630c2ee913c41702f7ba4761a15d2c2624c723e6da810da9b9bc94be",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_C.npy",
+      "group": "axial_matrix_C",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_G.npy",
+      "group": "axial_matrix_G",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_Ksdt.npy",
+      "group": "axial_matrix_Ksdt",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/AX03_evalues.npy",
+      "group": "axial_modal_eigen",
+      "nonzero": 3,
+      "sha256": "a89518efa816b096761f7799405da34d5d59446f2d7590446b52eadc5798cf93",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_wn.npy",
+      "group": "axial_modal_wn",
+      "nonzero": 3,
+      "sha256": "1f7a29a22c777edc07a104f6b0b23a66e441ecd01eba80b69f45b717ad5bb028",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_wd.npy",
+      "group": "axial_modal_wd",
+      "nonzero": 3,
+      "sha256": "1f7a29a22c777edc07a104f6b0b23a66e441ecd01eba80b69f45b717ad5bb028",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_damping_ratio.npy",
+      "group": "axial_modal_damping",
+      "nonzero": 3,
+      "sha256": "ae5fc027d9780eb6665a506f96fe882005845ffcd046085a4a5e6060c14216ba",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_log_dec.npy",
+      "group": "axial_modal_logdec",
+      "nonzero": 3,
+      "sha256": "4227a38a65c856fcfdea045a59e125bbd34a2fcd8af286a8affdc0899bad0201",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/AX03_evectors.npy",
+      "group": "axial_modal_evec",
+      "nonzero": 12,
+      "sha256": "9608003e5b3fc6c31e526c57b8beaa9ddca3f6925aa9a4b8f52bae4202401ea7",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/AX03_evectors_normalized.npy",
+      "group": "axial_modal_evec_normalized",
+      "nonzero": 12,
+      "sha256": "57d23235abb41e90285533e73d06646f146ec0998f7c4d5cc5903d96092cf6bf",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_residual.npy",
+      "group": "axial_modal_residual",
+      "nonzero": 3,
+      "sha256": "21c1efbecf868cb5805fab0e01e5f64dbfe748fce41f0e7947302411e10a6f58",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/AX03_indices.npy",
+      "group": "axial_modal_indices",
+      "nonzero": 3,
+      "sha256": "4bb95b8a9b07ae1c265d0753e7ad082ccd670e9daf286d9fb535d2d08e332ee1",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_M.npy",
+      "group": "torsional_matrix_M",
+      "nonzero": 4,
+      "sha256": "523cef925b98cb770e049add84a76f533f97edef4efda44a162eaf520c74381b",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_K.npy",
+      "group": "torsional_matrix_K",
+      "nonzero": 4,
+      "sha256": "99e3aea2013923b389ecd8d658b681ab99d9878fbcaacdce0beca4b7a9e4b097",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_C.npy",
+      "group": "torsional_matrix_C",
+      "nonzero": 0,
+      "sha256": "05ab34c9ba3ff6c3ba41af20a0508c1df7ee720f81fc93f0d0d87ff5f5f53f02",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_G.npy",
+      "group": "torsional_matrix_G",
+      "nonzero": 0,
+      "sha256": "05ab34c9ba3ff6c3ba41af20a0508c1df7ee720f81fc93f0d0d87ff5f5f53f02",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_Ksdt.npy",
+      "group": "torsional_matrix_Ksdt",
+      "nonzero": 0,
+      "sha256": "05ab34c9ba3ff6c3ba41af20a0508c1df7ee720f81fc93f0d0d87ff5f5f53f02",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/TOR01_evalues.npy",
+      "group": "torsional_modal_eigen",
+      "nonzero": 1,
+      "sha256": "0586e04c6ea5a73c0f3743c37f07f1acec60b3132b6dd802bb6721da687c635c",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_wn.npy",
+      "group": "torsional_modal_wn",
+      "nonzero": 1,
+      "sha256": "309360cf96f214e7c92c5abf57a1aa0a746ee94559b03b5a796cf2d7766e4b34",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_wd.npy",
+      "group": "torsional_modal_wd",
+      "nonzero": 1,
+      "sha256": "309360cf96f214e7c92c5abf57a1aa0a746ee94559b03b5a796cf2d7766e4b34",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_damping_ratio.npy",
+      "group": "torsional_modal_damping",
+      "nonzero": 1,
+      "sha256": "0d89fee36c04d10505a77dbe28eb1a6bf520ac1164c1698c23606ba59a4b0478",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_log_dec.npy",
+      "group": "torsional_modal_logdec",
+      "nonzero": 1,
+      "sha256": "bc0273e2283da26c54cfee98e6a6250fafd75b002c633a03abbdc2c0d7cd3fdf",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/TOR01_evectors.npy",
+      "group": "torsional_modal_evec",
+      "nonzero": 2,
+      "sha256": "6906db033c4d8a0fc398bd4ff71efdad20e73c5f35aa92fb9f7427b1966a53ac",
+      "shape": [
+        2,
+        1
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/TOR01_evectors_normalized.npy",
+      "group": "torsional_modal_evec_normalized",
+      "nonzero": 2,
+      "sha256": "559d9c4edf083c60cd4b386caf3018305037cc3ffc3c8ef3804d5e61f7c7e4ae",
+      "shape": [
+        2,
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_residual.npy",
+      "group": "torsional_modal_residual",
+      "nonzero": 1,
+      "sha256": "32764e6117fa560d1ad8390e2412394a3bb64ddb6382c6f49b9bea44d6e4d620",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR01_indices.npy",
+      "group": "torsional_modal_indices",
+      "nonzero": 1,
+      "sha256": "231e9068e171cac065b387ae5a6a1aa18c6ce0ef80cf109cb44dd4ed4a83b0d5",
+      "shape": [
+        1
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_M.npy",
+      "group": "torsional_matrix_M",
+      "nonzero": 10,
+      "sha256": "1fe3ed82a304a5303713b0687aead426e1a6e33378f5227a3f4ebf756d0f54a4",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_K.npy",
+      "group": "torsional_matrix_K",
+      "nonzero": 10,
+      "sha256": "d2f7d63617c6a15da51c464543bafe2141fc6ad4ce01e14ab112fa1fa66fe047",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_C.npy",
+      "group": "torsional_matrix_C",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_G.npy",
+      "group": "torsional_matrix_G",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_Ksdt.npy",
+      "group": "torsional_matrix_Ksdt",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/TOR02_evalues.npy",
+      "group": "torsional_modal_eigen",
+      "nonzero": 3,
+      "sha256": "33fb8a04637b7612c5e5d9c509a54ab0d245ad2a38217e82453df367ccdbc1f9",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_wn.npy",
+      "group": "torsional_modal_wn",
+      "nonzero": 3,
+      "sha256": "aff0a80da91466b8b5857f776407cb0d60f356c08930e8df31cb211adfc93df8",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_wd.npy",
+      "group": "torsional_modal_wd",
+      "nonzero": 3,
+      "sha256": "aff0a80da91466b8b5857f776407cb0d60f356c08930e8df31cb211adfc93df8",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_damping_ratio.npy",
+      "group": "torsional_modal_damping",
+      "nonzero": 3,
+      "sha256": "f18949c0e4d86cad115404d7ab52e0db4b67a5a46df705fa0460abd1bca29f6d",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_log_dec.npy",
+      "group": "torsional_modal_logdec",
+      "nonzero": 3,
+      "sha256": "704c7bce70408cc0ea95fb44aa9c45c0d8dfb734024224edfe57f82e01ead154",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/TOR02_evectors.npy",
+      "group": "torsional_modal_evec",
+      "nonzero": 12,
+      "sha256": "fa824fb23d5612275bb89f9e2fcc7cb946986996ad71903f515198434a897686",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/TOR02_evectors_normalized.npy",
+      "group": "torsional_modal_evec_normalized",
+      "nonzero": 12,
+      "sha256": "a518a87fe31251ab462d71a30a3a9d621daf9cbeb01bc741319021374fc794b8",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_residual.npy",
+      "group": "torsional_modal_residual",
+      "nonzero": 3,
+      "sha256": "81420ff2d73560bb5944626bd837dd4a6ae792b08970ec558f73e30f9e838b3b",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR02_indices.npy",
+      "group": "torsional_modal_indices",
+      "nonzero": 3,
+      "sha256": "8e0f4af84b131c729e203994593a6234a7500f050eea4766241c63b1954f5dcd",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_M.npy",
+      "group": "torsional_matrix_M",
+      "nonzero": 10,
+      "sha256": "1fe3ed82a304a5303713b0687aead426e1a6e33378f5227a3f4ebf756d0f54a4",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_K.npy",
+      "group": "torsional_matrix_K",
+      "nonzero": 10,
+      "sha256": "d2f7d63617c6a15da51c464543bafe2141fc6ad4ce01e14ab112fa1fa66fe047",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_C.npy",
+      "group": "torsional_matrix_C",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_G.npy",
+      "group": "torsional_matrix_G",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_Ksdt.npy",
+      "group": "torsional_matrix_Ksdt",
+      "nonzero": 0,
+      "sha256": "c3aa9cf23d0567465d204775dd08034df0d47385eb39db8e9d316761652df805",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/TOR03_evalues.npy",
+      "group": "torsional_modal_eigen",
+      "nonzero": 3,
+      "sha256": "29952877ffbbc9818d656e16459996cb7508d52424e19250c257efdf35a47de7",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_wn.npy",
+      "group": "torsional_modal_wn",
+      "nonzero": 3,
+      "sha256": "f06a149a4f4314f192124ca5683afa82cdeb86d5d83dae6d4ac1de2fbdba5463",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_wd.npy",
+      "group": "torsional_modal_wd",
+      "nonzero": 3,
+      "sha256": "f06a149a4f4314f192124ca5683afa82cdeb86d5d83dae6d4ac1de2fbdba5463",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_damping_ratio.npy",
+      "group": "torsional_modal_damping",
+      "nonzero": 3,
+      "sha256": "11f5a4ef734f5e88c9f0bc5546ebf024aef9bc8a8065983dc483037f48c949c3",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_log_dec.npy",
+      "group": "torsional_modal_logdec",
+      "nonzero": 3,
+      "sha256": "20def8456b671171faf51914703e173851973a4838e4cf020fd37dc36113c4d7",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/TOR03_evectors.npy",
+      "group": "torsional_modal_evec",
+      "nonzero": 12,
+      "sha256": "5846213fc2d0b16612e1a680fd56e1667b0391922af79c21535a819180e9cb44",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/TOR03_evectors_normalized.npy",
+      "group": "torsional_modal_evec_normalized",
+      "nonzero": 12,
+      "sha256": "3e6ffcc4b17db1942a3da4048f144027713f7e531f945a85b718aee7f96f50d4",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_residual.npy",
+      "group": "torsional_modal_residual",
+      "nonzero": 3,
+      "sha256": "071c2be8803178b486a79db110c7e70ed926581adefceb5e07174ef5ebf27674",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/TOR03_indices.npy",
+      "group": "torsional_modal_indices",
+      "nonzero": 3,
+      "sha256": "8e0f4af84b131c729e203994593a6234a7500f050eea4766241c63b1954f5dcd",
+      "shape": [
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/AXC01_wn.npy",
+      "group": "axial_sweep_wn",
+      "nonzero": 12,
+      "sha256": "1fd9aae1d98569bd49180a1aee0e8adb01282251a15c4c42888beb37e9867dfd",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/AXC01_wd.npy",
+      "group": "axial_sweep_wd",
+      "nonzero": 12,
+      "sha256": "1fd9aae1d98569bd49180a1aee0e8adb01282251a15c4c42888beb37e9867dfd",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/AXC01_damping_ratio.npy",
+      "group": "axial_sweep_damping",
+      "nonzero": 11,
+      "sha256": "f721fa630bbf8ffb6040940542409da6f61d2653b5bf557a8ffaeaca6670738d",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/AXC01_log_dec.npy",
+      "group": "axial_sweep_logdec",
+      "nonzero": 11,
+      "sha256": "428e5b50ede62c0d08cd44a22013583441a4fcb9153f5d13f46f6ca0de44dfe8",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/AXC01_speed.npy",
+      "group": "axial_sweep_speed",
+      "nonzero": 3,
+      "sha256": "b977db169775b13cae76362495cd50f360c86f3f8e187463bd6764753cf39525",
+      "shape": [
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/TORC01_wn.npy",
+      "group": "torsional_sweep_wn",
+      "nonzero": 12,
+      "sha256": "91ac939047101fb30fc146b16b8b3a66722ce1b9d7a3928c8cb47d54eff6349a",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/TORC01_wd.npy",
+      "group": "torsional_sweep_wd",
+      "nonzero": 12,
+      "sha256": "91ac939047101fb30fc146b16b8b3a66722ce1b9d7a3928c8cb47d54eff6349a",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/TORC01_damping_ratio.npy",
+      "group": "torsional_sweep_damping",
+      "nonzero": 11,
+      "sha256": "5e1ebe21899bef4b81bf0dc4b4473739c774085a30613aa95e4831b517b709ed",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/TORC01_log_dec.npy",
+      "group": "torsional_sweep_logdec",
+      "nonzero": 11,
+      "sha256": "f181d1df07fad4f805543412375b753eed6dc9a27348f0ef6e44499701f7a182",
+      "shape": [
+        4,
+        3
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "sweep/TORC01_speed.npy",
+      "group": "torsional_sweep_speed",
+      "nonzero": 3,
+      "sha256": "b977db169775b13cae76362495cd50f360c86f3f8e187463bd6764753cf39525",
+      "shape": [
+        4
+      ]
+    }
+  ],
+  "case_counts": {
+    "modal": 6,
+    "sweep": 2
+  },
+  "data_bundle_sha256": "91892b519f9829d99c8a0b72faf388b6d49938af5d025723b0e3e8be2f1d9ed3",
+  "generated_utc": "2026-10-02T00:54:18.190252+00:00",
+  "generator_head": "b2d52461f62488c79492dd274e8962c7db40ab2f",
+  "input_sha256": "3231f64045ed1f26098824b69c2a78efd0d2eeb159367146ee5e5436f46e3d53",
+  "max_decoupling_ratio": 0.0,
+  "metadata_files": {
+    "case_results.json": "31a5615774d8cb206c4185dde96e12893b47f267ce2ed7d50f60ca6f4749b68c",
+    "cases.json": "3231f64045ed1f26098824b69c2a78efd0d2eeb159367146ee5e5436f46e3d53",
+    "pip-check.txt": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09",
+    "requirements-freeze.txt": "9621eb381fe7b7acbc2197cc0902ad542ca8d335139f8c92e5ce2106b0d6f6ab",
+    "rotor_specification.json": "52aa39163a9b5d7c6c8d38d3cbe6d8583818a46e5e330f35b00cedf356bcdfdd",
+    "source_provenance.json": "fdd848c05d3d09cc97c03e3b53a6aa1bb078172d94db1a88ae10601bf875a955",
+    "source_ranges.json": "c94b1583a9cd49ccf2f92551351049e794af09e7ad29e4099dfd9c978867de00",
+    "tolerances.json": "79f76ee09036ac7528bc2dc70a8747131138aefb80d4a60018c124a90232b8b0"
+  },
+  "numpy": "2.5.3",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "policy_sha256": "79f76ee09036ac7528bc2dc70a8747131138aefb80d4a60018c124a90232b8b0",
+  "python": "3.12.14 (main, Aug 13 2026, 02:47:42) [GCC 13.3.0]",
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "rotor_spec_sha256": "52aa39163a9b5d7c6c8d38d3cbe6d8583818a46e5e330f35b00cedf356bcdfdd",
+  "schema_version": 1,
+  "scope": "B3 dedicated axial/torsional modal families and speed sweeps from qualified 6DOF platform"
+}
