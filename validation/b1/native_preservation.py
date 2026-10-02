@@ -74,6 +74,8 @@ B2_EXISTING_ADAPTERS=frozenset({
 B3_EXISTING_ADAPTERS=frozenset({
     'fortran/CMakeLists.txt',
     'python/src/drm_core/stage1.py',
+    'python/src/drm_core/__init__.py',
+    'python/src/drm_core/solver/facade.py',
 })
 
 CMAKE_APPEND=b'''\n# B1 isolated 6-DOF element kernels. Existing A1-A8 dispatch is unchanged.
