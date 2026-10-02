@@ -58,6 +58,7 @@ C1_EXISTING_ADAPTERS={
     "scripts/verify_a1_legacy_preservation.py":"426cff4348f08d479bbf3b927b5c57578c96a25c",
     "validation/b2/preservation.py":"b171e94a3db8cd871fdcc8d53347429f740aa791",
     "validation/b3/preservation.py":"c69b3fe6ef31b9c1aa9ede9a932d82d18e55113b",
+    "validation/b3/tests/test_preservation.py":"3746ca0780149cb43f06e7c82e10849168414040",
 }
 
 ALLOWED_ADDITIVE_PREFIXES=(
