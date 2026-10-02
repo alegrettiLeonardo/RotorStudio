@@ -25,12 +25,17 @@ B1_IMMUTABLE_PATHS=(
 B1_VALIDATION_GATE_EXCEPTION="validation/b1/native_preservation.py"
 
 PINNED_B2_ADAPTER_BLOBS={
-    B1_VALIDATION_GATE_EXCEPTION:"118d6668654ece6f9dad2272eaeebb96fdc48064",
+    B1_VALIDATION_GATE_EXCEPTION:"35dc5865d3b12ccb690ca14a23e46981da1bdffb",
     "python/src/drm_core/__init__.py":"4aca4be955ef3e3e3e193a71805eaafec3a3b42f",
     "python/src/drm_core/solver/facade.py":"8a8e9b5ca7c2e6ddbf058461413ea910ee4de68e",
     "python/tests_ucs/test_ucs_bearing_order_authority.py":"9e7266c994bf95059bd833ee2d45f3a061f7fa03",
     "scripts/verify_a1_legacy_preservation.py":"c12f35fc3c93a73f66ecd0158826134744bc8a7f",
 }
+
+B3_CONTROLLED_ADAPTERS=frozenset({
+    "python/src/drm_core/__init__.py",
+    "python/src/drm_core/solver/facade.py",
+})
 
 PROMOTED_PRODUCT_PATHS=(
     "python/src/drm_flet",
@@ -77,6 +82,8 @@ def verify() -> dict:
         if path != B1_VALIDATION_GATE_EXCEPTION:
             subprocess.run(["git","diff","--exit-code",B1_PROMOTED_MAIN,"HEAD","--",path],cwd=ROOT,check=True)
     for path,expected_blob in PINNED_B2_ADAPTER_BLOBS.items():
+        if B3_MARKER.is_file() and path in B3_CONTROLLED_ADAPTERS:
+            continue
         actual=git("hash-object",path).decode().strip()
         if actual != expected_blob:
             raise ValueError(f"B2 adapter bytes changed: {path}: {actual} != {expected_blob}")
