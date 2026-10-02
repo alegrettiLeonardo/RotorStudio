@@ -52,3 +52,10 @@ from .solver.sixdof_global import (
     SixDOFGlobalMatrices,SixDOFModalResult,SixDOFCampbellResult,
     assemble_6dof,run_modal_6dof,run_campbell_6dof,
 )
+
+from .solver.axial_torsional import (
+    AxialTorsionalModalResult,AxialTorsionalSweepResult,
+    run_family_modal_6dof,run_family_sweep_6dof,
+    run_axial_modal_6dof,run_torsional_modal_6dof,
+    run_axial_sweep_6dof,run_torsional_sweep_6dof,
+)
