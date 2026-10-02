@@ -45,7 +45,7 @@ PROMOTED_PRODUCT_PATHS=(
 
 B3_EXISTING_ADAPTERS={
     "fortran/CMakeLists.txt":"f4f276e7eddcbfea80566976e2bb883ad9a1f1c4",
-    "python/src/drm_core/stage1.py":"860143852ce441077ccaf328e9b830df9598dfee",
+    "python/src/drm_core/stage1.py":"8a9d96550edf085450b0d71544ae8b92e6de499c",
     "python/src/drm_core/__init__.py":"6d28515c6a3de947cc24cfe3d772ae0562a76ee6",
     "python/src/drm_core/solver/facade.py":"5d1886720fb40b26c4f4974ef3e125fdc6b86e98",
     "python/tests_ucs/test_ucs_bearing_order_authority.py":"d0be9bb5687d764bfd34bfbd1502776be46a35ed",
