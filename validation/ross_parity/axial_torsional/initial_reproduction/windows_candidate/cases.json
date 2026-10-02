@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "baseline_main": "c23a5e515480fa28fb6dd770fca235b73dd0198a",
+  "b2_qualified_head": "491ae024beeb05a7e08f31ff48ef13c829da88d2",
+  "b2_merge_sha": "c23a5e515480fa28fb6dd770fca235b73dd0198a",
+  "node_dof_order": [
+    "x",
+    "y",
+    "z",
+    "alpha",
+    "beta",
+    "theta"
+  ],
+  "rotor_specification": "validation/ross_parity/6dof_global/input_specification.json",
+  "modal_cases": [
+    {
+      "id": "AX01",
+      "family": "Axial",
+      "rotor": "R01",
+      "speed_rad_s": 0,
+      "expected_modes": 1
+    },
+    {
+      "id": "AX02",
+      "family": "Axial",
+      "rotor": "R03",
+      "speed_rad_s": 0,
+      "expected_modes": 3
+    },
+    {
+      "id": "AX03",
+      "family": "Axial",
+      "rotor": "R03",
+      "speed_rad_s": 160,
+      "expected_modes": 3
+    },
+    {
+      "id": "TOR01",
+      "family": "Torsional",
+      "rotor": "R01",
+      "speed_rad_s": 0,
+      "expected_modes": 1
+    },
+    {
+      "id": "TOR02",
+      "family": "Torsional",
+      "rotor": "R03",
+      "speed_rad_s": 0,
+      "expected_modes": 3
+    },
+    {
+      "id": "TOR03",
+      "family": "Torsional",
+      "rotor": "R03",
+      "speed_rad_s": 160,
+      "expected_modes": 3
+    }
+  ],
+  "sweep_cases": [
+    {
+      "id": "AXC01",
+      "family": "Axial",
+      "rotor": "R03",
+      "speed_range_rad_s": [
+        0,
+        100,
+        200,
+        300
+      ],
+      "expected_modes": 3
+    },
+    {
+      "id": "TORC01",
+      "family": "Torsional",
+      "rotor": "R03",
+      "speed_range_rad_s": [
+        0,
+        100,
+        200,
+        300
+      ],
+      "expected_modes": 3
+    }
+  ]
+}

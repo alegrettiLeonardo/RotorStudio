@@ -1,0 +1,1473 @@
+{
+  "schema_version": 1,
+  "ross_repository": "petrobras/ross",
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "baseline_main": "d44ad24590f984e3f0655c427fcbf39be94a6da6",
+  "b1_qualified_parent": "35e8f26937aaa60d1ce3ccbb3a523f3c1e6a6d2f",
+  "b1_merge_sha": "d44ad24590f984e3f0655c427fcbf39be94a6da6",
+  "node_dof_order": [
+    "x",
+    "y",
+    "z",
+    "alpha",
+    "beta",
+    "theta"
+  ],
+  "bearing_dof_order": [
+    "x",
+    "y",
+    "z"
+  ],
+  "declared_scope": "single_shaft_line_consecutive_nodes_6dof_radial_coefficient_bearings_synchronous_coefficients",
+  "materials": {
+    "steel": {
+      "name": "SteelB2",
+      "rho": 7810,
+      "E": 211000000000,
+      "G_s": 81200000000
+    }
+  },
+  "rotors": {
+    "R01": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.25,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [],
+      "bearings": []
+    },
+    "R02": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        },
+        {
+          "n": 1,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [
+        {
+          "n": 1,
+          "m": 12,
+          "Id": 0.04,
+          "Ip": 0.08
+        }
+      ],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        },
+        {
+          "n": 2,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        }
+      ]
+    },
+    "R03": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.18,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        },
+        {
+          "n": 1,
+          "L": 0.19,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        },
+        {
+          "n": 2,
+          "L": 0.21,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [
+        {
+          "n": 1,
+          "m": 9,
+          "Id": 0.03,
+          "Ip": 0.055
+        },
+        {
+          "n": 2,
+          "m": 14,
+          "Id": 0.045,
+          "Ip": 0.09
+        }
+      ],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        },
+        {
+          "n": 3,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        }
+      ]
+    },
+    "R04": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        },
+        {
+          "n": 1,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [
+        {
+          "n": 1,
+          "m": 12,
+          "Id": 0.04,
+          "Ip": 0.08
+        }
+      ],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1350000,
+          "cyy": 1300,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        },
+        {
+          "n": 2,
+          "kxx": 1150000,
+          "cxx": 850,
+          "kyy": 900000,
+          "cyy": 1050,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        }
+      ]
+    },
+    "R05": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        },
+        {
+          "n": 1,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [
+        {
+          "n": 1,
+          "m": 12,
+          "Id": 0.04,
+          "Ip": 0.08
+        }
+      ],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 150000,
+          "kyx": -100000,
+          "cxy": 120,
+          "cyx": -85,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        },
+        {
+          "n": 2,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": -80000,
+          "kyx": 60000,
+          "cxy": -60,
+          "cyx": 45,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        }
+      ]
+    },
+    "R06": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        },
+        {
+          "n": 1,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [
+        {
+          "n": 1,
+          "m": 12,
+          "Id": 0.04,
+          "Ip": 0.08
+        }
+      ],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": [
+            800000,
+            900000,
+            1050000,
+            1200000,
+            1350000
+          ],
+          "cxx": [
+            700,
+            800,
+            900,
+            1000,
+            1100
+          ],
+          "kyy": [
+            900000,
+            1000000,
+            1100000,
+            1250000,
+            1400000
+          ],
+          "cyy": [
+            750,
+            850,
+            950,
+            1050,
+            1150
+          ],
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip",
+          "speed": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ]
+        },
+        {
+          "n": 2,
+          "kxx": [
+            900000,
+            1000000,
+            1150000,
+            1300000,
+            1450000
+          ],
+          "cxx": [
+            650,
+            750,
+            850,
+            950,
+            1050
+          ],
+          "kyy": [
+            850000,
+            950000,
+            1050000,
+            1200000,
+            1350000
+          ],
+          "cyy": [
+            800,
+            900,
+            1000,
+            1100,
+            1200
+          ],
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip",
+          "speed": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ]
+        }
+      ]
+    },
+    "R07": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        },
+        {
+          "n": 1,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [
+        {
+          "n": 1,
+          "m": 12,
+          "Id": 0.04,
+          "Ip": 0.08
+        }
+      ],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": [
+            750000,
+            900000,
+            1000000,
+            1100000,
+            1250000
+          ],
+          "cxx": [
+            600,
+            720,
+            840,
+            960,
+            1080
+          ],
+          "kyy": [
+            800000,
+            930000,
+            1050000,
+            1180000,
+            1300000
+          ],
+          "cyy": [
+            650,
+            770,
+            890,
+            1010,
+            1130
+          ],
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip",
+          "frequency": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ]
+        },
+        {
+          "n": 2,
+          "kxx": [
+            800000,
+            940000,
+            1080000,
+            1220000,
+            1360000
+          ],
+          "cxx": [
+            620,
+            740,
+            860,
+            980,
+            1100
+          ],
+          "kyy": [
+            780000,
+            910000,
+            1040000,
+            1170000,
+            1310000
+          ],
+          "cyy": [
+            670,
+            790,
+            910,
+            1030,
+            1150
+          ],
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip",
+          "frequency": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ]
+        }
+      ]
+    },
+    "R08": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        },
+        {
+          "n": 1,
+          "L": 0.22,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [
+        {
+          "n": 1,
+          "m": 12,
+          "Id": 0.04,
+          "Ip": 0.08
+        }
+      ],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": [
+            [
+              750000,
+              780000,
+              810000,
+              840000,
+              870000
+            ],
+            [
+              830000,
+              860000,
+              890000,
+              920000,
+              950000
+            ],
+            [
+              910000,
+              940000,
+              970000,
+              1000000,
+              1030000
+            ],
+            [
+              990000,
+              1020000,
+              1050000,
+              1080000,
+              1110000
+            ],
+            [
+              1070000,
+              1100000,
+              1130000,
+              1160000,
+              1190000
+            ]
+          ],
+          "cxx": [
+            [
+              500,
+              520,
+              540,
+              560,
+              580
+            ],
+            [
+              560,
+              580,
+              600,
+              620,
+              640
+            ],
+            [
+              620,
+              640,
+              660,
+              680,
+              700
+            ],
+            [
+              680,
+              700,
+              720,
+              740,
+              760
+            ],
+            [
+              740,
+              760,
+              780,
+              800,
+              820
+            ]
+          ],
+          "kyy": [
+            [
+              850000,
+              870000,
+              890000,
+              910000,
+              930000
+            ],
+            [
+              920000,
+              940000,
+              960000,
+              980000,
+              1000000
+            ],
+            [
+              990000,
+              1010000,
+              1030000,
+              1050000,
+              1070000
+            ],
+            [
+              1060000,
+              1080000,
+              1100000,
+              1120000,
+              1140000
+            ],
+            [
+              1130000,
+              1150000,
+              1170000,
+              1190000,
+              1210000
+            ]
+          ],
+          "cyy": [
+            [
+              600,
+              625,
+              650,
+              675,
+              700
+            ],
+            [
+              650,
+              675,
+              700,
+              725,
+              750
+            ],
+            [
+              700,
+              725,
+              750,
+              775,
+              800
+            ],
+            [
+              750,
+              775,
+              800,
+              825,
+              850
+            ],
+            [
+              800,
+              825,
+              850,
+              875,
+              900
+            ]
+          ],
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip",
+          "speed": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ],
+          "frequency": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ]
+        },
+        {
+          "n": 2,
+          "kxx": [
+            [
+              800000,
+              825000,
+              850000,
+              875000,
+              900000
+            ],
+            [
+              870000,
+              895000,
+              920000,
+              945000,
+              970000
+            ],
+            [
+              940000,
+              965000,
+              990000,
+              1015000,
+              1040000
+            ],
+            [
+              1010000,
+              1035000,
+              1060000,
+              1085000,
+              1110000
+            ],
+            [
+              1080000,
+              1105000,
+              1130000,
+              1155000,
+              1180000
+            ]
+          ],
+          "cxx": [
+            [
+              550,
+              568,
+              586,
+              604,
+              622
+            ],
+            [
+              605,
+              623,
+              641,
+              659,
+              677
+            ],
+            [
+              660,
+              678,
+              696,
+              714,
+              732
+            ],
+            [
+              715,
+              733,
+              751,
+              769,
+              787
+            ],
+            [
+              770,
+              788,
+              806,
+              824,
+              842
+            ]
+          ],
+          "kyy": [
+            [
+              770000,
+              792000,
+              814000,
+              836000,
+              858000
+            ],
+            [
+              850000,
+              872000,
+              894000,
+              916000,
+              938000
+            ],
+            [
+              930000,
+              952000,
+              974000,
+              996000,
+              1018000
+            ],
+            [
+              1010000,
+              1032000,
+              1054000,
+              1076000,
+              1098000
+            ],
+            [
+              1090000,
+              1112000,
+              1134000,
+              1156000,
+              1178000
+            ]
+          ],
+          "cyy": [
+            [
+              620,
+              642,
+              664,
+              686,
+              708
+            ],
+            [
+              665,
+              687,
+              709,
+              731,
+              753
+            ],
+            [
+              710,
+              732,
+              754,
+              776,
+              798
+            ],
+            [
+              755,
+              777,
+              799,
+              821,
+              843
+            ],
+            [
+              800,
+              822,
+              844,
+              866,
+              888
+            ]
+          ],
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip",
+          "speed": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ],
+          "frequency": [
+            0,
+            100,
+            200,
+            300,
+            400
+          ]
+        }
+      ]
+    },
+    "R09": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.22,
+          "idl": 0.01,
+          "odl": 0.06,
+          "idr": 0.008,
+          "odr": 0.047,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        },
+        {
+          "n": 1,
+          "L": 0.22,
+          "idl": 0.008,
+          "odl": 0.047,
+          "idr": 0.006,
+          "odr": 0.052,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [
+        {
+          "n": 1,
+          "m": 10,
+          "Id": 0.034,
+          "Ip": 0.065
+        }
+      ],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        },
+        {
+          "n": 2,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        }
+      ]
+    },
+    "R10": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.25,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 5000,
+          "torque": 0,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        },
+        {
+          "n": 1,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        }
+      ]
+    },
+    "R11": {
+      "shafts": [
+        {
+          "n": 0,
+          "L": 0.25,
+          "idl": 0,
+          "odl": 0.05,
+          "idr": 0,
+          "odr": 0.05,
+          "material": "steel",
+          "axial_force": 0,
+          "torque": 220,
+          "shear_effects": true,
+          "rotary_inertia": true,
+          "gyroscopic": true,
+          "shear_method_calc": "cowper"
+        }
+      ],
+      "disks": [],
+      "bearings": [
+        {
+          "n": 0,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        },
+        {
+          "n": 1,
+          "kxx": 1000000,
+          "cxx": 1000,
+          "kyy": 1000000,
+          "cyy": 1000,
+          "kxy": 0,
+          "kyx": 0,
+          "cxy": 0,
+          "cyx": 0,
+          "mxx": 0,
+          "myy": 0,
+          "mxy": 0,
+          "myx": 0,
+          "kzz": 0,
+          "czz": 0,
+          "mzz": 0,
+          "interpolation": "pchip"
+        }
+      ]
+    }
+  },
+  "matrix_cases": [
+    {
+      "id": "G01",
+      "rotor": "R01",
+      "speed_rad_s": 0,
+      "frequency_rad_s": 0
+    },
+    {
+      "id": "G02",
+      "rotor": "R02",
+      "speed_rad_s": 0,
+      "frequency_rad_s": 0
+    },
+    {
+      "id": "G03",
+      "rotor": "R03",
+      "speed_rad_s": 0,
+      "frequency_rad_s": 0
+    },
+    {
+      "id": "G04",
+      "rotor": "R04",
+      "speed_rad_s": 80,
+      "frequency_rad_s": 80
+    },
+    {
+      "id": "G05",
+      "rotor": "R05",
+      "speed_rad_s": 120,
+      "frequency_rad_s": 120
+    },
+    {
+      "id": "G06",
+      "rotor": "R06",
+      "speed_rad_s": 150,
+      "frequency_rad_s": 150
+    },
+    {
+      "id": "G07",
+      "rotor": "R07",
+      "speed_rad_s": 175,
+      "frequency_rad_s": 175
+    },
+    {
+      "id": "G08",
+      "rotor": "R08",
+      "speed_rad_s": 175,
+      "frequency_rad_s": 175
+    },
+    {
+      "id": "G09",
+      "rotor": "R09",
+      "speed_rad_s": 90,
+      "frequency_rad_s": 90
+    },
+    {
+      "id": "G10",
+      "rotor": "R10",
+      "speed_rad_s": 0,
+      "frequency_rad_s": 0
+    },
+    {
+      "id": "G11",
+      "rotor": "R11",
+      "speed_rad_s": 0,
+      "frequency_rad_s": 0
+    }
+  ],
+  "modal_cases": [
+    {
+      "id": "M01",
+      "rotor": "R02",
+      "speed_rad_s": 0,
+      "num_modes": 12
+    },
+    {
+      "id": "M02",
+      "rotor": "R02",
+      "speed_rad_s": 200,
+      "num_modes": 12
+    },
+    {
+      "id": "M03",
+      "rotor": "R03",
+      "speed_rad_s": 80,
+      "num_modes": 44
+    },
+    {
+      "id": "M04",
+      "rotor": "R04",
+      "speed_rad_s": 120,
+      "num_modes": 12
+    },
+    {
+      "id": "M05",
+      "rotor": "R05",
+      "speed_rad_s": 120,
+      "num_modes": 12
+    },
+    {
+      "id": "M06",
+      "rotor": "R09",
+      "speed_rad_s": 100,
+      "num_modes": 12
+    },
+    {
+      "id": "M07",
+      "rotor": "R06",
+      "speed_rad_s": 150,
+      "num_modes": 12
+    },
+    {
+      "id": "M08",
+      "rotor": "R08",
+      "speed_rad_s": 175,
+      "num_modes": 12
+    }
+  ],
+  "campbell_cases": [
+    {
+      "id": "C01",
+      "rotor": "R02",
+      "speed_range_rad_s": [
+        0,
+        100,
+        200,
+        300
+      ],
+      "frequencies": 4,
+      "frequency_type": "wd"
+    },
+    {
+      "id": "C02",
+      "rotor": "R05",
+      "speed_range_rad_s": [
+        0,
+        100,
+        200,
+        300
+      ],
+      "frequencies": 4,
+      "frequency_type": "wd"
+    },
+    {
+      "id": "C03",
+      "rotor": "R06",
+      "speed_range_rad_s": [
+        0,
+        100,
+        200,
+        300
+      ],
+      "frequencies": 4,
+      "frequency_type": "wd"
+    },
+    {
+      "id": "C04",
+      "rotor": "R08",
+      "speed_range_rad_s": [
+        0,
+        100,
+        200,
+        300
+      ],
+      "frequencies": 4,
+      "frequency_type": "wd"
+    }
+  ],
+  "excluded": [
+    "multirotor",
+    "coaxial",
+    "gear_coupling",
+    "linked_bearing",
+    "foundation_dofs",
+    "point_mass",
+    "asymmetric_shaft",
+    "flexible_disk",
+    "physical_reynolds_in_modal",
+    "matched_whirl",
+    "rouch_synchronous",
+    "torsional_analysis",
+    "arbitrary_modal_damping"
+  ]
+}
