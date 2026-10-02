@@ -76,6 +76,8 @@ B3_EXISTING_ADAPTERS=frozenset({
     'python/src/drm_core/stage1.py',
     'python/src/drm_core/__init__.py',
     'python/src/drm_core/solver/facade.py',
+    'python/tests_ucs/test_ucs_bearing_order_authority.py',
+    'scripts/verify_a1_legacy_preservation.py',
 })
 
 CMAKE_APPEND=b'''\n# B1 isolated 6-DOF element kernels. Existing A1-A8 dispatch is unchanged.
