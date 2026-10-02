@@ -48,7 +48,7 @@ contains
     real(rk),intent(out)::m(n,n),c(n,n),k(n,n),frequency(n),modes(n,n)
     integer(ik),intent(out)::status
     real(rk),allocatable::a(:,:),b(:,:),alphar(:),alphai(:),beta(:),vr(:,:),lambda(:),tmpv(:)
-    real(rk)::scale,tol,tmp
+    real(rk)::scale,tol_alpha,tol_beta,lambda_scale,tmp
     integer::i,j,best
 
     call api541_torsional_matrices(n,inertia,stiffness,damping,m,c,k,status)
@@ -59,17 +59,20 @@ contains
     call generalized_eig_real(a,b,alphar,alphai,beta,vr,status)
     if(status/=RD_OK)return
 
-    scale=max(1._rk,maxval(abs(alphar)),maxval(abs(beta)))
-    tol=1024._rk*epsilon(1._rk)*scale
+    tol_alpha=1024._rk*epsilon(1._rk)*max(1._rk,maxval(abs(alphar)))
+    tol_beta=1024._rk*epsilon(1._rk)*max(1._rk,maxval(abs(beta)))
     do i=1,n
-      if(abs(alphai(i))>tol)then
+      if(abs(alphai(i))>tol_alpha)then
         status=RD_ERR_LAPACK;return
       endif
-      if(abs(beta(i))<=tol)then
+      if(abs(beta(i))<=tol_beta)then
         status=RD_ERR_LAPACK;return
       endif
       lambda(i)=alphar(i)/beta(i)
-      if(lambda(i)<-1024._rk*epsilon(1._rk)*max(1._rk,abs(lambda(i))))then
+    enddo
+    lambda_scale=max(1._rk,maxval(abs(lambda)))
+    do i=1,n
+      if(lambda(i)<-1024._rk*epsilon(1._rk)*lambda_scale)then
         status=RD_ERR_LAPACK;return
       endif
       if(lambda(i)<0._rk)lambda(i)=0._rk
