@@ -6,6 +6,8 @@ from validation.b3.preservation import (
     B3_CMAKE_APPEND,allowed_addition,verify,
 )
 
+C1_MARKER=ROOT/"validation/c1/preservation.py"
+
 def test_b3_preservation_gate_passes_exact_working_tree():
     result=verify()
     assert result["status"]=="PASS"
@@ -19,11 +21,20 @@ def test_b3_declared_additions_are_narrow():
     assert not allowed_addition("python/src/drm_core/solver/sixdof_global.py")
 
 def test_b3_existing_adapters_are_exactly_pinned():
+    c1_adapters={}
+    if C1_MARKER.is_file():
+        from validation.c1.preservation import C1_EXISTING_ADAPTERS
+        c1_adapters=C1_EXISTING_ADAPTERS
     for path,expected in B3_EXISTING_ADAPTERS.items():
         actual=subprocess.check_output(["git","hash-object",path],cwd=ROOT,text=True).strip()
-        assert actual==expected,(path,actual,expected)
+        effective=c1_adapters.get(path,expected)
+        assert actual==effective,(path,actual,effective)
 
 def test_b3_cmake_is_exact_additive_suffix():
     before=subprocess.check_output(["git","show",f"{B2_PROMOTED_MAIN}:fortran/CMakeLists.txt"],cwd=ROOT)
     after=subprocess.check_output(["git","show","HEAD:fortran/CMakeLists.txt"],cwd=ROOT)
-    assert after==before+B3_CMAKE_APPEND
+    expected=before+B3_CMAKE_APPEND
+    if C1_MARKER.is_file():
+        from validation.c1.preservation import C1_CMAKE_APPEND
+        expected+=C1_CMAKE_APPEND
+    assert after==expected

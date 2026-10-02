@@ -38,9 +38,12 @@ allowed_additive={
  # B3 remains additive to the promoted B2 implementation.
  'fortran/src/rd_axial_torsional.f90','fortran/src/rd_axial_torsional_c_api.f90',
  'fortran/tests/test_axial_torsional.f90',
+ # C1 remains additive to the promoted B3 implementation.
+ 'fortran/src/rd_fault_misalignment.f90','fortran/src/rd_fault_misalignment_c_api.f90',
+ 'fortran/tests/test_fault_misalignment.f90',
 }
 assert extra==allowed_additive,extra
-print('PASS: legacy source and tests unchanged; A1 unchanged; only additive A2/A3/A4/A5/A6/A7/A8/B1/B2/B3 modules/ABIs/tests added')
+print('PASS: legacy source and tests unchanged; A1 unchanged; only additive A2/A3/A4/A5/A6/A7/A8/B1/B2/B3/C1 modules/ABIs/tests added')
 
 exec(Path("scripts/verify_a2_preservation.py").read_text())
 

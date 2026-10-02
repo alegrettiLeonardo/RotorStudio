@@ -1,0 +1,108 @@
+{
+  "cases": [
+    {
+      "bending_stiffness_n": 38000,
+      "coupling": "flex",
+      "id": "C1F01",
+      "input_torque_nm": 0,
+      "load_torque_nm": 0,
+      "mis_angle_rad": 0.08726646259971647,
+      "mis_distance_x_m": 0.0002,
+      "mis_distance_y_m": 0.00015,
+      "mis_type": "parallel",
+      "radial_stiffness_n_m": 40000
+    },
+    {
+      "bending_stiffness_n": 38000,
+      "coupling": "flex",
+      "id": "C1F02",
+      "input_torque_nm": 0,
+      "load_torque_nm": 0,
+      "mis_angle_rad": 0.08726646259971647,
+      "mis_distance_x_m": 0.0002,
+      "mis_distance_y_m": 0.00015,
+      "mis_type": "angular",
+      "radial_stiffness_n_m": 40000
+    },
+    {
+      "bending_stiffness_n": 38000,
+      "coupling": "flex",
+      "id": "C1F03",
+      "input_torque_nm": 0,
+      "load_torque_nm": 0,
+      "mis_angle_rad": 0.08726646259971647,
+      "mis_distance_x_m": 0.0002,
+      "mis_distance_y_m": 0.00015,
+      "mis_type": "combined",
+      "radial_stiffness_n_m": 40000
+    },
+    {
+      "coupling": "rigid",
+      "id": "C1R01",
+      "input_torque_nm": 0,
+      "load_torque_nm": 0,
+      "mis_distance_m": 0.0002
+    },
+    {
+      "coupling": "rigid",
+      "id": "C1R02",
+      "input_torque_nm": 12,
+      "load_torque_nm": 5,
+      "mis_distance_m": 0.0001
+    }
+  ],
+  "model": {
+    "E_pa": 211000000000,
+    "G_pa": 81200000000,
+    "bearings": [
+      {
+        "cxx_ns_m": 120,
+        "cyy_ns_m": 150,
+        "kxx_n_m": 800000,
+        "kyy_n_m": 1100000,
+        "node_ross": 0
+      },
+      {
+        "cxx_ns_m": 130,
+        "cyy_ns_m": 160,
+        "kxx_n_m": 900000,
+        "kyy_n_m": 1250000,
+        "node_ross": 3
+      }
+    ],
+    "coupling_element_ross": 1,
+    "disk": {
+      "Id_kg_m2": 0.0075,
+      "Ip_kg_m2": 0.014,
+      "m_kg": 4.5,
+      "node_ross": 2
+    },
+    "inner_diameter_m": 0,
+    "lengths_m": [
+      0.22,
+      0.18,
+      0.24
+    ],
+    "outer_diameter_m": 0.04,
+    "rho_kg_m3": 7810
+  },
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "schema": 1,
+  "transient": {
+    "beta": 0.25,
+    "dt_s": 0.0005,
+    "gamma": 0.5,
+    "observation_node_ross": 2,
+    "speed_rad_s": 125.66370614359172,
+    "time_start_s": 0,
+    "time_stop_s": 0.1,
+    "tol": 1e-09,
+    "unbalance": [
+      {
+        "magnitude_kg_m": 0.00015,
+        "node_ross": 2,
+        "phase_rad": -1.5707963267948966
+      }
+    ]
+  }
+}

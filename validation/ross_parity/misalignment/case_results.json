@@ -1,0 +1,77 @@
+[
+  {
+    "coupling": "flex",
+    "id": "C1F01",
+    "max_abs_displacement": 2.0348408627997896e-05,
+    "max_abs_misalignment_force": 14.033794565781474,
+    "mis_type": "parallel",
+    "n_time": 201,
+    "ndof": 24,
+    "rigid_parameters": [
+      NaN,
+      NaN,
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "coupling": "flex",
+    "id": "C1F02",
+    "max_abs_displacement": 1.1387143271452446e-05,
+    "max_abs_misalignment_force": 5.004374351662472,
+    "mis_type": "angular",
+    "n_time": 201,
+    "ndof": 24,
+    "rigid_parameters": [
+      NaN,
+      NaN,
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "coupling": "flex",
+    "id": "C1F03",
+    "max_abs_displacement": 2.1405480186999835e-05,
+    "max_abs_misalignment_force": 16.069541151381923,
+    "mis_type": "combined",
+    "n_time": 201,
+    "ndof": 24,
+    "rigid_parameters": [
+      NaN,
+      NaN,
+      NaN,
+      NaN
+    ]
+  },
+  {
+    "coupling": "rigid",
+    "id": "C1R01",
+    "max_abs_displacement": 0.017366882057876756,
+    "max_abs_misalignment_force": 14771.89596497696,
+    "mis_type": null,
+    "n_time": 201,
+    "ndof": 24,
+    "rigid_parameters": [
+      77070505.49568062,
+      70905317.36312565,
+      206139.2512900939,
+      198409.02936671537
+    ]
+  },
+  {
+    "coupling": "rigid",
+    "id": "C1R02",
+    "max_abs_displacement": 0.008683554112015709,
+    "max_abs_misalignment_force": 7385.947982491509,
+    "mis_type": null,
+    "n_time": 201,
+    "ndof": 24,
+    "rigid_parameters": [
+      77070505.49568062,
+      70905317.36312565,
+      206139.2512900939,
+      198409.02936671537
+    ]
+  }
+]

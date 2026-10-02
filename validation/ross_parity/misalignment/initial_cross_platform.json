@@ -1,0 +1,376 @@
+{
+  "array_count": 60,
+  "rows": [
+    {
+      "file": "cases/C1F01/alpha.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/base_force.npy",
+      "group": "base_force",
+      "max_abs": 4.440892098500626e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/fft_amplitude.npy",
+      "group": "fft_amplitude",
+      "max_abs": 1.1329065669526267e-20,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/fft_frequency_hz.npy",
+      "group": "fft_frequency",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/misalignment_force.npy",
+      "group": "misalignment_force",
+      "max_abs": 1.7763568394002505e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/omega.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/orbit.npy",
+      "group": "orbit",
+      "max_abs": 4.5528020914918643e-20,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/q.npy",
+      "group": "displacement",
+      "max_abs": 1.5246593050577406e-19,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/rigid_parameters.npy",
+      "group": "rigid_parameters",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/theta.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/time.npy",
+      "group": "time",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F01/total_force.npy",
+      "group": "total_force",
+      "max_abs": 3.552713678800501e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/alpha.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/base_force.npy",
+      "group": "base_force",
+      "max_abs": 4.440892098500626e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/fft_amplitude.npy",
+      "group": "fft_amplitude",
+      "max_abs": 7.22624983126325e-21,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/fft_frequency_hz.npy",
+      "group": "fft_frequency",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/misalignment_force.npy",
+      "group": "misalignment_force",
+      "max_abs": 8.881784197001252e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/omega.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/orbit.npy",
+      "group": "orbit",
+      "max_abs": 5.537477892674988e-20,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/q.npy",
+      "group": "displacement",
+      "max_abs": 1.2959604092990795e-19,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/rigid_parameters.npy",
+      "group": "rigid_parameters",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/theta.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/time.npy",
+      "group": "time",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F02/total_force.npy",
+      "group": "total_force",
+      "max_abs": 8.881784197001252e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/alpha.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/base_force.npy",
+      "group": "base_force",
+      "max_abs": 4.440892098500626e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/fft_amplitude.npy",
+      "group": "fft_amplitude",
+      "max_abs": 1.3817224952085774e-20,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/fft_frequency_hz.npy",
+      "group": "fft_frequency",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/misalignment_force.npy",
+      "group": "misalignment_force",
+      "max_abs": 1.7763568394002505e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/omega.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/orbit.npy",
+      "group": "orbit",
+      "max_abs": 4.404571325722362e-20,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/q.npy",
+      "group": "displacement",
+      "max_abs": 1.6940658945086007e-19,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/rigid_parameters.npy",
+      "group": "rigid_parameters",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/theta.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/time.npy",
+      "group": "time",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1F03/total_force.npy",
+      "group": "total_force",
+      "max_abs": 1.7763568394002505e-15,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/alpha.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/base_force.npy",
+      "group": "base_force",
+      "max_abs": 4.440892098500626e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/fft_amplitude.npy",
+      "group": "fft_amplitude",
+      "max_abs": 1.723881454251952e-17,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/fft_frequency_hz.npy",
+      "group": "fft_frequency",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/misalignment_force.npy",
+      "group": "misalignment_force",
+      "max_abs": 9.094947017729282e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/omega.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/orbit.npy",
+      "group": "orbit",
+      "max_abs": 4.2500725161431774e-17,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/q.npy",
+      "group": "displacement",
+      "max_abs": 1.233822072288504e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/rigid_parameters.npy",
+      "group": "rigid_parameters",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/theta.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/time.npy",
+      "group": "time",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R01/total_force.npy",
+      "group": "total_force",
+      "max_abs": 9.094947017729282e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/alpha.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/base_force.npy",
+      "group": "base_force",
+      "max_abs": 4.440892098500626e-16,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/fft_amplitude.npy",
+      "group": "fft_amplitude",
+      "max_abs": 3.734991780917837e-18,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/fft_frequency_hz.npy",
+      "group": "fft_frequency",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/misalignment_force.npy",
+      "group": "misalignment_force",
+      "max_abs": 9.094947017729282e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/omega.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/orbit.npy",
+      "group": "orbit",
+      "max_abs": 2.1141942363467336e-17,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/q.npy",
+      "group": "displacement",
+      "max_abs": 7.806255641895632e-17,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/rigid_parameters.npy",
+      "group": "rigid_parameters",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/theta.npy",
+      "group": "theta",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/time.npy",
+      "group": "time",
+      "max_abs": 0.0,
+      "status": "PASS"
+    },
+    {
+      "file": "cases/C1R02/total_force.npy",
+      "group": "total_force",
+      "max_abs": 9.094947017729282e-13,
+      "status": "PASS"
+    },
+    {
+      "file": "cases.json",
+      "group": "metadata",
+      "status": "PASS"
+    },
+    {
+      "file": "source_provenance.json",
+      "group": "metadata",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

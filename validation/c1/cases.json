@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "model": {
+    "lengths_m": [
+      0.22,
+      0.18,
+      0.24
+    ],
+    "outer_diameter_m": 0.04,
+    "inner_diameter_m": 0,
+    "rho_kg_m3": 7810,
+    "E_pa": 211000000000,
+    "G_pa": 81200000000,
+    "disk": {
+      "node_ross": 2,
+      "m_kg": 4.5,
+      "Id_kg_m2": 0.0075,
+      "Ip_kg_m2": 0.014
+    },
+    "bearings": [
+      {
+        "node_ross": 0,
+        "kxx_n_m": 800000,
+        "kyy_n_m": 1100000,
+        "cxx_ns_m": 120,
+        "cyy_ns_m": 150
+      },
+      {
+        "node_ross": 3,
+        "kxx_n_m": 900000,
+        "kyy_n_m": 1250000,
+        "cxx_ns_m": 130,
+        "cyy_ns_m": 160
+      }
+    ],
+    "coupling_element_ross": 1
+  },
+  "transient": {
+    "speed_rad_s": 125.66370614359172,
+    "time_start_s": 0,
+    "time_stop_s": 0.1,
+    "dt_s": 0.0005,
+    "gamma": 0.5,
+    "beta": 0.25,
+    "tol": 1e-9,
+    "unbalance": [
+      {
+        "node_ross": 2,
+        "magnitude_kg_m": 0.00015,
+        "phase_rad": -1.5707963267948966
+      }
+    ],
+    "observation_node_ross": 2
+  },
+  "cases": [
+    {
+      "id": "C1F01",
+      "coupling": "flex",
+      "mis_type": "parallel",
+      "mis_distance_x_m": 0.0002,
+      "mis_distance_y_m": 0.00015,
+      "mis_angle_rad": 0.08726646259971647,
+      "radial_stiffness_n_m": 40000,
+      "bending_stiffness_n": 38000,
+      "input_torque_nm": 0,
+      "load_torque_nm": 0
+    },
+    {
+      "id": "C1F02",
+      "coupling": "flex",
+      "mis_type": "angular",
+      "mis_distance_x_m": 0.0002,
+      "mis_distance_y_m": 0.00015,
+      "mis_angle_rad": 0.08726646259971647,
+      "radial_stiffness_n_m": 40000,
+      "bending_stiffness_n": 38000,
+      "input_torque_nm": 0,
+      "load_torque_nm": 0
+    },
+    {
+      "id": "C1F03",
+      "coupling": "flex",
+      "mis_type": "combined",
+      "mis_distance_x_m": 0.0002,
+      "mis_distance_y_m": 0.00015,
+      "mis_angle_rad": 0.08726646259971647,
+      "radial_stiffness_n_m": 40000,
+      "bending_stiffness_n": 38000,
+      "input_torque_nm": 0,
+      "load_torque_nm": 0
+    },
+    {
+      "id": "C1R01",
+      "coupling": "rigid",
+      "mis_distance_m": 0.0002,
+      "input_torque_nm": 0,
+      "load_torque_nm": 0
+    },
+    {
+      "id": "C1R02",
+      "coupling": "rigid",
+      "mis_distance_m": 0.0001,
+      "input_torque_nm": 12,
+      "load_torque_nm": 5
+    }
+  ]
+}

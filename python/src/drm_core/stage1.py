@@ -22,12 +22,17 @@ from .analysis.coaxial import run_coaxial_modal,run_coaxial_frequency_response
 from .analysis.asymmetric import run_asymmetric_modal,run_asymmetric_frequency_response
 from .analysis.transient import run_foundation_time_response,run_runup
 from .analysis.axial_torsional import run_axial_modal,run_torsional_modal,run_axial_sweep,run_torsional_sweep
+from .analysis.misalignment import run_misalignment
 
 _B3_ANALYSIS_RUNNERS = {
     "axial_modal": run_axial_modal,
     "torsional_modal": run_torsional_modal,
     "axial_sweep": run_axial_sweep,
     "torsional_sweep": run_torsional_sweep,
+}
+
+_C1_ANALYSIS_RUNNERS = {
+    "misalignment": run_misalignment,
 }
 
 def _canonical(v:Any):
@@ -111,6 +116,8 @@ class AnalysisService:
         p=dict(case.parameters);k=case.kind.strip().lower();lib=self.library_path
         if k in _B3_ANALYSIS_RUNNERS:
             result=_B3_ANALYSIS_RUNNERS[k](model,library_path=lib,**p)
+        elif k in _C1_ANALYSIS_RUNNERS:
+            result=_C1_ANALYSIS_RUNNERS[k](model,library_path=lib,**p)
         elif k=="ucs": result=run_ucs(model,library_path=lib,**p)
         elif k=="level1": result=run_level1(model,library_path=lib,**p)
         elif k=="api617_unbalance": result=run_api617_unbalance(model,library_path=lib,**p)

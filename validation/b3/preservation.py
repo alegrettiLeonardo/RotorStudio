@@ -11,6 +11,7 @@ import subprocess
 ROOT=Path(__file__).resolve().parents[2]
 B2_PROMOTED_MAIN="c23a5e515480fa28fb6dd770fca235b73dd0198a"
 B3_AUTHORITY_FREEZE="e4fda44cba1dd29696c67be449fa560440d9ebc0"
+C1_MARKER=ROOT/"validation/c1/preservation.py"
 
 B2_IMMUTABLE_PATHS=(
     "fortran/src/rd_shaft_6dof.f90",
@@ -111,22 +112,40 @@ def verify()->dict:
         status,path=fields
         if status=="A":
             if not allowed_addition(path):
-                raise ValueError("B3 unapproved additive path: "+path)
+                if C1_MARKER.is_file():
+                    from validation.c1.preservation import allowed_addition as c1_allowed_addition
+                    if not c1_allowed_addition(path):
+                        raise ValueError("B3/C1 unapproved additive path: "+path)
+                else:
+                    raise ValueError("B3 unapproved additive path: "+path)
         elif status=="M":
             if path not in B3_EXISTING_ADAPTERS:
-                raise ValueError("B3 modified unapproved promoted-B2 path: "+path)
+                if C1_MARKER.is_file():
+                    from validation.c1.preservation import C1_EXISTING_ADAPTERS
+                    if path not in C1_EXISTING_ADAPTERS:
+                        raise ValueError("B3/C1 modified unapproved promoted-B2 path: "+path)
+                else:
+                    raise ValueError("B3 modified unapproved promoted-B2 path: "+path)
         else:
             raise ValueError("B3 unsupported promoted-main delta: "+row)
 
     for path,expected in B3_EXISTING_ADAPTERS.items():
+        if C1_MARKER.is_file():
+            from validation.c1.preservation import C1_EXISTING_ADAPTERS
+            if path in C1_EXISTING_ADAPTERS:
+                continue
         actual=git("hash-object",path).decode().strip()
         if actual!=expected:
             raise ValueError(f"B3 adapter bytes changed: {path}: {actual} != {expected}")
 
     before=git("show",f"{B2_PROMOTED_MAIN}:fortran/CMakeLists.txt")
     after=git("show","HEAD:fortran/CMakeLists.txt")
-    if after!=before+B3_CMAKE_APPEND:
-        raise ValueError("B3 CMake integration differs from the exact additive suffix")
+    expected=before+B3_CMAKE_APPEND
+    if C1_MARKER.is_file():
+        from validation.c1.preservation import C1_CMAKE_APPEND
+        expected=expected+C1_CMAKE_APPEND
+    if after!=expected:
+        raise ValueError("B3/C1 CMake integration differs from the exact additive suffix")
 
     return {
         "status":"PASS",

@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "status": "PRE_FREEZE_FIXED",
+  "rationale": "Fixed before native C1 production code. Bounds separate direct fault-force parity from transient integration and cross-platform floating-point sensitivity.",
+  "groups": {
+    "time": {
+      "rtol": 0,
+      "atol": 0
+    },
+    "theta": {
+      "rtol": 2e-14,
+      "atol": 2e-14
+    },
+    "base_force": {
+      "rtol": 2e-12,
+      "atol": 1e-9
+    },
+    "misalignment_force": {
+      "rtol": 2e-11,
+      "atol": 2e-8
+    },
+    "total_force": {
+      "rtol": 2e-11,
+      "atol": 2e-8
+    },
+    "displacement": {
+      "rtol": 2e-7,
+      "atol": 2e-10
+    },
+    "orbit": {
+      "rtol": 2e-7,
+      "atol": 2e-10
+    },
+    "fft_frequency": {
+      "rtol": 0,
+      "atol": 1e-12
+    },
+    "fft_amplitude": {
+      "rtol": 5e-7,
+      "atol": 2e-10
+    },
+    "rigid_parameters": {
+      "rtol": 2e-11,
+      "atol": 1e-7
+    }
+  },
+  "independent": {
+    "max_newmark_equation_scaled_residual": 1e-8,
+    "min_dt_refinement_ratio": 1.8,
+    "force_action_reaction_atol_n": 1e-9
+  },
+  "notes": [
+    "The ROSS fault formulas are compared directly before response integration.",
+    "Transient parity is not used to hide a wrong force law.",
+    "No tolerance may be relaxed after the authority freeze to obtain native PASS."
+  ]
+}
