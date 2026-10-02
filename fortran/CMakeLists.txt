@@ -189,6 +189,19 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 endif()
 add_test(NAME irdin_support_global_matrix_contract COMMAND test_irdin_support_global)
 
+# I18 API 541 torsional free-train matrices and modal kernel.
+# Separate from the lateral/iRdin expanded-support solver.
+target_sources(drmrotor PRIVATE
+ src/rd_api541_torsional.f90
+ src/rd_api541_torsional_c_api.f90)
+add_executable(test_api541_torsional tests/test_api541_torsional.f90)
+target_link_libraries(test_api541_torsional PRIVATE drmrotor)
+target_include_directories(test_api541_torsional PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_api541_torsional PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME api541_torsional_native_contract COMMAND test_api541_torsional)
+
 # I9 expanded iRdin modal and synchronous response solvers.
 target_sources(drmrotor PRIVATE
  src/rd_irdin_support_analysis.f90
