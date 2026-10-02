@@ -47,6 +47,11 @@ from .analysis.level1 import Level1Result,run_level1
 from .analysis.api617_unbalance import API617UnbalanceResult,run_api617_unbalance
 
 from .analysis.clearance import ClearanceResult,run_clearance
+from .analysis.api541_torsional_contract import (
+    API541TorsionalInputError,API541TorsionalModel,TorsionalStation,
+    TorsionalConnection,TorsionalExcitation,validate_api541_torsional_model,
+    torsional_model_from_irdin,
+)
 
 from .solver.sixdof_global import (
     SixDOFGlobalMatrices,SixDOFModalResult,SixDOFCampbellResult,
