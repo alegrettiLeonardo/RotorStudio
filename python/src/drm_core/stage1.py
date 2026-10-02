@@ -21,6 +21,7 @@ from .analysis.critical_speed import run_critical_speeds
 from .analysis.coaxial import run_coaxial_modal,run_coaxial_frequency_response
 from .analysis.asymmetric import run_asymmetric_modal,run_asymmetric_frequency_response
 from .analysis.transient import run_foundation_time_response,run_runup
+from .analysis.axial_torsional import run_axial_modal,run_torsional_modal,run_axial_sweep,run_torsional_sweep
 
 def _canonical(v:Any):
     if isinstance(v,dict): return {str(k):_canonical(v[k]) for k in sorted(v)}
@@ -110,6 +111,10 @@ class AnalysisService:
         elif k=="general_frf": result=run_general_frf(model,library_path=lib,**p)
         elif k=="static": result=run_static(model,library_path=lib,**p)
         elif k=="modal": result=run_modal(model,library_path=lib,**p)
+        elif k=="axial_modal": result=run_axial_modal(model,library_path=lib,**p)
+        elif k=="torsional_modal": result=run_torsional_modal(model,library_path=lib,**p)
+        elif k=="axial_sweep": result=run_axial_sweep(model,library_path=lib,**p)
+        elif k=="torsional_sweep": result=run_torsional_sweep(model,library_path=lib,**p)
         elif k=="modal_sweep":
             speeds=np.asarray(p.pop("speeds_rad_s"),float)
             result=[]
