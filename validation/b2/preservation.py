@@ -11,6 +11,7 @@ import subprocess
 ROOT=Path(__file__).resolve().parents[2]
 B1_PROMOTED_MAIN="d44ad24590f984e3f0655c427fcbf39be94a6da6"
 B3_MARKER=ROOT/"validation/b3/preservation.py"
+C1_MARKER=ROOT/"validation/c1/preservation.py"
 
 B1_IMMUTABLE_PATHS=(
     "fortran/src/rd_shaft_6dof.f90",
@@ -97,8 +98,11 @@ def verify() -> dict:
     if B3_MARKER.is_file():
         from validation.b3.preservation import B3_CMAKE_APPEND
         expected=expected+B3_CMAKE_APPEND
+    if C1_MARKER.is_file():
+        from validation.c1.preservation import C1_CMAKE_APPEND
+        expected=expected+C1_CMAKE_APPEND
     if after != expected:
-        raise ValueError("B2/B3 CMake integration differs from the exact additive suffix")
+        raise ValueError("B2/B3/C1 CMake integration differs from the exact additive suffix")
     return {
         "status":"PASS",
         "b1_promoted_main":B1_PROMOTED_MAIN,
