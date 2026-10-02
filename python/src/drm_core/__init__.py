@@ -55,6 +55,10 @@ from .analysis.api541_torsional_contract import (
 from .solver.api541_torsional_native import (
     API541TorsionalModalResult,run_api541_torsional_modes,
 )
+from .analysis.api541_torsional_response import (
+    API541TorsionalSeparationCheck,API541TorsionalResponseResult,
+    run_api541_torsional_response,
+)
 
 from .solver.sixdof_global import (
     SixDOFGlobalMatrices,SixDOFModalResult,SixDOFCampbellResult,
