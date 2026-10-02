@@ -1,0 +1,55 @@
+name: iRdin I17 API541 Torsional Contract Qualification
+
+on:
+  push:
+    branches: [feature/irdin-api541-dynamics]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - shell: bash
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - if: runner.os == 'Linux'
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE/python/src:$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+      - if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $value = "$env:GITHUB_WORKSPACE\python\src;$env:GITHUB_WORKSPACE"
+          "PYTHONPATH=$value" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - run: |
+          python -m pip install -e "./python[test]"
+          python -m pip check
+      - name: I17 torsional input contract and inherited iRdin regressions
+        run: >-
+          python -m pytest
+          python/tests_irdin/test_i17_api541_torsional_contract.py
+          python/tests_irdin
+          -q
+          --junitxml=irdin-i17-${{ runner.os }}.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: irdin-i17-${{ runner.os }}-${{ github.sha }}
+          path: irdin-i17-${{ runner.os }}.xml
+          if-no-files-found: error
+          retention-days: 30
