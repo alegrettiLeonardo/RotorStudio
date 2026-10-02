@@ -175,3 +175,15 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
  target_compile_options(test_axial_torsional PRIVATE -ffree-line-length-none)
 endif()
 add_test(NAME axial_torsional_native_contract COMMAND test_axial_torsional)
+
+# C1 additive 6-DOF misalignment fault dynamics on the promoted B3 platform.
+target_sources(drmrotor PRIVATE
+ src/rd_fault_misalignment.f90
+ src/rd_fault_misalignment_c_api.f90)
+add_executable(test_fault_misalignment tests/test_fault_misalignment.f90)
+target_link_libraries(test_fault_misalignment PRIVATE drmrotor)
+target_include_directories(test_fault_misalignment PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_fault_misalignment PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME misalignment_native_contract COMMAND test_fault_misalignment)
