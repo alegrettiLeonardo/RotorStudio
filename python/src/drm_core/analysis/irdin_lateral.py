@@ -11,7 +11,7 @@ import math
 from pathlib import Path
 import numpy as np
 
-from drm_core.domain.model import RotorModel, ResponseProbe
+from drm_core.domain.model import Disk, RotorModel, ResponseProbe
 from drm_core.domain.bearings import CoefficientBearing
 from drm_core.solver.facade import SolverFacade
 from drm_core.solver.irdin_support_global import (
@@ -72,10 +72,18 @@ def build_expanded_state(project, speed_rad_s: float, *, library_path: str|Path|
     if not math.isfinite(speed) or speed<0:
         raise ValueError("I9 rotor speed must be finite and >= 0")
     model=project.model
+    rotor_disks=list(model.disks)
+    for coupling in model.half_couplings:
+        rotor_disks.append(Disk.inertial(
+            coupling.node,
+            coupling.mass_kg,
+            coupling.diametral_inertia_kgm2,
+            coupling.polar_inertia_kgm2,
+        ))
     rotor=RotorModel(
         nodes=list(model.nodes),
         shafts=list(model.shafts),
-        disks=list(model.disks),
+        disks=rotor_disks,
     )
     facade=SolverFacade(library_path)
     # Existing native assembly returns (M,C,K,G); C already contains Omega*G.

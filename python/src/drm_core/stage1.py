@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 import hashlib,json,os,platform,sys
 import numpy as np
-from .domain.model import RotorModel, RotorMassSpan, BearingSupport, ResponseProbe
+from .domain.model import RotorModel, RotorMassSpan, BearingSupport, ResponseProbe, HalfCoupling
 from .domain.bearings import advanced_bearing_to_dict, advanced_bearing_from_dict
 from .analysis.static import run_static
 from .analysis.general_frf import run_general_frf
@@ -206,11 +206,13 @@ def _legacy_payload(m:RotorModel):
         payload["supports"]=[asdict(x) for x in m.supports]
     if m.probes:
         payload["probes"]=[asdict(x) for x in m.probes]
+    if m.half_couplings:
+        payload["half_couplings"]=[asdict(x) for x in m.half_couplings]
     return payload
 
 def save_project(project:RotorProject,path):
     p=Path(path);p.parent.mkdir(parents=True,exist_ok=True)
-    schema_version=5 if project.model.probes else (4 if project.model.supports else (3 if project.model.mass_spans else (2 if project.model.advanced_bearings else 1)))
+    schema_version=6 if project.model.half_couplings else (5 if project.model.probes else (4 if project.model.supports else (3 if project.model.mass_spans else (2 if project.model.advanced_bearings else 1))))
     p.write_text(json.dumps({"schema_version":schema_version,"name":project.name,"created_utc":project.created_utc,"metadata":project.metadata,
                              "model":_legacy_payload(project.model),"analyses":[a.canonical_dict() for a in project.analyses]},indent=2,sort_keys=True))
     return p
@@ -222,6 +224,7 @@ def load_project(path):
     model.mass_spans=[RotorMassSpan(**x) for x in m.get("mass_spans",[])]
     model.supports=[BearingSupport(**x) for x in m.get("supports",[])]
     model.probes=[ResponseProbe(**x) for x in m.get("probes",[])]
+    model.half_couplings=[HalfCoupling(**x) for x in m.get("half_couplings",[])]
     cases=[AnalysisCase(x["kind"],x.get("parameters",{}),x.get("name",""),x.get("options",{})) for x in d.get("analyses",[])]
     return RotorProject(d.get("name","Rotor project"),model,cases,d.get("metadata",{}),d.get("created_utc",""))
 

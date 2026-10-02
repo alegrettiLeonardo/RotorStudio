@@ -108,6 +108,16 @@ class ResponseProbe:
     provenance:dict=field(default_factory=dict)
 
 @dataclass(frozen=True)
+class HalfCoupling:
+    """Explicit motor half-coupling contribution for API 541 lateral dynamics."""
+    node:int
+    mass_kg:float
+    diametral_inertia_kgm2:float
+    polar_inertia_kgm2:float
+    tag:str="Motor half coupling"
+    provenance:dict=field(default_factory=dict)
+
+@dataclass(frozen=True)
 class BendPoint:
     node:int; x_m:float; y_m:float=0.0
 
@@ -129,6 +139,7 @@ class RotorModel:
     mass_spans:list[RotorMassSpan]=field(default_factory=list)
     supports:list[BearingSupport]=field(default_factory=list)
     probes:list[ResponseProbe]=field(default_factory=list)
+    half_couplings:list[HalfCoupling]=field(default_factory=list)
     @classmethod
     def from_legacy_arrays(cls,node,shaft,disc,bearing,force=None,bend=None,rotors=None)->"RotorModel":
         nodes=[Node(int(r[0]),float(r[1])) for r in node]
@@ -181,6 +192,8 @@ class RotorModel:
             payload["supports"]=[d(x) for x in self.supports]
         if self.probes:
             payload["probes"]=[d(x) for x in self.probes]
+        if self.half_couplings:
+            payload["half_couplings"]=[d(x) for x in self.half_couplings]
         return payload
     def model_hash(self)->str:
         return hashlib.sha256(json.dumps(self.canonical_dict(),sort_keys=True,separators=(",",":"),default=list).encode()).hexdigest()

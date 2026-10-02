@@ -124,6 +124,19 @@ def _disk_mass_centroid(model:RotorModel):
     return out
 
 
+def _half_coupling_mass_centroid(model:RotorModel):
+    z={int(n.number):float(n.z_m) for n in model.nodes}
+    out=[]
+    for coupling in model.half_couplings:
+        if int(coupling.node) not in z:
+            raise ValueError("I12 half coupling references a missing node")
+        mass=float(coupling.mass_kg)
+        if not math.isfinite(mass) or mass<=0.0:
+            raise ValueError("I12 half-coupling mass must be finite and > 0")
+        out.append((mass,z[int(coupling.node)]))
+    return out
+
+
 def journal_static_loads_kg(project)->tuple[API541JournalLoad,...]:
     supports=list(project.model.supports)
     if len(supports)!=2:
@@ -135,7 +148,8 @@ def journal_static_loads_kg(project)->tuple[API541JournalLoad,...]:
     if not z2>z1:
         raise ValueError("I12 support stations must be distinct")
 
-    masses=_shaft_mass_centroid(project.model)+_disk_mass_centroid(project.model)
+    masses=(_shaft_mass_centroid(project.model)+_disk_mass_centroid(project.model)+
+            _half_coupling_mass_centroid(project.model))
     total=sum(m for m,_ in masses)
     moment=sum(m*(zz-z1) for m,zz in masses)
     if not math.isfinite(total) or total<=0.0:
