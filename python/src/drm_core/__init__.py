@@ -52,6 +52,9 @@ from .analysis.api541_torsional_contract import (
     TorsionalConnection,TorsionalExcitation,validate_api541_torsional_model,
     torsional_model_from_irdin,
 )
+from .solver.api541_torsional_native import (
+    API541TorsionalModalResult,run_api541_torsional_modes,
+)
 
 from .solver.sixdof_global import (
     SixDOFGlobalMatrices,SixDOFModalResult,SixDOFCampbellResult,
