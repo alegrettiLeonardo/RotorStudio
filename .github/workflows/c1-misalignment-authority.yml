@@ -1,9 +1,13 @@
-name: Freeze C1 Misalignment ROSS Authority
+name: Reproduce C1 Misalignment ROSS Authority
 
 on:
   push:
     branches: [feature/ross-analysis-c1-misalignment]
   workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
 
 env:
   OPENBLAS_NUM_THREADS: '1'
@@ -13,11 +17,7 @@ env:
 
 jobs:
   candidate:
-    if: github.actor != 'github-actions[bot]'
-    permissions:
-      contents: read
-      actions: read
-    name: C1 pre-freeze ROSS authority / ${{ matrix.os }}
+    name: C1 frozen authority reproduction / ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -50,9 +50,10 @@ jobs:
         run: |
           python -m pip install -e ./_ross_c1
           python -m pip check
-      - name: Generate authority candidate
+      - name: Reproduce candidate
         run: |
           python validation/ross_parity/generate_misalignment_reference.py             --ross-root _ross_c1 --out c1-evidence/candidate
+          python validation/ross_parity/verify_misalignment_candidate.py             --reference validation/ross_parity/misalignment             --candidate c1-evidence/candidate             --report c1-evidence/frozen-reproduction.json
       - name: Independent repeat
         run: |
           python validation/ross_parity/generate_misalignment_reference.py             --ross-root _ross_c1 --out c1-evidence/repeat
@@ -65,21 +66,22 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-  freeze:
-    if: github.actor != 'github-actions[bot]'
-    permissions:
-      contents: write
-      actions: read
-    name: Freeze reviewed C1 authority
+  aggregate:
+    name: C1 frozen authority aggregate
     needs: candidate
+    if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
+      - name: Require both candidate platforms
+        env:
+          RESULT: ${{ needs.candidate.result }}
+        run: test "$RESULT" = success
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
-          persist-credentials: true
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -91,14 +93,14 @@ jobs:
       - name: Compare Linux and Windows candidates
         run: |
           python validation/ross_parity/verify_misalignment_candidate.py             --reference "c1-platforms/c1-authority-ubuntu-24.04-${GITHUB_SHA}/candidate"             --candidate "c1-platforms/c1-authority-windows-2025-${GITHUB_SHA}/candidate"             --report c1-cross-platform.json
-      - name: Freeze canonical Linux authority before production
+      - name: Assert frozen authority immutability
         run: |
-          cp c1-cross-platform.json "c1-platforms/c1-authority-ubuntu-24.04-${GITHUB_SHA}/candidate/initial_cross_platform.json"
-          python validation/c1/freeze_authority.py             --candidate "c1-platforms/c1-authority-ubuntu-24.04-${GITHUB_SHA}/candidate"             --cross-platform c1-cross-platform.json
-      - name: Commit immutable authority freeze
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add validation/ross_parity/misalignment
-          git commit -m "C1: freeze ROSS misalignment authority before production"
-          git push origin HEAD:feature/ross-analysis-c1-misalignment
+          git diff --exit-code b45bbaa5ec91ca004643142e83f75d0c13f7a8ea HEAD -- validation/ross_parity/misalignment
+          test -z "$(git status --porcelain --untracked-files=all validation/ross_parity/misalignment)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: c1-authority-aggregate-${{ github.sha }}
+          path: c1-cross-platform.json
+          if-no-files-found: error
+          retention-days: 90
