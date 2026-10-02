@@ -202,6 +202,18 @@ if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 endif()
 add_test(NAME api541_torsional_native_contract COMMAND test_api541_torsional)
 
+# I19 harmonic torsional response using the I18 free-train matrices.
+target_sources(drmrotor PRIVATE
+ src/rd_api541_torsional_response.f90
+ src/rd_api541_torsional_response_c_api.f90)
+add_executable(test_api541_torsional_response tests/test_api541_torsional_response.f90)
+target_link_libraries(test_api541_torsional_response PRIVATE drmrotor)
+target_include_directories(test_api541_torsional_response PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+ target_compile_options(test_api541_torsional_response PRIVATE -ffree-line-length-none)
+endif()
+add_test(NAME api541_torsional_response_native_contract COMMAND test_api541_torsional_response)
+
 # I9 expanded iRdin modal and synchronous response solvers.
 target_sources(drmrotor PRIVATE
  src/rd_irdin_support_analysis.f90
