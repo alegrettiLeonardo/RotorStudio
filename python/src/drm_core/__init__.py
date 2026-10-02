@@ -47,3 +47,8 @@ from .analysis.level1 import Level1Result,run_level1
 from .analysis.api617_unbalance import API617UnbalanceResult,run_api617_unbalance
 
 from .analysis.clearance import ClearanceResult,run_clearance
+
+from .solver.sixdof_global import (
+    SixDOFGlobalMatrices,SixDOFModalResult,SixDOFCampbellResult,
+    assemble_6dof,run_modal_6dof,run_campbell_6dof,
+)

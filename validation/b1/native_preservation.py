@@ -61,6 +61,16 @@ ADAPTED_FILES=frozenset({'fortran/CMakeLists.txt','scripts/verify_a1_legacy_pres
 MODIFIED_FILES=ADAPTED_FILES
 ARTIFACT_ROOTS=frozenset({'review','b1-evidence','b1-native-evidence','b1-native-preflight',
                          'b1-platform-artifacts','b1-aggregate-evidence','_ross_b1'})
+B1_PROMOTED_MAIN='d44ad24590f984e3f0655c427fcbf39be94a6da6'
+B2_MARKER=ROOT/'validation/b2/preservation.py'
+B2_EXISTING_ADAPTERS=frozenset({
+    'fortran/CMakeLists.txt',
+    'python/src/drm_core/__init__.py',
+    'python/src/drm_core/solver/facade.py',
+    'python/tests_ucs/test_ucs_bearing_order_authority.py',
+    'scripts/verify_a1_legacy_preservation.py',
+})
+
 CMAKE_APPEND=b'''\n# B1 isolated 6-DOF element kernels. Existing A1-A8 dispatch is unchanged.
 target_sources(drmrotor PRIVATE
  src/rd_shaft_6dof.f90
@@ -94,6 +104,9 @@ def one_replace(data,old,new):
 
 
 def expected_adaptation(path,before):
+    if B2_MARKER.is_file() and path in B2_EXISTING_ADAPTERS:
+        verify_b2_inheritance()
+        return (ROOT/path).read_bytes()
     if path=='fortran/CMakeLists.txt': return before+CMAKE_APPEND
     if path=='scripts/verify_a1_legacy_preservation.py':
         old=(b" # A8 close-clearance remains additive to the promoted A7 implementation.\n"
@@ -171,10 +184,42 @@ def baseline_entries(root_string):
     return result
 
 
+@functools.lru_cache(maxsize=1)
+def b2_added_paths():
+    if not B2_MARKER.is_file():
+        return frozenset()
+    rows=git(ROOT,'diff','--no-renames','--name-status',B1_PROMOTED_MAIN,'HEAD').decode().splitlines()
+    added=set()
+    for row in rows:
+        fields=row.split('\t')
+        require(len(fields)==2,'Unexpected B2 diff record: '+row)
+        status,path=fields
+        if status=='A':
+            added.add(path)
+        elif status=='M':
+            require(path in B2_EXISTING_ADAPTERS or path=='validation/b1/native_preservation.py',
+                    'B2 modified unapproved promoted-B1 path: '+path)
+        else:
+            raise ValueError('B2 contains unsupported promoted-main delta: '+row)
+    return frozenset(added)
+
+
+def verify_b2_inheritance():
+    if not B2_MARKER.is_file():
+        return None
+    from validation.b2.preservation import verify as verify_b2
+    result=verify_b2()
+    require(result.get('status')=='PASS','B2 preservation gate did not pass')
+    return result
+
+
 def approve_change(path,before,after):
     if before is None:
         require(after is not None,'Missing B1 addition: '+path)
         if path.startswith(FROZEN_PREFIX):
+            return
+        if B2_MARKER.is_file() and path in b2_added_paths():
+            verify_b2_inheritance()
             return
         require(path in NEW_FILES,'Unapproved new path: '+path)
         if path in PINNED_NEW_BLOBS:
@@ -182,6 +227,11 @@ def approve_change(path,before,after):
         return
     require(after is not None,'Removal of promoted-main path: '+path)
     if before==after: return
+    if B2_MARKER.is_file() and path in B2_EXISTING_ADAPTERS:
+        verify_b2_inheritance()
+        require(after==(ROOT/path).read_bytes(),
+                'Historical adaptation differs from exact permitted patch (B2 inherited adapter): '+path)
+        return
     if path in ADAPTED_FILES:
         require(after==expected_adaptation(path,before),'Historical adaptation differs from exact permitted patch: '+path)
     else:

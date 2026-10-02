@@ -1,0 +1,118 @@
+[
+  {
+    "assignment_mac": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "found_order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "missing_modes": [],
+    "modes_not_found": [],
+    "speed": 0.0,
+    "threshold_match": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  {
+    "assignment_mac": [
+      0.9998223879413246,
+      0.9998416595127724,
+      0.9875715752827565,
+      0.9878023325789554,
+      0.9998638913401143,
+      0.9998642787292664
+    ],
+    "found_order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "missing_modes": [],
+    "modes_not_found": [],
+    "speed": 100.0,
+    "threshold_match": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  {
+    "assignment_mac": [
+      0.9998013063835217,
+      0.9998577282767167,
+      0.9996125106340222,
+      0.9996190514993192,
+      0.9999144001836296,
+      0.999914652399314
+    ],
+    "found_order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "missing_modes": [],
+    "modes_not_found": [],
+    "speed": 200.0,
+    "threshold_match": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  {
+    "assignment_mac": [
+      0.9997771469813593,
+      0.999871818765145,
+      0.9999442115970509,
+      0.9999439557434572,
+      0.9999434887144895,
+      0.999943663314795
+    ],
+    "found_order": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "missing_modes": [],
+    "modes_not_found": [],
+    "speed": 300.0,
+    "threshold_match": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  }
+]

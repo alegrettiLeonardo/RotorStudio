@@ -1,0 +1,2586 @@
+{
+  "arrays": [
+    {
+      "dtype": "float64",
+      "file": "global/G01_M.npy",
+      "group": "matrix_M",
+      "nonzero": 40,
+      "sha256": "ac6d4352a48b0aebec11cbe123c590646b1c14bdbf58a77c1eee39af2b514659",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G01_K.npy",
+      "group": "matrix_K",
+      "nonzero": 40,
+      "sha256": "9693fa0d473e32f5ad86ae2974b414d1f4f48cb3292022aa7e5b7e065c7b4826",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G01_C.npy",
+      "group": "matrix_C",
+      "nonzero": 0,
+      "sha256": "eb74c8861ca6c8c2798f88473122fddfb16e5e3b94fc7513295ac455ee1d1a74",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G01_G.npy",
+      "group": "matrix_G",
+      "nonzero": 32,
+      "sha256": "df2d3e5e388171f51721597da73fce1acc602dbc62b1634b46cfb91d19bf23e2",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G01_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 16,
+      "sha256": "ad0e9b6498defcd14671de721ea034c2034814709a2d59a1403c1c53ababa15e",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G02_M.npy",
+      "group": "matrix_M",
+      "nonzero": 66,
+      "sha256": "219854eaac1ccc76611ad36f3b893271ad9403af9fb4b29f82807c94afd7f4c8",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G02_K.npy",
+      "group": "matrix_K",
+      "nonzero": 66,
+      "sha256": "692ca3cedcad270c36f3f4a28c1d16805f988ee2eec45b2c81113a7298824fb9",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G02_C.npy",
+      "group": "matrix_C",
+      "nonzero": 4,
+      "sha256": "4a93443ae22c506b01c8d1d742ef645f70c4ad67b016cfab57bb1598b8a20d86",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G02_G.npy",
+      "group": "matrix_G",
+      "nonzero": 52,
+      "sha256": "ae6d680aba6c2a7579591a26410f9040469f7c7d53c253ec587d927c2b8d3cde",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G02_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 26,
+      "sha256": "2a8b99fa6119f7fd048afb4aa89086359ca25edf283d2e1d5b283847022f6b1d",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G03_M.npy",
+      "group": "matrix_M",
+      "nonzero": 100,
+      "sha256": "fe3e2e3f8d877cfb23ded93a6f47443c7244b6c47dcb746f37919bae7f6d1ca6",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G03_K.npy",
+      "group": "matrix_K",
+      "nonzero": 100,
+      "sha256": "92d0a8b8d4964eb52d3a7bfdb886ecb88b4b60f33fe37234a56310037cd9c82c",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G03_C.npy",
+      "group": "matrix_C",
+      "nonzero": 4,
+      "sha256": "5883cae006f57195fe006e53cd0f2f92ebb08130b167ffe3c973249ad24c2e3d",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G03_G.npy",
+      "group": "matrix_G",
+      "nonzero": 80,
+      "sha256": "68a0c45df65dfc1b03c24c9bfa30008a70e79e501282304d99c7f01cee49deb9",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G03_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 38,
+      "sha256": "bcf3064a25c851413d9cb514495f03c6745cfc7ab594244482bd603ba7d8d523",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G04_M.npy",
+      "group": "matrix_M",
+      "nonzero": 66,
+      "sha256": "219854eaac1ccc76611ad36f3b893271ad9403af9fb4b29f82807c94afd7f4c8",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G04_K.npy",
+      "group": "matrix_K",
+      "nonzero": 66,
+      "sha256": "fc04c89354d5152caf0e9f8ed5cf4e3aed8201248e06bcae1c2c137465373cfd",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G04_C.npy",
+      "group": "matrix_C",
+      "nonzero": 4,
+      "sha256": "13cac89127b4f6eeb849b1015a766ba183abc14c2ccef67c8245d863d8767cd7",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G04_G.npy",
+      "group": "matrix_G",
+      "nonzero": 52,
+      "sha256": "ae6d680aba6c2a7579591a26410f9040469f7c7d53c253ec587d927c2b8d3cde",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G04_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 26,
+      "sha256": "2a8b99fa6119f7fd048afb4aa89086359ca25edf283d2e1d5b283847022f6b1d",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G05_M.npy",
+      "group": "matrix_M",
+      "nonzero": 66,
+      "sha256": "219854eaac1ccc76611ad36f3b893271ad9403af9fb4b29f82807c94afd7f4c8",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G05_K.npy",
+      "group": "matrix_K",
+      "nonzero": 70,
+      "sha256": "d77ccfcfdd615fd3f7d87b3a8d39903154634b5a02ef2667abb504378841e19e",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G05_C.npy",
+      "group": "matrix_C",
+      "nonzero": 8,
+      "sha256": "53ec1d5f9c25ef9bdbe2e194be91547017ac4cd592cb5dce5184ecfdbce8a8fd",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G05_G.npy",
+      "group": "matrix_G",
+      "nonzero": 52,
+      "sha256": "ae6d680aba6c2a7579591a26410f9040469f7c7d53c253ec587d927c2b8d3cde",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G05_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 26,
+      "sha256": "2a8b99fa6119f7fd048afb4aa89086359ca25edf283d2e1d5b283847022f6b1d",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G06_M.npy",
+      "group": "matrix_M",
+      "nonzero": 66,
+      "sha256": "219854eaac1ccc76611ad36f3b893271ad9403af9fb4b29f82807c94afd7f4c8",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G06_K.npy",
+      "group": "matrix_K",
+      "nonzero": 66,
+      "sha256": "4c50eeb74998f5d86a5a86cfb071cac233e856a7ce2f639768bdc5f04d522261",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G06_C.npy",
+      "group": "matrix_C",
+      "nonzero": 4,
+      "sha256": "30b5a02726edeb95302d1ebbe60d625acf5c920cfd8208c6768b52011e16845f",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G06_G.npy",
+      "group": "matrix_G",
+      "nonzero": 52,
+      "sha256": "ae6d680aba6c2a7579591a26410f9040469f7c7d53c253ec587d927c2b8d3cde",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G06_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 26,
+      "sha256": "2a8b99fa6119f7fd048afb4aa89086359ca25edf283d2e1d5b283847022f6b1d",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G07_M.npy",
+      "group": "matrix_M",
+      "nonzero": 66,
+      "sha256": "219854eaac1ccc76611ad36f3b893271ad9403af9fb4b29f82807c94afd7f4c8",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G07_K.npy",
+      "group": "matrix_K",
+      "nonzero": 66,
+      "sha256": "5c9c4ef4d4dee7c8d3fb196259bbcab5e43de89203d662d695fda25bb1248b91",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G07_C.npy",
+      "group": "matrix_C",
+      "nonzero": 4,
+      "sha256": "d416b963985ce6c6059d5c40149f0c86dad6de52326f9bd99383296af51a0f26",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G07_G.npy",
+      "group": "matrix_G",
+      "nonzero": 52,
+      "sha256": "ae6d680aba6c2a7579591a26410f9040469f7c7d53c253ec587d927c2b8d3cde",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G07_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 26,
+      "sha256": "2a8b99fa6119f7fd048afb4aa89086359ca25edf283d2e1d5b283847022f6b1d",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G08_M.npy",
+      "group": "matrix_M",
+      "nonzero": 66,
+      "sha256": "219854eaac1ccc76611ad36f3b893271ad9403af9fb4b29f82807c94afd7f4c8",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G08_K.npy",
+      "group": "matrix_K",
+      "nonzero": 66,
+      "sha256": "6538689fc005e7eaeaab524f530e27bfbd7b51d31bbf4b9b990b2b3e3a12facb",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G08_C.npy",
+      "group": "matrix_C",
+      "nonzero": 4,
+      "sha256": "882f7eab6385c15a0bd13ecdc999fa4d02aeb274654df308b7c5550f0bc2ff8a",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G08_G.npy",
+      "group": "matrix_G",
+      "nonzero": 52,
+      "sha256": "ae6d680aba6c2a7579591a26410f9040469f7c7d53c253ec587d927c2b8d3cde",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G08_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 26,
+      "sha256": "2a8b99fa6119f7fd048afb4aa89086359ca25edf283d2e1d5b283847022f6b1d",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G09_M.npy",
+      "group": "matrix_M",
+      "nonzero": 70,
+      "sha256": "cf9d5845feab37718ea8e724224fba19225ecb2575500ac94468e4d2210d3b74",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G09_K.npy",
+      "group": "matrix_K",
+      "nonzero": 70,
+      "sha256": "b10f7573ee6575a20dd040c5fa8f934fd5a33bb3712b629850b4a515b50222f5",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G09_C.npy",
+      "group": "matrix_C",
+      "nonzero": 4,
+      "sha256": "9cf83451fc16b46b96e3e936dc6c022f980eff233372b88b7dcf5e08dbb78bf5",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G09_G.npy",
+      "group": "matrix_G",
+      "nonzero": 56,
+      "sha256": "5fcdc330f8a90253b7343db127a9e82213ee9e4947f4979addd20fa9938b1f36",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G09_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 28,
+      "sha256": "e137280e9611111bdeab3aeee702a89131a15894cefdb73f23e7c9563ac58e8a",
+      "shape": [
+        18,
+        18
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G10_M.npy",
+      "group": "matrix_M",
+      "nonzero": 40,
+      "sha256": "ac6d4352a48b0aebec11cbe123c590646b1c14bdbf58a77c1eee39af2b514659",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G10_K.npy",
+      "group": "matrix_K",
+      "nonzero": 40,
+      "sha256": "a346915daac9ac7eaf5ae4b44b78cf49f32a691edc22cced7e603878dbb8df74",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G10_C.npy",
+      "group": "matrix_C",
+      "nonzero": 4,
+      "sha256": "cea3321b51fb3e617cea59647e8d1c63b803fb9d8ecfec4bc8c1d88db2e58527",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G10_G.npy",
+      "group": "matrix_G",
+      "nonzero": 32,
+      "sha256": "df2d3e5e388171f51721597da73fce1acc602dbc62b1634b46cfb91d19bf23e2",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G10_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 16,
+      "sha256": "ad0e9b6498defcd14671de721ea034c2034814709a2d59a1403c1c53ababa15e",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G11_M.npy",
+      "group": "matrix_M",
+      "nonzero": 40,
+      "sha256": "ac6d4352a48b0aebec11cbe123c590646b1c14bdbf58a77c1eee39af2b514659",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G11_K.npy",
+      "group": "matrix_K",
+      "nonzero": 64,
+      "sha256": "8dc30772d9fdebf37e20956272c182e728793c94fc297d2add66dbb4d0bf9b6c",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G11_C.npy",
+      "group": "matrix_C",
+      "nonzero": 4,
+      "sha256": "cea3321b51fb3e617cea59647e8d1c63b803fb9d8ecfec4bc8c1d88db2e58527",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G11_G.npy",
+      "group": "matrix_G",
+      "nonzero": 32,
+      "sha256": "df2d3e5e388171f51721597da73fce1acc602dbc62b1634b46cfb91d19bf23e2",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "global/G11_Ksdt.npy",
+      "group": "matrix_Ksdt",
+      "nonzero": 16,
+      "sha256": "ad0e9b6498defcd14671de721ea034c2034814709a2d59a1403c1c53ababa15e",
+      "shape": [
+        12,
+        12
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M01_A.npy",
+      "group": "matrix_A",
+      "nonzero": 132,
+      "sha256": "28f37ce8fa9e187ba901ca1afb4341789cfd952c3b923fd97da6b8c691f639ed",
+      "shape": [
+        36,
+        36
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M01_evalues_all.npy",
+      "group": "modal_eigen",
+      "nonzero": 32,
+      "sha256": "ac8ead0b313a55e3a3f47996f62e0e2098d8e8047e4bd5d50d8be63717553ee7",
+      "shape": [
+        32
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M01_evalues.npy",
+      "group": "modal_eigen",
+      "nonzero": 6,
+      "sha256": "4bf6881ff994b57a88f2f65586c80735d418f153905361773a7af710372ab436",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M01_evectors_displacement.npy",
+      "group": "modal_evec",
+      "nonzero": 108,
+      "sha256": "a1bc6fa319d37810cf4cc1377786e9391066b8f7a743acee1c4bab0338eaad2b",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M01_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "nonzero": 108,
+      "sha256": "86ba344c2560badb0f6a49c29b649831f2040abe255cfea47c1bf18172129c05",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M01_wn.npy",
+      "group": "modal_wn",
+      "nonzero": 6,
+      "sha256": "56c59091f5987926926b7bba440d31ab567ea4c0661937de89586fb528985bef",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M01_wd.npy",
+      "group": "modal_wd",
+      "nonzero": 6,
+      "sha256": "21a1dcd47824cb127f53edf736156d4bc6d97dd04e001bfa75f7ac359b5343a3",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M01_damping_ratio.npy",
+      "group": "modal_damping",
+      "nonzero": 6,
+      "sha256": "7d7f2fa8bcb60defa40ba1deee33afdf5040aeccd6716b3fde096411d697e71f",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M01_log_dec.npy",
+      "group": "modal_logdec",
+      "nonzero": 6,
+      "sha256": "b5a7d1da33f8c1e00de271de5662a79aff999da09334e66adb1c9e4d6c8c7052",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M01_whirl.npy",
+      "group": "modal_whirl",
+      "nonzero": 4,
+      "sha256": "bee543d131dd9c50a6c987b743f2dacb40b06e6857948ae01849ddd1c1fbc722",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M01_residual.npy",
+      "group": "modal_residual",
+      "nonzero": 6,
+      "sha256": "5a9059038ed7b5e49e997d7d50fbe7bd7c906b9a4ba2b11a6d86acbb2f00d090",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M02_A.npy",
+      "group": "matrix_A",
+      "nonzero": 204,
+      "sha256": "2b503d6b4d96d50816c436dffe3549ce593f5e2be0d3a2b4fe3f7825950a711f",
+      "shape": [
+        36,
+        36
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M02_evalues_all.npy",
+      "group": "modal_eigen",
+      "nonzero": 32,
+      "sha256": "6d290e73388898537cde385e6e1caee0c65df895842b0e71a0c8ca8fbfba04ef",
+      "shape": [
+        32
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M02_evalues.npy",
+      "group": "modal_eigen",
+      "nonzero": 6,
+      "sha256": "e678ddfe7a9874d537d1ba202f77e0479a3cb8909bad6720d3a98de6277c6012",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M02_evectors_displacement.npy",
+      "group": "modal_evec",
+      "nonzero": 108,
+      "sha256": "b532dbcb44617310669769c4e7197c16c423acec1b8502379d8795a2cc1c5652",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M02_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "nonzero": 108,
+      "sha256": "11f57ce215c859275c2a525b20e65edf867d85e24a24e814ad3983cc99b27e41",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M02_wn.npy",
+      "group": "modal_wn",
+      "nonzero": 6,
+      "sha256": "901691bd5511ac14257545a8e2c459226841b25119ed0973f5073da3480724d0",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M02_wd.npy",
+      "group": "modal_wd",
+      "nonzero": 6,
+      "sha256": "943ce926b60d84e94fe5e4284194fd06a8d32d57646689cab96d79549eae03b5",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M02_damping_ratio.npy",
+      "group": "modal_damping",
+      "nonzero": 6,
+      "sha256": "7420659244b6f4ee238f7624b42889360d2f63b1aaeb2a1a02803ae8769611e2",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M02_log_dec.npy",
+      "group": "modal_logdec",
+      "nonzero": 6,
+      "sha256": "fc23e65fbf7ab40902e6681ced8bbd793cd8727918830102010c510aa2eddeea",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M02_whirl.npy",
+      "group": "modal_whirl",
+      "nonzero": 3,
+      "sha256": "af87adb83ef8ff6483f05108a0bcd22119b4ace22a3d35361923520f31d4035f",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M02_residual.npy",
+      "group": "modal_residual",
+      "nonzero": 6,
+      "sha256": "804b6cbf91ca71413419bde50ea6aa3609bbb5b57d4711ed9c556da2f65d257a",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M03_A.npy",
+      "group": "matrix_A",
+      "nonzero": 344,
+      "sha256": "67aa4d5108cb2d1b586999eff1c3c78de58111de38ec99f2b51e2e1f1191a6f8",
+      "shape": [
+        48,
+        48
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M03_evalues_all.npy",
+      "group": "modal_eigen",
+      "nonzero": 44,
+      "sha256": "6a5252128019ba4a52d1fec8b374bab0cc286cb0fd5eb1e5b65f4230b73984f8",
+      "shape": [
+        44
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M03_evalues.npy",
+      "group": "modal_eigen",
+      "nonzero": 22,
+      "sha256": "3ae25af22d1416a4899afe26ec2b95f44a65fcacd496f17a9233198e6b61c2f2",
+      "shape": [
+        22
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M03_evectors_displacement.npy",
+      "group": "modal_evec",
+      "nonzero": 528,
+      "sha256": "cc4b9bdae6f3d5423247ee531bcfe5cc4d8ab2e9b23063df70fff538e168d1dc",
+      "shape": [
+        24,
+        22
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M03_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "nonzero": 528,
+      "sha256": "5feabe7a23279c2232c8597f0d0ecfa695c1ac9ab5dab0d9ea34ea18422e4ef5",
+      "shape": [
+        24,
+        22
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M03_wn.npy",
+      "group": "modal_wn",
+      "nonzero": 22,
+      "sha256": "ee1b79d5befa53e1a530ff4f2520ce687a3c1e262620a0985de2db80153b22d2",
+      "shape": [
+        22
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M03_wd.npy",
+      "group": "modal_wd",
+      "nonzero": 22,
+      "sha256": "43897f05f44fee7036e7b262d3f0b7aaf7c1d11bb757a2492169c4062caa8c09",
+      "shape": [
+        22
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M03_damping_ratio.npy",
+      "group": "modal_damping",
+      "nonzero": 22,
+      "sha256": "54188aa753e55555bc7421387a975ed31834bf1e47d8d948184b003d9e21361b",
+      "shape": [
+        22
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M03_log_dec.npy",
+      "group": "modal_logdec",
+      "nonzero": 22,
+      "sha256": "3e5224b015a6e3039dd87cd8553357e340f1c484ff20ed8dcd9ad8d99f5170c9",
+      "shape": [
+        22
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M03_whirl.npy",
+      "group": "modal_whirl",
+      "nonzero": 14,
+      "sha256": "d16f7503eaaa8284474c2523f23b616f614404150322f19d80eddf83ac781c9d",
+      "shape": [
+        22
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M03_residual.npy",
+      "group": "modal_residual",
+      "nonzero": 22,
+      "sha256": "ed2954dfe37011c14e42159d83eabce3aac6b4b640fd7bf8b52cef1276f6ff64",
+      "shape": [
+        22
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M04_A.npy",
+      "group": "matrix_A",
+      "nonzero": 202,
+      "sha256": "b6a07811415b5ffb6452198b4570a19685ce03b9a5f80edcdb2ea8fab8177c31",
+      "shape": [
+        36,
+        36
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M04_evalues_all.npy",
+      "group": "modal_eigen",
+      "nonzero": 32,
+      "sha256": "baac5c474aaa141a35cf2c7c9e1c4e96e09f55b89e0320116257cf3cbeb95c43",
+      "shape": [
+        32
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M04_evalues.npy",
+      "group": "modal_eigen",
+      "nonzero": 6,
+      "sha256": "eb65a2c7c301d8922b43fd0038568a1e2422119a4698b5f3d179223e3f431b87",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M04_evectors_displacement.npy",
+      "group": "modal_evec",
+      "nonzero": 108,
+      "sha256": "33c032de2716c8dccc9ac61b2ea54f3b0dd409a0e3b1967adf5d343d353ff752",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M04_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "nonzero": 108,
+      "sha256": "3cccd6c7a211085352f684c9bf2880961829f1b0be944c941265c6fa76505bce",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M04_wn.npy",
+      "group": "modal_wn",
+      "nonzero": 6,
+      "sha256": "a251239f8c9f660e9c630e6b6c0e90fae036992e2b5524335faba8b8a8fffd6b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M04_wd.npy",
+      "group": "modal_wd",
+      "nonzero": 6,
+      "sha256": "182ad1f59c93215dd7fb6c858f8f14d52f472a5c0b0b30bfc89be5b996d54a75",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M04_damping_ratio.npy",
+      "group": "modal_damping",
+      "nonzero": 6,
+      "sha256": "54dc99795e5b2298984cac29d8f70f58c6081b8009f7262757ef26cdcad2622c",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M04_log_dec.npy",
+      "group": "modal_logdec",
+      "nonzero": 6,
+      "sha256": "ded3040fb820e5bcf7d67946a5d5405aac3d207d107da262165ee6f14e1bfa4c",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M04_whirl.npy",
+      "group": "modal_whirl",
+      "nonzero": 5,
+      "sha256": "7d81431d9e709a343249879467c2297ff331836af265cd9e3169a0a326235afb",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M04_residual.npy",
+      "group": "modal_residual",
+      "nonzero": 6,
+      "sha256": "e29e98d235dd61c51554b412badc37269876cd91bd13d1b3d9572e50521b55ef",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M05_A.npy",
+      "group": "matrix_A",
+      "nonzero": 226,
+      "sha256": "e9e55c0ad853b05cfa96c7683180e12b906fa0a4af764df90886767cbbceccd6",
+      "shape": [
+        36,
+        36
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M05_evalues_all.npy",
+      "group": "modal_eigen",
+      "nonzero": 32,
+      "sha256": "09e3233a47366624f6bae045884f1b435b288fb4c8ded87811200e50241b5d44",
+      "shape": [
+        32
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M05_evalues.npy",
+      "group": "modal_eigen",
+      "nonzero": 6,
+      "sha256": "f57bba8fb33942e093166a638ef50455c7191e8fbd91b5c9e355b8e96eb97e5a",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M05_evectors_displacement.npy",
+      "group": "modal_evec",
+      "nonzero": 108,
+      "sha256": "fbfc2ceb1fabd85de7b3dc8168677c13a5d75703127934e360f294e57eb7bf58",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M05_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "nonzero": 108,
+      "sha256": "b4b751c5254f23d95ebcf053089654b0dd9b043ec070fb36226efc0b9e1b4cfe",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M05_wn.npy",
+      "group": "modal_wn",
+      "nonzero": 6,
+      "sha256": "f508253aa235574eb135525018737641d71f4b9724cb4e3ca8130fdbf83a022c",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M05_wd.npy",
+      "group": "modal_wd",
+      "nonzero": 6,
+      "sha256": "449df7b6bd5b7b795f188de78c8394409d90e014df810e8f91e52b48b9d3a78a",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M05_damping_ratio.npy",
+      "group": "modal_damping",
+      "nonzero": 6,
+      "sha256": "17f59f961e3191abcc6dd991895f8a98c0f87d7a385e6d6ab8971ad147b94913",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M05_log_dec.npy",
+      "group": "modal_logdec",
+      "nonzero": 6,
+      "sha256": "bd5d8eb8d7b8a74e8fab61ec8ab3a056c10797a2a7aa2e8de99b5933e3d933e6",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M05_whirl.npy",
+      "group": "modal_whirl",
+      "nonzero": 3,
+      "sha256": "af87adb83ef8ff6483f05108a0bcd22119b4ace22a3d35361923520f31d4035f",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M05_residual.npy",
+      "group": "modal_residual",
+      "nonzero": 6,
+      "sha256": "26c5791ea46eb41a77450f00fbca670e6513d230459e5d263a4c50d2cbf5b1fb",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M06_A.npy",
+      "group": "matrix_A",
+      "nonzero": 204,
+      "sha256": "916ebaec46f809ae78065d9a084c11f6862c45afe296add5da4d138ad73315cd",
+      "shape": [
+        36,
+        36
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M06_evalues_all.npy",
+      "group": "modal_eigen",
+      "nonzero": 32,
+      "sha256": "da78e54b0cd16f171702462b66489f982612fa75d58be6dcdc1268964711ec6a",
+      "shape": [
+        32
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M06_evalues.npy",
+      "group": "modal_eigen",
+      "nonzero": 6,
+      "sha256": "8d0835d6be12ded74cc4636b9641b89b58644de1eab9c6a8e4559050416f37e5",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M06_evectors_displacement.npy",
+      "group": "modal_evec",
+      "nonzero": 108,
+      "sha256": "8d94be94f709380d35b8dc0278e1f437f16370b83602d5c494a955c1a51ea8e8",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M06_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "nonzero": 108,
+      "sha256": "e093db8b236cf6e538ca62b7f1581af0b1dc567c29943f096d2664c824be3dbb",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M06_wn.npy",
+      "group": "modal_wn",
+      "nonzero": 6,
+      "sha256": "04ca3178d6f78a29d749358ee1bfd5cdd6b1b6a8c06b50e7c1ac0d6daeb5bb49",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M06_wd.npy",
+      "group": "modal_wd",
+      "nonzero": 6,
+      "sha256": "bdd84984ba385e40daea558a11fc71a56ea2703df90c55c18e705dbeaed3557f",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M06_damping_ratio.npy",
+      "group": "modal_damping",
+      "nonzero": 6,
+      "sha256": "26a8a576d77edbf45d84cdd17967040cf49904d7c54361927f8990adcab7d7a1",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M06_log_dec.npy",
+      "group": "modal_logdec",
+      "nonzero": 6,
+      "sha256": "7602735b6c7b46e377663c9cc5cf391eda2c9dedbb77f8c8fa941916232ef1b7",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M06_whirl.npy",
+      "group": "modal_whirl",
+      "nonzero": 3,
+      "sha256": "af87adb83ef8ff6483f05108a0bcd22119b4ace22a3d35361923520f31d4035f",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M06_residual.npy",
+      "group": "modal_residual",
+      "nonzero": 6,
+      "sha256": "56ab0a509757e1a422e385e381691ed4a32b0739803458dbd64ce2d1e31b1a96",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M07_A.npy",
+      "group": "matrix_A",
+      "nonzero": 204,
+      "sha256": "eb4e07014282b4c80e71a4c70e36a787f1fea6ce25c112eb035033b22a411332",
+      "shape": [
+        36,
+        36
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M07_evalues_all.npy",
+      "group": "modal_eigen",
+      "nonzero": 32,
+      "sha256": "f85b0e9f1b03b6dfa0178f97484fc7f71fe8da6845af9be97ccc5acc47128b2b",
+      "shape": [
+        32
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M07_evalues.npy",
+      "group": "modal_eigen",
+      "nonzero": 6,
+      "sha256": "001b9a771b569f24097970ceee24197583048754846714dfc6aeff89bd87c035",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M07_evectors_displacement.npy",
+      "group": "modal_evec",
+      "nonzero": 108,
+      "sha256": "585f0a32b15ab5add1802b2599418487947a4cc78ef8713e9fac83d677d373c9",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M07_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "nonzero": 108,
+      "sha256": "7f602cb9ed514debeb1e985f38f25e5de7de97f17508c6d0d882963d92b6db7d",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M07_wn.npy",
+      "group": "modal_wn",
+      "nonzero": 6,
+      "sha256": "64e902a4af97a87a3495e8d4274407e715d8c76967961d12c05ebe5ebc244209",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M07_wd.npy",
+      "group": "modal_wd",
+      "nonzero": 6,
+      "sha256": "9445bb1d76b027a0ed193ad8e01d7c252596d2b874cb92c7cf8ca3c4cf561829",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M07_damping_ratio.npy",
+      "group": "modal_damping",
+      "nonzero": 6,
+      "sha256": "bf537500532f0ba20f483d96442b3629e4ecb8451c56519327b1fccc3a2b6056",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M07_log_dec.npy",
+      "group": "modal_logdec",
+      "nonzero": 6,
+      "sha256": "04c5de9164b3b29cee0b1f91698b62cf0fe21b7356b1313fabe05f59cd55bd94",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M07_whirl.npy",
+      "group": "modal_whirl",
+      "nonzero": 4,
+      "sha256": "8e4aad729eaef2d1d98b0ffa40f1ed4990d4d7f2b148214b3de17f23492036cd",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M07_residual.npy",
+      "group": "modal_residual",
+      "nonzero": 6,
+      "sha256": "a18b8d646b58bcb4e2a8dc53ecebdb06f613ea92b1495dd8e412b57d03da905a",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M08_A.npy",
+      "group": "matrix_A",
+      "nonzero": 202,
+      "sha256": "b24f01e051820de5f41f0b702d4d7e662fd8a0e6d56425e811b5de39b907e02c",
+      "shape": [
+        36,
+        36
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M08_evalues_all.npy",
+      "group": "modal_eigen",
+      "nonzero": 32,
+      "sha256": "ee56f846e9e8957d9433e2e53a9b4283d3377633ee78a28ba3d58a0110720667",
+      "shape": [
+        32
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M08_evalues.npy",
+      "group": "modal_eigen",
+      "nonzero": 6,
+      "sha256": "495198cc97645f9089dc25468c555e1458e1b86ebfa1ce78ecad88e6ce7b78d7",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M08_evectors_displacement.npy",
+      "group": "modal_evec",
+      "nonzero": 108,
+      "sha256": "02e20edf5c2a23a89c55c8fbbfa48d2c9f1a0c172bb079d769449a9b5b9b4e80",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "complex128",
+      "file": "modal/M08_evectors_normalized.npy",
+      "group": "modal_evec_normalized",
+      "nonzero": 108,
+      "sha256": "0ccbd5140bf32e83139b3447d92ca266b05f18a1e6b39e3908551e0e67389a85",
+      "shape": [
+        18,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M08_wn.npy",
+      "group": "modal_wn",
+      "nonzero": 6,
+      "sha256": "db6921434d134b27c43442d770a91778a68ccff9bde62a4c857a8bf220810109",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M08_wd.npy",
+      "group": "modal_wd",
+      "nonzero": 6,
+      "sha256": "4140a69eae0a86d4a6ed506ac667cc29653985a6d9c9e76676179a61a85de943",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M08_damping_ratio.npy",
+      "group": "modal_damping",
+      "nonzero": 6,
+      "sha256": "74901ed6150f8888c6d232e518d51effd3280537bd6601d7b0719fca48153322",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M08_log_dec.npy",
+      "group": "modal_logdec",
+      "nonzero": 6,
+      "sha256": "576ab7db2170ec37398e6dca11a4ea209edc34cfd8578c15cac9c28e7dd7687b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M08_whirl.npy",
+      "group": "modal_whirl",
+      "nonzero": 5,
+      "sha256": "727c8587039847e4d8fa2e6f79c00e6250d0c74c8cc995e9be59b3d0f3eb88c8",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "modal/M08_residual.npy",
+      "group": "modal_residual",
+      "nonzero": 6,
+      "sha256": "a1fa186b73b77f4fb78265a5658f8a2f97a58b926938344d8595ee7539cf7ea3",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_speed.npy",
+      "group": "campbell_speed",
+      "nonzero": 3,
+      "sha256": "b977db169775b13cae76362495cd50f360c86f3f8e187463bd6764753cf39525",
+      "shape": [
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_wd.npy",
+      "group": "campbell_wd",
+      "nonzero": 16,
+      "sha256": "e03954c0825023617b0a293aa25edb66a5516cce1e5b46a8ab90afd1231dec2c",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_wn.npy",
+      "group": "campbell_wn",
+      "nonzero": 16,
+      "sha256": "dd5b1d8b85b727096c1cb46f52520c22b5de2aa746f1b0eff994be27762466ba",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_wn_display.npy",
+      "group": "campbell_wn",
+      "nonzero": 16,
+      "sha256": "19f1bdf09428ad4a08192ce8c7708ac567dcc4140ae60bfffa1372234097dadd",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_log_dec.npy",
+      "group": "campbell_log_dec",
+      "nonzero": 16,
+      "sha256": "2e3f99feb211bc6f2f7899e63a99abbaecd807d35102506e05740ee328541748",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_damping_ratio.npy",
+      "group": "campbell_damping_ratio",
+      "nonzero": 16,
+      "sha256": "24df79149d16c938044c2af27c7ac947213bec283b8b35fdc4e8611080e6b6c3",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_whirl.npy",
+      "group": "campbell_whirl",
+      "nonzero": 9,
+      "sha256": "bdb6bef6fc23cfee994fcb12e69b2f04895abfd18afc5ace35f4b43dfd3656fa",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station0_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 6,
+      "sha256": "7f513adbb59eed9cece8b354629a0eb81da8a78a1679d700545194a493183126",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station0_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station0_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "15d1f2af9794363273287c592bf78e864697b66ef0a645b0f4a3cca08d7f8bb8",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station1_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "b37c99e2db094bdc4c82f5a752947f28212ef7835b86a189be1a27ae53cbf9e7",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station1_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station1_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "3843a03747c96b32388e23198cf4ad3186de7d746b4a9b4f6f158b83e6f964f0",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station2_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "5ab0cc059cfe5f53b2f1e71e4ef1d24775044ac168d0512c39404904466e1201",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station2_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station2_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "e706a4a30465e356ce9bdcafaf7ce103e85d4d4dcbed735a5dc1f5a1459e5f32",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station3_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "cea929e7ba24ff989b23514177e53fc4acacd82e344b000edd84d58ceac43c59",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station3_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C01_station3_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "b23631a5438a73bd25f566882c3e40fcfed6a667db5efccfe346719df38badb3",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_speed.npy",
+      "group": "campbell_speed",
+      "nonzero": 3,
+      "sha256": "b977db169775b13cae76362495cd50f360c86f3f8e187463bd6764753cf39525",
+      "shape": [
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_wd.npy",
+      "group": "campbell_wd",
+      "nonzero": 16,
+      "sha256": "a4a1a133387967802a9396720a4e8f7621f6534b2f4cb5f8797e6d189c0e7a07",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_wn.npy",
+      "group": "campbell_wn",
+      "nonzero": 16,
+      "sha256": "70aa8d4f2f2df98d04ff675796e84c4ede3d60e458cc7ff3a4d86cf6dd0a4a46",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_wn_display.npy",
+      "group": "campbell_wn",
+      "nonzero": 16,
+      "sha256": "70aa8d4f2f2df98d04ff675796e84c4ede3d60e458cc7ff3a4d86cf6dd0a4a46",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_log_dec.npy",
+      "group": "campbell_log_dec",
+      "nonzero": 16,
+      "sha256": "4d2b1be2eaa474cf26947d00927869544d28c44849c9dc55cb48a44047e4cdfd",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_damping_ratio.npy",
+      "group": "campbell_damping_ratio",
+      "nonzero": 16,
+      "sha256": "d5590456e98ba1397dbb404e9d8eee269e6c03e2e67ef162c4eb563757ce6a2a",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_whirl.npy",
+      "group": "campbell_whirl",
+      "nonzero": 8,
+      "sha256": "8ada6c46d87b91178106395ebc6f410b976b387916c575dc9714f17bd14592e3",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station0_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 6,
+      "sha256": "7f513adbb59eed9cece8b354629a0eb81da8a78a1679d700545194a493183126",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station0_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station0_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "15d1f2af9794363273287c592bf78e864697b66ef0a645b0f4a3cca08d7f8bb8",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station1_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "89ca55cd8ca5761708235e16bbe1a80ef3755b32aa94d5c3855493614735a2bb",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station1_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station1_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "b3d6e87eb223e4175873b30203eb04b694485c62b28779feb0424d72935ee6a8",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station2_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "e0f0e62a8e31d2f08845997dc3e1712e9ad5d43a67580ccaf676cf4ee68dc967",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station2_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station2_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "9685a82965d8e1ed3bd4495e97d463c360aa18603e084a89813c0d27a3e4661c",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station3_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "724adbae24ff8233813d105b0a62972ab6f4d1fedc72dd0f0f61c6c7b325e33d",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station3_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C02_station3_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "a8ccf7470b4ea59d6fa583bed48d9ddce003aed47c298a057f7ca066be4ec904",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_speed.npy",
+      "group": "campbell_speed",
+      "nonzero": 3,
+      "sha256": "b977db169775b13cae76362495cd50f360c86f3f8e187463bd6764753cf39525",
+      "shape": [
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_wd.npy",
+      "group": "campbell_wd",
+      "nonzero": 16,
+      "sha256": "18d2eba20bf6a6acdfe02fb854e61ad1ba64f51e1fe58cb57308bb05edf67a4e",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_wn.npy",
+      "group": "campbell_wn",
+      "nonzero": 16,
+      "sha256": "8a456212bb71af70d09843625b057e91b4339c10ec1863a2027d15502129b511",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_wn_display.npy",
+      "group": "campbell_wn",
+      "nonzero": 16,
+      "sha256": "45ed4dcf193513b04d02dea79703b2863317a3782322388d3c1f8292555a715f",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_log_dec.npy",
+      "group": "campbell_log_dec",
+      "nonzero": 16,
+      "sha256": "936196ccb8331e1c08b4e27e023bbbe7746943aad20b5452399ff25105dcb916",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_damping_ratio.npy",
+      "group": "campbell_damping_ratio",
+      "nonzero": 16,
+      "sha256": "1c6d870a95b5ddb2e7f82e91d1b5e0a36da6416bc54e2f7c92ff9b2b35e91332",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_whirl.npy",
+      "group": "campbell_whirl",
+      "nonzero": 13,
+      "sha256": "ddb9b9bd01571f3467bac645541db1509006a85d3d215f2cf6b91b05f74fb6aa",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station0_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 6,
+      "sha256": "7f513adbb59eed9cece8b354629a0eb81da8a78a1679d700545194a493183126",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station0_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station0_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "15d1f2af9794363273287c592bf78e864697b66ef0a645b0f4a3cca08d7f8bb8",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station1_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "0dca1cb795a3d5cdea4f0c391c3b8c736301904da91a42d22e0ced630741ff91",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station1_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station1_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "28201b3b40dd0f18b689b69a91a80090809a31924a0a80d51257173e41bf7bfa",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station2_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "4a2236c24505d4cf8ec28917fe95876199d5368b4372eda9cb4ce029431afd73",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station2_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "e5208348de7d1b1a0d2be76cc9e3127915e7a02868557db89d46d3daf514b815",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station2_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "2bd9089dc7cb5bf6f8575d25090f621a97bce807b08c5c19af61d0412084e78d",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station3_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "3da4bdd751642bf1c9a41ace2bfc088e32b9447decf5f2b41ab3b991103dd344",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station3_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "e5208348de7d1b1a0d2be76cc9e3127915e7a02868557db89d46d3daf514b815",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C03_station3_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "87732b8c0e047060b98f493e69ad8d663c99b43151f74396d15cc703fb526745",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_speed.npy",
+      "group": "campbell_speed",
+      "nonzero": 3,
+      "sha256": "b977db169775b13cae76362495cd50f360c86f3f8e187463bd6764753cf39525",
+      "shape": [
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_wd.npy",
+      "group": "campbell_wd",
+      "nonzero": 16,
+      "sha256": "79eed344b725cf3f3712accacd9526d34bd84e55ef04cc100b25688d740dac7b",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_wn.npy",
+      "group": "campbell_wn",
+      "nonzero": 16,
+      "sha256": "e740c9074db3ee4b4d9ca9017f951570e83845f8a29140aa287fdf64fb553e5a",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_wn_display.npy",
+      "group": "campbell_wn",
+      "nonzero": 16,
+      "sha256": "e740c9074db3ee4b4d9ca9017f951570e83845f8a29140aa287fdf64fb553e5a",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_log_dec.npy",
+      "group": "campbell_log_dec",
+      "nonzero": 16,
+      "sha256": "40f4d4feb078c18549f2f282a794832b5d5e8d65c0bc412e256254592a4dd7f5",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_damping_ratio.npy",
+      "group": "campbell_damping_ratio",
+      "nonzero": 16,
+      "sha256": "dba437da0a9c14cde0be5c62383fef7265e12659f03299863cd43c591ec157f0",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_whirl.npy",
+      "group": "campbell_whirl",
+      "nonzero": 14,
+      "sha256": "0a46a580862e4e2f619368acb32e51e2c7c517b8dd3a983c5b71636b49406ad8",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station0_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 6,
+      "sha256": "7f513adbb59eed9cece8b354629a0eb81da8a78a1679d700545194a493183126",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station0_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "de0cf1e89fb99398c33095be2cd01098689f30380a81f195eccc298b3f8c282b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station0_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "15d1f2af9794363273287c592bf78e864697b66ef0a645b0f4a3cca08d7f8bb8",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station1_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "b3a1a9531045276eabee6ff679a52b8df59bd5f677006e2afbf6c411befc5c53",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station1_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "e4f9c367f9e2d936a6d34eca6dab4988cf2d82948de35212fd225c49b0a0859b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station1_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "8fda459649b01234df23a9c6aa2512928d314fce0300767d512e80727d66ea1a",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station2_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "6597e93e25419c797d952925e1b50159436aad117ea9a696ff1936c33c4af753",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station2_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "e4f9c367f9e2d936a6d34eca6dab4988cf2d82948de35212fd225c49b0a0859b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station2_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "ccaa1533707f8b0a1ef52ae3763525736017522eb13e0517b710b5a5b96141d3",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station3_decision_mac.npy",
+      "group": "campbell_tracking_mac",
+      "nonzero": 36,
+      "sha256": "03461d47f8d0c9db2badbb3cdaa711901ee5ad8c49931e14306b771ea85ea82f",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station3_found_order.npy",
+      "group": "campbell_tracking_assignment",
+      "nonzero": 5,
+      "sha256": "e4f9c367f9e2d936a6d34eca6dab4988cf2d82948de35212fd225c49b0a0859b",
+      "shape": [
+        6
+      ]
+    },
+    {
+      "dtype": "float64",
+      "file": "campbell/C04_station3_selected_mac.npy",
+      "group": "campbell_tracking_selected_mac",
+      "nonzero": 6,
+      "sha256": "fe270d77ac6214b55c02acc9016b1bf8d9d5c50308c9320b1e4db107949101ef",
+      "shape": [
+        6
+      ]
+    }
+  ],
+  "case_counts": {
+    "campbell": 4,
+    "global": 11,
+    "modal": 8
+  },
+  "data_bundle_sha256": "c18fa34cc7dc1fd923447955d544a7846e7a59c4ed4c84085d7c9dfbc927dbe3",
+  "function_ranges": {
+    "BearingElement.C": {
+      "first_line": 1155,
+      "last_line": 1198,
+      "line_count": 44,
+      "path": "ross/bearing_seal_element.py"
+    },
+    "BearingElement.K": {
+      "first_line": 1110,
+      "last_line": 1153,
+      "line_count": 44,
+      "path": "ross/bearing_seal_element.py"
+    },
+    "BearingElement.M": {
+      "first_line": 1066,
+      "last_line": 1108,
+      "line_count": 43,
+      "path": "ross/bearing_seal_element.py"
+    },
+    "BearingElement.__init__": {
+      "first_line": 452,
+      "last_line": 530,
+      "line_count": 79,
+      "path": "ross/bearing_seal_element.py"
+    },
+    "BearingElement.dof_mapping": {
+      "first_line": 1039,
+      "last_line": 1064,
+      "line_count": 26,
+      "path": "ross/bearing_seal_element.py"
+    },
+    "CampbellResults.__init__": {
+      "first_line": 2377,
+      "last_line": 2397,
+      "line_count": 21,
+      "path": "ross/results.py"
+    },
+    "DiskElement.G": {
+      "first_line": 321,
+      "last_line": 354,
+      "line_count": 34,
+      "path": "ross/disk_element.py"
+    },
+    "DiskElement.Kdt": {
+      "first_line": 260,
+      "last_line": 293,
+      "line_count": 34,
+      "path": "ross/disk_element.py"
+    },
+    "DiskElement.M": {
+      "first_line": 198,
+      "last_line": 232,
+      "line_count": 35,
+      "path": "ross/disk_element.py"
+    },
+    "DiskElement.__init__": {
+      "first_line": 56,
+      "last_line": 68,
+      "line_count": 13,
+      "path": "ross/disk_element.py"
+    },
+    "DiskElement.dof_mapping": {
+      "first_line": 169,
+      "last_line": 196,
+      "line_count": 28,
+      "path": "ross/disk_element.py"
+    },
+    "Material.__init__": {
+      "first_line": 61,
+      "last_line": 101,
+      "line_count": 41,
+      "path": "ross/materials.py"
+    },
+    "ModalResults.__init__": {
+      "first_line": 1803,
+      "last_line": 1834,
+      "line_count": 32,
+      "path": "ross/results.py"
+    },
+    "ModalResults.whirl_direction": {
+      "first_line": 1956,
+      "last_line": 1969,
+      "line_count": 14,
+      "path": "ross/results.py"
+    },
+    "ModalResults.whirl_values": {
+      "first_line": 1971,
+      "last_line": 1982,
+      "line_count": 12,
+      "path": "ross/results.py"
+    },
+    "Orbit.__init__": {
+      "first_line": 274,
+      "last_line": 299,
+      "line_count": 26,
+      "path": "ross/results.py"
+    },
+    "Rotor.A": {
+      "first_line": 1969,
+      "last_line": 2021,
+      "line_count": 53,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor.C": {
+      "first_line": 1913,
+      "last_line": 1946,
+      "line_count": 34,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor.G": {
+      "first_line": 1948,
+      "last_line": 1967,
+      "line_count": 20,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor.K": {
+      "first_line": 1851,
+      "last_line": 1884,
+      "line_count": 34,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor.Ksdt": {
+      "first_line": 1886,
+      "last_line": 1911,
+      "line_count": 26,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor.M": {
+      "first_line": 1776,
+      "last_line": 1849,
+      "line_count": 74,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor.__init__": {
+      "first_line": 299,
+      "last_line": 748,
+      "line_count": 450,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor._build_base_matrices": {
+      "first_line": 940,
+      "last_line": 1016,
+      "line_count": 77,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor._check_number_dof": {
+      "first_line": 850,
+      "last_line": 888,
+      "line_count": 39,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor._eigen": {
+      "first_line": 2120,
+      "last_line": 2220,
+      "line_count": 101,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor._index": {
+      "first_line": 2077,
+      "last_line": 2118,
+      "line_count": 42,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor.run_campbell": {
+      "first_line": 4312,
+      "last_line": 4481,
+      "line_count": 170,
+      "path": "ross/rotor_assembly.py"
+    },
+    "Rotor.run_modal": {
+      "first_line": 1272,
+      "last_line": 1430,
+      "line_count": 159,
+      "path": "ross/rotor_assembly.py"
+    },
+    "ShaftElement.G": {
+      "first_line": 977,
+      "last_line": 1075,
+      "line_count": 99,
+      "path": "ross/shaft_element.py"
+    },
+    "ShaftElement.K": {
+      "first_line": 714,
+      "last_line": 905,
+      "line_count": 192,
+      "path": "ross/shaft_element.py"
+    },
+    "ShaftElement.Kst": {
+      "first_line": 907,
+      "last_line": 946,
+      "line_count": 40,
+      "path": "ross/shaft_element.py"
+    },
+    "ShaftElement.M": {
+      "first_line": 515,
+      "last_line": 712,
+      "line_count": 198,
+      "path": "ross/shaft_element.py"
+    },
+    "ShaftElement.__init__": {
+      "first_line": 143,
+      "last_line": 308,
+      "line_count": 166,
+      "path": "ross/shaft_element.py"
+    },
+    "ShaftElement.dof_mapping": {
+      "first_line": 474,
+      "last_line": 513,
+      "line_count": 40,
+      "path": "ross/shaft_element.py"
+    },
+    "Shape.__init__": {
+      "first_line": 478,
+      "last_line": 517,
+      "line_count": 40,
+      "path": "ross/results.py"
+    },
+    "Shape._calculate_orbits": {
+      "first_line": 553,
+      "last_line": 574,
+      "line_count": 22,
+      "path": "ross/results.py"
+    },
+    "Shape._classify": {
+      "first_line": 519,
+      "last_line": 551,
+      "line_count": 33,
+      "path": "ross/results.py"
+    }
+  },
+  "generated_utc": "2026-10-01T09:29:13.849677+00:00",
+  "generator_head": "76466db4facfca79c26c83957b76009703d44bad",
+  "input_sha256": "52aa39163a9b5d7c6c8d38d3cbe6d8583818a46e5e330f35b00cedf356bcdfdd",
+  "metadata_files": {
+    "campbell/C01_mode_types.json": "19a0a50366223e7fa9574a7faadef16ecbef3455fc5e82d1cc15438afc5f2a7a",
+    "campbell/C01_tracking.json": "60e2c92f2bbd90e57d3c0a1ee9872d48baa12197446ba794d1212b377007471a",
+    "campbell/C02_mode_types.json": "19a0a50366223e7fa9574a7faadef16ecbef3455fc5e82d1cc15438afc5f2a7a",
+    "campbell/C02_tracking.json": "36cfbc6799da0819313aedda439dc9932507a20db7e0a76e236f5ffa746a9750",
+    "campbell/C03_mode_types.json": "19a0a50366223e7fa9574a7faadef16ecbef3455fc5e82d1cc15438afc5f2a7a",
+    "campbell/C03_tracking.json": "8a55700d8ad9b5a73f9b11de2208a4d7e8b81f34db486c95cd103c39ac47a744",
+    "campbell/C04_mode_types.json": "19a0a50366223e7fa9574a7faadef16ecbef3455fc5e82d1cc15438afc5f2a7a",
+    "campbell/C04_tracking.json": "d314de705d43a3ec30bac3101035730cdad56d656bf5589776e67e732daff6d1",
+    "cases.json": "be8f5c28814702f5e92b04c101aba372d19e6c667bba9a497d43ffa2aa79f67e",
+    "input_specification.json": "52aa39163a9b5d7c6c8d38d3cbe6d8583818a46e5e330f35b00cedf356bcdfdd",
+    "modal/M01_mode_types.json": "f7968ceb7179e409232e7cc970c7b6bb5e881d9930f51584371c298c0f4fd712",
+    "modal/M02_mode_types.json": "f7968ceb7179e409232e7cc970c7b6bb5e881d9930f51584371c298c0f4fd712",
+    "modal/M03_mode_types.json": "c2fcf9d45c0642132145392bfb7ea24fcb712f60bdb34f727e8bd4430151d7cb",
+    "modal/M04_mode_types.json": "f7968ceb7179e409232e7cc970c7b6bb5e881d9930f51584371c298c0f4fd712",
+    "modal/M05_mode_types.json": "f7968ceb7179e409232e7cc970c7b6bb5e881d9930f51584371c298c0f4fd712",
+    "modal/M06_mode_types.json": "f7968ceb7179e409232e7cc970c7b6bb5e881d9930f51584371c298c0f4fd712",
+    "modal/M07_mode_types.json": "f7968ceb7179e409232e7cc970c7b6bb5e881d9930f51584371c298c0f4fd712",
+    "modal/M08_mode_types.json": "f7968ceb7179e409232e7cc970c7b6bb5e881d9930f51584371c298c0f4fd712",
+    "pip-check.txt": "9261363b733079a641c2e4cc9bc46ffa1d8336945a87f807b6cf68847dbc9b09",
+    "requirements-freeze.txt": "83b35533895c6e1399eab6209d470604efae13aded093f50e54fdfafa5498aca",
+    "source_provenance.json": "8221004a2727ff21bb3bbcd27485689a9bdc267f021bf6ecb77ebacb201940da",
+    "source_ranges.json": "158535fe56ae789c2454887ce3c7ae6f736f880915bc55bdeec6971d18a27692",
+    "tolerances.json": "ffca7fcf20f8f683645653c4325e6f1acc46fcca4240d67764d99d7698d384ac"
+  },
+  "numpy": "2.5.3",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "policy_sha256": "ffca7fcf20f8f683645653c4325e6f1acc46fcca4240d67764d99d7698d384ac",
+  "python": "3.12.14 (main, Aug 13 2026, 02:47:42) [GCC 13.3.0]",
+  "ross_sha": "6320eab9f890f1b3cc1710d508b446fe063ca68d",
+  "schema_version": 1,
+  "scipy": "1.18.1",
+  "scope": "B2 frozen ROSS global 6DOF + dense modal + standard Campbell authority",
+  "source_file_count": 52
+}

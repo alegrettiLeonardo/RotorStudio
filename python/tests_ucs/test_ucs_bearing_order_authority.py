@@ -34,6 +34,20 @@ B1_PARITY_ADDITIVE_PATHS=(
     'validation/ross_parity/generate_6dof_elements_reference.py',
     'validation/ross_parity/verify_6dof_elements_candidate.py',
 )
+B2_AUTHORITY_FREEZE='d9be588c71bfd7116f61d1f5f5be3a2ee0e06726'
+B2_NATIVE_IMPLEMENTATION='e26a38e14e76f26541dbd028409bb378cf340096'
+B2_NATIVE_ADDITIONS={
+    'fortran/src/rd_6dof_assembly.f90',
+    'fortran/src/rd_6dof_modal.f90',
+    'fortran/src/rd_6dof_campbell.f90',
+    'fortran/src/rd_6dof_global_c_api.f90',
+    'fortran/tests/test_6dof_global.f90',
+}
+B2_PARITY_ADDITIVE_PATHS=(
+    'validation/ross_parity/6dof_global',
+    'validation/ross_parity/generate_6dof_global_reference.py',
+    'validation/ross_parity/verify_6dof_global_candidate.py',
+)
 A5_ADDITIVE_PATHS=(
     'validation/ross_parity/ucs_bearing_order',
     'validation/ross_parity/ucs_bearing_order_cases.py',
@@ -78,10 +92,13 @@ def _assert_native_baseline_unchanged():
     # The PR31-only whole-directory equality is stale on additive A8. Preserve
     # EVERY historical Fortran file, admitting only the three reviewed A8 files
     # and the exact already-published CMake integration. No solver is exempted.
-    allowed={path:'A' for path in A8_NATIVE_ADDITIONS|B1_NATIVE_ADDITIONS}
+    allowed={path:'A' for path in A8_NATIVE_ADDITIONS|B1_NATIVE_ADDITIONS|B2_NATIVE_ADDITIONS}
     allowed['fortran/CMakeLists.txt']='M'
     _assert_allowed_delta(_changed_status(BASE_SHA,'fortran'),allowed)
-    _git_diff_unchanged(B1_NATIVE_IMPLEMENTATION,'fortran/CMakeLists.txt',*sorted(B1_NATIVE_ADDITIONS))
+    _git_diff_unchanged(B1_NATIVE_IMPLEMENTATION,*sorted(B1_NATIVE_ADDITIONS))
+    _git_diff_unchanged(B2_NATIVE_IMPLEMENTATION,*sorted(B2_NATIVE_ADDITIONS))
+    from validation.b2.preservation import verify as verify_b2_preservation
+    assert verify_b2_preservation()['status']=='PASS'
 
 
 @pytest.mark.parametrize('row',[
@@ -95,14 +112,14 @@ def _assert_native_baseline_unchanged():
     'D\tvalidation/ross_parity/ucs/isotropic_constant.json',
 ])
 def test_preservation_scope_rejects_historical_changes(row):
-    allowed={path:'A' for path in A8_NATIVE_ADDITIONS|B1_NATIVE_ADDITIONS}
+    allowed={path:'A' for path in A8_NATIVE_ADDITIONS|B1_NATIVE_ADDITIONS|B2_NATIVE_ADDITIONS}
     allowed['fortran/CMakeLists.txt']='M'
     with pytest.raises(AssertionError):
         _assert_allowed_delta([row],allowed)
 
 
 def test_preservation_scope_accepts_only_declared_native_additions():
-    allowed={path:'A' for path in A8_NATIVE_ADDITIONS|B1_NATIVE_ADDITIONS}
+    allowed={path:'A' for path in A8_NATIVE_ADDITIONS|B1_NATIVE_ADDITIONS|B2_NATIVE_ADDITIONS}
     allowed['fortran/CMakeLists.txt']='M'
     _assert_allowed_delta([status+'\t'+path for path,status in allowed.items()],allowed)
 
@@ -186,6 +203,7 @@ def test_historical_goldens_and_unrelated_production_are_unchanged():
     additions=_snapshot_paths(A5_PROMOTED,A5_ADDITIVE_PATHS)
     additions+=_snapshot_paths(A8_PRE_RECONCILIATION,A8_ADDITIVE_PATHS)
     additions+=_snapshot_paths(B1_NATIVE_IMPLEMENTATION,B1_PARITY_ADDITIVE_PATHS)
+    additions+=_snapshot_paths(B2_AUTHORITY_FREEZE,B2_PARITY_ADDITIVE_PATHS)
     assert additions
     _assert_allowed_delta(_changed_status(BASE_SHA,'validation/ross_parity'),
                           {path:'A' for path in additions})
@@ -193,6 +211,7 @@ def test_historical_goldens_and_unrelated_production_are_unchanged():
     _git_diff_unchanged(A5_PROMOTED,*A5_ADDITIVE_PATHS)
     _git_diff_unchanged(A8_PRE_RECONCILIATION,'validation/ross_parity/clearance')
     _git_diff_unchanged(B1_NATIVE_IMPLEMENTATION,*B1_PARITY_ADDITIVE_PATHS)
+    _git_diff_unchanged(B2_AUTHORITY_FREEZE,*B2_PARITY_ADDITIVE_PATHS)
     _assert_native_baseline_unchanged()
     _git_diff_unchanged(BASE_SHA,
         'python/src/drm_core/solver/level1_backend.py',
