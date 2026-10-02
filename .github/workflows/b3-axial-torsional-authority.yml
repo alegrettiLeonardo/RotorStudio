@@ -1,0 +1,126 @@
+name: Freeze B3 Axial Torsional ROSS Authority
+
+on:
+  push:
+    branches: [feature/ross-analysis-b3-axial-torsional-workflows]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  OPENBLAS_NUM_THREADS: '1'
+  OMP_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+  PYTHONHASHSEED: '0'
+
+jobs:
+  candidate:
+    name: B3 authority candidate / ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Set deterministic Git bytes
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: petrobras/ross
+          ref: 6320eab9f890f1b3cc1710d508b446fe063ca68d
+          path: _ross_b3
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen ROSS and authority tools
+        run: |
+          python -m pip install -e ./_ross_b3 pytest
+          python -m pip check
+      - name: Generate B3 candidate
+        run: |
+          python validation/ross_parity/generate_axial_torsional_reference.py \
+            --ross-root _ross_b3 --out b3-evidence/candidate
+      - name: Self-check B3 candidate
+        run: |
+          python validation/ross_parity/verify_axial_torsional_candidate.py \
+            --candidate b3-evidence/candidate
+      - name: Pre-native B3 authority tests
+        run: python -m pytest validation/b3/tests -q --junitxml=b3-evidence/authority-tests.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b3-authority-${{ matrix.os }}-${{ github.sha }}
+          path: b3-evidence/
+          if-no-files-found: error
+          retention-days: 90
+
+  freeze:
+    name: B3 authority cross-platform freeze
+    needs: candidate
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Require both candidate platforms
+        env:
+          RESULT: ${{ needs.candidate.result }}
+        run: test "$RESULT" = success
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install numpy
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: b3-authority-*-${{ github.sha }}
+          path: b3-platforms
+      - name: Compare Linux and Windows candidates
+        run: |
+          python validation/ross_parity/verify_axial_torsional_candidate.py \
+            --reference "b3-platforms/b3-authority-ubuntu-24.04-${GITHUB_SHA}/candidate" \
+            --candidate "b3-platforms/b3-authority-windows-2025-${GITHUB_SHA}/candidate" \
+            --report b3-cross-platform.json
+      - name: Freeze or reproduce B3 authority
+        run: |
+          python validation/b3/freeze_authority.py \
+            --linux "b3-platforms/b3-authority-ubuntu-24.04-${GITHUB_SHA}/candidate" \
+            --windows "b3-platforms/b3-authority-windows-2025-${GITHUB_SHA}/candidate" \
+            --cross-report b3-cross-platform.json
+          if ! git diff --quiet -- validation/ross_parity/axial_torsional || \
+             test -n "$(git status --porcelain --untracked-files=all validation/ross_parity/axial_torsional)"; then
+            git config user.name "RotorStudio B3 Authority"
+            git config user.email "actions@users.noreply.github.com"
+            git add validation/ross_parity/axial_torsional
+            git commit -m "B3 authority: freeze axial/torsional ROSS reference"
+            git push origin "HEAD:feature/ross-analysis-b3-axial-torsional-workflows"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: b3-authority-freeze-${{ github.sha }}
+          path: |
+            b3-cross-platform.json
+            validation/ross_parity/axial_torsional/FREEZE_RECORD.json
+          if-no-files-found: error
+          retention-days: 90
