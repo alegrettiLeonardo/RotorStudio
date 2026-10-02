@@ -25,7 +25,7 @@ B1_IMMUTABLE_PATHS=(
 B1_VALIDATION_GATE_EXCEPTION="validation/b1/native_preservation.py"
 
 PINNED_B2_ADAPTER_BLOBS={
-    B1_VALIDATION_GATE_EXCEPTION:"35dc5865d3b12ccb690ca14a23e46981da1bdffb",
+    B1_VALIDATION_GATE_EXCEPTION:"7ec7d62572769a703dbb454eec45ff14d77b2c5c",
     "python/src/drm_core/__init__.py":"4aca4be955ef3e3e3e193a71805eaafec3a3b42f",
     "python/src/drm_core/solver/facade.py":"8a8e9b5ca7c2e6ddbf058461413ea910ee4de68e",
     "python/tests_ucs/test_ucs_bearing_order_authority.py":"9e7266c994bf95059bd833ee2d45f3a061f7fa03",
@@ -35,6 +35,8 @@ PINNED_B2_ADAPTER_BLOBS={
 B3_CONTROLLED_ADAPTERS=frozenset({
     "python/src/drm_core/__init__.py",
     "python/src/drm_core/solver/facade.py",
+    "python/tests_ucs/test_ucs_bearing_order_authority.py",
+    "scripts/verify_a1_legacy_preservation.py",
 })
 
 PROMOTED_PRODUCT_PATHS=(
