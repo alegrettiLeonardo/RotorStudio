@@ -54,6 +54,10 @@ C1_EXISTING_ADAPTERS={
     "python/src/drm_core/stage1.py":"f14d5319914c78fb0b886381724a61156d87186c",
     "python/src/drm_core/__init__.py":"ebc65952f507760b6332dd9e900fc31c8f14c002",
     "python/src/drm_core/solver/facade.py":"553d8e3ddb750346809bb1a7ebfe989fe04c7dc1",
+    "python/tests_ucs/test_ucs_bearing_order_authority.py":"7ef67fb7ed737e9bc0d8d8589ef7fddd6fef35ca",
+    "scripts/verify_a1_legacy_preservation.py":"426cff4348f08d479bbf3b927b5c57578c96a25c",
+    "validation/b2/preservation.py":"b171e94a3db8cd871fdcc8d53347429f740aa791",
+    "validation/b3/preservation.py":"c69b3fe6ef31b9c1aa9ede9a932d82d18e55113b",
 }
 
 ALLOWED_ADDITIVE_PREFIXES=(
