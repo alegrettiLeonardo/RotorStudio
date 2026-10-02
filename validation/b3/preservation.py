@@ -48,8 +48,10 @@ B3_EXISTING_ADAPTERS={
     "python/src/drm_core/stage1.py":"860143852ce441077ccaf328e9b830df9598dfee",
     "python/src/drm_core/__init__.py":"6d28515c6a3de947cc24cfe3d772ae0562a76ee6",
     "python/src/drm_core/solver/facade.py":"5d1886720fb40b26c4f4974ef3e125fdc6b86e98",
-    "validation/b1/native_preservation.py":"35dc5865d3b12ccb690ca14a23e46981da1bdffb",
-    "validation/b2/preservation.py":"cb8fbf0667e6a731fb66a9e912b75245723c5959",
+    "python/tests_ucs/test_ucs_bearing_order_authority.py":"d0be9bb5687d764bfd34bfbd1502776be46a35ed",
+    "scripts/verify_a1_legacy_preservation.py":"b5b27922fe0d27ab951f7a07c4ffc6c8d03e2fb0",
+    "validation/b1/native_preservation.py":"7ec7d62572769a703dbb454eec45ff14d77b2c5c",
+    "validation/b2/preservation.py":"7192a9179371bcb098c7dbd8155df926bf131134",
 }
 
 ALLOWED_ADDITIVE_PREFIXES=(
